@@ -14,7 +14,8 @@ Fotos, planilla de equipamiento y lista de ejercicios canónicos. Ver `05-releva
 - [x] Contrato del motor, ruleset provisorio, motor placeholder con tests
 - [x] Esquema completo con `gym_id` y RLS
 - [x] Cliente de Supabase, cola offline, PWA con service worker
-- [ ] Auth con Google y email + onboarding mínimo
+- [x] Auth con Google y email (routing, sesión, pantalla de acceso)
+- [ ] Onboarding mínimo (crea el `profile` y el primer `user_goal`)
 - [ ] Panel admin: alta de equipamiento con foto, ejercicios, mapeo
 - [ ] Catálogo de Blue Horse cargado
 
