@@ -1,9 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
+import { LogOut } from 'lucide-react';
 import { motion } from 'motion/react';
 import { MotionPreview } from './components/MotionPreview.tsx';
+import { useAuth } from './lib/auth/AuthProvider.tsx';
 import { activeRuleset, showsPlaceholderContent } from './lib/engine.ts';
 import { envError, isConfigured } from './lib/env.ts';
-import { fadeUp } from './lib/motion.ts';
+import { fadeUp, tappable } from './lib/motion.ts';
 import { pendingCount } from './lib/outbox.ts';
 import { checkConnection } from './lib/supabase.ts';
 
@@ -12,6 +14,7 @@ import { checkConnection } from './lib/supabase.ts';
  * real del esqueleto abajo. Se reemplaza por la pantalla "Hoy" en la fase 2.
  */
 export function App() {
+  const { user, signOut } = useAuth();
   const connection = useQuery({
     queryKey: ['health', 'supabase'],
     queryFn: checkConnection,
@@ -30,12 +33,24 @@ export function App() {
         variants={fadeUp}
         initial="hidden"
         animate="visible"
-        className="flex flex-col gap-1"
+        className="flex items-start justify-between gap-4"
       >
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">
-          Blue Horse Gym · Arroyo Seco
-        </p>
-        <h1 className="text-3xl font-bold tracking-tight">Push your limits</h1>
+        <div className="flex flex-col gap-1">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">
+            Blue Horse Gym · Arroyo Seco
+          </p>
+          <h1 className="text-3xl font-bold tracking-tight">Push your limits</h1>
+          {user?.email && <p className="text-xs text-slate">{user.email}</p>}
+        </div>
+        <motion.button
+          type="button"
+          {...tappable}
+          onClick={() => void signOut()}
+          className="mt-1 flex items-center gap-1.5 rounded-full border border-line px-3 py-2 text-xs font-semibold text-slate"
+        >
+          <LogOut size={13} aria-hidden="true" />
+          Salir
+        </motion.button>
       </motion.header>
 
       {showsPlaceholderContent && (
