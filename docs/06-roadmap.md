@@ -12,7 +12,8 @@ Fotos, planilla de equipamiento y lista de ejercicios canónicos. Ver `05-releva
 
 - [x] Monorepo, tooling, CI, hooks de git
 - [x] Contrato del motor, ruleset provisorio, motor placeholder con tests
-- [x] Esquema completo con `gym_id` y RLS
+- [x] Esquema completo con `gym_id` y RLS — **verificado contra Postgres real** (local, Docker):
+  20 tablas, RLS activo en todas, 26 políticas, seed aplicado limpio
 - [x] Cliente de Supabase, cola offline, PWA con service worker
 - [x] Auth con Google y email (routing, sesión, pantalla de acceso)
 - [x] Onboarding mínimo (wizard de 4 pasos, actualiza `profile` y crea el primer `user_goal`)
