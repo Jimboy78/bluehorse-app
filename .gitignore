@@ -45,3 +45,4 @@ npm-debug.log*
 claude_code_advanced_workflows_for_efficiency.md
 claude_code_token_context_optimization.md
 claude_md_best_practices_for_coding_projects.md
+.claude/scheduled_tasks.lock
