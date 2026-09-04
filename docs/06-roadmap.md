@@ -15,9 +15,10 @@ Fotos, planilla de equipamiento y lista de ejercicios canónicos. Ver `05-releva
 - [x] Esquema completo con `gym_id` y RLS
 - [x] Cliente de Supabase, cola offline, PWA con service worker
 - [x] Auth con Google y email (routing, sesión, pantalla de acceso)
-- [ ] Onboarding mínimo (crea el `profile` y el primer `user_goal`)
-- [ ] Panel admin: alta de equipamiento con foto, ejercicios, mapeo
-- [ ] Catálogo de Blue Horse cargado
+- [x] Onboarding mínimo (wizard de 4 pasos, actualiza `profile` y crea el primer `user_goal`)
+- [ ] Panel admin: alta de equipamiento con foto, ejercicios, mapeo — **con datos placeholder
+  mientras no esté el relevamiento real** (ver instrucción del usuario en `docs/ESTADO.md`)
+- [ ] Catálogo de Blue Horse cargado (bloqueado por Fase 0, no bloquea el resto del desarrollo)
 
 **Entregable**: el catálogo real, navegable desde la app.
 

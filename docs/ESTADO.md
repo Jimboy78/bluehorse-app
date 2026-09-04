@@ -7,51 +7,58 @@ puede leer desde cualquier sesión nueva. **Actualizalo al terminar una sesión 
 
 ## Última actualización: 4 de septiembre de 2026 (loop autónomo, corre cada 15 min)
 
+### Instrucción vigente del usuario — no bloquear por falta de catálogo
+
+El usuario pidió explícitamente: mientras no comparta las fotos/máquinas reales de Blue Horse
+(Fase 0), **seguir desarrollando con datos placeholder claramente marcados**, en vez de esperar.
+El aviso de "esto es un placeholder" tiene que apagarse solo cuando el dato real lo reemplace —
+mismo criterio que ya usa `showsPlaceholderContent` con el ruleset. Aplica sobre todo al próximo
+ítem: panel admin y catálogo.
+
+También pidió explícitamente: todo valor de prescripción de entrenamiento tiene que salir de
+`docs/research/`, nunca inventado. Ver la memoria `feedback_base_cientifica` para el detalle.
+
 ### Dónde quedó
 
-Fase 1 del roadmap, avanzando. Además del esqueleto (motor, esquema, PWA):
+Fase 1 del roadmap, bien avanzada:
 
-- **Sistema de movimiento** (`apps/web/src/lib/motion.ts`): duraciones, curvas y resortes con
-  nombre, para no tener animaciones sueltas por componente. Componentes reales construidos sobre
-  él: `RestTimer` (cronómetro con anillo de progreso), `SetRow` (confirmar serie de un toque),
-  celebración de récord con `canvas-confetti`. Todo respeta `prefers-reduced-motion`.
-- **Auth**: routing con `react-router` (`/auth` público, `/` protegido), `AuthProvider` con tres
-  estados reales (`unconfigured` / `signed-out` / `signed-in`) para que un `.env` incompleto se
-  muestre en pantalla en vez de romper la app. Google OAuth + email/contraseña. Errores de
-  Supabase traducidos a castellano con una función pura y testeada.
-- **Investigación de contenido, segunda tanda**: reemplazó la primera (130 videos de YouTube, 0
-  datos usables) por prompts que fuerzan fuentes revisadas por pares. Resultado en
-  `docs/research/`: 01 y 03 son curables directo al ruleset, 02 necesita extender el esquema para
-  cardio, 04 (seguridad) es la más floja y necesita otra pasada antes de un socio real.
-- **Marca**: paleta real del ícono de Blue Horse extraída por píxel (`docs/07-marca-blue-horse.md`)
-  — es azul sobre negro puro, sin turquesa ni naranja. Contradice la paleta que ya está en
-  `styles.css` (turquesa/naranja), que salía de una descripción no verificada. **Decisión de
-  paleta pendiente del usuario**, documentada, no resuelta unilateralmente.
+- Motor, esquema con RLS, PWA con service worker y cola offline — de sesiones anteriores.
+- **Sistema de movimiento** y componentes reales (`RestTimer`, `SetRow`, celebración de récord).
+- **Auth**: Google + email, routing protegido, 3 estados reales.
+- **Onboarding**: wizard de 4 pasos (objetivo/deporte → personal → frecuencia → calibración),
+  guardado por `RequireOnboarding`. No pide baseline por ejercicio todavía — el catálogo no existe,
+  así que solo guarda la preferencia declarado/calibrar.
+- **Deploy de prueba en vivo**: <https://bluehorse-app.vercel.app> — se redeploya solo con cada
+  push a `main`. Configuración de monorepo (Root Directory, comandos) resuelta y guardada en
+  `vercel.json`.
+- Investigación de contenido (segunda tanda) revisada — ver `docs/research/README.md`.
+- Paleta del logo real extraída por píxel — decisión de diseño pendiente del usuario, ver
+  `docs/07-marca-blue-horse.md`.
 
 ### Verificado
 
-`npm run check` (lint + typecheck + 33 tests) pasa. Probado en navegador (Chrome vía
-claude-in-chrome): `/auth` renderiza, el toggle entrar/crear cuenta anima bien, los campos
-deshabilitan correctamente sin Supabase configurado, `/` redirige según estado de sesión.
+`npm run check` (lint + typecheck + **45 tests**) pasa. Onboarding probado en navegador local
+(`localhost:5173`, no en el deploy de Vercel — el usuario pidió usar el entorno local para
+verificar cambios): los 4 pasos renderizan y navegan bien. **La escritura real a Supabase no está
+probada** — no hay una instancia corriendo todavía (ni local con Docker, ni de nube).
 
 ### Lo próximo, en orden
 
-1. **Onboarding mínimo**: crear `profile` + primer `user_goal` al primer login. Los 5 pasos están
-   documentados en el artifact de diseño: objetivo/deporte → edad/sexo/nivel → frecuencia →
-   ¿sabés cuánto levantás o calibramos?
-2. Levantar Supabase local (`npm run db:start`, necesita Docker) y aplicar el esquema — sigue sin
-   probarse contra una base real.
-3. Panel admin para cargar el catálogo.
-4. Decisión de paleta (ver `docs/07-marca-blue-horse.md`) — bloqueada, es del usuario.
+1. **Panel admin + catálogo con placeholders**: no esperar el relevamiento real. Cargar
+   equipamiento/ejercicios de ejemplo, claramente marcados ("Ejemplo — Prensa 45°" o similar), para
+   poder construir generación de plan y pantalla de sesión contra datos reales de la base (aunque
+   el contenido sea de mentira). Cuando llegue el relevamiento real, reemplaza y el aviso de
+   placeholder se apaga solo.
+2. Levantar Supabase (local con Docker, o de nube) para probar el flujo de escritura real por
+   primera vez — sigue pendiente.
+3. Generación de plan persistida + pantalla "Hoy" (Fase 2).
+4. Decisión de paleta (`docs/07-marca-blue-horse.md`) — bloqueada, es del usuario.
 
 ### Trabas conocidas
 
-- **Node**: el sistema tiene 22.3.0. Hay un Node 24.20.0 portable en `%LOCALAPPDATA%\node24` —
-  hay que anteponerlo al PATH en cada sesión de shell nueva.
-- El bundle de producción crece con cada feature (motion + auth ya suman peso). Cuando existan
-  rutas reales de fase 2, separar por `React.lazy()` en vez de un solo bundle.
-- El catálogo de Blue Horse sigue sin cargar: sin eso el motor no puede armar una sesión real, y
-  el onboarding no tiene equipamiento real contra el cual calibrar.
+- **Node**: el sistema tiene 22.3.0. Node 24.20.0 portable en `%LOCALAPPDATA%\node24` — anteponer
+  al PATH en cada sesión de shell nueva.
+- El bundle de producción crece con cada feature. Separar por rutas con `React.lazy()` cuando
+  existan pantallas reales de fase 2.
 - Loop autónomo corriendo cada 15 min (`CronCreate` job `f04a93b3`, session-only, expira en 7 días
-  o al cerrar esta sesión). Si esta sesión se cierra, el loop se corta — no hay trabajo en curso
-  perdido porque cada pasada cierra con commit.
+  o al cerrar esta sesión).
