@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Blue Horse">
+  <rect width="512" height="512" rx="96" fill="#0b1a2b"/>
+  <circle cx="256" cy="256" r="176" fill="none" stroke="#f2622e" stroke-width="16"/>
+  <path d="M196 356V236c0-46 34-84 80-84h40l-24-44 62 30 22-30v52c0 62-46 96-100 96h-20v100z" fill="#2ec4b6"/>
+  <circle cx="330" cy="188" r="10" fill="#0b1a2b"/>
+</svg>

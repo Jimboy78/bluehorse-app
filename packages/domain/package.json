@@ -1,0 +1,14 @@
+{
+  "name": "@bh/domain",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Tipos, enums y unidades del dominio. No depende de nada del proyecto.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "dependencies": {
+    "zod": "4.5.4"
+  }
+}

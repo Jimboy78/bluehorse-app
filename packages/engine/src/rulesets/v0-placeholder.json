@@ -1,0 +1,224 @@
+{
+  "version": "v0-placeholder",
+  "source": "placeholder",
+  "notes": [
+    "TODOS los valores de este archivo son provisorios y NO constituyen una prescripción de ejercicio válida.",
+    "Existen para que la app funcione de punta a punta mientras se termina la investigación de contenido.",
+    "Reemplazar por un ruleset con source: 'research' antes de que lo use una persona que no seas vos.",
+    "El bloque de cardio y endurance usa la misma forma que fuerza (series y repeticiones) por comodidad del MVP: la forma real (intervalos, zonas, duración) se define cuando esté el research de cardio y hay que extender el contrato."
+  ],
+  "planning": {
+    "sessionsAhead": 8
+  },
+  "prescription": {
+    "hypertrophy": {
+      "default": {
+        "primary": { "sets": 3, "repsMin": 8, "repsMax": 12, "rirTarget": 2, "restSeconds": 120 },
+        "secondary": { "sets": 3, "repsMin": 10, "repsMax": 15, "rirTarget": 2, "restSeconds": 90 },
+        "isolation": { "sets": 2, "repsMin": 12, "repsMax": 15, "rirTarget": 1, "restSeconds": 60 },
+        "progression": { "stepPct": 2.5, "triggerRirAtLeast": 3, "consecutiveSessions": 2 },
+        "regression": { "stepPct": 10, "missedRepsSessions": 2 },
+        "deload": { "stallSessions": 3, "absenceDays": 14, "volumeMultiplier": 0.6 }
+      },
+      "byLevel": {
+        "beginner": {
+          "primary": { "sets": 2, "repsMin": 10, "repsMax": 12, "rirTarget": 3, "restSeconds": 120 },
+          "secondary": { "sets": 2, "repsMin": 10, "repsMax": 15, "rirTarget": 3, "restSeconds": 90 },
+          "isolation": { "sets": 2, "repsMin": 12, "repsMax": 15, "rirTarget": 3, "restSeconds": 60 },
+          "progression": { "stepPct": 2.5, "triggerRirAtLeast": 4, "consecutiveSessions": 2 }
+        }
+      }
+    },
+    "strength": {
+      "default": {
+        "primary": { "sets": 4, "repsMin": 3, "repsMax": 6, "rirTarget": 2, "restSeconds": 180 },
+        "secondary": { "sets": 3, "repsMin": 6, "repsMax": 8, "rirTarget": 2, "restSeconds": 150 },
+        "isolation": { "sets": 2, "repsMin": 8, "repsMax": 12, "rirTarget": 2, "restSeconds": 90 },
+        "progression": { "stepPct": 2.5, "triggerRirAtLeast": 3, "consecutiveSessions": 2 },
+        "regression": { "stepPct": 10, "missedRepsSessions": 2 },
+        "deload": { "stallSessions": 3, "absenceDays": 14, "volumeMultiplier": 0.5 }
+      },
+      "byLevel": {
+        "beginner": {
+          "primary": { "sets": 3, "repsMin": 5, "repsMax": 8, "rirTarget": 3, "restSeconds": 150 },
+          "progression": { "stepPct": 5, "triggerRirAtLeast": 3, "consecutiveSessions": 1 }
+        }
+      }
+    },
+    "power": {
+      "default": {
+        "primary": { "sets": 4, "repsMin": 2, "repsMax": 5, "rirTarget": 3, "restSeconds": 180 },
+        "secondary": { "sets": 3, "repsMin": 5, "repsMax": 8, "rirTarget": 2, "restSeconds": 150 },
+        "isolation": { "sets": 2, "repsMin": 8, "repsMax": 12, "rirTarget": 2, "restSeconds": 90 },
+        "progression": { "stepPct": 2.5, "triggerRirAtLeast": 4, "consecutiveSessions": 2 },
+        "regression": { "stepPct": 10, "missedRepsSessions": 2 },
+        "deload": { "stallSessions": 2, "absenceDays": 10, "volumeMultiplier": 0.5 }
+      }
+    },
+    "recomposition": {
+      "default": {
+        "primary": { "sets": 3, "repsMin": 8, "repsMax": 12, "rirTarget": 2, "restSeconds": 120 },
+        "secondary": { "sets": 3, "repsMin": 10, "repsMax": 15, "rirTarget": 2, "restSeconds": 75 },
+        "isolation": { "sets": 2, "repsMin": 12, "repsMax": 20, "rirTarget": 1, "restSeconds": 45 },
+        "progression": { "stepPct": 2.5, "triggerRirAtLeast": 3, "consecutiveSessions": 2 },
+        "regression": { "stepPct": 10, "missedRepsSessions": 2 },
+        "deload": { "stallSessions": 4, "absenceDays": 14, "volumeMultiplier": 0.7 }
+      }
+    },
+    "endurance": {
+      "default": {
+        "primary": { "sets": 3, "repsMin": 15, "repsMax": 20, "rirTarget": 3, "restSeconds": 60 },
+        "secondary": { "sets": 3, "repsMin": 15, "repsMax": 25, "rirTarget": 3, "restSeconds": 45 },
+        "isolation": { "sets": 2, "repsMin": 15, "repsMax": 25, "rirTarget": 2, "restSeconds": 30 },
+        "progression": { "stepPct": 2.5, "triggerRirAtLeast": 4, "consecutiveSessions": 3 },
+        "regression": { "stepPct": 10, "missedRepsSessions": 3 },
+        "deload": { "stallSessions": 4, "absenceDays": 14, "volumeMultiplier": 0.7 }
+      }
+    },
+    "cardio": {
+      "default": {
+        "primary": { "sets": 1, "repsMin": 20, "repsMax": 40, "rirTarget": null, "restSeconds": 0 },
+        "secondary": { "sets": 4, "repsMin": 1, "repsMax": 4, "rirTarget": null, "restSeconds": 120 },
+        "isolation": { "sets": 2, "repsMin": 10, "repsMax": 15, "rirTarget": 2, "restSeconds": 60 },
+        "progression": { "stepPct": 5, "triggerRirAtLeast": 4, "consecutiveSessions": 3 },
+        "regression": { "stepPct": 10, "missedRepsSessions": 3 },
+        "deload": { "stallSessions": 4, "absenceDays": 14, "volumeMultiplier": 0.7 }
+      }
+    }
+  },
+  "templates": [
+    {
+      "id": "full_body_ab",
+      "label": "Cuerpo completo A/B",
+      "goals": ["hypertrophy", "strength", "power", "recomposition", "endurance"],
+      "sessionsPerWeek": [2, 3],
+      "sessions": [
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "estimatedMinutes": 55,
+          "slots": [
+            { "pattern": "squat", "role": "primary" },
+            { "pattern": "horizontal_push", "role": "primary" },
+            { "pattern": "horizontal_pull", "role": "secondary" },
+            { "pattern": "vertical_push", "role": "secondary" },
+            { "pattern": "core", "role": "isolation" }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "estimatedMinutes": 55,
+          "slots": [
+            { "pattern": "hinge", "role": "primary" },
+            { "pattern": "vertical_pull", "role": "primary" },
+            { "pattern": "lunge", "role": "secondary" },
+            { "pattern": "horizontal_pull", "role": "secondary" },
+            { "pattern": "isolation", "role": "isolation" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "upper_lower",
+      "label": "Torso / pierna",
+      "goals": ["hypertrophy", "strength", "recomposition"],
+      "sessionsPerWeek": [4, 6],
+      "sessions": [
+        {
+          "label": "Torso A",
+          "focus": "Torso · empuje",
+          "estimatedMinutes": 60,
+          "slots": [
+            { "pattern": "horizontal_push", "role": "primary" },
+            { "pattern": "vertical_pull", "role": "primary" },
+            { "pattern": "vertical_push", "role": "secondary" },
+            { "pattern": "horizontal_pull", "role": "secondary" },
+            { "pattern": "isolation", "role": "isolation" }
+          ]
+        },
+        {
+          "label": "Pierna A",
+          "focus": "Tren inferior",
+          "estimatedMinutes": 60,
+          "slots": [
+            { "pattern": "squat", "role": "primary" },
+            { "pattern": "hinge", "role": "primary" },
+            { "pattern": "lunge", "role": "secondary" },
+            { "pattern": "core", "role": "isolation" }
+          ]
+        },
+        {
+          "label": "Torso B",
+          "focus": "Torso · tracción",
+          "estimatedMinutes": 60,
+          "slots": [
+            { "pattern": "horizontal_pull", "role": "primary" },
+            { "pattern": "horizontal_push", "role": "primary" },
+            { "pattern": "vertical_pull", "role": "secondary" },
+            { "pattern": "isolation", "role": "isolation" }
+          ]
+        },
+        {
+          "label": "Pierna B",
+          "focus": "Tren inferior · cadena posterior",
+          "estimatedMinutes": 60,
+          "slots": [
+            { "pattern": "hinge", "role": "primary" },
+            { "pattern": "squat", "role": "secondary" },
+            { "pattern": "lunge", "role": "secondary" },
+            { "pattern": "core", "role": "isolation" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cardio_base",
+      "label": "Base aeróbica",
+      "goals": ["cardio", "endurance", "recomposition"],
+      "sessionsPerWeek": [3, 5],
+      "sessions": [
+        {
+          "label": "Continuo",
+          "focus": "Aeróbico continuo",
+          "estimatedMinutes": 40,
+          "slots": [
+            { "pattern": "cardio", "role": "primary" },
+            { "pattern": "core", "role": "isolation" }
+          ]
+        },
+        {
+          "label": "Intervalos",
+          "focus": "Intervalos",
+          "estimatedMinutes": 35,
+          "slots": [
+            { "pattern": "cardio", "role": "secondary" },
+            { "pattern": "core", "role": "isolation" }
+          ]
+        },
+        {
+          "label": "Fuerza de sostén",
+          "focus": "Fuerza general",
+          "estimatedMinutes": 45,
+          "slots": [
+            { "pattern": "squat", "role": "secondary" },
+            { "pattern": "horizontal_pull", "role": "secondary" },
+            { "pattern": "horizontal_push", "role": "secondary" },
+            { "pattern": "core", "role": "isolation" }
+          ]
+        }
+      ]
+    }
+  ],
+  "substitution": {
+    "minEquivalence": 0.5,
+    "patternWeight": 0.4,
+    "muscleWeight": 0.6,
+    "maxOptions": 3
+  },
+  "rationale": {
+    "primary": "{exercise} va primero: es el ejercicio más demandante de la sesión y conviene hacerlo descansado.",
+    "secondary": "{exercise} suma volumen sobre el mismo patrón, con menos carga y más repeticiones.",
+    "isolation": "{exercise} cierra la sesión: aísla un grupo puntual y no compromete el resto."
+  }
+}

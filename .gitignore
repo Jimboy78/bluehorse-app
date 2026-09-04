@@ -1,0 +1,47 @@
+# dependencias
+node_modules/
+.npm/
+
+# builds
+dist/
+dist-ssr/
+build/
+*.local
+
+# entorno — NUNCA commitear claves
+.env
+.env.*
+!.env.example
+
+# supabase local
+supabase/.temp/
+supabase/.branches/
+
+# editores
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+
+# sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# tests / cobertura
+coverage/
+.vitest/
+
+# fotos crudas del relevamiento (pesadas; van a Supabase Storage)
+docs/relevamiento/fotos-crudas/
+*.HEIC
+
+# logs
+*.log
+npm-debug.log*
+
+# material de referencia personal (transcripciones, ~1,3 MB) — no va al repo
+claude_code_advanced_workflows_for_efficiency.md
+claude_code_token_context_optimization.md
+claude_md_best_practices_for_coding_projects.md

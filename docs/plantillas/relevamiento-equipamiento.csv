@@ -1,0 +1,6 @@
+id_interno,nombre,categoria,marca,modelo,unidad_carga,carga_min,carga_max,incremento,valores_stack,peso_base_kg,cantidad,sector,notas_setup,foto
+PR-01,Prensa 45 grados,plate_loaded,,,plates_kg,0,300,10,,25,1,fondo derecha,asiento con 5 posiciones,PR-01.jpg
+POL-01,Dorsalera,selectorized,,,stack_level,1,12,1,5;10;15;20;25;30;35;40;45;50;55;60,,1,pared izquierda,rodillera regulable,POL-01.jpg
+BAN-01,Banco plano,rack,,,none,,,,,,3,centro,,BAN-01.jpg
+MAN-01,Mancuernas,free_weight,,,kg,2,40,2,,,1,rack de mancuernas,,MAN-01.jpg
+CIN-01,Cinta,cardio,,,none,,,,,,4,frente ventanales,,CIN-01.jpg

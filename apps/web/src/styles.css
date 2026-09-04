@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+/**
+ * Paleta tomada del branding real de Blue Horse: azul marino dominante,
+ * acento turquesa, naranja del logo. El ámbar queda reservado para marcar
+ * contenido provisorio, así que no se usa como color decorativo.
+ */
+@theme {
+  --color-navy: #0b1a2b;
+  --color-navy-soft: #142942;
+  --color-ink: #eaf0f8;
+  --color-slate: #93a4bd;
+  --color-line: #22364f;
+  --color-teal: #2ec4b6;
+  --color-amber: #f0a03c;
+  --color-orange: #f2622e;
+
+  --font-sans: "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+html {
+  color-scheme: dark;
+  /* Evita el zoom accidental al tocar un input con el celular en la mano. */
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--color-navy);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  /* La app se usa parado, con el teléfono en una mano: sin rebote horizontal. */
+  overscroll-behavior-x: none;
+}
+
+/* Objetivos táctiles mínimos: se usa con las manos sudadas, entre series. */
+button,
+[role="button"],
+a {
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+/* biome-ignore-all lint/complexity/noImportantStyles: es la forma estándar de
+   respetar "reducir movimiento"; tiene que ganarle a cualquier animación. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
