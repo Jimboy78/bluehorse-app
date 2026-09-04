@@ -3,53 +3,30 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useState } from 'react';
 import { celebratePersonalRecord } from '../lib/celebrate.ts';
 import { listContainer, listItem, screen, spring, tappable } from '../lib/motion.ts';
+import { useTodaySession } from '../lib/use-today-session.ts';
 import { RestTimer } from './RestTimer.tsx';
 import { SetRow } from './SetRow.tsx';
 
 /**
- * VISTA PREVIA DEL SISTEMA DE MOVIMIENTO — no es una pantalla del producto.
- *
- * Existe para poder ver y ajustar el lenguaje de animación antes de construir
- * las pantallas reales. Los datos son de ejemplo y están marcados como tales:
- * el catálogo real de Blue Horse todavía no está cargado.
+ * Vista previa de la sesión de hoy — usa el motor de prescripción REAL
+ * (`packages/engine`) contra un gimnasio de ejemplo (`lib/placeholder-gym.ts`),
+ * no datos hardcodeados. Cuando el catálogo real de Blue Horse se cargue, esta
+ * misma pantalla pasa a mostrar equipamiento real sin cambiar su código: solo
+ * cambia de dónde sale el `gym`/`user` que recibe el motor.
  */
-
-const EJERCICIOS_DE_EJEMPLO = [
-  {
-    id: 'a',
-    nombre: 'Prensa 45°',
-    carga: '80 kg',
-    series: 3,
-    reps: '8-12',
-    sector: 'fondo derecha',
-  },
-  { id: 'b', nombre: 'Press de banco', carga: '45 lb', series: 3, reps: '8-12', sector: 'centro' },
-  { id: 'c', nombre: 'Remo sentado', carga: 'pin 7', series: 3, reps: '10-15', sector: 'poleas' },
-  {
-    id: 'd',
-    nombre: 'Press de hombro',
-    carga: '30 kg',
-    series: 3,
-    reps: '10-15',
-    sector: 'centro',
-  },
-  {
-    id: 'e',
-    nombre: 'Plancha',
-    carga: 'peso corporal',
-    series: 2,
-    reps: '40 s',
-    sector: 'colchonetas',
-  },
-];
-
 export function MotionPreview() {
-  const [activo, setActivo] = useState<string | null>(null);
+  const todaySession = useTodaySession();
+  const [activeExerciseId, setActiveExerciseId] = useState<string | null>(null);
   const [seriesHechas, setSeriesHechas] = useState<number[]>([]);
   const [descansando, setDescansando] = useState(false);
   const reduceMotion = useReducedMotion();
 
-  const ejercicio = EJERCICIOS_DE_EJEMPLO.find((e) => e.id === activo);
+  if (!todaySession) {
+    return <p className="text-sm text-slate">El motor no pudo generar una sesión de ejemplo.</p>;
+  }
+
+  const ejercicio = todaySession.items.find((e) => e.exerciseId === activeExerciseId);
+  const restSeconds = 12; // fijo en la vista previa para poder probar la animación rápido
 
   function alternarSerie(indice: number) {
     setSeriesHechas((previas) => {
@@ -67,7 +44,7 @@ export function MotionPreview() {
           <motion.section key="detalle" {...screen} className="flex flex-col gap-5">
             <div className="flex items-start justify-between gap-4">
               <div className="flex flex-col gap-1">
-                <h2 className="text-2xl font-bold tracking-tight">{ejercicio.nombre}</h2>
+                <h2 className="text-2xl font-bold tracking-tight">{ejercicio.name}</h2>
                 <p className="flex items-center gap-1.5 text-sm text-slate">
                   <MapPin size={14} aria-hidden="true" />
                   {ejercicio.sector}
@@ -77,7 +54,7 @@ export function MotionPreview() {
                 type="button"
                 {...tappable}
                 onClick={() => {
-                  setActivo(null);
+                  setActiveExerciseId(null);
                   setSeriesHechas([]);
                   setDescansando(false);
                 }}
@@ -87,13 +64,17 @@ export function MotionPreview() {
               </motion.button>
             </div>
 
+            <p className="rounded-lg bg-navy-soft px-3.5 py-2.5 text-xs text-slate">
+              {ejercicio.rationale}
+            </p>
+
             {descansando ? (
               <motion.div
                 key="timer"
                 {...screen}
                 className="rounded-2xl border border-line bg-navy-soft px-4 py-8"
               >
-                <RestTimer prescribedSeconds={12} onFinish={() => setDescansando(false)} />
+                <RestTimer prescribedSeconds={restSeconds} onFinish={() => setDescansando(false)} />
               </motion.div>
             ) : (
               <motion.div
@@ -106,7 +87,7 @@ export function MotionPreview() {
                   <motion.div key={id} variants={listItem}>
                     <SetRow
                       index={i}
-                      targetLoad={ejercicio.carga}
+                      targetLoad={ejercicio.load}
                       targetReps={ejercicio.reps}
                       done={seriesHechas.includes(i)}
                       onToggle={() => alternarSerie(i)}
@@ -119,7 +100,10 @@ export function MotionPreview() {
         ) : (
           <motion.section key="lista" {...screen} className="flex flex-col gap-4">
             <div className="flex items-baseline justify-between gap-3">
-              <h2 className="text-2xl font-bold tracking-tight">Hoy te toca</h2>
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight">Hoy te toca</h2>
+                <p className="text-xs text-slate">{todaySession.focus}</p>
+              </div>
               <span className="flex items-center gap-1.5 text-xs uppercase tracking-[0.14em] text-slate">
                 <Flame size={13} aria-hidden="true" />
                 racha 4
@@ -132,21 +116,21 @@ export function MotionPreview() {
               animate="visible"
               className="flex flex-col gap-2.5"
             >
-              {EJERCICIOS_DE_EJEMPLO.map((e, i) => (
-                <motion.li key={e.id} variants={listItem}>
+              {todaySession.items.map((e, i) => (
+                <motion.li key={e.exerciseId} variants={listItem}>
                   <motion.button
                     type="button"
                     {...tappable}
-                    onClick={() => setActivo(e.id)}
+                    onClick={() => setActiveExerciseId(e.exerciseId)}
                     className="flex w-full items-center gap-3.5 rounded-xl border border-line bg-navy-soft px-4 py-3.5 text-left"
                   >
                     <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-navy text-teal">
                       <Dumbbell size={18} aria-hidden="true" />
                     </span>
                     <span className="flex flex-1 flex-col">
-                      <span className="font-semibold">{e.nombre}</span>
+                      <span className="font-semibold">{e.name}</span>
                       <span className="font-mono text-xs text-slate">
-                        {e.series} × {e.reps} · {e.carga}
+                        {e.sets} × {e.reps} · {e.load}
                       </span>
                     </span>
                     {i === 0 && (
@@ -158,6 +142,14 @@ export function MotionPreview() {
                 </motion.li>
               ))}
             </motion.ul>
+
+            {todaySession.warnings.length > 0 && (
+              <ul className="flex flex-col gap-1 text-xs text-amber">
+                {todaySession.warnings.map((w) => (
+                  <li key={w}>{w}</li>
+                ))}
+              </ul>
+            )}
 
             <p className="text-xs text-slate">
               El orden es una sugerencia: tocá el que esté libre. Si una máquina está ocupada, la
@@ -181,17 +173,17 @@ export function MotionPreview() {
 
       <p className="flex items-start gap-2 text-xs text-slate">
         <Timer size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
-        Tocá un ejercicio, confirmá una serie y aparece el cronómetro de descanso (12 s en esta
-        vista previa; en la app real sale del plan).
+        Tocá un ejercicio, confirmá una serie y aparece el cronómetro de descanso ({restSeconds} s
+        acá para poder probarlo rápido; en la sesión real dura lo que indique el plan).
       </p>
     </div>
   );
 }
 
 /** Identidad estable por serie: la posición no alcanza como clave de React. */
-function seriesDe(ejercicio: { id: string; series: number }) {
-  return Array.from({ length: ejercicio.series }, (_, numero) => ({
-    id: `${ejercicio.id}-serie-${numero + 1}`,
+function seriesDe(ejercicio: { exerciseId: string; sets: number }) {
+  return Array.from({ length: ejercicio.sets }, (_, numero) => ({
+    id: `${ejercicio.exerciseId}-serie-${numero + 1}`,
     numero,
   }));
 }
