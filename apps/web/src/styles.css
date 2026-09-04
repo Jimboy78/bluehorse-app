@@ -40,13 +40,13 @@ a {
   touch-action: manipulation;
 }
 
-/* biome-ignore-all lint/complexity/noImportantStyles: es la forma estándar de
-   respetar "reducir movimiento"; tiene que ganarle a cualquier animación. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: respetar "reducir movimiento" tiene que ganarle a cualquier animación. */
     animation-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: idem. */
     transition-duration: 0.01ms !important;
   }
 }
