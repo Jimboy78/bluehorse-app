@@ -14,15 +14,18 @@ migraciones se generan a partir de ellos. Nunca al revés.
    que las dependencias tienen que respetarlo (`01_types` antes que `03_catalog`).
 2. **Columnas nuevas van al final de la tabla.** Insertarlas en el medio genera diffs enormes y
    rompe las vistas.
-3. Generá la migración:
+3. Generá y aplicá la migración en un paso:
    ```bash
-   npm run db:diff -- nombre_descriptivo_en_snake_case
+   npm run db:sync
    ```
-4. **Leé la migración generada** antes de aplicarla. Un `drop column` o un `alter type` sobre datos
-   existentes es destructivo y la CLI no te va a avisar.
-5. Aplicala y verificá:
+   (`supabase db schema declarative sync --apply`). **Ojo**: en CLI ≥ 2.116 `supabase db diff` dejó
+   de leer `schema_paths` — ese comando ahora compara contra las migraciones ya aplicadas, no contra
+   los archivos declarativos. El comando correcto es este, no `db diff`.
+4. **Leé el archivo nuevo en `supabase/migrations/`** después de correr `db:sync`. Un `drop column`
+   o un `alter type` sobre datos existentes es destructivo y la CLI no te avisa.
+5. Verificá:
    ```bash
-   npm run db:reset      # recrea la base local desde schemas/ + seed.sql
+   npm run db:reset      # recrea la base local desde migrations/ + seed.sql
    npm run db:types      # regenera los tipos de TypeScript
    npm run check
    ```
@@ -30,8 +33,8 @@ migraciones se generan a partir de ellos. Nunca al revés.
 ## Lo que no se hace nunca
 
 - Editar a mano un archivo de `supabase/migrations/`. Ya se aplicó en algún lado.
-- Tocar la base desde el SQL editor de Studio: `db diff` compara contra los archivos de `schemas/`,
-  no contra la base, así que ese cambio se pierde en el próximo diff.
+- Tocar la base desde el SQL editor de Studio: `db:sync` compara contra los archivos de `schemas/`,
+  no contra lo que se tocó a mano en Studio, así que ese cambio se pierde en el próximo sync.
 - Crear una tabla de negocio sin `gym_id`.
 - Crear una tabla sin `enable row level security` y sin políticas. Una tabla con RLS activo y sin
   políticas no devuelve nada; una tabla sin RLS la lee cualquiera con la clave anon.

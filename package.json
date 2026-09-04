@@ -26,7 +26,7 @@
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
-    "db:diff": "supabase db diff -f",
+    "db:sync": "supabase db schema declarative sync --apply",
     "db:types": "supabase gen types typescript --local > packages/domain/src/database.types.ts",
     "db:ruleset": "node scripts/push-ruleset.mjs",
     "prepare": "lefthook install"

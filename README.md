@@ -13,21 +13,19 @@ Necesitás **Node 22.12 o mayor** (probado con 24 LTS) y, para la base local, **
 
 ```bash
 npm install
-cp .env.example .env      # completá las variables
+cp .env.example .env      # completá las variables (npm run db:start te las imprime)
 
-npx supabase init         # una sola vez: genera supabase/config.toml
+npx supabase init         # una sola vez: genera supabase/config.toml (ya versionado en el repo)
 npm run db:start          # levanta Postgres local e imprime las claves
-npm run db:reset          # aplica supabase/schemas/ + seed.sql
+npm run db:sync           # genera y aplica la migración inicial desde supabase/schemas/
+npm run db:reset          # aplica migrations/ + seed.sql desde cero, para verificar
 
 npm run dev               # http://localhost:5173
 ```
 
-Para que la CLI use los esquemas declarativos, `supabase/config.toml` necesita:
-
-```toml
-[db.migrations]
-schema_paths = ["./schemas/*.sql"]
-```
+`supabase/config.toml` ya tiene `schema_paths = ["./schemas/*.sql"]` configurado — no hace falta
+tocarlo. Ese setting le dice a `db:sync` (no a `db diff`, que en CLI ≥ 2.116 dejó de leerlo) dónde
+están los esquemas declarativos.
 
 ## Comandos
 
@@ -36,8 +34,8 @@ schema_paths = ["./schemas/*.sql"]
 | `npm run dev` | PWA en `:5173` |
 | `npm run check` | lint + typecheck + tests |
 | `npm run build` | build de producción con service worker |
-| `npm run db:reset` | recrea la base local desde `schemas/` + `seed.sql` |
-| `npm run db:diff -- nombre` | genera una migración desde los esquemas |
+| `npm run db:reset` | recrea la base local desde `migrations/` + `seed.sql` |
+| `npm run db:sync` | genera y aplica una migración desde `supabase/schemas/` |
 | `npm run db:types` | regenera los tipos de TypeScript desde la base |
 | `npm run db:ruleset` | sube el ruleset a la base y lo deja activo |
 
