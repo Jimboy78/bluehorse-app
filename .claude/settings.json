@@ -14,7 +14,7 @@
       "Bash(git add:*)",
       "Bash(git show:*)"
     ],
-    "ask": ["Bash(git push:*)", "Bash(npx supabase db push:*)", "Bash(npm publish:*)"],
+    "ask": [],
     "deny": [
       "Read(./.env)",
       "Read(./.env.*)",
