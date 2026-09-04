@@ -54,6 +54,17 @@ docs/              arquitectura, modelo de datos, glosario, roadmap y decisiones
 `packages/` no importa React ni Supabase: el motor es una función pura, testeable y reemplazable.
 Por qué, en `docs/03-contrato-motor.md`.
 
+## Deploy de prueba
+
+**https://bluehorse-app.vercel.app** — build de Vercel apuntando a `main`, sin variables de
+entorno configuradas todavía. Muestra el dashboard de estado y la vista previa de animaciones;
+sin `.env` no hay auth real (la pantalla lo indica en vez de romperse). La configuración de build
+está en `vercel.json` — necesaria porque es un monorepo con npm workspaces: instalar solo desde
+`apps/web` rompe la resolución de `@bh/domain`/`@bh/engine`.
+
+Para verificar cambios mientras se desarrolla, usar `npm run dev` (local, con HMR) y reservar el
+deploy de Vercel para compartir avances — cada push a `main` redeploya solo.
+
 ## Estado
 
 Fase 1 de 4: esqueleto y catálogo. Ver `docs/06-roadmap.md` y `docs/ESTADO.md`.
