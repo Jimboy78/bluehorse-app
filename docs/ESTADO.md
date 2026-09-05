@@ -183,6 +183,18 @@ ejercicio entra en el plan — la regla dura "misma semilla, mismo plan" no ten�
 regla dura "ningún número vive en el código" — tampoco tenía cobertura, ni directa ni indirecta).
 120 tests en total.
 
+**Bug real en iOS, encontrado por revisión de `index.html`**: `apple-touch-icon` apuntaba a
+`icon.svg`. Safari/iOS no rasteriza SVG para el ícono de la pantalla de inicio — lo ignora en
+silencio y usa una captura de la página en su lugar. Esto rompía la mitad del trabajo de
+`/instalar`: la rama de iOS pide "Agregar a inicio", pero el ícono que iba a quedar en la pantalla
+del socio no era el de Blue Horse. Se generó `apple-touch-icon.png` (180×180, rasterizado desde
+`icon.svg` con un `<canvas>` en el navegador — no hay ninguna librería de rasterizado SVG→PNG en
+el proyecto), referenciado con `sizes="180x180"`, y sumado a `includeAssets`/`globPatterns` de
+Workbox para que el service worker lo precachee. Verificado visualmente en el navegador (dos
+intentos: el primero rasterizó mal — el `<img>` sin `naturalWidth`/`Height` explícitos usó un
+tamaño por defecto del navegador que recortaba el ícono — corregido pasando esas dimensiones al
+`drawImage`).
+
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
 Una query de TanStack Query con `enabled: false` se queda en `isPending: true` para siempre.
