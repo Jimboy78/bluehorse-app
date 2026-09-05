@@ -26,7 +26,10 @@ npm run db:reset     # recrea la base local desde schemas/ + seed.sql
 npm run db:types     # regenera packages/domain/src/database.types.ts
 ```
 
-Node mínimo **22.12** (probado con 24 LTS). Con una versión menor, Vite y Vitest no arrancan.
+Node mínimo **22.12** (`engines`; `.nvmrc` fija 24 LTS, que es con lo que se probó). Con una
+versión menor Vite avisa y sigue andando — no falla, que es peor: se trabaja sobre una versión no
+soportada sin enterarse. `npm install` tampoco lo frena porque no hay `engine-strict`. Verificado
+en 22.3.0: arranca, compila y los tests pasan, con el aviso de Vite.
 
 ## Estructura y dirección de las dependencias
 

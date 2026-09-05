@@ -322,7 +322,9 @@ function ExerciseDetail({
   return (
     <motion.section key="detalle" {...screen} className="flex flex-col gap-5">
       <div className="flex items-start justify-between gap-4">
-        <div className="flex flex-col gap-1">
+        {/* `min-w-0` para que el nombre pueda achicarse: sin eso un ejercicio
+            de nombre largo empuja al botón "Volver" fuera de la tarjeta. */}
+        <div className="flex min-w-0 flex-col gap-1">
           <h2 className="text-2xl font-bold tracking-tight">{item.name}</h2>
           <p className="flex items-center gap-1.5 text-sm text-slate">
             <MapPin size={14} aria-hidden="true" />
@@ -333,7 +335,7 @@ function ExerciseDetail({
           type="button"
           {...tappable}
           onClick={onBack}
-          className="rounded-full border border-line px-4 py-2 text-xs font-semibold text-slate"
+          className="shrink-0 rounded-full border border-line px-4 py-2 text-xs font-semibold text-slate"
         >
           Volver
         </motion.button>

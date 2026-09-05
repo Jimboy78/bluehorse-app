@@ -196,7 +196,7 @@ function RecordsList({ records }: { records: readonly PersonalRecord[] }) {
               variants={listItem}
               className="flex items-center justify-between gap-3 rounded-lg border border-line bg-navy px-3.5 py-2.5"
             >
-              <span className="flex flex-col">
+              <span className="flex min-w-0 flex-col">
                 <span className="text-sm font-semibold">{record.exerciseName}</span>
                 <span className="text-[0.65rem] text-slate">
                   {formatDate(record.achievedAt)}

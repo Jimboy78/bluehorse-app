@@ -81,7 +81,7 @@ export function SubstitutePicker({
               }
               className="flex items-center justify-between gap-3 rounded-lg border border-line bg-navy px-3.5 py-2.5 text-left text-sm"
             >
-              <span className="flex flex-col">
+              <span className="flex min-w-0 flex-col">
                 <span className="font-semibold">{exercise?.name ?? 'Ejercicio'}</span>
                 <span className="text-xs text-slate">{option.reason}</span>
               </span>
