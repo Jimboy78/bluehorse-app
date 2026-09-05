@@ -195,6 +195,14 @@ intentos: el primero rasterizó mal — el `<img>` sin `naturalWidth`/`Height` e
 tamaño por defecto del navegador que recortaba el ícono — corregido pasando esas dimensiones al
 `drawImage`).
 
+**RLS verificado en vivo, no solo leído** (el Postgres local ya estaba corriendo): con la `anon
+key` (sin sesión), `select` a `equipment`, `pain_reports`, `profiles`, `gyms`,
+`adaptation_proposals`, `personal_records`, `set_logs` y `workout_logs` devuelve `[]` en las ocho
+— ninguna política nombra al rol `anon`, todas dicen `to authenticated`, así que RLS deniega por
+default. Un `insert` a `pain_reports` como anon devuelve 401 con el código de Postgres de RLS
+(`42501`), no un error genérico. Primera vez en la sesión que esto se confirma contra una base
+real en vez de solo leyendo el SQL.
+
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
 Una query de TanStack Query con `enabled: false` se queda en `isPending: true` para siempre.
