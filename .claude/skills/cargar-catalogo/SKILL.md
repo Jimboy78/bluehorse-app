@@ -6,7 +6,7 @@ description: Cómo cargar el equipamiento y los ejercicios de Blue Horse desde e
 # Cargar el catálogo del gimnasio
 
 El catálogo es el cuello de botella real del proyecto: sin él, el motor no puede armar ni una
-sesión. La planilla y las columnas están en `docs/06-relevamiento-catalogo.md`.
+sesión. La planilla y las columnas están en `docs/05-relevamiento-catalogo.md`.
 
 ## El orden importa
 

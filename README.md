@@ -55,14 +55,20 @@ Por qué, en `docs/03-contrato-motor.md`.
 ## Deploy de prueba
 
 **https://bluehorse-app.vercel.app** — build de Vercel apuntando a `main`, sin variables de
-entorno configuradas todavía. Muestra el dashboard de estado y la vista previa de animaciones;
-sin `.env` no hay auth real (la pantalla lo indica en vez de romperse). La configuración de build
-está en `vercel.json` — necesaria porque es un monorepo con npm workspaces: instalar solo desde
-`apps/web` rompe la resolución de `@bh/domain`/`@bh/engine`.
+entorno configuradas todavía. Sin `.env` la app no rompe: cada pantalla lo indica en su lugar
+("Supabase no está configurado") en vez de tirar un error. El panel técnico de configuración
+(`import.meta.env.DEV`) no sale en esta build — eso es solo para desarrollo local. La
+configuración de build está en `vercel.json` — necesaria porque es un monorepo con npm
+workspaces: instalar solo desde `apps/web` rompe la resolución de `@bh/domain`/`@bh/engine`. El
+mismo archivo tiene el rewrite de SPA que hace falta para que rutas como `/instalar` o `/progreso`
+no den 404 al navegarlas directo (por ejemplo, al escanear el QR del gimnasio).
 
 Para verificar cambios mientras se desarrolla, usar `npm run dev` (local, con HMR) y reservar el
 deploy de Vercel para compartir avances — cada push a `main` redeploya solo.
 
 ## Estado
 
-Fase 1 de 4: esqueleto y catálogo. Ver `docs/06-roadmap.md` y `docs/ESTADO.md`.
+Fases 1, 2 y 3 completas (esqueleto y catálogo, motor y sesión, adaptación/progreso/offline) salvo
+el relevamiento real del catálogo de Blue Horse, que es un paso manual del dueño del proyecto, no
+de código. Fase 4 (contenido real de entrenamiento) espera esa investigación. Ver `docs/06-roadmap.md`
+y `docs/ESTADO.md` para el detalle.
