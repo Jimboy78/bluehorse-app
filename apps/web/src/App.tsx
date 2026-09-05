@@ -8,6 +8,7 @@ import { envError, isConfigured } from './lib/env.ts';
 import { fadeUp, tappable } from './lib/motion.ts';
 import { pendingCount } from './lib/outbox.ts';
 import { checkConnection } from './lib/supabase.ts';
+import { useTodaySession } from './lib/use-today-session.ts';
 
 /**
  * Andamio de la fase 1: vista previa del lenguaje de movimiento arriba y estado
@@ -15,6 +16,8 @@ import { checkConnection } from './lib/supabase.ts';
  */
 export function App() {
   const { user, signOut } = useAuth();
+  const todaySession = useTodaySession();
+  const showsPlaceholderCatalog = todaySession?.isPlaceholder ?? true;
   const connection = useQuery({
     queryKey: ['health', 'supabase'],
     queryFn: checkConnection,
@@ -53,16 +56,22 @@ export function App() {
         </motion.button>
       </motion.header>
 
-      {showsPlaceholderContent && (
+      {(showsPlaceholderContent || showsPlaceholderCatalog) && (
         <motion.p
           variants={fadeUp}
           initial="hidden"
           animate="visible"
           className="rounded-lg border border-amber/40 bg-amber/10 px-4 py-3 text-sm"
         >
-          <strong className="font-semibold">Vista previa con datos de ejemplo.</strong> El ruleset
-          activo es <code className="font-mono text-xs">{activeRuleset.version}</code> y el catálogo
-          de Blue Horse todavía no está cargado.
+          <strong className="font-semibold">Vista previa con datos de ejemplo.</strong>
+          {showsPlaceholderContent && (
+            <>
+              {' '}
+              El ruleset activo es{' '}
+              <code className="font-mono text-xs">{activeRuleset.version}</code>.
+            </>
+          )}
+          {showsPlaceholderCatalog && ' El catálogo de Blue Horse todavía no está cargado.'}
         </motion.p>
       )}
 

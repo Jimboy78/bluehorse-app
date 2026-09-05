@@ -22,12 +22,12 @@ export function useProfileStatus() {
       const client = requireSupabase();
       const { data, error } = await client
         .from('profiles')
-        .select('onboarded_at')
+        .select('onboarded_at, gym_id')
         .eq('id', user?.id as string)
         .single();
 
       if (error) throw error;
-      return { onboarded: data.onboarded_at !== null };
+      return { onboarded: data.onboarded_at !== null, gymId: data.gym_id as string };
     },
   });
 }
