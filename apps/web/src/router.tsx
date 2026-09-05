@@ -31,8 +31,9 @@ const SignIn = lazy(() => import('./routes/SignIn.tsx').then((m) => ({ default: 
 
 function PageFallback() {
   return (
-    <div className="grid min-h-dvh place-items-center">
+    <div role="status" className="grid min-h-dvh place-items-center">
       <Loader2 size={22} className="animate-spin text-slate" aria-hidden="true" />
+      <span className="sr-only">Cargando…</span>
     </div>
   );
 }

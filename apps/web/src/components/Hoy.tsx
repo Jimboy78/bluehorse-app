@@ -337,8 +337,12 @@ function PlanStateMessage({
 
   if (plan.isPending) {
     return (
-      <div className="grid place-items-center py-16">
-        <div className="size-6 animate-spin rounded-full border-2 border-line border-t-teal" />
+      <div role="status" className="grid place-items-center py-16">
+        <div
+          aria-hidden="true"
+          className="size-6 animate-spin rounded-full border-2 border-line border-t-teal"
+        />
+        <span className="sr-only">Cargando tu plan…</span>
       </div>
     );
   }

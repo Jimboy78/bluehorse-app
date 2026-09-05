@@ -16,8 +16,12 @@ export function RequireOnboarding({ children }: { children: ReactNode }) {
 
   if (profile.isPending) {
     return (
-      <div className="grid min-h-dvh place-items-center">
-        <div className="size-6 animate-spin rounded-full border-2 border-line border-t-teal" />
+      <div role="status" className="grid min-h-dvh place-items-center">
+        <div
+          aria-hidden="true"
+          className="size-6 animate-spin rounded-full border-2 border-line border-t-teal"
+        />
+        <span className="sr-only">Cargando…</span>
       </div>
     );
   }

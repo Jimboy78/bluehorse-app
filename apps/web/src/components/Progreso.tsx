@@ -37,8 +37,9 @@ export function Progreso() {
 
   if (progress.isPending) {
     return (
-      <div className="grid place-items-center py-16">
+      <div role="status" className="grid place-items-center py-16">
         <Loader2 size={20} className="animate-spin text-slate" aria-hidden="true" />
+        <span className="sr-only">Cargando tu progreso…</span>
       </div>
     );
   }
