@@ -1,6 +1,6 @@
 import type { EquipmentLoadSpec, ExperienceLevel, LoadReading, Sex } from '@bh/domain';
 import { formatLoad } from '@bh/domain';
-import type { UserSnapshot } from '@bh/engine';
+import type { PlanBlueprint, UserSnapshot } from '@bh/engine';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './auth/AuthProvider.tsx';
@@ -65,9 +65,47 @@ export async function fetchUserSnapshot(
 }
 
 /**
+ * Guarda sesiones e ítems del plan ya insertado. Separado de `useGeneratePlan`
+ * para que el `try/catch` de ahí pueda limpiar el `plans` huérfano si esto
+ * falla a mitad de camino, sin mezclar esa lógica de rollback acá.
+ */
+async function persistSessions(
+  client: SupabaseClient,
+  planId: string,
+  sessions: PlanBlueprint['sessions'],
+): Promise<void> {
+  const { data: sessionRows, error: sessionsError } = await client
+    .from('plan_sessions')
+    .insert(toPlanSessionInserts(planId, sessions))
+    .select('id, sequence_index');
+  if (sessionsError) throw sessionsError;
+
+  const sessionIdBySequence = new Map(
+    (sessionRows ?? []).map((s) => [s.sequence_index, s.id as string]),
+  );
+
+  for (const session of sessions) {
+    const sessionId = sessionIdBySequence.get(session.sequenceIndex);
+    if (!sessionId) continue; // no debería pasar: insertamos una fila por cada sesión
+
+    const { error: itemsError } = await client
+      .from('plan_session_items')
+      .insert(toPlanSessionItemInserts(sessionId, session.items));
+    if (itemsError) throw itemsError;
+  }
+}
+
+/**
  * Genera el plan con el motor y lo persiste en tres pasos (plan → sesiones →
- * items), porque cada tabla necesita el id que la anterior generó. Falla
- * entero si cualquier paso falla — un plan a medio guardar es peor que nada.
+ * items), porque cada tabla necesita el id que la anterior generó.
+ *
+ * `plans` tiene un índice único por socio con `status = 'active'`
+ * (`05_plans.sql`): si sesiones o ítems fallan a mitad de camino, el `plans`
+ * ya insertado no se limpiaba solo, y ese huérfano bloqueaba CUALQUIER
+ * reintento futuro con un error de clave duplicada — sin ninguna pantalla
+ * para borrarlo. Por eso, si algo falla después de crear el plan, se borra
+ * acá mismo (`on delete cascade` se lleva sesiones/ítems si llegó a haber
+ * alguno) antes de relanzar el error original.
  */
 export function useGeneratePlan() {
   const { user } = useAuth();
@@ -97,24 +135,11 @@ export function useGeneratePlan() {
         .single();
       if (planError) throw planError;
 
-      const { data: sessions, error: sessionsError } = await client
-        .from('plan_sessions')
-        .insert(toPlanSessionInserts(plan.id, blueprint.sessions))
-        .select('id, sequence_index');
-      if (sessionsError) throw sessionsError;
-
-      const sessionIdBySequence = new Map(
-        (sessions ?? []).map((s) => [s.sequence_index, s.id as string]),
-      );
-
-      for (const session of blueprint.sessions) {
-        const sessionId = sessionIdBySequence.get(session.sequenceIndex);
-        if (!sessionId) continue; // no debería pasar: insertamos una fila por cada sesión
-
-        const { error: itemsError } = await client
-          .from('plan_session_items')
-          .insert(toPlanSessionItemInserts(sessionId, session.items));
-        if (itemsError) throw itemsError;
+      try {
+        await persistSessions(client, plan.id as string, blueprint.sessions);
+      } catch (error) {
+        await client.from('plans').delete().eq('id', plan.id);
+        throw error;
       }
 
       return plan.id as string;
