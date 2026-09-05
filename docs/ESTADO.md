@@ -266,6 +266,16 @@ veces"*). Aceptarla en el orden del fix (aplicar la carga antes de marcar `accep
 solo la primera. Limpieza completa después (`plans`/`profiles`/`workout_logs`/`set_logs`/
 `adaptation_proposals` en 0).
 
+**También verificada la query exacta de `celebrateIfRecord` (récord personal, `lib/session-log.ts`)
+contra Postgres real**: serie de 40 kg (primera del ejercicio, no hay "anterior" — la lógica real
+del código no la cuenta como récord, pero la query en sí queda como base) → serie de 42 kg → la
+misma query que usa el código (`is_warmup=false`, `load_kg_normalized` no nulo, orden descendente,
+límite 1) devuelve 42, confirmando que SÍ se detectaría como récord (42 > 40) → serie de 41 kg → la
+query sigue devolviendo 42 (41 no es récord, como corresponde) → serie de calor de 50 kg
+(`is_warmup=true`) → la query sigue devolviendo 42, confirmando que el filtro de warmup excluye
+esa serie de la comparación aunque sea la carga más alta de todas. El insert final a
+`personal_records` también anduvo con los FKs reales. Limpieza completa después.
+
 Lo único que sigue sin probarse es la capa de React arriba de todo esto (formularios, hooks,
 pantallas) — eso sí necesita el `.env` de la app, que sigue sin tocarse.
 
