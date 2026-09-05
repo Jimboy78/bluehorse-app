@@ -171,6 +171,18 @@ dejaba TODA la cola de ese teléfono sin sincronizar nunca más — sin ningún 
 serie y su `workout_log` sigue respetado porque esa serie en particular vuelve a fallar (FK
 inexistente) hasta que su sesión llegue, pero ya no bloquea sesiones no relacionadas.
 
+**Documentación: referencia rota y README desactualizado**: `cargar-catalogo/SKILL.md` apuntaba a
+`docs/06-relevamiento-catalogo.md` (no existe; es `docs/05-...`). `README.md` describía el deploy
+de Vercel como "dashboard de estado y vista previa de animaciones" y "Fase 1 de 4" — quedó así
+desde el esqueleto inicial y ahora es directamente falso (saqué el dashboard de producción hace
+dos pasadas). Reescrito para reflejar el estado real.
+
+**Tests nuevos en `packages/engine`**: `rng.ts` (el generador determinista que desempata qué
+ejercicio entra en el plan — la regla dura "misma semilla, mismo plan" no tenía ningún test) y
+`resolveParams()` en `ruleset.ts` (el merge por nivel de experiencia, el mecanismo completo de la
+regla dura "ningún número vive en el código" — tampoco tenía cobertura, ni directa ni indirecta).
+120 tests en total.
+
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
 Una query de TanStack Query con `enabled: false` se queda en `isPending: true` para siempre.
@@ -179,7 +191,7 @@ dependa de sesión.
 
 ### Verificado
 
-`npm run check` (lint + typecheck + **104 tests**) pasa, y también `npm run build` (build de
+`npm run check` (lint + typecheck + **120 tests**) pasa, y también `npm run build` (build de
 producción limpia, un solo warning de tamaño de bundle ya conocido). Todos los mappers nuevos de
 esta sesión (`session-event.ts`, `progress.ts`, `adaptation.ts`, `use-install-prompt.ts`) están
 probados sin base. La extensión de Chrome volvió a conectar: se vieron en el navegador `/instalar`
