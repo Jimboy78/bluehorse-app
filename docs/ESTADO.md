@@ -162,7 +162,14 @@ un link compartido, y sobre todo **escanear el QR que apunta directo a `/instala
 los archivos reales del build antes de aplicar el rewrite, así que JS/CSS/manifest/`sw.js` siguen
 sirviéndose directo). **No se puede verificar en local** — `vite preview` trae su propio fallback
 de SPA incorporado, así que este bug solo se manifiesta en el deploy real. Falta confirmarlo
-after el próximo push a Vercel.
+después del próximo push a Vercel.
+
+**Cola offline: un ítem roto ya no atasca todo lo demás** (`lib/outbox.ts`): `flush()` cortaba
+entero al primer error de envío. Un ítem roto para siempre (un bug real, no solo falta de señal)
+dejaba TODA la cola de ese teléfono sin sincronizar nunca más — sin ningún error visible, solo
+`pendingCount` creciendo. Ahora sigue intentando el resto aunque uno falle; el orden entre una
+serie y su `workout_log` sigue respetado porque esa serie en particular vuelve a fallar (FK
+inexistente) hasta que su sesión llegue, pero ya no bloquea sesiones no relacionadas.
 
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
