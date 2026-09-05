@@ -729,7 +729,7 @@ export type Database = {
           id: string
           is_warmup: boolean
           load_kg_normalized: number | null
-          load_unit: Database["public"]["Enums"]["load_unit"]
+          load_unit: Database["public"]["Enums"]["load_unit"] | null
           load_value: number | null
           plan_session_item_id: string | null
           reps: number | null
@@ -750,7 +750,7 @@ export type Database = {
           id?: string
           is_warmup?: boolean
           load_kg_normalized?: number | null
-          load_unit: Database["public"]["Enums"]["load_unit"]
+          load_unit?: Database["public"]["Enums"]["load_unit"] | null
           load_value?: number | null
           plan_session_item_id?: string | null
           reps?: number | null
@@ -771,7 +771,7 @@ export type Database = {
           id?: string
           is_warmup?: boolean
           load_kg_normalized?: number | null
-          load_unit?: Database["public"]["Enums"]["load_unit"]
+          load_unit?: Database["public"]["Enums"]["load_unit"] | null
           load_value?: number | null
           plan_session_item_id?: string | null
           reps?: number | null

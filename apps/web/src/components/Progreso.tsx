@@ -1,3 +1,4 @@
+import type { LoadReading } from '@bh/domain';
 import { formatLoad } from '@bh/domain';
 import { AlertCircle, Flame, Loader2, TrendingUp, Trophy } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -197,7 +198,7 @@ function RecordsList({ records }: { records: readonly PersonalRecord[] }) {
                 </span>
               </span>
               <span className="shrink-0 font-mono text-sm text-teal">
-                {formatLoad(record.load)}
+                {formatLoadOrDash(record.load)}
                 {record.reps !== null && <span className="text-slate"> × {record.reps}</span>}
               </span>
             </motion.li>
@@ -263,7 +264,7 @@ function ExerciseEvolution({
             <li key={set.id} className="flex items-center justify-between gap-3 py-2 text-sm">
               <span className="text-xs text-slate">{formatDate(set.completedAt)}</span>
               <span className="font-mono text-teal">
-                {formatLoad(set.load)}
+                {formatLoadOrDash(set.load)}
                 {set.reps !== null && <span className="text-slate"> × {set.reps}</span>}
               </span>
             </li>
@@ -272,4 +273,14 @@ function ExerciseEvolution({
       )}
     </motion.section>
   );
+}
+
+/**
+ * Una serie puede no tener carga registrada: la primera sesión de alguien que
+ * pidió que la app le calcule los pesos, en una estación que todavía no está
+ * en el catálogo. Ahí no hay unidad ni valor que mostrar, y decir "0 kg"
+ * sería inventar un dato que la persona nunca vio en la máquina.
+ */
+function formatLoadOrDash(load: LoadReading | null): string {
+  return load === null ? 'sin carga registrada' : formatLoad(load);
 }

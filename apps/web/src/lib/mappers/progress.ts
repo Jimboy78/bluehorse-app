@@ -17,7 +17,11 @@ export const setLogRowSchema = z.object({
   id: z.uuid(),
   exercise_id: z.uuid(),
   load_value: z.coerce.number().nullable(),
-  load_unit: loadUnitSchema,
+  // Nula cuando todavía no se sabe con cuánto entrena la persona y la
+  // estación tampoco está en el catálogo: no hay unidad que anotar sin
+  // inventarla. Distinto de la unidad 'none', que sí afirma algo (esta
+  // estación no lleva carga).
+  load_unit: loadUnitSchema.nullable(),
   load_kg_normalized: z.coerce.number().nullable(),
   reps: z.number().int().nullable(),
   is_warmup: z.boolean(),
@@ -36,7 +40,8 @@ export interface SetRecord {
   readonly id: string;
   readonly exerciseId: string;
   readonly exerciseName: string;
-  readonly load: LoadReading;
+  /** `null` cuando no se registró ninguna unidad: no hay lectura que mostrar. */
+  readonly load: LoadReading | null;
   readonly loadKgNormalized: number | null;
   readonly reps: number | null;
   readonly isWarmup: boolean;
@@ -48,7 +53,7 @@ export function toSetRecord(row: SetLogRow): SetRecord {
     id: row.id,
     exerciseId: row.exercise_id,
     exerciseName: row.exercises?.name ?? 'Ejercicio',
-    load: { value: row.load_value, unit: row.load_unit },
+    load: row.load_unit === null ? null : { value: row.load_value, unit: row.load_unit },
     loadKgNormalized: row.load_kg_normalized,
     reps: row.reps,
     isWarmup: row.is_warmup,
@@ -127,7 +132,7 @@ export interface PersonalRecord {
   readonly exerciseId: string;
   readonly exerciseName: string;
   /** Cruda, tal como la mostró la máquina ese día — nunca convertida para mostrar. */
-  readonly load: LoadReading;
+  readonly load: LoadReading | null;
   readonly reps: number | null;
   readonly achievedAt: string;
   /** `false` cuando no hubo forma de comparar entre series (sin kg normalizado): es la última serie registrada, no necesariamente la mejor. */

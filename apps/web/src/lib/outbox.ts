@@ -57,6 +57,28 @@ export function pendingCount(): Promise<number> {
 export type Sender = (item: OutboxItem) => Promise<void>;
 
 /**
+ * Qué guardar en `lastError`. Supabase no tira `Error`: tira un objeto plano
+ * (`{ code, message, details, hint }`), y `String(ese objeto)` da
+ * `"[object Object]"`. Con eso en la cola, una serie que nunca se pudo
+ * guardar queda indistinguible de cualquier otra falla, y el único síntoma
+ * visible es el contador de pendientes subiendo sin explicación.
+ */
+export function describeOutboxError(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'object' && error !== null) {
+    const { code, message, details } = error as Record<string, unknown>;
+    const partes = [code, message, details].filter((p) => typeof p === 'string' && p.length > 0);
+    if (partes.length > 0) return partes.join(' · ');
+    try {
+      return JSON.stringify(error);
+    } catch {
+      return 'Error desconocido al enviar la cola.';
+    }
+  }
+  return String(error);
+}
+
+/**
  * Vacía la cola en orden de llegada. Intenta cada ítem aunque uno anterior
  * haya fallado — no corta al primer error.
  *
@@ -84,7 +106,7 @@ export async function flush(send: Sender): Promise<{ sent: number; failed: numbe
     } catch (error) {
       await db.pending.update(item.clientId, {
         attempts: item.attempts + 1,
-        lastError: error instanceof Error ? error.message : String(error),
+        lastError: describeOutboxError(error),
       });
       failed += 1;
     }

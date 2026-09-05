@@ -31,9 +31,14 @@ create table set_logs (
   equipment_id uuid references equipment (id) on delete set null,
   set_index smallint not null,
 
-  /* CRUDO: lo que dice la máquina. Es lo único que se le muestra al usuario. */
+  /* CRUDO: lo que dice la máquina. Es lo único que se le muestra al usuario.
+     Los dos son nulos juntos: hay series que no tienen carga que anotar
+     (dominadas, abdominales) y series de la primera sesión, donde todavía no
+     se sabe con cuánto entrena la persona. Poner una unidad ahí sería
+     inventar, igual que en `load_kg_normalized`. */
   load_value numeric(7, 2),
-  load_unit load_unit not null,
+  load_unit load_unit,
+  constraint set_logs_load_unit_con_valor check (load_value is null or load_unit is not null),
   /* NORMALIZADO: solo para gráficos y comparaciones. null cuando no se puede
      convertir sin inventar (pin sin tabla de kg, banda, peso corporal). */
   load_kg_normalized numeric(7, 2),
