@@ -6,7 +6,7 @@ import type {
   MovementPattern,
   MuscleGroup,
 } from '@bh/domain';
-import { AlertCircle, Loader2, MapPin, Plus } from 'lucide-react';
+import { AlertCircle, Check, Loader2, MapPin, Plus } from 'lucide-react';
 import { motion } from 'motion/react';
 import { type FormEvent, useRef, useState } from 'react';
 import { fadeUp, tappable } from '../lib/motion.ts';
@@ -105,6 +105,10 @@ function EquipmentSection({ gymId }: { gymId: string | null }) {
   const [form, setForm] = useState(emptyEquipmentForm);
   const [photo, setPhoto] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Qué se guardó recién. El formulario se vacía al guardar, y sin esto lo
+  // único que cambia es el contador de estaciones, que queda lejos del botón:
+  // cargando el gimnasio entero, una fila tras otra, no se ve si entró.
+  const [saved, setSaved] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function field<K extends keyof typeof emptyEquipmentForm>(key: K) {
@@ -119,6 +123,7 @@ function EquipmentSection({ gymId }: { gymId: string | null }) {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setSaved(null);
 
     const parsed = equipmentFormSchema.safeParse(form);
     if (!parsed.success) {
@@ -128,6 +133,7 @@ function EquipmentSection({ gymId }: { gymId: string | null }) {
 
     try {
       await createEquipment.mutateAsync({ input: parsed.data as EquipmentFormInput, photo });
+      setSaved(parsed.data.name);
       setForm(emptyEquipmentForm);
       setPhoto(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -314,6 +320,8 @@ function EquipmentSection({ gymId }: { gymId: string | null }) {
           </p>
         )}
 
+        <SavedNotice name={saved} />
+
         <motion.button
           type="submit"
           {...tappable}
@@ -446,6 +454,7 @@ function ExerciseSection({ gymId }: { gymId: string | null }) {
 
   const [form, setForm] = useState(emptyExerciseForm);
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState<string | null>(null);
 
   function toggle<K extends 'primaryMuscles' | 'secondaryMuscles' | 'equipmentIds'>(
     key: K,
@@ -461,6 +470,7 @@ function ExerciseSection({ gymId }: { gymId: string | null }) {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setSaved(null);
 
     const parsed = exerciseFormSchema.safeParse(form);
     if (!parsed.success) {
@@ -470,6 +480,7 @@ function ExerciseSection({ gymId }: { gymId: string | null }) {
 
     try {
       await createExercise.mutateAsync(parsed.data as ExerciseFormInput);
+      setSaved(parsed.data.name);
       setForm(emptyExerciseForm);
     } catch {
       setError('No se pudo guardar. Revisá tu conexión y probá de nuevo.');
@@ -620,6 +631,8 @@ function ExerciseSection({ gymId }: { gymId: string | null }) {
           </p>
         )}
 
+        <SavedNotice name={saved} />
+
         <motion.button
           type="submit"
           {...tappable}
@@ -710,5 +723,28 @@ function ChipPicker({
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * Confirma qué se acaba de guardar, nombrándolo. Relevar el gimnasio es cargar
+ * decenas de filas seguidas: sin esto, la única señal de que una entró es un
+ * contador que queda fuera de la vista.
+ */
+function SavedNotice({ name }: { name: string | null }) {
+  if (name === null) return null;
+  return (
+    <motion.p
+      key={name}
+      initial={{ opacity: 0, y: -4 }}
+      animate={{ opacity: 1, y: 0 }}
+      role="status"
+      className="flex items-center gap-2 text-sm text-teal"
+    >
+      <Check size={15} aria-hidden="true" />
+      <span>
+        Se agregó <strong className="font-semibold">{name}</strong>.
+      </span>
+    </motion.p>
   );
 }

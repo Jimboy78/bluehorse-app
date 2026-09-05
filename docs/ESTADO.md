@@ -37,6 +37,32 @@ ninguna de esas dos vías podía ver**, tres de ellos graves:
 También: después de sustituir, el detalle seguía mostrando el `rationale` del motor, que nombra al
 ejercicio original.
 
+### Segunda pasada de prueba manual (misma fecha)
+
+Recorrido completo otra vez, ahora incluyendo lo que había quedado sin tocar. **Anda**: `/instalar`,
+`/panel` (rebota bien a un `member`, y con `role: admin` carga y guarda), validación de
+`load_min > load_max` en el formulario, alta de estación a discos y de pin (el formulario cambia
+los campos según cómo carga la estación), salir de la sesión, error de contraseña equivocada en
+castellano, deshacer una serie marcada, cola offline en 0 pendientes, y `/progreso` sin errores de
+consola.
+
+Se agregó confirmación al guardar en el panel: antes el formulario se vaciaba y lo único que
+cambiaba era un contador lejos del botón, así que cargando el gimnasio fila por fila no se veía si
+había entrado.
+
+**Dos huecos anotados, no resueltos** (son features, no ajustes):
+- **El panel es solo de alta.** No hay forma de editar ni borrar una estación cargada mal. Relevar
+  el gimnasio son decenas de filas a mano: un error de tipeo hoy solo se arregla por SQL.
+- **Deshacer una serie no borra su `set_log`.** Ya está documentado en `Hoy.tsx` como
+  simplificación, pero la pantalla no lo dice: una serie marcada por error sigue contando en
+  `/progreso`. Necesita una rama de borrado en la cola offline.
+
+**No se pudo probar el layout en ancho de teléfono**: la ventana del navegador está maximizada y
+`resize_window` no la achica, así que todo se miró a ~1860px. La app es de una sola columna
+(solo 6 usos de breakpoints en todo el código, todos en una grilla del panel), pero **el layout en
+390px sigue sin verificarse de verdad** — es lo primero a mirar en la próxima sesión con una
+ventana no maximizada.
+
 **Moraleja para las próximas sesiones: `curl` contra la base y los tests verdes no dicen que la app
 funcione.** Verificado a mano el recorrido completo: alta → onboarding → plan generado → marcar
 series → cronómetro de descanso → sustitución → cerrar sesión → avance de la cola a la sesión

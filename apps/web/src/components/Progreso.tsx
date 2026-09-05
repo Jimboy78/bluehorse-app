@@ -280,7 +280,10 @@ function ExerciseEvolution({
  * pidió que la app le calcule los pesos, en una estación que todavía no está
  * en el catálogo. Ahí no hay unidad ni valor que mostrar, y decir "0 kg"
  * sería inventar un dato que la persona nunca vio en la máquina.
+ *
+ * Dice "sin registrar", no "sin carga": esa última frase ya significa otra
+ * cosa en `formatLoad` (la estación no lleva peso, como una colchoneta).
  */
 function formatLoadOrDash(load: LoadReading | null): string {
-  return load === null ? 'sin carga registrada' : formatLoad(load);
+  return load === null ? 'sin registrar' : formatLoad(load);
 }
