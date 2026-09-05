@@ -86,7 +86,7 @@ celebración esa vez. La primera serie de un ejercicio nunca es "récord" (es el
 Si es un récord real, dispara la celebración y guarda la fila en `personal_records`. Se sacó el
 botón de prueba.
 
-**Cuatro bugs de robustez reales, encontrados por revisión de código (no por el usuario) y ya
+**Cinco bugs de robustez reales, encontrados por revisión de código (no por el usuario) y ya
 arreglados** — todos el mismo patrón: una mutación encadena dos o más escrituras a Supabase sin
 pensar qué pasa si la primera se confirma y la segunda falla:
 - `useGeneratePlan` (`lib/plan.ts`): `plans` tiene un índice único por socio con
@@ -111,12 +111,22 @@ pensar qué pasa si la primera se confirma y la segunda falla:
   equipamiento fallaba, el ejercicio quedaba en el listado sin equipamiento asociado y, como el
   panel todavía no tiene edición, sin forma de arreglarlo. Ambos casos ahora limpian (borran) lo que
   ya se había escrito antes de relanzar el error.
+- `useResolveProposal` (`lib/adaptation.ts`): marcaba la propuesta `accepted` ANTES de aplicar el
+  cambio de carga a `plan_session_items`. Si aplicar la carga fallaba después, la propuesta quedaba
+  resuelta para siempre (deja de aparecer en `usePendingProposals`) sin que el cambio se hubiera
+  aplicado nunca — el socio cree que aceptó subir el peso, pero la próxima sesión sigue mostrando
+  el valor viejo, sin error visible y sin forma de reintentar. Reordenado: aplicar la carga
+  primero, marcar la propuesta resuelta al final.
 
-Ninguno se puede reproducir fácil sin forzar una falla de red a mitad de una escritura — no están
-cubiertos por test (son hooks que pegan contra Supabase, mismo criterio que el resto del proyecto),
-pero la lógica de rollback/orden en sí es simple de leer y revisar. Quedan sin auditar: `panel.ts`
-ya se revisó completo; falta repasar si hay algún otro hook con el mismo patrón en el resto de
-`apps/web/src/lib/`.
+**Auditoría de `apps/web/src/lib/` completa** (todo hook que encadena más de una escritura a
+Supabase, buscando este mismo patrón): `plan.ts`, `session-log.ts`, `onboarding.ts`, `panel.ts` y
+`adaptation.ts` ya revisados y arreglados donde hacía falta. `auth/AuthProvider.tsx` es una sola
+llamada a Supabase Auth por acción (sin problema). `catalog.ts`/`progress.ts`/`use-today-session.ts`
+son de solo lectura. No queda ningún hook de esta clase sin revisar.
+
+Ninguno de los cinco se puede reproducir fácil sin forzar una falla de red a mitad de una
+escritura — no están cubiertos por test (son hooks que pegan contra Supabase, mismo criterio que
+el resto del proyecto), pero la lógica de rollback/orden en sí es simple de leer y revisar.
 
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
@@ -148,9 +158,10 @@ dispositivo físico.
    acá. Es el paso más urgente — hay mucho código nunca ejercitado contra Supabase de verdad.
    Correr `npm run db:types` en el mismo momento.
 2. Fase 4 (contenido real) está bloqueada por research y por el relevamiento del catálogo — no
-   arrancar sin eso. Mientras tanto, seguir revisando mutaciones multi-paso (varias escrituras a
-   Supabase en un mismo hook) buscando el mismo patrón que los dos bugs de arriba: ¿qué pasa si
-   esta escritura en particular falla después de que la anterior ya se confirmó?
+   arrancar sin eso. La auditoría de robustez de `apps/web/src/lib/` ya se cerró (ver arriba); no
+   queda una tarea técnica obvia pendiente sin `.env` real — la próxima pasada probablemente
+   necesite leer código con más cuidado para encontrar algo específico, no repasar una lista ya
+   hecha.
 3. Decisión de paleta (`docs/07-marca-blue-horse.md`) — bloqueada, es del usuario.
 
 ### Trabas conocidas
