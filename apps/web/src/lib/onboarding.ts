@@ -32,6 +32,15 @@ export function useProfileStatus() {
   });
 }
 
+/**
+ * El `user_goal` se guarda ANTES de marcar `profiles.onboarded_at`, no
+ * después: ese campo es lo único que decide si `RequireOnboarding` deja
+ * pasar a la app. Si el orden fuera al revés y la inserción del objetivo
+ * fallara, el socio quedaría marcado como "ya hizo el onboarding" pero sin
+ * ningún objetivo — pasaría el gate, llegaría a "Hoy", e intentar generar un
+ * plan tiraría un error de "falta el onboarding" sin ninguna forma de volver
+ * atrás a cargarlo.
+ */
 export function useCompleteOnboarding() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -41,16 +50,16 @@ export function useCompleteOnboarding() {
       if (!user) throw new Error('No hay sesión activa.');
       const client = requireSupabase();
 
+      const { error: goalError } = await client
+        .from('user_goals')
+        .insert(toUserGoalInsert(user.id, input));
+      if (goalError) throw goalError;
+
       const { error: profileError } = await client
         .from('profiles')
         .update(toProfileUpdate(input))
         .eq('id', user.id);
       if (profileError) throw profileError;
-
-      const { error: goalError } = await client
-        .from('user_goals')
-        .insert(toUserGoalInsert(user.id, input));
-      if (goalError) throw goalError;
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['profile-status', user?.id] });
