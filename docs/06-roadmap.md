@@ -35,11 +35,13 @@ Fotos, planilla de equipamiento y lista de ejercicios canónicos. Ver `05-releva
 
 - [x] Generación de plan desde el catálogo real, persistida (`useGeneratePlan`, dispara al
   terminar el onboarding) y su lectura (`useActivePlan`, primera sesión pendiente de la cola)
-- [ ] Pantalla "Hoy" real, que lea `useActivePlan` (hoy solo existe `MotionPreview`, que sigue
-  generando en memoria — es la vista previa del motor, no la pantalla final)
-- [ ] Pantalla de sesión: los ejercicios del día, orden sugerido pero libre
-- [ ] Detalle de ejercicio: series pre-cargadas, confirmar de a un toque
-- [ ] Cronómetro de descanso, con registro del descanso real
+- [x] Pantalla "Hoy" real (`Hoy.tsx`, reemplaza a `MotionPreview`): lee `useActivePlan`, cubre los
+  cuatro estados reales (sin plan, cola completa, sesión pendiente, detalle de ejercicio)
+- [x] Pantalla de sesión: los ejercicios del día, orden sugerido pero libre — ya en `Hoy.tsx`
+- [x] Detalle de ejercicio: series pre-cargadas desde `plan_session_items`, confirmar de a un toque
+- [x] Cronómetro de descanso — funcional, todavía con duración fija de demo (12 s) en vez del
+  `rest_seconds` real de cada ítem
+- [ ] **Falta**: marcar una serie hecha solo cambia estado local, no escribe a `set_logs` todavía
 - [ ] Cierre de sesión: sensación, molestias, resumen
 
 **Entregable**: podés dejar el Excel y usarla vos.

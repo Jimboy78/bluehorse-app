@@ -84,9 +84,11 @@ antes de hacerlo.
 - **Service worker con `autoUpdate`.** Recargaría la app en medio de una serie. Está en `prompt` a
   propósito.
 - **Una query de TanStack Query con `enabled: false` se queda en `isPending: true` para siempre.**
-  Pasó dos veces en la misma sesión: un componente `RequireX` que chequea `query.isPending` antes
-  que `auth.status` se cuelga en el spinner cuando Supabase no está configurado (la query queda
-  deshabilitada y nunca resuelve). Todo gate nuevo chequea `status !== 'signed-in'` primero.
+  Pasó tres veces en la misma sesión (`RequireOnboarding`, `RequireAdmin`, `Hoy`): un componente
+  que chequea `query.isPending` antes que `auth.status` se cuelga en el spinner cuando Supabase no
+  está configurado (la query queda deshabilitada y nunca resuelve). **Todo componente que dependa
+  de una query gateada por sesión chequea `status !== 'signed-in'` primero — no solo los `RequireX`,
+  cualquier pantalla que lea datos del socio.**
 - **`supabase db diff` no lee `schema_paths` desde la CLI ≥ 2.116.** El comando correcto es
   `npm run db:sync` (`supabase db schema declarative sync --apply`). Y esa sincronización rechaza
   `INSERT` sobre tablas de sistema (`storage.buckets`, etc.): los inserts van en `seed.sql`, las
