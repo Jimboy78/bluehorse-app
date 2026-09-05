@@ -222,8 +222,13 @@ export interface CloseSessionInput {
 }
 
 /**
- * Cierra la sesión: marca `plan_sessions` como completada (así la cola
- * avanza a la siguiente) y, si hubo alguna serie, cierra su `workout_log`.
+ * Cierra la sesión: cierra el `workout_log` (si hubo alguna serie) y guarda
+ * el reporte de dolor antes de marcar `plan_sessions` como completada —
+ * recién eso último hace avanzar la cola a la siguiente. El orden importa:
+ * si algo falla antes, la sesión sigue pendiente y se puede reintentar sin
+ * perder nada; si `plan_sessions` fuera lo primero y algo después fallara, la
+ * cola ya habría avanzado con la sensación/notas de esa sesión perdidas para
+ * siempre, sin ninguna pantalla para volver atrás.
  *
  * A diferencia de `markSetDone`, esto NO pasa por la cola offline: es una
  * acción deliberada al terminar, no algo que tenga que sobrevivir un corte de
@@ -242,12 +247,6 @@ export function useCloseSession() {
       const now = new Date().toISOString();
 
       await flush(sendOutboxItem);
-
-      const { error: sessionError } = await client
-        .from('plan_sessions')
-        .update(toPlanSessionComplete(now))
-        .eq('id', input.planSessionId);
-      if (sessionError) throw sessionError;
 
       if (input.workoutLogId) {
         const { error: workoutError } = await client
@@ -271,6 +270,12 @@ export function useCloseSession() {
           );
         if (painError) throw painError;
       }
+
+      const { error: sessionError } = await client
+        .from('plan_sessions')
+        .update(toPlanSessionComplete(now))
+        .eq('id', input.planSessionId);
+      if (sessionError) throw sessionError;
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['active-plan', user?.id] });
