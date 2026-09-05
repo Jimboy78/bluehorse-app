@@ -345,3 +345,10 @@ instalación real quedan sin verificar en un dispositivo físico.
   `SUPABASE_SERVICE_ROLE_KEY` de `npx supabase status -o env`) o la generación de plan falla.
 - Loop autónomo corriendo cada 15 min (`CronCreate` job `f04a93b3`, session-only, expira en 7 días
   o al cerrar esta sesión).
+- **El Postgres local puede estar corriendo sin que el agente lo haya arrancado** — `npx supabase
+  status` lo confirma (imprime las claves `anon`/`service_role` y `DB_URL`, todas de desarrollo,
+  no secretas de verdad). Con eso corriendo se puede verificar CUALQUIER lógica de negocio en vivo
+  con `curl`/REST sin tocar `.env` — así se probó toda la sesión (RLS, el motor real vía Node 24
+  importando `.ts` directo, altas/bajas de usuarios de prueba por la Auth Admin API). Siempre
+  limpiar los datos de prueba después (usuarios, filas) y confirmar en 0 antes de dar por
+  terminada la verificación.
