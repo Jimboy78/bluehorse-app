@@ -7,12 +7,49 @@ puede leer desde cualquier sesión nueva. **Actualizalo al terminar una sesión 
 
 ## Última actualización: 5 de septiembre de 2026 (loop autónomo, corre cada 15 min)
 
+### Lo más importante de esta sesión: la app se probó por primera vez de verdad
+
+Hasta acá todo se verificaba con `curl` contra Supabase o con tests. Entrar con un usuario real
+(`socio.prueba@bluehorse.test`) y hacer clic pantalla por pantalla encontró **cinco bugs que
+ninguna de esas dos vías podía ver**, tres de ellos graves:
+
+1. **Vite nunca leyó el `.env`.** `envDir` apunta por defecto al directorio de `vite.config.ts`
+   (`apps/web`), pero el `.env` va en la raíz del monorepo, que es lo que dice el README. Las
+   variables quedaban `undefined` en silencio: cualquiera que siguiera las instrucciones del
+   proyecto veía "Supabase no está configurado" para siempre. Arreglado con `envDir: monorepoRoot`.
+2. **Entrar dejaba al socio en el formulario de login.** La sesión se creaba (200), pero nada lo
+   sacaba de `/auth`: `RequireAuth` protege las otras rutas, no expulsa de esa. Se leía como "el
+   botón Entrar no hace nada". Nuevo guard `RedirectIfSignedIn`.
+3. **Ninguna serie se guardaba.** `set_logs.load_unit` era `not null` mientras `load_value` sí
+   aceptaba nulos, y una serie sin carga (dominadas, o la primera sesión de alguien que pidió que
+   la app le calcule los pesos) no tiene unidad que anotar. Todos los inserts fallaban. Como
+   `set_logs` es la señal que alimenta la adaptación entera, la app parecía andar sin guardar lo
+   único que importa. La columna ahora es nullable con un check que impide valor sin unidad.
+4. **El error estaba oculto.** `lastError` de la cola offline guardaba `String(error)`, y Supabase
+   tira un objeto plano, no un `Error`: todo quedaba como `"[object Object]"`. Por eso el bug 3
+   sobrevivió tanto. Ahora hay `describeOutboxError` con test.
+5. **Volver a la lista borraba la sesión.** `seriesHechas` era un array plano que se reseteaba en
+   cada "Volver", y la lista no mostraba ni las series hechas ni la sustitución aplicada. En el
+   gimnasio se vuelve a esa lista todo el tiempo para ver qué máquina está libre. Ahora el progreso
+   se guarda por ítem, sobrevive la navegación, y la lista muestra `n/total`, el nombre sustituido y
+   mueve "sugerido" al primer ejercicio que falta.
+
+También: después de sustituir, el detalle seguía mostrando el `rationale` del motor, que nombra al
+ejercicio original.
+
+**Moraleja para las próximas sesiones: `curl` contra la base y los tests verdes no dicen que la app
+funcione.** Verificado a mano el recorrido completo: alta → onboarding → plan generado → marcar
+series → cronómetro de descanso → sustitución → cerrar sesión → avance de la cola a la sesión
+siguiente → `/progreso` con datos reales.
+
 ### Instrucciones vigentes del usuario
 
 1. **No bloquear por falta de catálogo real.** Placeholders marcados como tales, que se dejan de
    usar solos cuando el dato real los reemplace.
 2. **Toda prescripción de entrenamiento sale de `docs/research/`**, nunca inventada.
 3. **Verificar en `localhost:5173`**, no en el deploy de Vercel.
+4. **Probar la app entrando de verdad**, con usuario y clics, no solo con `curl` y tests.
+5. **La paleta de colores no se saca del ícono de Blue Horse.** Sigue sin definirse.
 
 ### Dónde quedó
 
