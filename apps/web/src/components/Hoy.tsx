@@ -3,7 +3,6 @@ import { AlertCircle, Dumbbell, Loader2, MapPin, Trophy } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
-import { celebratePersonalRecord } from '../lib/celebrate.ts';
 import { fadeUp, listContainer, listItem, screen, tappable } from '../lib/motion.ts';
 import { onboardingUnavailable, useProfileStatus } from '../lib/onboarding.ts';
 import type { ActiveSessionItem } from '../lib/plan.ts';
@@ -194,16 +193,6 @@ export function Hoy() {
           </motion.section>
         )}
       </AnimatePresence>
-
-      <motion.button
-        type="button"
-        {...tappable}
-        onClick={celebratePersonalRecord}
-        className="flex items-center justify-center gap-2.5 rounded-xl border border-orange/40 bg-orange/10 px-4 py-3.5 text-sm font-semibold text-orange"
-      >
-        <Trophy size={16} aria-hidden="true" />
-        Probar celebración de récord
-      </motion.button>
     </div>
   );
 }

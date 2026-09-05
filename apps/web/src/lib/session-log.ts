@@ -1,7 +1,10 @@
 import type { BodyRegion } from '@bh/domain';
+import { toKg } from '@bh/domain';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { useAuth } from './auth/AuthProvider.tsx';
+import { celebratePersonalRecord } from './celebrate.ts';
+import { toPersonalRecordInsert } from './mappers/personal-record.ts';
 import {
   type SessionFeel,
   toPainReportInsert,
@@ -57,6 +60,51 @@ export function startSessionOutbox(): () => void {
 }
 
 /**
+ * Récord real, no de mentira: compara contra el máximo `load_kg_normalized`
+ * ya registrado para ese ejercicio ANTES de encolar esta serie (evita
+ * compararla contra sí misma si ya llegó al servidor). Best-effort a
+ * propósito — sin conexión, o con Supabase sin configurar, simplemente no
+ * hay celebración esta vez; nunca rompe el registro de la serie en sí.
+ *
+ * Exige un récord anterior real (no solo un valor): la primera vez que se
+ * hace un ejercicio no es un "récord", es el punto de partida.
+ */
+async function celebrateIfRecord(
+  userId: string,
+  exerciseId: string,
+  setLogId: string,
+  loadKg: number | null,
+  achievedAt: string,
+): Promise<void> {
+  if (loadKg === null) return;
+
+  try {
+    const client = requireSupabase();
+    const { data, error } = await client
+      .from('set_logs')
+      .select('load_kg_normalized, workout_logs!inner(user_id)')
+      .eq('exercise_id', exerciseId)
+      .eq('workout_logs.user_id', userId)
+      .eq('is_warmup', false)
+      .not('load_kg_normalized', 'is', null)
+      .order('load_kg_normalized', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error) return;
+
+    const previousBest = data?.load_kg_normalized as number | null | undefined;
+    if (previousBest === null || previousBest === undefined || loadKg <= previousBest) return;
+
+    celebratePersonalRecord();
+    await client
+      .from('personal_records')
+      .insert(toPersonalRecordInsert(userId, exerciseId, loadKg, setLogId, achievedAt));
+  } catch {
+    // la celebración es un nice-to-have: nunca bloquea ni rompe marcar la serie.
+  }
+}
+
+/**
  * Registra series completadas de una sesión. El `workout_log` se crea recién
  * cuando se marca la primera serie — si el socio abre la sesión y no hace
  * nada, no queda un registro vacío en la base.
@@ -94,10 +142,22 @@ export function useSessionLog(userId: string | undefined, planSessionId: string)
     const workoutLogId = await ensureWorkoutLog();
     if (!workoutLogId) return;
 
+    const setLogId = crypto.randomUUID();
+    const completedAt = new Date().toISOString();
+    const loadKg =
+      item.targetLoad && item.equipmentLoadSpec
+        ? toKg(item.targetLoad, item.equipmentLoadSpec)
+        : null;
+
+    // Se dispara ANTES de encolar esta serie: compara contra el historial
+    // real, no contra sí misma. Sin `await`: no hace esperar el toque de
+    // "hecha" a una consulta de red.
+    if (userId) void celebrateIfRecord(userId, item.exerciseId, setLogId, loadKg, completedAt);
+
     await enqueue(
       'set_log',
       toSetLogInsert(
-        crypto.randomUUID(),
+        setLogId,
         workoutLogId,
         {
           planSessionItemId: item.id,
@@ -111,7 +171,7 @@ export function useSessionLog(userId: string | undefined, planSessionId: string)
         setIndex,
         restActualSeconds,
         newClientId(),
-        new Date().toISOString(),
+        completedAt,
       ),
     );
 
