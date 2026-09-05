@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router';
 import { App } from './App.tsx';
+import { Instalar } from './routes/Instalar.tsx';
 import { Onboarding } from './routes/Onboarding.tsx';
 import { Panel } from './routes/Panel.tsx';
 import { Progreso } from './routes/Progreso.tsx';
@@ -11,9 +12,13 @@ import { SignIn } from './routes/SignIn.tsx';
 /**
  * Árbol de rutas de la app. Crece por fase del roadmap:
  * fase 1 agrega /auth, /onboarding, /panel y protege "/"; fase 2 suma /hoy, /sesion;
- * fase 3 suma /progreso.
+ * fase 3 suma /progreso e /instalar (destino del QR del gimnasio, pública).
  */
 export const router = createBrowserRouter([
+  {
+    path: '/instalar',
+    element: <Instalar />,
+  },
   {
     path: '/auth',
     element: <SignIn />,
