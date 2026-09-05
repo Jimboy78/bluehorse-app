@@ -29,3 +29,16 @@ describe('describeOutboxError', () => {
     expect(describeOutboxError(null)).toBe('null');
   });
 });
+
+describe('describeOutboxError con errores reales de Supabase', () => {
+  it('distingue el error de FK que ocultaba el récord personal', () => {
+    const fk = {
+      code: '23503',
+      message: 'insert or update on table "personal_records" violates foreign key constraint',
+      details: 'Key (set_log_id) is not present in table "set_logs".',
+    };
+    const texto = describeOutboxError(fk);
+    expect(texto).toContain('23503');
+    expect(texto).toContain('set_log_id');
+  });
+});

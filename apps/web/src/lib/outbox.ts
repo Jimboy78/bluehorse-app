@@ -60,6 +60,32 @@ export function pendingCount(): Promise<number> {
   return db.pending.count();
 }
 
+export interface OutboxHealth {
+  readonly pending: number;
+  /** Cuántos ya fallaron al menos una vez: eso no es falta de señal. */
+  readonly failing: number;
+  /** El error del que más viene fallando, para saber por qué está trabado. */
+  readonly worstError: string | null;
+}
+
+/**
+ * Estado de la cola, no solo cuántos hay.
+ *
+ * Un ítem esperando señal y uno que falla por un bug se ven igual desde el
+ * contador: los dos son "1 pendiente". Los distingue `attempts` — sin señal
+ * `flush()` ni lo intenta, así que queda en 0. Con esto, una cola trabada por
+ * un error real deja de parecerse a un backlog normal de gimnasio.
+ */
+export async function outboxHealth(): Promise<OutboxHealth> {
+  const items = await db.pending.toArray();
+  const failing = items.filter((i) => i.attempts > 0);
+  const worst = failing.reduce<OutboxItem | null>(
+    (peor, i) => (peor === null || i.attempts > peor.attempts ? i : peor),
+    null,
+  );
+  return { pending: items.length, failing: failing.length, worstError: worst?.lastError ?? null };
+}
+
 /**
  * Saca una escritura de la cola si todavía no salió. Devuelve `true` si la
  * encontró: en ese caso nunca llegó al servidor y no hay nada que deshacer

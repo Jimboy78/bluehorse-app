@@ -8,7 +8,7 @@ import { useAuth } from './lib/auth/AuthProvider.tsx';
 import { activeRuleset, showsPlaceholderContent } from './lib/engine.ts';
 import { envError, isConfigured } from './lib/env.ts';
 import { fadeUp, tappable } from './lib/motion.ts';
-import { pendingCount } from './lib/outbox.ts';
+import { type OutboxHealth, outboxHealth } from './lib/outbox.ts';
 import { checkConnection } from './lib/supabase.ts';
 import { useTodaySession } from './lib/use-today-session.ts';
 
@@ -33,7 +33,7 @@ export function App() {
 
   const outbox = useQuery({
     queryKey: ['health', 'outbox'],
-    queryFn: pendingCount,
+    queryFn: outboxHealth,
     enabled: import.meta.env.DEV,
     retry: false,
     // La cola cambia mientras se entrena, no al montar la pantalla. Sin esto
@@ -138,8 +138,9 @@ export function App() {
             />
             <Row
               label="Cola offline"
-              value={outbox.isPending ? 'leyendo…' : `${outbox.data ?? 0} pendientes`}
-              ok={(outbox.data ?? 0) === 0}
+              value={outbox.isPending ? 'leyendo…' : describeQueue(outbox.data)}
+              // Pendientes esperando señal es normal; que alguno falle, no.
+              ok={(outbox.data?.failing ?? 0) === 0}
             />
           </dl>
         </motion.section>
@@ -162,4 +163,16 @@ function Row({ label, value, ok }: { label: string; value: string; ok: boolean }
       </dd>
     </div>
   );
+}
+
+/**
+ * Qué decir de la cola en el panel de desarrollo. "3 pendientes" no distingue
+ * entre tres series esperando señal y tres trabadas por un bug — y esa
+ * diferencia es justo la que hace falta ver.
+ */
+function describeQueue(health: OutboxHealth | undefined): string {
+  if (!health) return 'sin respuesta';
+  if (health.pending === 0) return 'vacía';
+  if (health.failing === 0) return `${health.pending} esperando señal`;
+  return `${health.failing} de ${health.pending} fallando · ${health.worstError ?? 'sin detalle'}`;
 }

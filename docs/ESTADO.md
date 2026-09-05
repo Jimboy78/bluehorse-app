@@ -280,6 +280,33 @@ los campos lo apagaban (`outline-none`) cambiando solo el borde. Ahora hay un `:
 único en teal, con offset. `prefers-reduced-motion` y los objetivos táctiles de 44px ya estaban
 bien resueltos de antes.
 
+### El patrón que más bugs escondió: fallar y parecer que no pasó nada
+
+Tres de los peores bugs de esta sesión sobrevivieron por lo mismo — un error que se tragaba y se
+veía igual que "no hay nada para hacer":
+
+| Dónde | Se veía como |
+|---|---|
+| `lastError` con `String(error)` → `"[object Object]"` | falla genérica sin causa |
+| La query de propuestas en error, `Proposals` mirando solo `data` | "el motor no tiene nada que proponer" |
+| El insert del récord fallando por FK, dentro de un `catch` de "nice-to-have" | confeti sin récord guardado |
+
+Auditados los 20 `catch` de `apps/web/src`: la mayoría muestra el error en pantalla. Los que quedan
+callados son limpiezas de fotos huérfanas en Storage, donde tragarse el error es correcto.
+
+Lo que faltaba era **leer lo que la cola ya sabía**: guardaba `attempts` y `lastError` y nadie los
+miraba. Un ítem esperando señal y uno trabado por un bug se veían igual ("1 pendiente"), cuando
+`attempts` los distingue solos — sin señal `flush()` ni lo intenta, así que queda en 0.
+
+`outboxHealth()` los separa y el panel de desarrollo ahora dice cuál es cuál:
+
+- `vacía`
+- `1 esperando señal` — normal en un gimnasio
+- `1 de 2 fallando · 23503 · viola la FK de set_logs` — un bug, con el motivo
+
+Con esto puesto antes, el bug de la FK del récord personal se veía en el primer intento en vez de
+esconderse toda la sesión.
+
 **Moraleja para las próximas sesiones: `curl` contra la base y los tests verdes no dicen que la app
 funcione.** Verificado a mano el recorrido completo: alta → onboarding → plan generado → marcar
 series → cronómetro de descanso → sustitución → cerrar sesión → avance de la cola a la sesión
