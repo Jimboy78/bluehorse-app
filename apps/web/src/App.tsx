@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { LogOut, TrendingUp } from 'lucide-react';
+import { LogOut, RefreshCw, TrendingUp } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router';
 import { Hoy } from './components/Hoy.tsx';
@@ -10,6 +10,7 @@ import { envError, isConfigured } from './lib/env.ts';
 import { fadeUp, tappable } from './lib/motion.ts';
 import { type OutboxHealth, outboxHealth } from './lib/outbox.ts';
 import { checkConnection } from './lib/supabase.ts';
+import { useServiceWorkerUpdate } from './lib/use-sw-update.ts';
 import { useTodaySession } from './lib/use-today-session.ts';
 
 /**
@@ -45,6 +46,7 @@ export function App() {
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-8 px-5 py-8">
+      <ServiceWorkerUpdate />
       <motion.header
         variants={fadeUp}
         initial="hidden"
@@ -175,4 +177,34 @@ function describeQueue(health: OutboxHealth | undefined): string {
   if (health.pending === 0) return 'vacía';
   if (health.failing === 0) return `${health.pending} esperando señal`;
   return `${health.failing} de ${health.pending} fallando · ${health.worstError ?? 'sin detalle'}`;
+}
+
+/**
+ * Aviso de versión nueva. Discreto y arriba de todo, pero sin recargar solo:
+ * hacerlo en medio de una serie borraría lo que la persona estaba cargando.
+ */
+function ServiceWorkerUpdate() {
+  const { needsRefresh, applyUpdate } = useServiceWorkerUpdate();
+  if (!needsRefresh) return null;
+
+  return (
+    <motion.div
+      variants={fadeUp}
+      initial="hidden"
+      animate="visible"
+      role="status"
+      className="flex items-center justify-between gap-3 rounded-lg border border-teal/40 bg-teal/10 px-4 py-3 text-sm"
+    >
+      <span>Hay una versión nueva de la app.</span>
+      <motion.button
+        type="button"
+        {...tappable}
+        onClick={() => void applyUpdate()}
+        className="flex shrink-0 items-center gap-1.5 rounded-full bg-teal px-3.5 py-2 text-xs font-semibold text-navy"
+      >
+        <RefreshCw size={13} aria-hidden="true" />
+        Actualizar
+      </motion.button>
+    </motion.div>
+  );
 }

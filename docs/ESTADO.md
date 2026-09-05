@@ -307,6 +307,31 @@ miraba. Un ítem esperando señal y uno trabado por un bug se veían igual ("1 p
 Con esto puesto antes, el bug de la FK del récord personal se veía en el primer intento en vez de
 esconderse toda la sesión.
 
+### Primera compilación de producción, y el service worker que no actualizaba nunca
+
+La app había corrido siempre en dev. `npm run build` anda y el bundle sale razonable (el panel de
+desarrollo, bien escondido en producción). Pero probar el build destapó algo serio.
+
+**El service worker estaba en `registerType: 'prompt'` y nadie preguntaba nada.** El
+`registerSW.js` que inyecta el plugin solo registra: nunca llama a `skipWaiting` ni hay UI que lo
+pida. Entonces una versión nueva se instala, **queda en `waiting` para siempre y no se activa
+jamás**. En un teléfono con la PWA instalada —que casi nunca se cierra del todo— un arreglo
+publicado podía no llegarle nunca al socio. Verificado en el build: tras publicar una versión
+nueva, `reg.waiting` quedaba en `true` indefinidamente.
+
+`'prompt'` está bien elegido (con `autoUpdate` la app se recarga sola y le borra a alguien la serie
+que estaba cargando). Lo que faltaba era la otra mitad: `useServiceWorkerUpdate` avisa y deja
+elegir cuándo. Ciclo completo probado: versión nueva → cartel → "Actualizar" → recarga con el
+service worker nuevo activo y el cartel desaparecido.
+
+**Casi meto un bug al arreglarlo**: al importar `virtual:pwa-register`, el plugin deja de inyectar
+`registerSW.js`, así que el registro pasa a depender de dónde esté el import. Con el hook adentro
+de `App`, `/auth` e `/instalar` se quedaban sin service worker — y `/instalar` es el destino del QR
+del gimnasio, la pantalla cuyo único trabajo es que la app se instale. El registro va a nivel de
+módulo y lo importa `main.tsx`, igual que la cola offline. Verificado desde cero en `/instalar`.
+
+**Ojo**: `node -v` da 22.3.0 y `CLAUDE.md` pide 22.12 mínimo. Vite avisa pero arranca igual.
+
 **Moraleja para las próximas sesiones: `curl` contra la base y los tests verdes no dicen que la app
 funcione.** Verificado a mano el recorrido completo: alta → onboarding → plan generado → marcar
 series → cronómetro de descanso → sustitución → cerrar sesión → avance de la cola a la sesión

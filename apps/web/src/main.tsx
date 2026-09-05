@@ -6,6 +6,9 @@ import { ErrorBoundary } from './components/ErrorBoundary.tsx';
 import { AuthProvider } from './lib/auth/AuthProvider.tsx';
 import { queryClient } from './lib/query-client.ts';
 import { startSessionOutbox } from './lib/session-log.ts';
+// Registra el service worker apenas arranca la app, no al montar una pantalla:
+// si no, `/auth` e `/instalar` —el destino del QR— se quedaban sin registrarlo.
+import './lib/use-sw-update.ts';
 import { router } from './router.tsx';
 import './styles.css';
 
