@@ -276,8 +276,18 @@ query sigue devolviendo 42 (41 no es récord, como corresponde) → serie de cal
 esa serie de la comparación aunque sea la carga más alta de todas. El insert final a
 `personal_records` también anduvo con los FKs reales. Limpieza completa después.
 
-Lo único que sigue sin probarse es la capa de React arriba de todo esto (formularios, hooks,
-pantallas) — eso sí necesita el `.env` de la app, que sigue sin tocarse.
+**Última pieza del motor: `engine.findSubstitutes()` contra el catálogo real**. Con "Sentadilla"
+y su estación marcada como ocupada, el motor ofreció "Prensa de piernas" (equivalencia 1.00) y
+"Zancadas" (0.60) — dos alternativas reales del catálogo de Blue Horse, ninguna la estación
+ocupada. Se verificó explícitamente que ninguna opción devuelve la misma estación marcada como no
+disponible ni un `exercise_id`/`equipment_id` que no exista en el catálogo. El `session_event`
+tipo `substituted` (lo que graba `logSubstitution`) se insertó sin problema con los FKs reales.
+Limpieza completa después.
+
+Con esto quedaron probadas contra Postgres real las tres funciones del `PrescriptionEngine`
+(`generatePlan`, `reviewProgress`, `findSubstitutes`) con el catálogo y el motor de verdad, no
+simulados. Lo único que sigue sin probarse es la capa de React arriba de todo esto (formularios,
+hooks, pantallas) — eso sí necesita el `.env` de la app, que sigue sin tocarse.
 
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
