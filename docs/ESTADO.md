@@ -225,6 +225,15 @@ propiedad de seguridad más importante para una app multi-socio real, y ahora es
 punta a punta (login real → escritura → lectura), no solo leída en el SQL. Las dos cuentas y sus
 filas se borraron después.
 
+**El gate de staff del panel admin, confirmado con el MISMO JWT antes y después de un cambio de
+rol**: una cuenta nueva (`member` por default) intentó insertar en `equipment` y recibió `403`;
+promovida a `staff` (`update profiles set role='staff'` vía service role, sin volver a iniciar
+sesión — el JWT no cambia), el mismo `insert` con el mismo token anduvo (`201`). Confirma que
+`is_gym_admin()` lee el rol actual en cada request en vez de algo cacheado en el JWT — así que un
+cambio de rol surte efecto sin que la persona tenga que volver a loguearse, y que el gate del
+panel (que bloqueé más temprano con los fixes de `useCreateEquipment`/`useCreateExercise`) está
+parado sobre una RLS que de verdad filtra por rol.
+
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
 Una query de TanStack Query con `enabled: false` se queda en `isPending: true` para siempre.
