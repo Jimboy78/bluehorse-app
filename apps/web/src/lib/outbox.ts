@@ -57,15 +57,24 @@ export function pendingCount(): Promise<number> {
 export type Sender = (item: OutboxItem) => Promise<void>;
 
 /**
- * Vacía la cola en orden de llegada. Un fallo detiene el envío y deja el resto
- * en cola: reintentar en orden importa (una serie no puede llegar antes que la
- * sesión que la contiene).
+ * Vacía la cola en orden de llegada. Intenta cada ítem aunque uno anterior
+ * haya fallado — no corta al primer error.
+ *
+ * Antes cortaba entero al primer fallo, pensando en que una serie no puede
+ * llegar antes que su sesión. Pero eso significa que UN ítem roto para
+ * siempre (un bug real, no solo falta de señal) atasca la cola COMPLETA de
+ * ese teléfono para siempre: nada de sesiones futuras, no relacionadas,
+ * vuelve a sincronizar jamás. Seguir de largo no rompe el orden que importa:
+ * si el `workout_log` de una serie todavía no llegó, esa serie en particular
+ * vuelve a fallar (FK inexistente) y queda en cola para el próximo intento —
+ * pero el resto de la cola, de otras sesiones, no se ve arrastrado.
  */
 export async function flush(send: Sender): Promise<{ sent: number; failed: number }> {
   if (!navigator.onLine) return { sent: 0, failed: 0 };
 
   const items = await db.pending.orderBy('createdAt').toArray();
   let sent = 0;
+  let failed = 0;
 
   for (const item of items) {
     try {
@@ -77,11 +86,11 @@ export async function flush(send: Sender): Promise<{ sent: number; failed: numbe
         attempts: item.attempts + 1,
         lastError: error instanceof Error ? error.message : String(error),
       });
-      return { sent, failed: items.length - sent };
+      failed += 1;
     }
   }
 
-  return { sent, failed: 0 };
+  return { sent, failed };
 }
 
 /** Reintenta al recuperar la conexión. Se llama una vez, en el arranque. */
