@@ -210,7 +210,11 @@ function GoalStep({ initial, onNext }: { initial: Draft; onNext: (patch: Draft) 
           </motion.button>
         ))}
       </div>
-      {touched && !goal && <p className="text-sm text-orange">Elegí un objetivo.</p>}
+      {touched && !goal && (
+        <p role="alert" className="text-sm text-orange">
+          Elegí un objetivo.
+        </p>
+      )}
 
       <label className="flex flex-col gap-1.5 text-sm" htmlFor="sport">
         Deporte que practicás (opcional)
@@ -318,7 +322,11 @@ function PersonalStep({
         </div>
       </div>
 
-      {error && <p className="text-sm text-orange">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sm text-orange">
+          {error}
+        </p>
+      )}
 
       <div className="mt-2 flex gap-3">
         <motion.button

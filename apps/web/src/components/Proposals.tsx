@@ -32,6 +32,7 @@ export function Proposals() {
           variants={listContainer}
           initial="hidden"
           animate="visible"
+          aria-live="polite"
           className="flex flex-col gap-2"
         >
           {proposals.data.map((proposal) => (

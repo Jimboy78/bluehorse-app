@@ -20,6 +20,7 @@ export function Progreso() {
         <motion.div {...tappable}>
           <Link
             to="/"
+            aria-label="Volver a Hoy"
             className="flex size-10 items-center justify-center rounded-full border border-line text-slate"
           >
             <ArrowLeft size={16} aria-hidden="true" />

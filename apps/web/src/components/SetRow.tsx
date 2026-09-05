@@ -25,6 +25,8 @@ export function SetRow({ index, targetLoad, targetReps, done, onToggle }: SetRow
       type="button"
       layout
       {...tappable}
+      aria-pressed={done}
+      aria-label={`Serie ${index + 1}: ${targetLoad} × ${targetReps}, ${done ? 'hecha' : 'marcar como hecha'}`}
       onClick={() => {
         if (!done) haptic(hapticPattern.setDone);
         onToggle();

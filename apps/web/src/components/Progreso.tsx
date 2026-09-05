@@ -242,6 +242,7 @@ function ExerciseEvolution({
             key={exercise.id}
             type="button"
             {...tappable}
+            aria-pressed={selectedId === exercise.id}
             onClick={() => setSelectedId(exercise.id)}
             className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
               selectedId === exercise.id

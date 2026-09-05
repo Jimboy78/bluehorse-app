@@ -401,7 +401,7 @@ function PlanStateMessage({
         Generar mi plan
       </motion.button>
       {generatePlan.isError && (
-        <p className="flex items-center gap-1.5 text-xs text-orange">
+        <p role="alert" className="flex items-center gap-1.5 text-xs text-orange">
           <AlertCircle size={13} aria-hidden="true" />
           No se pudo generar. Probá de nuevo en un momento.
         </p>

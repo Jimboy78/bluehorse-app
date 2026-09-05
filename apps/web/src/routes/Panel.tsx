@@ -308,7 +308,11 @@ function EquipmentSection({ gymId }: { gymId: string | null }) {
           </label>
         </div>
 
-        {error && <p className="text-sm text-orange">{error}</p>}
+        {error && (
+          <p role="alert" className="text-sm text-orange">
+            {error}
+          </p>
+        )}
 
         <motion.button
           type="submit"
@@ -610,7 +614,11 @@ function ExerciseSection({ gymId }: { gymId: string | null }) {
           />
         </label>
 
-        {error && <p className="text-sm text-orange">{error}</p>}
+        {error && (
+          <p role="alert" className="text-sm text-orange">
+            {error}
+          </p>
+        )}
 
         <motion.button
           type="submit"
@@ -688,6 +696,7 @@ function ChipPicker({
               key={value}
               type="button"
               {...tappable}
+              aria-pressed={selected.includes(value)}
               onClick={() => onToggle(value)}
               className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
                 selected.includes(value)

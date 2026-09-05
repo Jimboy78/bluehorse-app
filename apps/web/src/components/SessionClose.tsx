@@ -84,6 +84,7 @@ export function SessionClose({
             key={f}
             type="button"
             {...tappable}
+            aria-pressed={feel === f}
             onClick={() => setFeel(f)}
             className={`flex-1 rounded-xl border px-4 py-3 text-sm font-semibold ${
               feel === f ? 'border-teal bg-teal/10 text-teal' : 'border-line bg-navy-soft'
@@ -102,6 +103,7 @@ export function SessionClose({
               key={region}
               type="button"
               {...tappable}
+              aria-pressed={painRegion === region}
               onClick={() => setPainRegion((prev) => (prev === region ? null : region))}
               className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
                 painRegion === region
@@ -143,7 +145,7 @@ export function SessionClose({
       </label>
 
       {error && (
-        <p className="flex items-center gap-1.5 text-sm text-orange">
+        <p role="alert" className="flex items-center gap-1.5 text-sm text-orange">
           <AlertCircle size={14} aria-hidden="true" />
           {error}
         </p>
