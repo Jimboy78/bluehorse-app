@@ -52,10 +52,19 @@ como completada, que es lo único que hace avanzar la cola a la sesión siguient
   (`display-mode: standalone`) solo muestra un mensaje corto. Todas las ramas ofrecen "Entrar" sin
   instalar. La detección de plataforma es pura, con tests.
 
-**Fase 3 cerrada.** Sigue Fase 4 (contenido real), bloqueada por el research y por el relevamiento
-del catálogo (Fase 0, del usuario) — no hay más código de producto para escribir sin esos dos
-insumos. Lo que queda mientras tanto es técnico: verificación end-to-end contra Supabase real,
-`npm run db:types`, y pulir lo ya construido (performance, accesibilidad).
+**Fase 3 cerrada.** Sigue Fase 4 (contenido real). **Corrección importante: el research NO está
+pendiente de producirse — ya existe** en `docs/research/` (4 documentos, segunda tanda, con DOIs
+verificables) y `docs/research/README.md` ya lo evalúa documento por documento. Lo que bloquea
+Fase 4 es la curación, no la investigación en sí, y esa curación es explícitamente del usuario
+(o de alguien con criterio clínico para la Parte D de seguridad) — no algo que yo deba decidir
+solo: verificar a mano una muestra de los DOIs citados (sobre todo en `03` y `04`), decidir qué
+hacer con las filas en confianza BAJA, y solo `02` (cardio) necesita además extender
+`ruleset.ts` con un esquema nuevo (session_type/intensity_zone/etc., propuesto en el research)
+antes de poder cargarse — eso sí es un cambio de código, pero lo dejo para cuando se sepa qué
+forma final le van a dar al resto de la curación, no antes. Ver `docs/research/README.md` para el
+detalle completo y la skill `activar-ruleset` para el procedimiento. Sigue bloqueada también por
+el relevamiento del catálogo (Fase 0, del usuario). Lo que queda mientras tanto es técnico:
+verificación end-to-end contra Supabase real, y pulir lo ya construido.
 
 **Code-splitting por ruta ya hecho** (`router.tsx`, todas las pantallas via `React.lazy()`): el
 chunk principal bajó de ~966kB a ~318kB, sin warning de tamaño. Ya no es una traba pendiente.
@@ -318,15 +327,16 @@ instalación real quedan sin verificar en un dispositivo físico.
 
 ### Lo próximo, en orden
 
-1. **Con `.env` cargado**: la primera prueba de punta a punta real de todo lo construido hasta
-   acá. Es el paso más urgente — hay mucho código nunca ejercitado contra Supabase de verdad.
-   Correr `npm run db:types` en el mismo momento.
-2. Fase 4 (contenido real) está bloqueada por research y por el relevamiento del catálogo — no
-   arrancar sin eso. La auditoría de robustez de `apps/web/src/lib/` ya se cerró (ver arriba); no
-   queda una tarea técnica obvia pendiente sin `.env` real — la próxima pasada probablemente
-   necesite leer código con más cuidado para encontrar algo específico, no repasar una lista ya
-   hecha.
-3. Decisión de paleta (`docs/07-marca-blue-horse.md`) — bloqueada, es del usuario.
+1. **Con `.env` cargado**: la única prueba que falta es la capa de React en sí (formularios, hooks,
+   pantallas) — la lógica de negocio (motor, persistencia, RLS, avance de cola) ya se verificó
+   completa contra Postgres real esta sesión, ver más arriba. `npm run db:types` ya está hecho.
+2. **Curación del research a `v1-research.json`** — es del usuario (o de alguien con criterio
+   clínico para la Parte D de `04`), no mía: verificar DOIs, decidir las filas de confianza BAJA.
+   Ver `docs/research/README.md`. Solo el esquema nuevo de cardio en `ruleset.ts` (paso 3 de esa
+   guía) es código, y conviene esperar a que se resuelvan los pasos 1-2 antes de tocarlo, para no
+   tener que rehacerlo si la forma final cambia.
+3. Relevamiento del catálogo real (Fase 0) — también del usuario.
+4. Decisión de paleta (`docs/07-marca-blue-horse.md`) — bloqueada, es del usuario.
 
 ### Trabas conocidas
 
