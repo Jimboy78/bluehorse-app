@@ -60,6 +60,13 @@ insumos. Lo que queda mientras tanto es técnico: verificación end-to-end contr
 **Code-splitting por ruta ya hecho** (`router.tsx`, todas las pantallas via `React.lazy()`): el
 chunk principal bajó de ~966kB a ~318kB, sin warning de tamaño. Ya no es una traba pendiente.
 
+**Pasada de accesibilidad ya hecha**: `role="alert"` en todo mensaje de error/validación que
+aparece sin recargar, `aria-pressed` en los grupos de selección única (sensación/molestia en
+`SessionClose`, chips de `Panel`, selector de ejercicio en `Progreso`), `aria-label` en el botón
+"volver" de `/progreso` (antes solo un ícono sin nombre accesible), `aria-live="polite"` en la
+lista de `Proposals` y un `aria-label` prolijo en `SetRow` en vez de dejar que el lector de
+pantalla concatene spans sueltos. Sin cambios de comportamiento.
+
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
 Una query de TanStack Query con `enabled: false` se queda en `isPending: true` para siempre.
@@ -90,8 +97,9 @@ dispositivo físico.
    acá. Es el paso más urgente — hay mucho código nunca ejercitado contra Supabase de verdad.
    Correr `npm run db:types` en el mismo momento.
 2. Fase 4 (contenido real) está bloqueada por research y por el relevamiento del catálogo — no
-   arrancar sin eso. Mientras tanto: accesibilidad general (foco, `aria-live` en las tarjetas de
-   propuestas/récords que aparecen sin recargar) es una mejora técnica que no depende de nadie.
+   arrancar sin eso. Mientras tanto queda pulir: navegación por teclado (nunca se probó con Tab),
+   y estados de foco visibles en botones custom (`motion.button` sin `focus-visible` explícito hoy
+   depende del estilo default del navegador).
 3. Decisión de paleta (`docs/07-marca-blue-horse.md`) — bloqueada, es del usuario.
 
 ### Trabas conocidas
