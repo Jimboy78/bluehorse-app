@@ -34,7 +34,8 @@ export function useGymCatalog(gymId: string | null) {
   });
 }
 
-async function fetchGymCatalog(client: SupabaseClient, gymId: string): Promise<GymCatalog> {
+/** Exportada para reuso: la generación de plan necesita el mismo catálogo que el motor. */
+export async function fetchGymCatalog(client: SupabaseClient, gymId: string): Promise<GymCatalog> {
   const equipment = await fetchEquipment(client, gymId);
   if (equipment.length === 0) {
     return { gym: PLACEHOLDER_GYM, isPlaceholder: true };

@@ -10,6 +10,7 @@ import {
   useCompleteOnboarding,
   useProfileStatus,
 } from '../lib/onboarding.ts';
+import { useGeneratePlan } from '../lib/plan.ts';
 import {
   calibrationStepSchema,
   frequencyStepSchema,
@@ -58,6 +59,7 @@ export function Onboarding() {
   const { user } = useAuth();
   const profile = useProfileStatus();
   const complete = useCompleteOnboarding();
+  const generatePlan = useGeneratePlan();
 
   const [stepIndex, setStepIndex] = useState(0);
   const [draft, setDraft] = useState<Draft>({});
@@ -91,10 +93,21 @@ export function Onboarding() {
     }
     try {
       await complete.mutateAsync(parsed.data);
-      navigate('/', { replace: true });
     } catch {
       setError('No se pudo guardar. Revisá tu conexión y probá de nuevo.');
+      return;
     }
+
+    // El perfil y el objetivo ya se guardaron: si esto falla, no hacemos
+    // volver al socio a repetir el onboarding. La regeneración manual llega
+    // con la pantalla "Hoy" real (Fase 2); por ahora solo se loguea.
+    try {
+      await generatePlan.mutateAsync();
+    } catch (planErr) {
+      console.error('No se pudo generar el plan inicial:', planErr);
+    }
+
+    navigate('/', { replace: true });
   }
 
   return (

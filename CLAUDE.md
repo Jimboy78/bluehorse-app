@@ -91,6 +91,10 @@ antes de hacerlo.
   `npm run db:sync` (`supabase db schema declarative sync --apply`). Y esa sincronización rechaza
   `INSERT` sobre tablas de sistema (`storage.buckets`, etc.): los inserts van en `seed.sql`, las
   políticas (`CREATE POLICY`) sí son DDL y van en `schemas/`.
+- **`npm run db:reset` deja `rulesets` vacía.** El ruleset placeholder no está en `seed.sql` (subirlo
+  requiere la `service_role` key, que nunca va en un archivo versionado). Cualquier insert en
+  `plans` falla por la FK a `rulesets(version)` hasta correr `npm run db:ruleset` de nuevo después
+  de cada reset. Sacá `SUPABASE_URL`/`SERVICE_ROLE_KEY` de `npx supabase status -o env`.
 
 ## Documentación
 
