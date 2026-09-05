@@ -31,7 +31,7 @@ Fotos, planilla de equipamiento y lista de ejercicios canónicos. Ver `05-releva
 
 **Entregable**: el catálogo real, navegable desde la app.
 
-## Fase 2 — Motor y sesión · **en curso**
+## Fase 2 — Motor y sesión · **completa salvo el cierre de sesión**
 
 - [x] Generación de plan desde el catálogo real, persistida (`useGeneratePlan`, dispara al
   terminar el onboarding) y su lectura (`useActivePlan`, primera sesión pendiente de la cola)
@@ -39,12 +39,14 @@ Fotos, planilla de equipamiento y lista de ejercicios canónicos. Ver `05-releva
   cuatro estados reales (sin plan, cola completa, sesión pendiente, detalle de ejercicio)
 - [x] Pantalla de sesión: los ejercicios del día, orden sugerido pero libre — ya en `Hoy.tsx`
 - [x] Detalle de ejercicio: series pre-cargadas desde `plan_session_items`, confirmar de a un toque
-- [x] Cronómetro de descanso — funcional, todavía con duración fija de demo (12 s) en vez del
-  `rest_seconds` real de cada ítem
-- [ ] **Falta**: marcar una serie hecha solo cambia estado local, no escribe a `set_logs` todavía
-- [ ] Cierre de sesión: sensación, molestias, resumen
+- [x] Cronómetro de descanso, con el `rest_seconds` real de cada ítem (ya no el valor fijo de demo)
+- [x] Escritura real a `set_logs` (y `workout_logs`, creado al vuelo en la primera serie) vía la
+  cola offline (`useSessionLog` + `startSessionOutbox`), con `load_kg_normalized` calculado con
+  `toKg()` — nunca inventado si la estación no tiene tabla de conversión
+- [ ] Cierre de sesión: sensación, molestias, resumen (todavía no existe una pantalla para esto;
+  `workout_logs.session_feel`/`ended_at` quedan sin completar)
 
-**Entregable**: podés dejar el Excel y usarla vos.
+**Entregable**: podés dejar el Excel y usarla vos — salvo el cierre de sesión, ya se puede.
 
 ## Fase 3 — Adaptación, progreso y offline
 
