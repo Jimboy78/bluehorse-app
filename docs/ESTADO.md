@@ -130,6 +130,27 @@ load_kg_normalized 82.50` (62,5 + 20 de la barra) y otra en `reps 7 / reps_targe
 Antes las dos cosas eran imposibles de representar. `/progreso` ya muestra "62,5 kg" en vez de
 "sin registrar".
 
+### La adaptación funciona de punta a punta (verificado en pantalla)
+
+Jugando dos sesiones reales de Sentadilla con RIR 4 apareció la primera propuesta del motor:
+*"En Sentadilla te sobraron repeticiones las últimas 2 veces. ¿Subimos la carga?" 17.5 → 20*, con
+su marca de `RULESET PROVISORIO`. Aceptar aplica la carga a las sesiones pendientes del plan.
+
+Llegar ahí destapó cuatro bugs más:
+
+1. **La adaptación fallaba en silencio.** `mappers/adaptation.ts` exigía `load_unit` no nulo
+   (arreglé el de `progress.ts` y me olvidé de este). Una sola serie sin unidad hacía explotar el
+   zod, la query quedaba en error, y `Proposals` devolvía `null` — indistinguible de "no hay
+   propuestas". **Toda la adaptación desaparecía sin un solo mensaje.** Ahora el error se muestra.
+2. **`SetLog.load` era no-nulo en el dominio** mientras la base ya aceptaba nulos. Pasó a
+   `LoadReading | null`, con las guardas correspondientes en el motor: sin carga anotada no se
+   propone subir, porque no hay desde dónde.
+3. **Aceptar una propuesta generaba otra idéntica** en el siguiente render: el motor solo saltea
+   las rechazadas. Ahora tampoco repite una aceptada cuyo destino ya es el mismo — recién cuando la
+   persona entrene con la carga nueva hay evidencia nueva que mirar.
+4. **`applyLoadChange` guardaba `target_load` sin `target_load_unit`**: un 20 que no se sabía si
+   eran kilos, libras o un nivel de pin. La misma incoherencia que el check de `set_logs` prohíbe.
+
 **Moraleja para las próximas sesiones: `curl` contra la base y los tests verdes no dicen que la app
 funcione.** Verificado a mano el recorrido completo: alta → onboarding → plan generado → marcar
 series → cronómetro de descanso → sustitución → cerrar sesión → avance de la cola a la sesión

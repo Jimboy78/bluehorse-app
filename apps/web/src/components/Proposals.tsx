@@ -1,4 +1,4 @@
-import { ArrowRight, Check, Sparkles, X } from 'lucide-react';
+import { AlertCircle, ArrowRight, Check, Sparkles, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { usePendingProposals, useResolveProposal } from '../lib/adaptation.ts';
 import { showsPlaceholderContent } from '../lib/engine.ts';
@@ -13,6 +13,25 @@ import { fadeUp, listContainer, listItem, tappable } from '../lib/motion.ts';
 export function Proposals() {
   const proposals = usePendingProposals();
   const resolve = useResolveProposal();
+
+  // Que el motor falle no puede verse igual que "no tiene nada para
+  // proponer". Un zod roto en el historial dejaba esta pantalla en blanco y
+  // la adaptación entera desaparecía sin que nadie se enterara.
+  if (proposals.isError) {
+    return (
+      <motion.p
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        role="alert"
+        className="flex items-start gap-2 rounded-lg border border-amber/40 bg-amber/10 px-4 py-3 text-sm"
+      >
+        <AlertCircle size={15} className="mt-0.5 shrink-0 text-amber" aria-hidden="true" />
+        No se pudieron revisar tus ajustes esta vez. Tu entrenamiento sigue igual; probá de nuevo
+        más tarde.
+      </motion.p>
+    );
+  }
 
   if (!proposals.data || proposals.data.length === 0) return null;
 

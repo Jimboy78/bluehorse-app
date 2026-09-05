@@ -18,7 +18,11 @@ export const setLogHistoryRowSchema = z.object({
   equipment_id: z.uuid().nullable(),
   set_index: z.number().int(),
   load_value: z.coerce.number().nullable(),
-  load_unit: loadUnitSchema,
+  // Nula cuando no hubo carga que anotar. Antes esto era obligatorio: una
+  // sola serie sin unidad hacía explotar el zod, la query de propuestas
+  // quedaba en error, y la pantalla no mostraba nada — indistinguible de
+  // "no hay propuestas".
+  load_unit: loadUnitSchema.nullable(),
   load_kg_normalized: z.coerce.number().nullable(),
   reps: z.number().int().nullable(),
   reps_target: z.number().int().nullable(),
@@ -42,7 +46,7 @@ export function toSetLog(row: SetLogHistoryRow): SetLog {
     exerciseId: row.exercise_id,
     equipmentId: row.equipment_id,
     setIndex: row.set_index,
-    load: { value: row.load_value, unit: row.load_unit },
+    load: row.load_unit === null ? null : { value: row.load_value, unit: row.load_unit },
     loadKg: row.load_kg_normalized,
     reps: row.reps,
     repsTarget: row.reps_target,

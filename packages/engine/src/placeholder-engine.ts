@@ -140,6 +140,7 @@ interface RuleContext {
   readonly equipmentById: ReadonlyMap<Id, Equipment>;
   readonly ruleset: Ruleset;
   readonly placeholder: boolean;
+  readonly resolvedProposals: ReviewProgressInput['resolvedProposals'];
 }
 
 function reviewProgress(input: ReviewProgressInput): readonly ProposalBlueprint[] {
@@ -175,6 +176,7 @@ function reviewProgress(input: ReviewProgressInput): readonly ProposalBlueprint[
       equipmentById,
       ruleset,
       placeholder,
+      resolvedProposals,
     };
 
     // Orden de prioridad: subir gana sobre bajar, y bajar sobre descargar.
@@ -230,8 +232,12 @@ function proposeIncrease(ctx: RuleContext): ProposalBlueprint | null {
   const equipment = equipmentOf(top, ctx.equipmentById);
   if (!top || !equipment) return null;
 
+  // Sin carga anotada no hay desde dónde subir: proponer un número sería
+  // inventarle un punto de partida que nunca usó.
+  if (!top.load) return null;
   const proposed = nextLoad(top.load, equipment.load, progression.stepPct);
   if (proposed === null || proposed === top.load.value) return null;
+  if (alreadyAccepted(ctx, proposed)) return null;
 
   return {
     type: 'load_increase',
@@ -255,14 +261,15 @@ function proposeDecrease(ctx: RuleContext): ProposalBlueprint | null {
 
   const top = ctx.sets[0];
   const equipment = equipmentOf(top, ctx.equipmentById);
-  if (!top || !equipment || top.load.value === null) return null;
+  if (!top || !equipment || top.load?.value == null) return null;
 
-  const target = top.load.value * (1 - regression.stepPct / 100);
+  const target = snapToEquipment(top.load.value * (1 - regression.stepPct / 100), equipment.load);
+  if (alreadyAccepted(ctx, target)) return null;
   return {
     type: 'load_decrease',
     targetRef: { exerciseId: ctx.exerciseId },
     fromValue: String(top.load.value),
-    toValue: String(snapToEquipment(target, equipment.load)),
+    toValue: String(target),
     reasonCode: 'missed_reps',
     reasonText: `Venís sin llegar a las repeticiones en ${ctx.exercise.name}. Bajamos un poco para volver a completar las series.`,
     rulesetVersion: ctx.ruleset.version,
@@ -281,7 +288,9 @@ function proposeStallDeload(ctx: RuleContext): ProposalBlueprint | null {
   const recent = ctx.sets.slice(0, deload.stallSessions);
   const stalled =
     recent.length === deload.stallSessions &&
-    recent.every((s) => s.load.value === recent[0]?.load.value);
+    // Solo se puede hablar de estancamiento si hay una carga registrada con
+    // la cual comparar; sin eso no se sabe si se movió o no.
+    recent.every((s) => s.load?.value != null && s.load.value === recent[0]?.load?.value);
   if (!stalled) return null;
 
   return {
@@ -461,10 +470,25 @@ function groupTopSetsByExercise(history: readonly SetLog[]): Map<Id, SetLog[]> {
 }
 
 function compareLoad(a: SetLog, b: SetLog): number {
-  const av = a.loadKg ?? a.load.value ?? 0;
-  const bv = b.loadKg ?? b.load.value ?? 0;
+  const av = a.loadKg ?? a.load?.value ?? 0;
+  const bv = b.loadKg ?? b.load?.value ?? 0;
   if (av !== bv) return av - bv;
   return (a.reps ?? 0) - (b.reps ?? 0);
+}
+
+/**
+ * Ya se aceptó exactamente este cambio y todavía no se entrenó con la carga
+ * nueva. Volver a proponerlo sería repetir una pregunta ya contestada: recién
+ * cuando la persona entrene con la carga nueva, esa pasa a ser la serie tope
+ * y la próxima propuesta va a ser otro número.
+ */
+function alreadyAccepted(ctx: RuleContext, proposed: number): boolean {
+  return ctx.resolvedProposals.some(
+    (p) =>
+      p.status === 'accepted' &&
+      p.targetRef.exerciseId === ctx.exerciseId &&
+      p.toValue === String(proposed),
+  );
 }
 
 function wasRecentlyRejected(

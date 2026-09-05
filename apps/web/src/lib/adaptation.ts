@@ -166,12 +166,31 @@ async function applyLoadChange(
   const pendingSessionIds = (pendingSessions ?? []).map((s) => s.id as string);
   if (pendingSessionIds.length === 0) return;
 
-  const { error: applyError } = await client
+  // La unidad va junto con el número, siempre. Guardar `target_load` sin
+  // `target_load_unit` deja un 20 que no se sabe si son kilos, libras o un
+  // nivel de pin: es la misma incoherencia que el check de `set_logs`
+  // prohíbe, y acá se colaba porque el update solo tocaba el valor.
+  const { data: items, error: itemsError } = await client
     .from('plan_session_items')
-    .update({ target_load: targetLoad })
+    .select('id, equipment(load_unit)')
     .eq('exercise_id', exerciseId)
     .in('plan_session_id', pendingSessionIds);
-  if (applyError) throw applyError;
+  if (itemsError) throw itemsError;
+
+  for (const raw of items ?? []) {
+    const item = raw as unknown as {
+      id: string;
+      equipment: { load_unit: string } | { load_unit: string }[] | null;
+    };
+    // PostgREST devuelve la relación como objeto o como array de uno según
+    // cómo infiera la cardinalidad; acá siempre es una sola estación.
+    const equipment = Array.isArray(item.equipment) ? item.equipment[0] : item.equipment;
+    const { error: applyError } = await client
+      .from('plan_session_items')
+      .update({ target_load: targetLoad, target_load_unit: equipment?.load_unit ?? null })
+      .eq('id', item.id);
+    if (applyError) throw applyError;
+  }
 }
 
 /**

@@ -175,7 +175,12 @@ export interface SetLog {
   readonly exerciseId: Id;
   readonly equipmentId: Id | null;
   readonly setIndex: number;
-  readonly load: LoadReading;
+  /**
+   * `null` cuando no hubo carga que anotar: dominadas, abdominales, o la
+   * primera sesión de alguien que todavía no sabe con cuánto entrena. No es
+   * lo mismo que carga cero.
+   */
+  readonly load: LoadReading | null;
   /** Comparable entre estaciones. `null` cuando no se puede convertir sin inventar. */
   readonly loadKg: number | null;
   readonly reps: number | null;

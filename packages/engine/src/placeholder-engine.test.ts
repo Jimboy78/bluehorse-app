@@ -314,6 +314,72 @@ describe('reviewProgress', () => {
     expect(proposal?.toValue).toBe('65'); // 60 + 2.5% ajustado al escalón de 5
   });
 
+  it('no repite una propuesta que ya se aceptó y todavía no se entrenó', () => {
+    const history: SetLog[] = [
+      setLog({ workoutLogId: 'w2', completedAt: '2026-09-03T10:00:00.000Z', rir: 3 }),
+      setLog({ workoutLogId: 'w1', completedAt: '2026-09-01T10:00:00.000Z', rir: 4 }),
+    ];
+
+    const proposals = engine.reviewProgress({
+      context,
+      user: buildUser(),
+      gym: buildGym(),
+      plan,
+      history,
+      // Mismo ejercicio, mismo destino: la persona ya dijo que sí. Volver a
+      // preguntarlo antes de que entrene con 65 es repetir la pregunta.
+      resolvedProposals: [
+        {
+          id: 'p-1',
+          userId: USER_ID,
+          planId: 'plan-1',
+          type: 'load_increase',
+          targetRef: { exerciseId: 'ex-prensa' },
+          fromValue: '60',
+          toValue: '65',
+          reasonCode: 'rir_above_target',
+          reasonText: '',
+          rulesetVersion: 'v0-placeholder',
+          status: 'accepted',
+        },
+      ],
+      ruleset: V0_PLACEHOLDER,
+    });
+
+    expect(proposals.filter((p) => p.type === 'load_increase')).toHaveLength(0);
+  });
+
+  it('no propone subir una serie sin carga anotada: no hay desde dónde', () => {
+    const history: SetLog[] = [
+      setLog({
+        workoutLogId: 'w2',
+        completedAt: '2026-09-03T10:00:00.000Z',
+        rir: 4,
+        load: null,
+        loadKg: null,
+      }),
+      setLog({
+        workoutLogId: 'w1',
+        completedAt: '2026-09-01T10:00:00.000Z',
+        rir: 4,
+        load: null,
+        loadKg: null,
+      }),
+    ];
+
+    const proposals = engine.reviewProgress({
+      context,
+      user: buildUser(),
+      gym: buildGym(),
+      plan,
+      history,
+      resolvedProposals: [],
+      ruleset: V0_PLACEHOLDER,
+    });
+
+    expect(proposals.filter((p) => p.type === 'load_increase')).toHaveLength(0);
+  });
+
   it('no propone nada si el RIR está en el objetivo', () => {
     const history: SetLog[] = [
       setLog({ workoutLogId: 'w2', completedAt: '2026-09-03T10:00:00.000Z', rir: 1 }),
