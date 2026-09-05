@@ -139,11 +139,21 @@ export interface ActiveSession {
   readonly items: readonly ActiveSessionItem[];
 }
 
-/** El plan persistido del socio y la primera sesión pendiente de su cola. `null` si no generó uno. */
+/**
+ * Tres estados reales, no un `null` que los confunde a todos: "todavía no
+ * generó ningún plan" pide un botón para generarlo; "generó uno pero
+ * completó toda la cola" es otra cosa (no se resuelve regenerando a lo loco,
+ * `plans` solo admite un plan activo por socio a la vez).
+ */
+export type ActivePlanState =
+  | { readonly kind: 'no-plan' }
+  | { readonly kind: 'queue-empty' }
+  | { readonly kind: 'active'; readonly session: ActiveSession };
+
 export function useActivePlan() {
   const { user, status } = useAuth();
 
-  return useQuery<ActiveSession | null>({
+  return useQuery<ActivePlanState>({
     queryKey: ['active-plan', user?.id],
     enabled: status === 'signed-in' && !!user,
     queryFn: async () => {
@@ -156,7 +166,7 @@ export function useActivePlan() {
         .eq('status', 'active')
         .maybeSingle();
       if (planError) throw planError;
-      if (!plan) return null;
+      if (!plan) return { kind: 'no-plan' };
 
       const { data: session, error: sessionError } = await client
         .from('plan_sessions')
@@ -167,7 +177,7 @@ export function useActivePlan() {
         .limit(1)
         .maybeSingle();
       if (sessionError) throw sessionError;
-      if (!session) return null; // completó toda la cola generada
+      if (!session) return { kind: 'queue-empty' };
 
       const { data: items, error: itemsError } = await client
         .from('plan_session_items')
@@ -178,7 +188,7 @@ export function useActivePlan() {
         .order('order_index');
       if (itemsError) throw itemsError;
 
-      return {
+      const activeSession: ActiveSession = {
         planSessionId: session.id,
         label: session.label,
         focus: session.focus,
@@ -198,6 +208,8 @@ export function useActivePlan() {
           isPlaceholder: row.is_placeholder,
         })),
       };
+
+      return { kind: 'active', session: activeSession };
     },
   });
 }

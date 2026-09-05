@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { LogOut } from 'lucide-react';
 import { motion } from 'motion/react';
-import { MotionPreview } from './components/MotionPreview.tsx';
+import { Hoy } from './components/Hoy.tsx';
 import { useAuth } from './lib/auth/AuthProvider.tsx';
 import { activeRuleset, showsPlaceholderContent } from './lib/engine.ts';
 import { envError, isConfigured } from './lib/env.ts';
@@ -11,8 +11,8 @@ import { checkConnection } from './lib/supabase.ts';
 import { useTodaySession } from './lib/use-today-session.ts';
 
 /**
- * Andamio de la fase 1: vista previa del lenguaje de movimiento arriba y estado
- * real del esqueleto abajo. Se reemplaza por la pantalla "Hoy" en la fase 2.
+ * Pantalla "Hoy": el plan real leído de la base, con el estado del esqueleto
+ * abajo (útil mientras se termina la fase 2, no es contenido de producto).
  */
 export function App() {
   const { user, signOut } = useAuth();
@@ -75,7 +75,7 @@ export function App() {
         </motion.p>
       )}
 
-      <MotionPreview />
+      <Hoy />
 
       <motion.section variants={fadeUp} initial="hidden" animate="visible" className="mt-auto pt-4">
         <h2 className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate">
