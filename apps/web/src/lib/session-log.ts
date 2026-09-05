@@ -42,6 +42,12 @@ export async function sendOutboxItem(item: OutboxItem): Promise<void> {
     return;
   }
 
+  if (item.kind === 'personal_record') {
+    const { error } = await client.from('personal_records').insert(item.payload as never);
+    if (error) throw error;
+    return;
+  }
+
   if (item.kind === 'set_log_delete') {
     const { id } = item.payload as { id: string };
     const { error } = await client.from('set_logs').delete().eq('id', id);
@@ -107,6 +113,13 @@ async function celebrateIfRecord(
       .eq('exercise_id', exerciseId)
       .eq('workout_logs.user_id', userId)
       .eq('is_warmup', false)
+      // Excluir la serie que se acaba de hacer. Sin esto la comparación
+      // compite contra su propia escritura: la cola puede haberla subido
+      // antes de que llegue esta consulta, y entonces la serie se compara
+      // consigo misma (`load <= load`) y nunca hay récord. Contra un servidor
+      // local pasaba siempre; contra uno lento, a veces — que es peor,
+      // porque el confeti dependía de la latencia.
+      .neq('id', setLogId)
       .not('load_kg_normalized', 'is', null)
       .order('load_kg_normalized', { ascending: false })
       .limit(1)
@@ -117,9 +130,18 @@ async function celebrateIfRecord(
     if (previousBest === null || previousBest === undefined || loadKg <= previousBest) return;
 
     celebratePersonalRecord();
-    await client
-      .from('personal_records')
-      .insert(toPersonalRecordInsert(userId, exerciseId, loadKg, setLogId, achievedAt));
+
+    // Por la cola, no con un insert directo: `personal_records.set_log_id`
+    // apunta a la serie, y la serie viaja por la cola. Insertándolo acá la FK
+    // no existía todavía y el insert fallaba siempre — el `catch` de abajo se
+    // tragaba el error, así que se veía el confeti y no quedaba registrado
+    // ningún récord jamás. En la cola sale después de la serie, y si igual
+    // llegara antes, falla una vez y entra en el flush siguiente.
+    await enqueue(
+      'personal_record',
+      toPersonalRecordInsert(userId, exerciseId, loadKg, setLogId, achievedAt),
+    );
+    void flush(sendOutboxItem);
   } catch {
     // la celebración es un nice-to-have: nunca bloquea ni rompe marcar la serie.
   }
@@ -192,14 +214,16 @@ export function useSessionLog(
 
     const setLogId = crypto.randomUUID();
     const completedAt = new Date().toISOString();
+    // La carga que levantó, no la que proponía el plan: un récord se mide
+    // contra lo que hizo. Antes salía de `item.targetLoad` y el récord se
+    // juzgaba contra la prescripción — alguien podía levantar 140 sobre un
+    // plan de 42,5 y no contaba.
     const loadKg =
-      item.targetLoad && item.equipmentLoadSpec
-        ? toKg(item.targetLoad, item.equipmentLoadSpec)
-        : null;
+      actual.load && item.equipmentLoadSpec ? toKg(actual.load, item.equipmentLoadSpec) : null;
 
-    // Se dispara ANTES de encolar esta serie: compara contra el historial
-    // real, no contra sí misma. Sin `await`: no hace esperar el toque de
-    // "hecha" a una consulta de red.
+    // Sin `await`: marcar la serie no espera una consulta de red. La serie en
+    // curso se excluye por id dentro de `celebrateIfRecord`, así que no
+    // importa si la cola ya la subió para cuando esa consulta llega.
     if (userId) void celebrateIfRecord(userId, item.exerciseId, setLogId, loadKg, completedAt);
 
     const clientId = await enqueue(

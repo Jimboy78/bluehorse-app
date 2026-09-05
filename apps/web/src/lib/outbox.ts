@@ -14,6 +14,7 @@ export type OutboxKind =
   | 'workout_log'
   | 'set_log'
   | 'set_log_delete'
+  | 'personal_record'
   | 'proposal_response'
   | 'session_event';
 

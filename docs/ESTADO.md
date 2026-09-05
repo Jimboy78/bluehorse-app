@@ -252,6 +252,34 @@ Funciona tal como está escrito que debería.
   era "Recargar", que vuelve a lo mismo. Ahora hay una ruta `*` que dice que la página no existe y
   ofrece volver al entrenamiento.
 
+### El récord personal: confeti sin récord, y tres bugs encadenados
+
+Nunca se había visto disparar la celebración. Al forzarla aparecieron **tres bugs, uno atrás del
+otro**, y ninguno se notaba desde afuera porque un `catch` de "esto es un nice-to-have" se tragaba
+todo:
+
+1. **El récord se medía contra el plan, no contra lo que levantó.** `loadKg` salía de
+   `item.targetLoad`. Alguien que levantaba 140 kg sobre un plan de 42,5 no hacía récord nunca.
+   Es un resto de cuando la carga real todavía no se registraba (mismo problema plan-vs-realidad
+   que ya se arregló en `set_logs`).
+2. **La comparación competía contra su propia serie.** La consulta de "mejor marca previa" corría
+   sin excluir la serie recién hecha; si la cola la subía primero, la serie se comparaba consigo
+   misma y no había récord. Contra un servidor local pasaba siempre; contra uno lento, a veces —
+   peor todavía, porque el confeti dependía de la latencia. Se excluye por id.
+3. **El récord nunca se guardaba.** `personal_records.set_log_id` es una FK a `set_logs`, pero se
+   insertaba directo mientras la serie viajaba por la cola: la fila apuntada todavía no existía, la
+   FK fallaba y el `catch` lo tapaba. Ahora el récord va por la misma cola, detrás de la serie.
+
+Verificado: 95 kg en Peso muerto rumano → confeti + fila en `personal_records` con `max_load` 115
+(95 + 20 de la barra) y su `set_log_id` intacto.
+
+### Foco de teclado
+
+La app tenía dos lenguajes de foco: los botones se quedaban con el anillo blanco del navegador y
+los campos lo apagaban (`outline-none`) cambiando solo el borde. Ahora hay un `:focus-visible`
+único en teal, con offset. `prefers-reduced-motion` y los objetivos táctiles de 44px ya estaban
+bien resueltos de antes.
+
 **Moraleja para las próximas sesiones: `curl` contra la base y los tests verdes no dicen que la app
 funcione.** Verificado a mano el recorrido completo: alta → onboarding → plan generado → marcar
 series → cronómetro de descanso → sustitución → cerrar sesión → avance de la cola a la sesión

@@ -40,6 +40,22 @@ a {
   touch-action: manipulation;
 }
 
+/*
+ * Un solo anillo de foco para toda la app, en el color de la marca.
+ *
+ * Antes convivían dos lenguajes: los botones se quedaban con el anillo blanco
+ * del navegador y los campos lo apagaban (`outline-none`) cambiando solo el
+ * borde. Recorrer la app con el teclado se sentía como dos apps distintas, y
+ * el cambio de borde de 1px es una señal floja para saber dónde estás parado.
+ *
+ * `:focus-visible` y no `:focus`: el anillo aparece al navegar con teclado,
+ * no cada vez que se toca un botón con el dedo.
+ */
+:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
