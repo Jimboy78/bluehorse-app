@@ -8,7 +8,7 @@ Fotos, planilla de equipamiento y lista de ejercicios canónicos. Ver `05-releva
 
 **Entregable**: planilla completa y carpeta de fotos.
 
-## Fase 1 — Esqueleto y catálogo · **en curso**
+## Fase 1 — Esqueleto y catálogo · **completa salvo el relevamiento real (Fase 0, del usuario)**
 
 - [x] Monorepo, tooling, CI, hooks de git
 - [x] Contrato del motor, ruleset provisorio, motor placeholder con tests
@@ -25,7 +25,8 @@ Fotos, planilla de equipamiento y lista de ejercicios canónicos. Ver `05-releva
 - [x] Panel admin (`/panel`, gated por `role`): alta de equipamiento con foto (bucket de Storage
   con RLS: lectura pública, escritura solo staff/admin), categoría, unidad de carga con campos
   condicionales, ubicación, notas
-- [ ] Panel admin: alta y mapeo de ejercicios (falta; hoy solo equipamiento)
+- [x] Panel admin: alta de ejercicios (patrón, músculos, modalidad, nivel, cues) y mapeo a
+  equipamiento en el mismo alta — completa el panel de catálogo de la Fase 1
 - [ ] Catálogo de Blue Horse cargado (bloqueado por Fase 0, no bloquea el resto del desarrollo)
 
 **Entregable**: el catálogo real, navegable desde la app.

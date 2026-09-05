@@ -14,40 +14,42 @@ puede leer desde cualquier sesión nueva. **Actualizalo al terminar una sesión 
 2. **Toda prescripción de entrenamiento sale de `docs/research/`**, nunca inventada.
 3. **Verificar en `localhost:5173`**, no en el deploy de Vercel.
 
-### Dónde quedó
+### Dónde quedó — Fase 1 completa
 
-Fase 1 del roadmap, casi completa:
+La Fase 1 del roadmap está terminada salvo el ítem que depende del usuario (relevamiento real de
+Blue Horse, Fase 0). Todo lo demás: motor, esquema verificado contra Postgres real, PWA, sistema
+de movimiento, auth, onboarding, lector de catálogo con fallback automático a placeholder, y panel
+admin completo (equipamiento con foto + ejercicios con mapeo).
 
-- Motor, esquema, PWA, sistema de movimiento, auth, onboarding, catálogo real con fallback — de
-  pasadas anteriores.
-- **Panel admin** (`/panel`): alta de equipamiento con foto, gateado por `profiles.role`
-  (member/staff/admin). Bucket de Storage `equipment-photos` con RLS (lectura pública, escritura
-  solo staff/admin) — verificado contra Postgres real.
-- Falta: alta de ejercicios y su mapeo a equipamiento desde el panel (hoy solo hay alta de
-  equipamiento; los ejercicios siguen entrando por seed).
+**Arranca la Fase 2** ("Motor y sesión") en la próxima pasada. Su checklist, sin empezar:
+- Generación de plan desde el catálogo real, **persistida** (hoy `use-today-session.ts` genera el
+  plan al vuelo en cada render, no lo guarda en `plans`/`plan_sessions`/`plan_session_items`)
+- Pantalla "Hoy" real (hoy existe una vista previa en `App.tsx`/`MotionPreview.tsx`, no la
+  pantalla final)
+- Pantalla de sesión, detalle de ejercicio con series pre-cargadas, cronómetro con registro real,
+  cierre de sesión
 
-### Bug repetido esta sesión — anotado para no volver a caer
+### Bug repetido esta sesión (dos veces) — ya en `CLAUDE.md`, no repetir una tercera
 
-**Una consulta de TanStack Query con `enabled: false` se queda en `isPending: true` para
-siempre.** Si un componente de guardia (`RequireX`) chequea `isPending` antes que el estado de
-auth, se cuelga en el spinner en vez de dejar pasar cuando Supabase no está configurado. Ya pasó
-en `RequireOnboarding` (pasada anterior) y se repitió en `RequireAdmin` esta pasada. **Regla:
-todo componente `RequireX` nuevo tiene que chequear `status !== 'signed-in'` ANTES que
-`query.isPending`.**
+Una query de TanStack Query con `enabled: false` se queda en `isPending: true` para siempre. Todo
+`RequireX` nuevo chequea `status !== 'signed-in'` ANTES que `query.isPending`. Detalle completo en
+`CLAUDE.md` → Trampas conocidas.
 
 ### Verificado
 
-`npm run check` (lint + typecheck + **61 tests**) pasa. `/panel` probado en navegador local: sin
-`.env`, muestra el aviso de "no configurado" y el formulario deshabilitado en vez de colgarse (una
-vez corregido el bug de arriba). La escritura real (subir foto, insertar equipamiento) sigue sin
-probarse de punta a punta — falta `.env`.
+`npm run check` (lint + typecheck + **69 tests**) pasa. `/panel` completo (equipamiento +
+ejercicios) probado en navegador local: formularios, chips interactivos, gates que no se cuelgan.
+La escritura real (insert a Supabase, subida de foto) sigue sin probarse de punta a punta — falta
+`.env` (el usuario tiene los valores, ver commits anteriores de esta fecha).
 
 ### Lo próximo, en orden
 
-1. Con `.env` cargado: probar el panel de punta a punta (crear equipamiento, subir foto, ver que
-   aparezca en el catálogo real vía `useGymCatalog`).
-2. Panel admin: alta y mapeo de ejercicios.
-3. `npm run db:types` para generar `packages/domain/src/database.types.ts`.
+1. **Persistir el plan generado.** Al completar onboarding (o al primer login con onboarding ya
+   hecho), generar el plan con el motor y guardarlo en `plans`/`plan_sessions`/
+   `plan_session_items`, en vez de recalcularlo al vuelo en cada render.
+2. Pantalla "Hoy" real: lee el plan persistido, no lo genera de nuevo.
+3. Con `.env` cargado: probar registro, onboarding, y el panel de punta a punta contra la base
+   real por primera vez.
 4. Decisión de paleta (`docs/07-marca-blue-horse.md`) — bloqueada, es del usuario.
 
 ### Trabas conocidas
