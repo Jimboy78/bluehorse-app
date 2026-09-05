@@ -1,5 +1,5 @@
 import type { SubstituteOption } from '@bh/engine';
-import { AlertCircle, Dumbbell, Loader2, MapPin, Trophy } from 'lucide-react';
+import { AlertCircle, Check, Dumbbell, Loader2, MapPin, Trophy } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
@@ -38,7 +38,10 @@ export function Hoy() {
 
   const profile = useProfileStatus();
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
-  const [seriesHechas, setSeriesHechas] = useState<number[]>([]);
+  // Por ejercicio, no una lista sola: en el gimnasio se vuelve a la lista todo
+  // el tiempo (a ver qué máquina está libre) y las series que ya hiciste no se
+  // pueden borrar por salir de la pantalla.
+  const [hechasPorItem, setHechasPorItem] = useState<Record<string, number[]>>({});
   const [restingIndex, setRestingIndex] = useState<number | null>(null);
   const [closing, setClosing] = useState(false);
   const [showingSubstitutes, setShowingSubstitutes] = useState(false);
@@ -67,14 +70,24 @@ export function Hoy() {
           equipmentId: substitution.equipmentId,
           name: substitution.name,
           sector: substitution.sector,
+          // El `rationale` del motor nombra al ejercicio original ("Press de
+          // pecho en máquina va primero…"): dejarlo tal cual después de
+          // sustituir muestra un consejo sobre un ejercicio que ya no es este.
+          rationale: `Reemplaza a ${original.name}: mismo patrón de movimiento, mismos objetivos de series y repeticiones.`,
         }
       : original;
 
+  const seriesHechas = activeItemId ? (hechasPorItem[activeItemId] ?? []) : [];
+
   function markDone(indice: number) {
-    setSeriesHechas((previas) =>
-      previas.includes(indice) ? previas.filter((i) => i !== indice) : [...previas, indice],
-    );
-    if (!seriesHechas.includes(indice)) setRestingIndex(indice);
+    if (!activeItemId) return;
+    const previas = hechasPorItem[activeItemId] ?? [];
+    const yaEstaba = previas.includes(indice);
+    setHechasPorItem((mapa) => ({
+      ...mapa,
+      [activeItemId]: yaEstaba ? previas.filter((i) => i !== indice) : [...previas, indice],
+    }));
+    if (!yaEstaba) setRestingIndex(indice);
   }
 
   async function handleRestFinish(actualSeconds: number) {
@@ -129,7 +142,6 @@ export function Hoy() {
             seriesHechas={seriesHechas}
             onBack={() => {
               setActiveItemId(null);
-              setSeriesHechas([]);
               setRestingIndex(null);
               setShowingSubstitutes(false);
             }}
@@ -151,29 +163,20 @@ export function Hoy() {
               className="flex flex-col gap-2.5"
             >
               {session.items.map((sessionItem, i) => (
-                <motion.li key={sessionItem.id} variants={listItem}>
-                  <motion.button
-                    type="button"
-                    {...tappable}
-                    onClick={() => setActiveItemId(sessionItem.id)}
-                    className="flex w-full items-center gap-3.5 rounded-xl border border-line bg-navy-soft px-4 py-3.5 text-left"
-                  >
-                    <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-navy text-teal">
-                      <Dumbbell size={18} aria-hidden="true" />
-                    </span>
-                    <span className="flex flex-1 flex-col">
-                      <span className="font-semibold">{sessionItem.name}</span>
-                      <span className="font-mono text-xs text-slate">
-                        {sessionItem.sets} × {sessionItem.reps} · {sessionItem.load}
-                      </span>
-                    </span>
-                    {i === 0 && (
-                      <span className="rounded-full border border-teal/40 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wider text-teal">
-                        sugerido
-                      </span>
-                    )}
-                  </motion.button>
-                </motion.li>
+                <SessionItemRow
+                  key={sessionItem.id}
+                  item={sessionItem}
+                  substitution={substitutions[sessionItem.id]}
+                  hechas={(hechasPorItem[sessionItem.id] ?? []).length}
+                  // "Sugerido" es el primero que todavía no terminaste, no el
+                  // primero de la lista: si ese ya está hecho, sugerirlo confunde.
+                  sugerido={
+                    session.items.findIndex(
+                      (otro) => (hechasPorItem[otro.id] ?? []).length < otro.sets,
+                    ) === i
+                  }
+                  onOpen={() => setActiveItemId(sessionItem.id)}
+                />
               ))}
             </motion.ul>
 
@@ -194,6 +197,66 @@ export function Hoy() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+/**
+ * Una fila de la lista de "Hoy te toca". Aparte de `Hoy` para que la pantalla
+ * no acumule ramas: la fila cambia según si el ejercicio se sustituyó y según
+ * cuántas series lleva hechas.
+ */
+function SessionItemRow({
+  item,
+  substitution,
+  hechas,
+  sugerido,
+  onOpen,
+}: {
+  item: ActiveSessionItem;
+  substitution: Substitution | undefined;
+  hechas: number;
+  sugerido: boolean;
+  onOpen: () => void;
+}) {
+  const completo = hechas >= item.sets;
+
+  return (
+    <motion.li variants={listItem}>
+      <motion.button
+        type="button"
+        {...tappable}
+        onClick={onOpen}
+        className={`flex w-full items-center gap-3.5 rounded-xl border px-4 py-3.5 text-left ${
+          completo ? 'border-teal/40 bg-teal/5' : 'border-line bg-navy-soft'
+        }`}
+      >
+        <span
+          className={`grid size-10 shrink-0 place-items-center rounded-lg ${
+            completo ? 'bg-teal/15 text-teal' : 'bg-navy text-teal'
+          }`}
+        >
+          {completo ? (
+            <Check size={18} aria-hidden="true" />
+          ) : (
+            <Dumbbell size={18} aria-hidden="true" />
+          )}
+        </span>
+        <span className="flex flex-1 flex-col">
+          <span className="font-semibold">{substitution?.name ?? item.name}</span>
+          <span className="font-mono text-xs text-slate">
+            {hechas > 0 ? `${hechas}/${item.sets}` : item.sets} × {item.reps} · {item.load}
+          </span>
+          {substitution && (
+            <span className="text-[0.65rem] text-slate">reemplaza a {item.name}</span>
+          )}
+        </span>
+        {sugerido && !completo && (
+          <span className="rounded-full border border-teal/40 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wider text-teal">
+            sugerido
+          </span>
+        )}
+      </motion.button>
+    </motion.li>
   );
 }
 

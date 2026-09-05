@@ -7,6 +7,10 @@ import { VitePWA } from 'vite-plugin-pwa';
 const monorepoRoot = fileURLToPath(new URL('../../', import.meta.url));
 
 export default defineConfig({
+  // El .env vive en la raíz del monorepo (`cp .env.example .env`, ver
+  // README.md), no en apps/web — sin esto Vite lo busca al lado de este
+  // archivo y VITE_SUPABASE_URL/ANON_KEY quedan undefined en silencio.
+  envDir: monorepoRoot,
   resolve: {
     alias: {
       '@bh/domain': `${monorepoRoot}packages/domain/src/index.ts`,

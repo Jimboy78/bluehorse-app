@@ -2,6 +2,7 @@ import { Loader2 } from 'lucide-react';
 import { lazy, type ReactNode, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router';
 import { RouteError } from './components/RouteError.tsx';
+import { RedirectIfSignedIn } from './routes/RedirectIfSignedIn.tsx';
 import { RequireAdmin } from './routes/RequireAdmin.tsx';
 import { RequireAuth } from './routes/RequireAuth.tsx';
 import { RequireOnboarding } from './routes/RequireOnboarding.tsx';
@@ -50,7 +51,11 @@ export const router = createBrowserRouter([
   },
   {
     path: '/auth',
-    element: lazyPage(<SignIn />),
+    element: lazyPage(
+      <RedirectIfSignedIn>
+        <SignIn />
+      </RedirectIfSignedIn>,
+    ),
     errorElement: <RouteError />,
   },
   {
