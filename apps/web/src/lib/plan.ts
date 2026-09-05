@@ -1,4 +1,4 @@
-import type { ExperienceLevel, Sex } from '@bh/domain';
+import type { EquipmentLoadSpec, ExperienceLevel, LoadReading, Sex } from '@bh/domain';
 import { formatLoad } from '@bh/domain';
 import type { UserSnapshot } from '@bh/engine';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -123,11 +123,20 @@ export function useGeneratePlan() {
 
 export interface ActiveSessionItem {
   readonly id: string;
+  readonly exerciseId: string;
+  readonly equipmentId: string | null;
   readonly name: string;
   readonly sector: string;
+  /** Ya formateada tal como la máquina la muestra: nunca convertida. */
   readonly load: string;
+  /** El mismo dato, crudo, para poder registrar la serie sin re-parsear el texto. */
+  readonly targetLoad: LoadReading | null;
+  /** La spec de carga de la estación, para normalizar a kg al registrar (nunca al mostrar). */
+  readonly equipmentLoadSpec: EquipmentLoadSpec | null;
   readonly sets: number;
+  readonly repsTarget: number;
   readonly reps: string;
+  readonly restSeconds: number;
   readonly rationale: string;
   readonly isPlaceholder: boolean;
 }
@@ -182,7 +191,7 @@ export function useActivePlan() {
       const { data: items, error: itemsError } = await client
         .from('plan_session_items')
         .select(
-          'id, order_index, target_sets, target_reps_min, target_reps_max, target_load, target_load_unit, rationale, is_placeholder, exercises(name), equipment(location_note)',
+          'id, exercise_id, equipment_id, order_index, target_sets, target_reps_min, target_reps_max, target_load, target_load_unit, rest_seconds, rationale, is_placeholder, exercises(name), equipment(location_note, load_unit, load_min, load_max, load_increment, stack_kg, base_weight_kg)',
         )
         .eq('plan_session_id', session.id)
         .order('order_index');
@@ -192,24 +201,71 @@ export function useActivePlan() {
         planSessionId: session.id,
         label: session.label,
         focus: session.focus,
-        items: (items ?? []).map((row) => ({
-          id: row.id,
-          name: (row.exercises as unknown as { name: string } | null)?.name ?? 'Ejercicio',
-          sector:
-            (row.equipment as unknown as { location_note: string | null } | null)?.location_note ??
-            'sin ubicación',
-          load:
-            row.target_load !== null && row.target_load_unit !== null
-              ? formatLoad({ value: row.target_load, unit: row.target_load_unit })
-              : 'sin carga previa',
-          sets: row.target_sets,
-          reps: `${row.target_reps_min}-${row.target_reps_max}`,
-          rationale: row.rationale,
-          isPlaceholder: row.is_placeholder,
-        })),
+        items: (items ?? []).map(toActiveSessionItem),
       };
 
       return { kind: 'active', session: activeSession };
     },
   });
+}
+
+interface PlanSessionItemRow {
+  readonly id: string;
+  readonly exercise_id: string;
+  readonly equipment_id: string | null;
+  readonly target_sets: number;
+  readonly target_reps_min: number;
+  readonly target_reps_max: number;
+  readonly target_load: number | null;
+  readonly target_load_unit: LoadReading['unit'] | null;
+  readonly rest_seconds: number;
+  readonly rationale: string;
+  readonly is_placeholder: boolean;
+  readonly exercises: { name: string } | null;
+  readonly equipment: {
+    location_note: string | null;
+    load_unit: LoadReading['unit'];
+    load_min: number | null;
+    load_max: number | null;
+    load_increment: number | null;
+    stack_kg: number[] | null;
+    base_weight_kg: number | null;
+  } | null;
+}
+
+function toLoadSpec(equipment: PlanSessionItemRow['equipment']): EquipmentLoadSpec | null {
+  if (!equipment) return null;
+  return {
+    unit: equipment.load_unit,
+    ...(equipment.load_min !== null && { min: equipment.load_min }),
+    ...(equipment.load_max !== null && { max: equipment.load_max }),
+    ...(equipment.load_increment !== null && { increment: equipment.load_increment }),
+    ...(equipment.stack_kg?.length && { stackKg: equipment.stack_kg }),
+    ...(equipment.base_weight_kg !== null && { baseWeightKg: equipment.base_weight_kg }),
+  };
+}
+
+function toActiveSessionItem(raw: unknown): ActiveSessionItem {
+  const row = raw as PlanSessionItemRow;
+  const targetLoad: LoadReading | null =
+    row.target_load !== null && row.target_load_unit !== null
+      ? { value: row.target_load, unit: row.target_load_unit }
+      : null;
+
+  return {
+    id: row.id,
+    exerciseId: row.exercise_id,
+    equipmentId: row.equipment_id,
+    name: row.exercises?.name ?? 'Ejercicio',
+    sector: row.equipment?.location_note ?? 'sin ubicación',
+    load: targetLoad ? formatLoad(targetLoad) : 'sin carga previa',
+    targetLoad,
+    equipmentLoadSpec: toLoadSpec(row.equipment),
+    sets: row.target_sets,
+    repsTarget: row.target_reps_max,
+    reps: `${row.target_reps_min}-${row.target_reps_max}`,
+    restSeconds: row.rest_seconds,
+    rationale: row.rationale,
+    isPlaceholder: row.is_placeholder,
+  };
 }

@@ -6,24 +6,29 @@ import { celebratePersonalRecord } from '../lib/celebrate.ts';
 import { fadeUp, listContainer, listItem, screen, tappable } from '../lib/motion.ts';
 import { onboardingUnavailable } from '../lib/onboarding.ts';
 import { useActivePlan, useGeneratePlan } from '../lib/plan.ts';
+import { useSessionLog } from '../lib/session-log.ts';
 import { RestTimer } from './RestTimer.tsx';
 import { SetRow } from './SetRow.tsx';
 
 /**
  * La pantalla "Hoy" real: lee el plan que ya está guardado en la base
- * (`useActivePlan`), no vuelve a correr el motor en cada render. Reemplaza a
- * `MotionPreview`, que era la vista previa del motor en memoria.
+ * (`useActivePlan`), no vuelve a correr el motor en cada render.
  *
- * Todavía no escribe a `set_logs` — marcar una serie es estado local, como
- * antes. Eso es el próximo paso del roadmap (Fase 2, detalle de ejercicio).
+ * Marcar una serie escribe a `set_logs` (vía la cola offline, `useSessionLog`)
+ * recién cuando el cronómetro de descanso termina — ahí es cuando se sabe el
+ * descanso real. Deshacer una serie ya registrada no borra ese registro: es
+ * una simplificación conocida, no un olvido.
  */
 export function Hoy() {
-  const { status } = useAuth();
+  const { status, user } = useAuth();
   const plan = useActivePlan();
 
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [seriesHechas, setSeriesHechas] = useState<number[]>([]);
-  const [descansando, setDescansando] = useState(false);
+  const [restingIndex, setRestingIndex] = useState<number | null>(null);
+
+  const activePlanSessionId = plan.data?.kind === 'active' ? plan.data.session.planSessionId : '';
+  const { markSetDone } = useSessionLog(user?.id, activePlanSessionId);
 
   if (status !== 'signed-in' || plan.isPending || plan.isError || plan.data?.kind !== 'active') {
     return <PlanStateMessage authStatus={status} plan={plan} />;
@@ -31,15 +36,19 @@ export function Hoy() {
 
   const session = plan.data.session;
   const item = session.items.find((i) => i.id === activeItemId);
-  const restSeconds = 12; // fijo por ahora: falta que el ítem exponga el descanso real acá también
 
-  function toggleSerie(indice: number) {
-    setSeriesHechas((previas) => {
-      const yaEstaba = previas.includes(indice);
-      if (yaEstaba) return previas.filter((i) => i !== indice);
-      setDescansando(true);
-      return [...previas, indice];
-    });
+  function markDone(indice: number) {
+    setSeriesHechas((previas) =>
+      previas.includes(indice) ? previas.filter((i) => i !== indice) : [...previas, indice],
+    );
+    if (!seriesHechas.includes(indice)) setRestingIndex(indice);
+  }
+
+  async function handleRestFinish(actualSeconds: number) {
+    if (item && restingIndex !== null) {
+      await markSetDone(item, restingIndex, actualSeconds);
+    }
+    setRestingIndex(null);
   }
 
   return (
@@ -61,7 +70,7 @@ export function Hoy() {
                 onClick={() => {
                   setActiveItemId(null);
                   setSeriesHechas([]);
-                  setDescansando(false);
+                  setRestingIndex(null);
                 }}
                 className="rounded-full border border-line px-4 py-2 text-xs font-semibold text-slate"
               >
@@ -73,13 +82,13 @@ export function Hoy() {
               {item.rationale}
             </p>
 
-            {descansando ? (
+            {restingIndex !== null ? (
               <motion.div
                 key="timer"
                 {...screen}
                 className="rounded-2xl border border-line bg-navy-soft px-4 py-8"
               >
-                <RestTimer prescribedSeconds={restSeconds} onFinish={() => setDescansando(false)} />
+                <RestTimer prescribedSeconds={item.restSeconds} onFinish={handleRestFinish} />
               </motion.div>
             ) : (
               <motion.div
@@ -95,7 +104,7 @@ export function Hoy() {
                       targetLoad={item.load}
                       targetReps={item.reps}
                       done={seriesHechas.includes(i)}
-                      onToggle={() => toggleSerie(i)}
+                      onToggle={() => markDone(i)}
                     />
                   </motion.div>
                 ))}
