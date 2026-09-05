@@ -31,10 +31,12 @@ Fotos, planilla de equipamiento y lista de ejercicios canónicos. Ver `05-releva
 
 **Entregable**: el catálogo real, navegable desde la app.
 
-## Fase 2 — Motor y sesión
+## Fase 2 — Motor y sesión · **en curso**
 
-- [ ] Generación de plan desde el catálogo real, persistida
-- [ ] Pantalla "Hoy": qué toca, botón de empezar, adherencia
+- [x] Generación de plan desde el catálogo real, persistida (`useGeneratePlan`, dispara al
+  terminar el onboarding) y su lectura (`useActivePlan`, primera sesión pendiente de la cola)
+- [ ] Pantalla "Hoy" real, que lea `useActivePlan` (hoy solo existe `MotionPreview`, que sigue
+  generando en memoria — es la vista previa del motor, no la pantalla final)
 - [ ] Pantalla de sesión: los ejercicios del día, orden sugerido pero libre
 - [ ] Detalle de ejercicio: series pre-cargadas, confirmar de a un toque
 - [ ] Cronómetro de descanso, con registro del descanso real
