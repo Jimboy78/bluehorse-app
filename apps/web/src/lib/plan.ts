@@ -165,6 +165,8 @@ export interface ActiveSessionItem {
   readonly sets: number;
   readonly repsTarget: number;
   readonly reps: string;
+  /** RIR prescripto para esta serie. Sale del ruleset, no del código. */
+  readonly targetRir: number | null;
   readonly restSeconds: number;
   readonly rationale: string;
   readonly isPlaceholder: boolean;
@@ -220,7 +222,7 @@ export function useActivePlan() {
       const { data: items, error: itemsError } = await client
         .from('plan_session_items')
         .select(
-          'id, exercise_id, equipment_id, order_index, target_sets, target_reps_min, target_reps_max, target_load, target_load_unit, rest_seconds, rationale, is_placeholder, exercises(name), equipment(location_note, load_unit, load_min, load_max, load_increment, stack_kg, base_weight_kg)',
+          'id, exercise_id, equipment_id, order_index, target_sets, target_reps_min, target_reps_max, target_rir, target_load, target_load_unit, rest_seconds, rationale, is_placeholder, exercises(name), equipment(location_note, load_unit, load_min, load_max, load_increment, stack_kg, base_weight_kg)',
         )
         .eq('plan_session_id', session.id)
         .order('order_index');
@@ -245,6 +247,7 @@ interface PlanSessionItemRow {
   readonly target_sets: number;
   readonly target_reps_min: number;
   readonly target_reps_max: number;
+  readonly target_rir: number | null;
   readonly target_load: number | null;
   readonly target_load_unit: LoadReading['unit'] | null;
   readonly rest_seconds: number;
@@ -293,6 +296,7 @@ function toActiveSessionItem(raw: unknown): ActiveSessionItem {
     sets: row.target_sets,
     repsTarget: row.target_reps_max,
     reps: `${row.target_reps_min}-${row.target_reps_max}`,
+    targetRir: row.target_rir,
     restSeconds: row.rest_seconds,
     rationale: row.rationale,
     isPlaceholder: row.is_placeholder,

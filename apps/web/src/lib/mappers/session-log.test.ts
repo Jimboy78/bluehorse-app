@@ -30,15 +30,36 @@ describe('toSetLogInsert', () => {
     restPrescribedSeconds: 90,
   };
 
+  /** Lo común: salió como estaba planificado. */
+  const hechas = { reps: 10, rir: 2 };
+
   it('normaliza a kg usando la spec de la estación', () => {
-    const row = toSetLogInsert('s-1', 'w-1', baseItem, 0, 85, 'client-1', '2026-09-05T10:05:00Z');
+    const row = toSetLogInsert(
+      's-1',
+      'w-1',
+      baseItem,
+      0,
+      85,
+      'client-1',
+      '2026-09-05T10:05:00Z',
+      hechas,
+    );
     expect(row.load_value).toBe(60);
     expect(row.load_unit).toBe('plates_kg');
     expect(row.load_kg_normalized).toBe(80); // 60 + 20 de la barra
   });
 
   it('guarda el descanso real, no el prescripto', () => {
-    const row = toSetLogInsert('s-1', 'w-1', baseItem, 0, 47, 'client-1', '2026-09-05T10:05:00Z');
+    const row = toSetLogInsert(
+      's-1',
+      'w-1',
+      baseItem,
+      0,
+      47,
+      'client-1',
+      '2026-09-05T10:05:00Z',
+      hechas,
+    );
     expect(row.rest_actual_seconds).toBe(47);
     expect(row.rest_prescribed_seconds).toBe(90);
   });
@@ -52,6 +73,7 @@ describe('toSetLogInsert', () => {
       60,
       'client-1',
       '2026-09-05T10:05:00Z',
+      hechas,
     );
     expect(row.load_value).toBeNull();
     expect(row.load_unit).toBeNull();
@@ -67,15 +89,45 @@ describe('toSetLogInsert', () => {
       60,
       'client-1',
       '2026-09-05T10:05:00Z',
+      hechas,
     );
     expect(row.load_value).toBe(60); // lo que dice la máquina se guarda igual
     expect(row.load_kg_normalized).toBeNull(); // pero no se puede comparar sin inventar
   });
 
   it('usa el máximo del rango como repeticiones confirmadas por ahora (sin campo editable todavía)', () => {
-    const row = toSetLogInsert('s-1', 'w-1', baseItem, 2, 60, 'client-1', '2026-09-05T10:05:00Z');
+    const row = toSetLogInsert(
+      's-1',
+      'w-1',
+      baseItem,
+      2,
+      60,
+      'client-1',
+      '2026-09-05T10:05:00Z',
+      hechas,
+    );
     expect(row.reps).toBe(10);
     expect(row.reps_target).toBe(10);
     expect(row.set_index).toBe(2);
+  });
+
+  it('guarda las repeticiones que se hicieron, no las que pedía el plan', () => {
+    const row = toSetLogInsert('s-1', 'w-1', baseItem, 0, 90, 'client-1', '2026-09-05T10:05:00Z', {
+      reps: 7,
+      rir: 0,
+    });
+    // Si estos dos fueran siempre iguales, el motor compararía el plan contra
+    // sí mismo y ninguna propuesta de bajar la carga podría dispararse.
+    expect(row.reps).toBe(7);
+    expect(row.reps_target).toBe(10);
+    expect(row.rir).toBe(0);
+  });
+
+  it('acepta que no se haya dicho el RIR', () => {
+    const row = toSetLogInsert('s-1', 'w-1', baseItem, 0, 90, 'client-1', '2026-09-05T10:05:00Z', {
+      reps: 10,
+      rir: null,
+    });
+    expect(row.rir).toBeNull();
   });
 });

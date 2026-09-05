@@ -45,6 +45,7 @@ export interface SetLogInsertRow {
   readonly load_kg_normalized: number | null;
   readonly reps: number | null;
   readonly reps_target: number;
+  readonly rir: number | null;
   readonly rest_prescribed_seconds: number;
   readonly rest_actual_seconds: number;
   readonly is_warmup: boolean;
@@ -62,6 +63,18 @@ export interface SetLogItemInput {
   readonly restPrescribedSeconds: number;
 }
 
+/**
+ * Lo que efectivamente pasó en la serie. Es la mitad que le faltaba a
+ * `set_logs`: sin esto se guardaba el objetivo del plan como si fuera el
+ * resultado, y el motor terminaba comparando el plan contra sí mismo.
+ */
+export interface SetActual {
+  /** Repeticiones hechas de verdad. */
+  readonly reps: number;
+  /** Cuántas más podría haber hecho. `null` si no lo dijo. */
+  readonly rir: number | null;
+}
+
 export function toSetLogInsert(
   id: string,
   workoutLogId: string,
@@ -70,6 +83,7 @@ export function toSetLogInsert(
   restActualSeconds: number,
   clientId: string,
   completedAt: string,
+  actual: SetActual,
 ): SetLogInsertRow {
   return {
     id,
@@ -78,17 +92,18 @@ export function toSetLogInsert(
     exercise_id: item.exerciseId,
     equipment_id: item.equipmentId,
     set_index: setIndex,
-    // El caso común: salió como estaba planificado. Todavía no hay un campo
-    // editable en SetRow para cargar algo distinto — cuando lo haya, esto se
-    // reemplaza por el valor que tipeó el socio, no se saca de acá.
+    // La carga sigue saliendo del plan: todavía no hay campo para corregirla
+    // si el socio usó otra. Las repeticiones y el RIR, en cambio, ya son lo
+    // que pasó de verdad (se preguntan durante el descanso).
     load_value: item.targetLoad?.value ?? null,
     load_unit: item.targetLoad?.unit ?? null,
     load_kg_normalized:
       item.targetLoad && item.equipmentLoadSpec
         ? toKg(item.targetLoad, item.equipmentLoadSpec)
         : null,
-    reps: item.repsTarget,
+    reps: actual.reps,
     reps_target: item.repsTarget,
+    rir: actual.rir,
     rest_prescribed_seconds: item.restPrescribedSeconds,
     rest_actual_seconds: restActualSeconds,
     is_warmup: false,

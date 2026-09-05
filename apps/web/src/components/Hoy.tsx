@@ -3,6 +3,7 @@ import { AlertCircle, Check, Dumbbell, Loader2, MapPin, Trophy } from 'lucide-re
 import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
+import type { SetActual } from '../lib/mappers/session-log.ts';
 import { fadeUp, listContainer, listItem, screen, tappable } from '../lib/motion.ts';
 import { onboardingUnavailable, useProfileStatus } from '../lib/onboarding.ts';
 import type { ActiveSessionItem } from '../lib/plan.ts';
@@ -109,9 +110,9 @@ export function Hoy() {
     setRestingIndex(indice);
   }
 
-  async function handleRestFinish(actualSeconds: number) {
+  async function handleRestFinish(actualSeconds: number, actual: SetActual) {
     if (item && restingIndex !== null) {
-      await markSetDone(item, restingIndex, actualSeconds);
+      await markSetDone(item, restingIndex, actualSeconds, actual);
     }
     setRestingIndex(null);
   }
@@ -315,7 +316,7 @@ function ExerciseDetail({
   onShowSubstitutes: () => void;
   onPickSubstitute: (option: SubstituteOption, name: string, sector: string) => void;
   onCancelSubstitutes: () => void;
-  onRestFinish: (actualSeconds: number) => void;
+  onRestFinish: (actualSeconds: number, actual: SetActual) => void;
   onToggleSet: (indice: number) => void;
 }) {
   return (
@@ -366,7 +367,12 @@ function ExerciseDetail({
           {...screen}
           className="rounded-2xl border border-line bg-navy-soft px-4 py-8"
         >
-          <RestTimer prescribedSeconds={item.restSeconds} onFinish={onRestFinish} />
+          <RestTimer
+            prescribedSeconds={item.restSeconds}
+            repsTarget={item.repsTarget}
+            targetRir={item.targetRir}
+            onFinish={onRestFinish}
+          />
         </motion.div>
       ) : (
         <motion.div

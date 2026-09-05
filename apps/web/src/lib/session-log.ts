@@ -12,7 +12,7 @@ import {
   toWorkoutLogClose,
 } from './mappers/session-close.ts';
 import { toSubstitutionEvent } from './mappers/session-event.ts';
-import { toSetLogInsert, toWorkoutLogInsert } from './mappers/session-log.ts';
+import { type SetActual, toSetLogInsert, toWorkoutLogInsert } from './mappers/session-log.ts';
 import { dequeue, enqueue, flush, newClientId, type OutboxItem, startAutoFlush } from './outbox.ts';
 import type { ActiveSessionItem } from './plan.ts';
 import type { RestoredSession } from './session-restore.ts';
@@ -185,6 +185,7 @@ export function useSessionLog(
     item: ActiveSessionItem,
     setIndex: number,
     restActualSeconds: number,
+    actual: SetActual,
   ): Promise<void> {
     const workoutLogId = await ensureWorkoutLog();
     if (!workoutLogId) return;
@@ -219,6 +220,7 @@ export function useSessionLog(
         restActualSeconds,
         newClientId(),
         completedAt,
+        actual,
       ),
     );
     writtenSetsRef.current.set(`${item.id}:${setIndex}`, { setLogId, clientId });
