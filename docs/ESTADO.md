@@ -253,9 +253,21 @@ el resultado con el mismo orden de tres pasos que usa `useGeneratePlan`:
    de prueba.
 
 Con esto, la cadena completa generar → persistir → marcar → cerrar → avanzar la cola → revisar
-progreso quedó probada contra Postgres real con el código real del motor. Lo único que sigue sin
-probarse es la capa de React arriba de esto (formularios, hooks, pantallas) — eso sí necesita el
-`.env` de la app, que sigue sin tocarse.
+progreso quedó probada contra Postgres real con el código real del motor.
+
+**Extendida esa prueba al fix de `useResolveProposal`, con una propuesta REAL (no armada a mano)**:
+mismo plan de 8 sesiones; se registraron dos "series tope" con RIR alto para el mismo ejercicio
+(Press de banco) en dos `workout_logs` distintos — hace falta que sean sesiones separadas de
+verdad, `groupTopSetsByExercise()` agrupa por `workout_log_id`, dos series en el mismo log cuentan
+como una sola sesión y no alcanza. Con eso, `engine.reviewProgress()` generó de verdad una
+propuesta `load_increase` (40 → 42.5, con el texto real: *"te sobraron repeticiones las últimas 2
+veces"*). Aceptarla en el orden del fix (aplicar la carga antes de marcar `accepted`) actualizó
+`target_load` en **las dos** sesiones pendientes que todavía tienen ese ejercicio en la cola — no
+solo la primera. Limpieza completa después (`plans`/`profiles`/`workout_logs`/`set_logs`/
+`adaptation_proposals` en 0).
+
+Lo único que sigue sin probarse es la capa de React arriba de todo esto (formularios, hooks,
+pantallas) — eso sí necesita el `.env` de la app, que sigue sin tocarse.
 
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
