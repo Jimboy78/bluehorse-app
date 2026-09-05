@@ -5,7 +5,7 @@ puede leer desde cualquier sesión nueva. **Actualizalo al terminar una sesión 
 
 ---
 
-## Última actualización: 4 de septiembre de 2026 (loop autónomo, corre cada 15 min)
+## Última actualización: 4 de septiembre de 2026, tarde/noche (loop autónomo, corre cada 15 min)
 
 ### Instrucciones vigentes del usuario
 
@@ -22,7 +22,7 @@ pantalla "Hoy" real, escritura a `set_logs` vía cola offline, y ahora también 
 como completada, que es lo único que hace avanzar la cola a la sesión siguiente (sin esto,
 `useActivePlan` iba a devolver la misma sesión para siempre).
 
-**Fase 3 casi completa.** Su checklist:
+**Fase 3 completa.** Su checklist:
 - [x] Propuestas de ajuste con motivo, aceptar o rechazar (`lib/adaptation.ts`,
   `components/Proposals.tsx`, mostradas arriba de "Hoy"): `engine.reviewProgress()` corre sobre el
   historial real de `set_logs` y se persiste como `adaptation_proposals` `pending` — no se vuelve a
@@ -45,7 +45,17 @@ como completada, que es lo único que hace avanzar la cola a la sesión siguient
   cruda que vio la máquina; sin forma de comparar, se marca "sin comparar entre estaciones" en vez
   de inventar un ranking), evolución por ejercicio (últimas series). Acceso desde un botón nuevo en
   el header de "Hoy". La aritmética de agregación es pura, con tests.
-- Pantalla de instalación (destino del QR) — sin empezar
+- [x] Pantalla de instalación (`/instalar`, `Instalar.tsx` + `lib/use-install-prompt.ts`): pública
+  (sin `RequireAuth`), destino del QR del gimnasio. Detecta la plataforma para no prometer lo que
+  el navegador no puede dar — Android/Chrome usa `beforeinstallprompt` real, iOS/Safari muestra el
+  paso a paso manual (no tiene instalación programática), y si ya está instalada
+  (`display-mode: standalone`) solo muestra un mensaje corto. Todas las ramas ofrecen "Entrar" sin
+  instalar. La detección de plataforma es pura, con tests.
+
+**Fase 3 cerrada.** Sigue Fase 4 (contenido real), bloqueada por el research y por el relevamiento
+del catálogo (Fase 0, del usuario) — no hay más código de producto para escribir sin esos dos
+insumos. Lo que queda mientras tanto es técnico: verificación end-to-end contra Supabase real,
+`npm run db:types`, y pulir lo ya construido (performance, code-splitting del bundle, accesibilidad).
 
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
@@ -55,24 +65,30 @@ dependa de sesión.
 
 ### Verificado
 
-`npm run check` (lint + typecheck + **99 tests**) pasa, y también `npm run build` (build de
-producción limpia, un solo warning de tamaño de bundle ya conocido). Los mappers nuevos
-(`session-event.ts`, `progress.ts`, `adaptation.ts`) están probados sin base. **La extensión de
-Chrome sigue desconectada desde hace dos pasadas** (`tabs_context_mcp` no reconecta) — `/progreso`
-y las propuestas de ajuste todavía NO se vieron en el navegador, solo se verificó que compilan,
-tipan y buildean. Pendiente una verificación visual apenas la extensión vuelva.
+`npm run check` (lint + typecheck + **103 tests**) pasa, y también `npm run build` (build de
+producción limpia, un solo warning de tamaño de bundle ya conocido). Todos los mappers nuevos de
+esta sesión (`session-event.ts`, `progress.ts`, `adaptation.ts`, `use-install-prompt.ts`) están
+probados sin base. La extensión de Chrome volvió a conectar: se vieron en el navegador `/instalar`
+(rama "other"/desktop, con el botón "Entrar" navegando bien a `/auth`), `/progreso` (estado "sin
+sesión" correcto, sin quedarse colgado en el spinner) y `/` con `Proposals` montado (no rompe nada
+sin sesión). Sin errores de consola propios de la app en ninguna.
 
 **Todavía sin probar de punta a punta contra una base real**: registro → onboarding → generar
 plan → marcar series → cerrar sesión → confirmar que la cola avanza a la sesión 2 → ver el
 progreso en `/progreso` → ver y resolver una propuesta de ajuste. Falta `.env` (el usuario tiene
-los valores) y una cuenta real completando el flujo entero.
+los valores) y una cuenta real completando el flujo entero. Tampoco se probó `/instalar` en un
+Android o iPhone real (`beforeinstallprompt` no dispara en `localhost` con Chrome desktop en todos
+los casos) — la rama de Safari/iOS y el flujo de instalación real quedan sin verificar en un
+dispositivo físico.
 
 ### Lo próximo, en orden
 
 1. **Con `.env` cargado**: la primera prueba de punta a punta real de todo lo construido hasta
    acá. Es el paso más urgente — hay mucho código nunca ejercitado contra Supabase de verdad.
    Correr `npm run db:types` en el mismo momento.
-2. Pantalla de instalación (destino del QR) — único ítem que le queda a Fase 3.
+2. Fase 4 (contenido real) está bloqueada por research y por el relevamiento del catálogo — no
+   arrancar sin eso. Mientras tanto: code-splitting del bundle (`React.lazy()` por ruta, ya anotado
+   como traba conocida) y accesibilidad general son mejoras técnicas que no dependen de nadie.
 3. Decisión de paleta (`docs/07-marca-blue-horse.md`) — bloqueada, es del usuario.
 
 ### Trabas conocidas

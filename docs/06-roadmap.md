@@ -60,7 +60,9 @@ Fotos, planilla de equipamiento y lista de ejercicios canónicos. Ver `05-releva
   (vía la cola offline) sin pisar `plan_session_items`
 - [x] Progreso: evolución por ejercicio, adherencia y racha, volumen semanal, récords —
   `/progreso`, todo leído de `set_logs`/`workout_logs` reales, nunca de lo planificado
-- [ ] Pantalla de instalación (destino del QR)
+- [x] Pantalla de instalación (destino del QR) — `/instalar`, pública, con paso a paso distinto
+  según la plataforma (`beforeinstallprompt` real en Android/Chrome, instrucciones manuales en
+  iOS/Safari, mensaje corto si ya está instalada)
 
 **Entregable**: demo presentable a Blue Horse.
 
