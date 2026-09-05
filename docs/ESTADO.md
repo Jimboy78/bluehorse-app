@@ -128,6 +128,14 @@ Ninguno de los cinco se puede reproducir fácil sin forzar una falla de red a mi
 escritura — no están cubiertos por test (son hooks que pegan contra Supabase, mismo criterio que
 el resto del proyecto), pero la lógica de rollback/orden en sí es simple de leer y revisar.
 
+**Panel de debug sacado de producción**: "Estado del esqueleto" (en `App.tsx`) mostraba mensajes de
+zod sin traducir (`VITE_SUPABASE_URL: Invalid input...`) directo en la pantalla principal — quedó
+de cuando se armaba el esqueleto en fase 1/2, nunca se lo sacó. Ahora vive detrás de
+`import.meta.env.DEV`: Vite lo elimina por completo de la build de producción (confirmado con
+`grep` sobre el bundle), y las dos queries que solo lo alimentaban (estado de conexión, cola
+offline) tampoco corren fuera de desarrollo. El manejo de errores que sí ve un socio real
+(Supabase mal configurado, sin sesión) sigue en `SignIn.tsx`/`Hoy.tsx`, sin tocar.
+
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
 Una query de TanStack Query con `enabled: false` se queda en `isPending: true` para siempre.
