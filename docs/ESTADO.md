@@ -234,6 +234,29 @@ cambio de rol surte efecto sin que la persona tenga que volver a loguearse, y qu
 panel (que bloqueé más temprano con los fixes de `useCreateEquipment`/`useCreateExercise`) está
 parado sobre una RLS que de verdad filtra por rol.
 
+**LA prueba de punta a punta que faltaba toda la sesión, resuelta con un script Node aparte (no
+la app — igual no toca `.env`)**: Node 24 puede importar `.ts` directo (probado con
+`packages/engine/src/index.ts`), así que se pudo correr el MOTOR REAL — no una simulación —
+contra el catálogo real de Blue Horse (13 equipos, 16 ejercicios, leídos de Postgres) y persistir
+el resultado con el mismo orden de tres pasos que usa `useGeneratePlan`:
+1. `engine.generatePlan()` con un usuario real (`hypertrophy`, intermedio) armó 8 sesiones válidas
+   — cero errores de FK al insertar, o sea que cada `exercise_id`/`equipment_id` que propone el
+   motor existe de verdad en el catálogo.
+2. Leída la sesión pendiente igual que `useActivePlan` (sesión 0, 5 ítems), se marcaron sus series
+   con `load_kg_normalized` calculado con el `toKg()` real (no inventado).
+3. Se cerró la sesión en el orden del fix de esta sesión (`workout_log` → `plan_sessions`) — **y
+   la cola avanzó de verdad**: la siguiente lectura devolvió la sesión 1, no la 0 de nuevo. Es la
+   promesa central de "cola sin fechas, no días de la semana" (`04-glosario.md`), confirmada.
+4. `engine.reviewProgress()` con el historial recién escrito corrió sin tirar error (0 propuestas
+   — esperable en la primera sesión; la progresión necesita varias sesiones seguidas).
+5. Limpieza completa después: `plans`, `profiles`, `workout_logs`, `set_logs` quedaron en 0 filas
+   de prueba.
+
+Con esto, la cadena completa generar → persistir → marcar → cerrar → avanzar la cola → revisar
+progreso quedó probada contra Postgres real con el código real del motor. Lo único que sigue sin
+probarse es la capa de React arriba de esto (formularios, hooks, pantallas) — eso sí necesita el
+`.env` de la app, que sigue sin tocarse.
+
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
 Una query de TanStack Query con `enabled: false` se queda en `isPending: true` para siempre.
@@ -250,11 +273,11 @@ probados sin base. La extensión de Chrome volvió a conectar: se vieron en el n
 sesión" correcto, sin quedarse colgado en el spinner) y `/` con `Proposals` montado (no rompe nada
 sin sesión). Sin errores de consola propios de la app en ninguna.
 
-**Todavía sin probar de punta a punta A TRAVÉS DE LA APP**: el registro real (vía Supabase Auth,
-no la UI de React) ya se probó contra la base local, ver arriba. Lo que falta es todo lo que pasa
-por `apps/web` de verdad — onboarding → generar plan → marcar series → cerrar sesión → confirmar
-que la cola avanza a la sesión 2 → ver el progreso en `/progreso` → ver y resolver una propuesta de
-ajuste — porque eso necesita el cliente de Supabase de la app corriendo, y este entorno tiene
+**Todavía sin probar A TRAVÉS DE LA APP** (la lógica de negocio en sí — motor, persistencia,
+avance de cola, RLS — ya se probó completa contra Postgres real, ver arriba dos veces): falta
+específicamente la capa de React — formularios de `Onboarding.tsx`, botones y estados de carga de
+`Hoy.tsx`/`Progreso.tsx`/`Proposals.tsx`, la sesión de `AuthProvider` en el navegador — porque eso
+necesita el cliente de Supabase de la app corriendo con un `.env` real, y este entorno tiene
 `Read(./.env)`/`Read(./.env.*)` denegado por `.claude/settings.json` (no es solo prudencia mía: es
 una regla del proyecto). Sigue siendo del usuario: pegar los valores en `.env` y correr la app.
 Tampoco se probó `/instalar` en un Android o iPhone real (`beforeinstallprompt` no dispara en
