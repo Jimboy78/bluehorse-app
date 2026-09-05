@@ -22,8 +22,15 @@ pantalla "Hoy" real, escritura a `set_logs` vía cola offline, y ahora también 
 como completada, que es lo único que hace avanzar la cola a la sesión siguiente (sin esto,
 `useActivePlan` iba a devolver la misma sesión para siempre).
 
-**Fase 3 en marcha.** Su checklist:
-- Propuestas de ajuste con motivo, aceptar o rechazar — sin empezar
+**Fase 3 casi completa.** Su checklist:
+- [x] Propuestas de ajuste con motivo, aceptar o rechazar (`lib/adaptation.ts`,
+  `components/Proposals.tsx`, mostradas arriba de "Hoy"): `engine.reviewProgress()` corre sobre el
+  historial real de `set_logs` y se persiste como `adaptation_proposals` `pending` — no se vuelve a
+  generar si ya hay propuestas sin resolver para el plan activo. Aceptar `load_increase`/
+  `load_decrease` actualiza `target_load` en las sesiones pendientes del plan para ese ejercicio.
+  `deload` (por ausencia o estancamiento) solo se resuelve — repartir el volumen reducido entre
+  sesiones pendientes queda pendiente, no se inventó una forma de aplicarlo. Domain sumó
+  `proposalTypeSchema`/`proposalStatusSchema` (faltaban para validar el borde).
 - [x] Sustitución por máquina ocupada: `SubstitutePicker.tsx` calcula reemplazos con
   `engine.findSubstitutes()` contra el catálogo real (con el mismo fallback a placeholder que el
   resto de la app), botón "Máquina ocupada" en `Hoy.tsx`. El cambio se registra como
@@ -48,26 +55,24 @@ dependa de sesión.
 
 ### Verificado
 
-`npm run check` (lint + typecheck + **96 tests**) pasa. `Hoy.tsx` (con el flujo de sustitución) +
-`SessionClose.tsx` probados en navegador local sin romper el estado "sin configurar" ni tirar
-errores de consola propios de la app. Los mappers nuevos (`session-event.ts`,
-`toSubstitutionEvent`, `progress.ts`: `computeAdherence`/`computeWeeklyVolume`/`computeRecords`)
-están probados sin base. **`/progreso` todavía NO se probó en el navegador**: la extensión de
-Chrome se desconectó a mitad de esta pasada (el tab que tenía abierto se cerró solo) y no volvió a
-conectar — pendiente re-verificar visualmente la próxima vez que la extensión esté disponible.
+`npm run check` (lint + typecheck + **99 tests**) pasa, y también `npm run build` (build de
+producción limpia, un solo warning de tamaño de bundle ya conocido). Los mappers nuevos
+(`session-event.ts`, `progress.ts`, `adaptation.ts`) están probados sin base. **La extensión de
+Chrome sigue desconectada desde hace dos pasadas** (`tabs_context_mcp` no reconecta) — `/progreso`
+y las propuestas de ajuste todavía NO se vieron en el navegador, solo se verificó que compilan,
+tipan y buildean. Pendiente una verificación visual apenas la extensión vuelva.
 
 **Todavía sin probar de punta a punta contra una base real**: registro → onboarding → generar
 plan → marcar series → cerrar sesión → confirmar que la cola avanza a la sesión 2 → ver el
-progreso reflejado en `/progreso`. Falta `.env` (el usuario tiene los valores) y una cuenta real
-completando el flujo entero.
+progreso en `/progreso` → ver y resolver una propuesta de ajuste. Falta `.env` (el usuario tiene
+los valores) y una cuenta real completando el flujo entero.
 
 ### Lo próximo, en orden
 
 1. **Con `.env` cargado**: la primera prueba de punta a punta real de todo lo construido hasta
    acá. Es el paso más urgente — hay mucho código nunca ejercitado contra Supabase de verdad.
    Correr `npm run db:types` en el mismo momento.
-2. Seguir Fase 3: propuestas de ajuste con motivo, aceptar o rechazar (es lo único que queda de su
-   checklist además de la pantalla de instalación).
+2. Pantalla de instalación (destino del QR) — único ítem que le queda a Fase 3.
 3. Decisión de paleta (`docs/07-marca-blue-horse.md`) — bloqueada, es del usuario.
 
 ### Trabas conocidas

@@ -52,7 +52,9 @@ Fotos, planilla de equipamiento y lista de ejercicios canónicos. Ver `05-releva
 
 - [x] Cola offline enchufada de punta a punta: `set_logs`/`workout_logs` escriben a través de
   `useSessionLog`/`startSessionOutbox` (Fase 2), reintenta sola al volver la señal
-- [ ] Propuestas de ajuste con motivo, aceptar o rechazar
+- [x] Propuestas de ajuste con motivo, aceptar o rechazar — `engine.reviewProgress()` sobre el
+  historial real, persistido en `adaptation_proposals`; aceptar una de carga la aplica a las
+  sesiones pendientes del plan
 - [x] Sustitución por máquina ocupada: `SubstitutePicker` calcula reemplazos equivalentes con
   `engine.findSubstitutes()` contra el catálogo real, registra el cambio como `session_event`
   (vía la cola offline) sin pisar `plan_session_items`
