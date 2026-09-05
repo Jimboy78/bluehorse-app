@@ -147,6 +147,12 @@ series ya marcadas no se pierden — van por la cola offline antes de cualquier 
 inglés ("Unexpected Application Error") por ENCIMA de cualquier `ErrorBoundary` de React puesto
 afuera del router — un límite de error normal ahí no alcanza. Los dos hacen falta.
 
+**Spinners de pantalla completa, anunciados a lectores de pantalla**: los tres `RequireX`, el
+fallback de `React.lazy()` en el router, y los "cargando" de `Hoy`/`Progreso` eran el único
+contenido visible mientras cargaban, sin `role` ni texto — un lector de pantalla no tenía forma de
+saber que algo estaba pasando. Ahora son `role="status"` con un `sr-only` descriptivo. Los
+spinners al lado de texto visible en un botón (no son el único contenido) no se tocaron.
+
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
 Una query de TanStack Query con `enabled: false` se queda en `isPending: true` para siempre.
