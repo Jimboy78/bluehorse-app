@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { LogOut } from 'lucide-react';
+import { LogOut, TrendingUp } from 'lucide-react';
 import { motion } from 'motion/react';
+import { Link } from 'react-router';
 import { Hoy } from './components/Hoy.tsx';
 import { useAuth } from './lib/auth/AuthProvider.tsx';
 import { activeRuleset, showsPlaceholderContent } from './lib/engine.ts';
@@ -45,15 +46,26 @@ export function App() {
           <h1 className="text-3xl font-bold tracking-tight">Push your limits</h1>
           {user?.email && <p className="text-xs text-slate">{user.email}</p>}
         </div>
-        <motion.button
-          type="button"
-          {...tappable}
-          onClick={() => void signOut()}
-          className="mt-1 flex items-center gap-1.5 rounded-full border border-line px-3 py-2 text-xs font-semibold text-slate"
-        >
-          <LogOut size={13} aria-hidden="true" />
-          Salir
-        </motion.button>
+        <div className="flex flex-col items-end gap-2">
+          <motion.button
+            type="button"
+            {...tappable}
+            onClick={() => void signOut()}
+            className="flex items-center gap-1.5 rounded-full border border-line px-3 py-2 text-xs font-semibold text-slate"
+          >
+            <LogOut size={13} aria-hidden="true" />
+            Salir
+          </motion.button>
+          <motion.div {...tappable}>
+            <Link
+              to="/progreso"
+              className="flex items-center gap-1.5 rounded-full border border-line px-3 py-2 text-xs font-semibold text-teal"
+            >
+              <TrendingUp size={13} aria-hidden="true" />
+              Progreso
+            </Link>
+          </motion.div>
+        </div>
       </motion.header>
 
       {(showsPlaceholderContent || showsPlaceholderCatalog) && (

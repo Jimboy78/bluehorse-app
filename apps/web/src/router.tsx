@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router';
 import { App } from './App.tsx';
 import { Onboarding } from './routes/Onboarding.tsx';
 import { Panel } from './routes/Panel.tsx';
+import { Progreso } from './routes/Progreso.tsx';
 import { RequireAdmin } from './routes/RequireAdmin.tsx';
 import { RequireAuth } from './routes/RequireAuth.tsx';
 import { RequireOnboarding } from './routes/RequireOnboarding.tsx';
@@ -9,7 +10,8 @@ import { SignIn } from './routes/SignIn.tsx';
 
 /**
  * Árbol de rutas de la app. Crece por fase del roadmap:
- * fase 1 agrega /auth, /onboarding, /panel y protege "/"; fase 2 suma /hoy, /sesion.
+ * fase 1 agrega /auth, /onboarding, /panel y protege "/"; fase 2 suma /hoy, /sesion;
+ * fase 3 suma /progreso.
  */
 export const router = createBrowserRouter([
   {
@@ -31,6 +33,16 @@ export const router = createBrowserRouter([
         <RequireAdmin>
           <Panel />
         </RequireAdmin>
+      </RequireAuth>
+    ),
+  },
+  {
+    path: '/progreso',
+    element: (
+      <RequireAuth>
+        <RequireOnboarding>
+          <Progreso />
+        </RequireOnboarding>
       </RequireAuth>
     ),
   },
