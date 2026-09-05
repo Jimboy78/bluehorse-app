@@ -201,6 +201,7 @@ function GoalStep({ initial, onNext }: { initial: Draft; onNext: (patch: Draft) 
             key={g}
             type="button"
             {...tappable}
+            aria-pressed={goal === g}
             onClick={() => setGoal(g)}
             className={`rounded-xl border px-4 py-3 text-left text-sm font-semibold ${
               goal === g ? 'border-teal bg-teal/10 text-teal' : 'border-line bg-navy-soft'
@@ -290,6 +291,7 @@ function PersonalStep({
               key={s}
               type="button"
               {...tappable}
+              aria-pressed={sex === s}
               onClick={() => setSex(s)}
               className={`rounded-full border px-3.5 py-2 text-xs font-semibold ${
                 sex === s ? 'border-teal bg-teal/10 text-teal' : 'border-line bg-navy-soft'
@@ -309,6 +311,7 @@ function PersonalStep({
               key={lvl}
               type="button"
               {...tappable}
+              aria-pressed={experienceLevel === lvl}
               onClick={() => setExperienceLevel(lvl)}
               className={`rounded-xl border px-4 py-3 text-left text-sm font-semibold ${
                 experienceLevel === lvl
@@ -461,6 +464,7 @@ function CalibrationStep({
         <motion.button
           type="button"
           {...tappable}
+          aria-pressed={baselineMode === 'declared'}
           onClick={() => setMode('declared')}
           className={`rounded-xl border px-4 py-3 text-left text-sm ${
             baselineMode === 'declared' ? 'border-teal bg-teal/10' : 'border-line bg-navy-soft'
@@ -474,6 +478,7 @@ function CalibrationStep({
         <motion.button
           type="button"
           {...tappable}
+          aria-pressed={baselineMode === 'calibrate'}
           onClick={() => setMode('calibrate')}
           className={`rounded-xl border px-4 py-3 text-left text-sm ${
             baselineMode === 'calibrate' ? 'border-teal bg-teal/10' : 'border-line bg-navy-soft'

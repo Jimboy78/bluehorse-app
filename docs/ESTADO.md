@@ -209,6 +209,26 @@ lo contempla (`baseline_source` incluye `calibrated`), pero *qué* serie cuenta 
 decisión de contenido —¿la más pesada?, ¿la más reciente?— y por la regla dura 2 sale de la
 investigación, no de acá.
 
+### Alta nueva y onboarding, probados de punta a punta
+
+Se creó una segunda cuenta desde la UI (`ana.prueba@bluehorse.test`, principiante) para probar el
+alta y el onboarding completos. Confirmado:
+
+- El alta ahora **entra directo al onboarding** (antes parecía que el botón no hacía nada: era el
+  bug del guard que se arregló al principio de la sesión).
+- **"Atrás" del onboarding conserva lo elegido**: volver al paso 1 mantenía el objetivo marcado y
+  el deporte tipeado.
+- El motor **ramifica bien por nivel**: la cuenta principiante recibió `full_body_ab`, la
+  intermedia `upper_lower`. No es la misma plantilla para todos.
+
+**Accesibilidad**: los botones de selección del onboarding (objetivo, sexo, nivel, y los dos de
+baseline) eran los únicos de la app sin `aria-pressed` — el color era la única señal de qué estaba
+elegido. El resto de la app ya lo usaba (RIR, chips de músculos, sensación al cerrar). Quedó
+parejo.
+
+Las dos cuentas quedan en la base local a propósito: tener una principiante y una intermedia sirve
+para probar que el motor ramifique.
+
 **Moraleja para las próximas sesiones: `curl` contra la base y los tests verdes no dicen que la app
 funcione.** Verificado a mano el recorrido completo: alta → onboarding → plan generado → marcar
 series → cronómetro de descanso → sustitución → cerrar sesión → avance de la cola a la sesión
