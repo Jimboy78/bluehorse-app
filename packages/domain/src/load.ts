@@ -93,6 +93,32 @@ export function formatLoad(reading: LoadReading, locale = 'es-AR'): string {
 }
 
 /**
+ * El sufijo de la unidad, para ponerlo al lado de un número editable.
+ * Mismo vocabulario que `formatLoad`, en un solo lugar: si mañana "pin"
+ * pasa a llamarse otra cosa, cambia acá y en ningún otro lado.
+ */
+export function loadUnitLabel(unit: LoadUnit): string {
+  switch (unit) {
+    case 'kg':
+    case 'plates_kg':
+      return 'kg';
+    case 'lb':
+    case 'plates_lb':
+      return 'lb';
+    case 'stack_level':
+      return 'pin';
+    case 'band':
+      return 'banda';
+    case 'bodyweight':
+      return 'peso corporal';
+    case 'none':
+      return 'sin carga';
+    default:
+      return '';
+  }
+}
+
+/**
  * Ajusta un valor al escalón real de la estación y lo recorta al rango físico.
  * Sin esto el motor propone 63.7 kg en una máquina que sube de a 5.
  */
@@ -133,6 +159,37 @@ export function nextLoad(
     return snapToEquipment(current.value + spec.increment, spec);
   }
   return snapped;
+}
+
+/**
+ * Un escalón real para arriba o para abajo, para cuando la persona corrige a
+ * mano la carga que efectivamente usó.
+ *
+ * No es progresión: acá no hay porcentaje ninguno, y por eso no toma nada del
+ * ruleset. En una estación de pin se mueve un nivel, porque no existe medio
+ * pin; en discos o mancuernas, un `increment` de los de verdad.
+ *
+ * Devuelve `null` cuando la estación no dice de cuánto es su escalón: mover
+ * "un poco" sin saber cuánto sería inventar un número que la máquina nunca
+ * mostró.
+ */
+export function stepLoad(
+  current: number | null,
+  spec: EquipmentLoadSpec,
+  direction: 1 | -1,
+): number | null {
+  if (spec.unit === 'stack_level') {
+    const levels = spec.stackKg?.length;
+    const next = (current ?? 0) + direction;
+    if (next < 1) return 1;
+    if (levels !== undefined && next > levels) return levels;
+    return next;
+  }
+
+  const step = spec.increment && spec.increment > 0 ? spec.increment : null;
+  if (step === null) return null;
+  if (current === null) return snapToEquipment(spec.min ?? step, spec);
+  return snapToEquipment(current + direction * step, spec);
 }
 
 function round2(n: number): number {

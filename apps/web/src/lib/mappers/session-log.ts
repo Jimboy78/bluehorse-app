@@ -73,6 +73,11 @@ export interface SetActual {
   readonly reps: number;
   /** Cuántas más podría haber hecho. `null` si no lo dijo. */
   readonly rir: number | null;
+  /**
+   * La carga que usó de verdad, cruda y en la unidad de la estación (regla
+   * dura 5). `null` cuando no hay ninguna que anotar.
+   */
+  readonly load: LoadReading | null;
 }
 
 export function toSetLogInsert(
@@ -92,15 +97,13 @@ export function toSetLogInsert(
     exercise_id: item.exerciseId,
     equipment_id: item.equipmentId,
     set_index: setIndex,
-    // La carga sigue saliendo del plan: todavía no hay campo para corregirla
-    // si el socio usó otra. Las repeticiones y el RIR, en cambio, ya son lo
-    // que pasó de verdad (se preguntan durante el descanso).
-    load_value: item.targetLoad?.value ?? null,
-    load_unit: item.targetLoad?.unit ?? null,
+    // Cruda y en la unidad de la estación, como la mostró la máquina. El
+    // normalizado a kg existe solo para gráficos y queda null si no se puede
+    // convertir sin inventar (regla dura 5).
+    load_value: actual.load?.value ?? null,
+    load_unit: actual.load?.unit ?? null,
     load_kg_normalized:
-      item.targetLoad && item.equipmentLoadSpec
-        ? toKg(item.targetLoad, item.equipmentLoadSpec)
-        : null,
+      actual.load && item.equipmentLoadSpec ? toKg(actual.load, item.equipmentLoadSpec) : null,
     reps: actual.reps,
     reps_target: item.repsTarget,
     rir: actual.rir,

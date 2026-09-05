@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { EquipmentLoadSpec } from './load.ts';
-import { formatLoad, nextLoad, snapToEquipment, toKg } from './load.ts';
+import { formatLoad, nextLoad, snapToEquipment, stepLoad, toKg } from './load.ts';
 
 const discos: EquipmentLoadSpec = {
   unit: 'plates_kg',
@@ -81,5 +81,40 @@ describe('nextLoad', () => {
 
   it('respeta el escalón cuando el porcentaje alcanza', () => {
     expect(nextLoad({ value: 60, unit: 'plates_kg' }, discos, 5)).toBe(62.5);
+  });
+});
+
+describe('stepLoad', () => {
+  const pin = { unit: 'stack_level' as const, stackKg: [5, 10, 15, 20, 25], increment: 1 };
+  const discos = { unit: 'plates_kg' as const, increment: 2.5, min: 0, max: 200 };
+
+  it('en pin sube y baja de a un nivel, nunca medio', () => {
+    expect(stepLoad(3, pin, 1)).toBe(4);
+    expect(stepLoad(3, pin, -1)).toBe(2);
+  });
+
+  it('en pin no se pasa del último nivel ni baja del primero', () => {
+    expect(stepLoad(5, pin, 1)).toBe(5);
+    expect(stepLoad(1, pin, -1)).toBe(1);
+  });
+
+  it('en discos se mueve un escalón real de la estación', () => {
+    expect(stepLoad(60, discos, 1)).toBe(62.5);
+    expect(stepLoad(60, discos, -1)).toBe(57.5);
+  });
+
+  it('respeta el máximo y el mínimo de la estación', () => {
+    expect(stepLoad(200, discos, 1)).toBe(200);
+    expect(stepLoad(0, discos, -1)).toBe(0);
+  });
+
+  it('sin carga previa arranca desde el mínimo de la estación', () => {
+    expect(stepLoad(null, discos, 1)).toBe(0);
+    expect(stepLoad(null, pin, 1)).toBe(1);
+  });
+
+  it('devuelve null si la estación no dice de cuánto es su escalón: mover "un poco" sería inventar', () => {
+    expect(stepLoad(40, { unit: 'kg' }, 1)).toBeNull();
+    expect(stepLoad(40, { unit: 'kg', increment: 0 }, 1)).toBeNull();
   });
 });

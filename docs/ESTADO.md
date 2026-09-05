@@ -99,6 +99,37 @@ el overflow se evalúan contra él). Ninguna pantalla desborda a lo ancho: `/`, 
 `/panel` e `/instalar` dieron `scrollWidth === clientWidth` y cero elementos pasados del borde.
 Truco a reusar: inyectar un iframe a `localhost:5173` con `width:390px` y medir adentro.
 
+### El hallazgo más importante: la adaptación no podía adaptarse
+
+`set_logs` guardaba `reps: item.repsTarget` — el objetivo del plan copiado como si fuera el
+resultado — y nunca escribía `rir` ni la carga usada. Con eso, el motor comparaba el plan contra sí
+mismo, y **tres de las cuatro reglas de adaptación eran inalcanzables**:
+
+| Regla | Necesita | Estaba |
+|---|---|---|
+| `proposeIncrease` | `rir >= triggerRirAtLeast` | `rir` siempre null |
+| `proposeDecrease` | `reps < repsTarget` | iguales por construcción |
+| `proposeStallDeload` | compara cargas entre sesiones | `load_value` siempre null |
+| `proposeAbsenceDeload` | días sin entrenar | única que podía disparar |
+
+O sea: la app se presenta como entrenamiento adaptativo y la señal que alimenta la adaptación
+estaba fabricada desde el plan. Es la regla dura 6 al revés.
+
+**Arreglado**: durante el descanso ahora se pregunta carga, repeticiones y cuántas quedaban. Va ahí
+a propósito — son dos minutos parado al lado de la máquina, tiempo muerto, así que no cuesta un
+toque de más; y arranca con lo que decía el plan, así que si salió como estaba escrito no hay nada
+que tocar. La carga es editable (llegar a 60 kg de a 2,5 son 24 toques) y se ajusta al escalón real
+de la estación recién al salir del campo: tipear 62 en una barra que sube de a 2,5 guarda 62,5.
+
+`stepLoad()` es nuevo en `packages/domain/src/load.ts`, con tests: un escalón real para arriba o
+para abajo, un nivel en las de pin, y `null` cuando la estación no dice de cuánto es su escalón
+(mover "un poco" sin saber cuánto sería inventar).
+
+Verificado contra la base: una serie quedó en `load_value 62.50 / plates_kg /
+load_kg_normalized 82.50` (62,5 + 20 de la barra) y otra en `reps 7 / reps_target 12 / rir 0`.
+Antes las dos cosas eran imposibles de representar. `/progreso` ya muestra "62,5 kg" en vez de
+"sin registrar".
+
 **Moraleja para las próximas sesiones: `curl` contra la base y los tests verdes no dicen que la app
 funcione.** Verificado a mano el recorrido completo: alta → onboarding → plan generado → marcar
 series → cronómetro de descanso → sustitución → cerrar sesión → avance de la cola a la sesión

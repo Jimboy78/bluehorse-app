@@ -31,7 +31,7 @@ describe('toSetLogInsert', () => {
   };
 
   /** Lo común: salió como estaba planificado. */
-  const hechas = { reps: 10, rir: 2 };
+  const hechas = { reps: 10, rir: 2, load: targetLoad };
 
   it('normaliza a kg usando la spec de la estación', () => {
     const row = toSetLogInsert(
@@ -64,20 +64,21 @@ describe('toSetLogInsert', () => {
     expect(row.rest_prescribed_seconds).toBe(90);
   });
 
-  it('guarda null en carga y en normalizado cuando no hay baseline, nunca un valor inventado', () => {
+  it('la carga guardada es la que se usó, no la que proponía el plan', () => {
     const row = toSetLogInsert(
       's-1',
       'w-1',
+      // El plan no proponía carga (primera sesión, sin baseline)...
       { ...baseItem, targetLoad: null },
       0,
       60,
       'client-1',
       '2026-09-05T10:05:00Z',
-      hechas,
+      // ...pero la persona igual entrenó con algo y lo anotó.
+      { reps: 10, rir: 2, load: { value: 40, unit: 'plates_kg' } },
     );
-    expect(row.load_value).toBeNull();
-    expect(row.load_unit).toBeNull();
-    expect(row.load_kg_normalized).toBeNull();
+    expect(row.load_value).toBe(40);
+    expect(row.load_kg_normalized).toBe(60);
   });
 
   it('guarda null en normalizado si la estación no tiene spec (pin sin tabla)', () => {
@@ -115,6 +116,7 @@ describe('toSetLogInsert', () => {
     const row = toSetLogInsert('s-1', 'w-1', baseItem, 0, 90, 'client-1', '2026-09-05T10:05:00Z', {
       reps: 7,
       rir: 0,
+      load: targetLoad,
     });
     // Si estos dos fueran siempre iguales, el motor compararía el plan contra
     // sí mismo y ninguna propuesta de bajar la carga podría dispararse.
@@ -127,7 +129,31 @@ describe('toSetLogInsert', () => {
     const row = toSetLogInsert('s-1', 'w-1', baseItem, 0, 90, 'client-1', '2026-09-05T10:05:00Z', {
       reps: 10,
       rir: null,
+      load: targetLoad,
     });
     expect(row.rir).toBeNull();
+  });
+
+  it('guarda la carga que se usó de verdad, no la que proponía el plan', () => {
+    const row = toSetLogInsert('s-1', 'w-1', baseItem, 0, 90, 'client-1', '2026-09-05T10:05:00Z', {
+      reps: 10,
+      rir: 2,
+      load: { value: 50, unit: 'plates_kg' },
+    });
+    // Cruda como la muestra la máquina, y el normalizado recalculado sobre
+    // esa carga real (50 + 20 de la barra), no sobre la del plan.
+    expect(row.load_value).toBe(50);
+    expect(row.load_kg_normalized).toBe(70);
+  });
+
+  it('acepta una serie sin carga que anotar', () => {
+    const row = toSetLogInsert('s-1', 'w-1', baseItem, 0, 90, 'client-1', '2026-09-05T10:05:00Z', {
+      reps: 10,
+      rir: 2,
+      load: null,
+    });
+    expect(row.load_value).toBeNull();
+    expect(row.load_unit).toBeNull();
+    expect(row.load_kg_normalized).toBeNull();
   });
 });

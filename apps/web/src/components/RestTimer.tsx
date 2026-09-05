@@ -1,3 +1,5 @@
+import type { EquipmentLoadSpec, LoadReading } from '@bh/domain';
+import { formatLoad, loadUnitLabel, snapToEquipment, stepLoad } from '@bh/domain';
 import { Minus, Plus } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
@@ -25,21 +27,33 @@ interface RestTimerProps {
   readonly repsTarget: number;
   /** RIR prescripto por el ruleset para esta serie, si lo hay. */
   readonly targetRir: number | null;
+  /** La carga que proponía el plan. Punto de partida del ajuste a mano. */
+  readonly targetLoad: LoadReading | null;
+  /** Cómo carga la estación: define el escalón real y si se puede escalonar. */
+  readonly loadSpec: EquipmentLoadSpec | null;
   /** Recibe cuánto descansó de verdad y qué pasó en la serie. */
   readonly onFinish: (actualSeconds: number, actual: SetActual) => void;
 }
 
-export function RestTimer({ prescribedSeconds, repsTarget, targetRir, onFinish }: RestTimerProps) {
+export function RestTimer({
+  prescribedSeconds,
+  repsTarget,
+  targetRir,
+  targetLoad,
+  loadSpec,
+  onFinish,
+}: RestTimerProps) {
   const [remaining, setRemaining] = useState(prescribedSeconds);
   const [reps, setReps] = useState(repsTarget);
   const [rir, setRir] = useState<number | null>(targetRir);
+  const [load, setLoad] = useState<LoadReading | null>(targetLoad);
   const reduceMotion = useReducedMotion();
   const finishedRef = useRef(false);
 
   // Los valores viven en un ref además del estado: el efecto que dispara al
   // llegar a cero no debe re-armarse cada vez que el socio toca un botón.
-  const actualRef = useRef<SetActual>({ reps: repsTarget, rir: targetRir });
-  actualRef.current = { reps, rir };
+  const actualRef = useRef<SetActual>({ reps: repsTarget, rir: targetRir, load: targetLoad });
+  actualRef.current = { reps, rir, load };
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -116,6 +130,10 @@ export function RestTimer({ prescribedSeconds, repsTarget, targetRir, onFinish }
       </div>
 
       <SetOutcome
+        load={load}
+        targetLoad={targetLoad}
+        loadSpec={loadSpec}
+        onLoad={setLoad}
         reps={reps}
         repsTarget={repsTarget}
         onReps={setReps}
@@ -165,6 +183,10 @@ export function RestTimer({ prescribedSeconds, repsTarget, targetRir, onFinish }
  * de subir o bajar la carga podía dispararse nunca.
  */
 function SetOutcome({
+  load,
+  targetLoad,
+  loadSpec,
+  onLoad,
   reps,
   repsTarget,
   onReps,
@@ -172,6 +194,10 @@ function SetOutcome({
   targetRir,
   onRir,
 }: {
+  load: LoadReading | null;
+  targetLoad: LoadReading | null;
+  loadSpec: EquipmentLoadSpec | null;
+  onLoad: (l: LoadReading | null) => void;
   reps: number;
   repsTarget: number;
   onReps: (n: number) => void;
@@ -179,8 +205,63 @@ function SetOutcome({
   targetRir: number | null;
   onRir: (n: number) => void;
 }) {
+  // Escalonar necesita saber de cuánto es el escalón de esta estación. Sin
+  // catálogo cargado no se puede, y no se inventa un paso.
+  const canStep = loadSpec !== null && stepLoad(load?.value ?? null, loadSpec, 1) !== null;
+
+  function step(direction: 1 | -1) {
+    if (!loadSpec) return;
+    const value = stepLoad(load?.value ?? null, loadSpec, direction);
+    if (value === null) return;
+    onLoad({ value, unit: loadSpec.unit });
+  }
+
   return (
     <div className="flex w-full max-w-[22rem] flex-col gap-3 rounded-xl border border-line bg-navy px-4 py-3.5">
+      {canStep && (
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-xs text-slate">
+            Carga
+            {targetLoad?.value !== load?.value && targetLoad?.value != null && (
+              <span className="text-slate/70"> · plan {formatLoad(targetLoad)}</span>
+            )}
+          </span>
+          <div className="flex items-center gap-1">
+            <Stepper label="Bajar un escalón" onClick={() => step(-1)}>
+              <Minus size={14} aria-hidden="true" />
+            </Stepper>
+            {/* Editable, no solo escalonable: en la primera sesión no hay
+                baseline y llegar a 60 kg de a 2,5 son veinticuatro toques. */}
+            <input
+              type="number"
+              inputMode="decimal"
+              aria-label="Carga usada"
+              value={load?.value ?? ''}
+              step={loadSpec?.increment ?? undefined}
+              onChange={(e) => {
+                const raw = e.target.value;
+                if (raw === '') return onLoad(null);
+                const value = Number(raw);
+                if (Number.isNaN(value) || !loadSpec) return;
+                onLoad({ value, unit: loadSpec.unit });
+              }}
+              onBlur={() => {
+                // Recién al salir se ajusta al escalón real: mientras tipea,
+                // corregirle el número debajo del dedo es peor que dejarlo.
+                if (load?.value == null || !loadSpec) return;
+                onLoad({ value: snapToEquipment(load.value, loadSpec), unit: loadSpec.unit });
+              }}
+              className="w-16 rounded-lg border border-line bg-navy-soft py-1.5 text-center font-mono text-base font-semibold tabular-nums outline-none focus:border-teal"
+            />
+            <span className="min-w-8 font-mono text-xs text-slate">
+              {loadSpec ? loadUnitLabel(loadSpec.unit) : ''}
+            </span>
+            <Stepper label="Subir un escalón" onClick={() => step(1)}>
+              <Plus size={14} aria-hidden="true" />
+            </Stepper>
+          </div>
+        </div>
+      )}
       <div className="flex items-center justify-between gap-3">
         <span className="text-xs text-slate">
           Repeticiones

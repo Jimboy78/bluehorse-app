@@ -371,6 +371,8 @@ function ExerciseDetail({
             prescribedSeconds={item.restSeconds}
             repsTarget={item.repsTarget}
             targetRir={item.targetRir}
+            targetLoad={item.targetLoad}
+            loadSpec={item.equipmentLoadSpec}
             onFinish={onRestFinish}
           />
         </motion.div>
