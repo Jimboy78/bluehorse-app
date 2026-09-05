@@ -5,7 +5,7 @@ puede leer desde cualquier sesión nueva. **Actualizalo al terminar una sesión 
 
 ---
 
-## Última actualización: 4 de septiembre de 2026, tarde/noche (loop autónomo, corre cada 15 min)
+## Última actualización: 5 de septiembre de 2026 (loop autónomo, corre cada 15 min)
 
 ### Instrucciones vigentes del usuario
 
@@ -67,6 +67,25 @@ aparece sin recargar, `aria-pressed` en los grupos de selección única (sensaci
 lista de `Proposals` y un `aria-label` prolijo en `SetRow` en vez de dejar que el lector de
 pantalla concatene spans sueltos. Sin cambios de comportamiento.
 
+**Verificado con foco real por teclado (Tab) en `/auth`**: los inputs muestran el cambio de color
+de borde (`focus:border-teal`, es a propósito, ver `outline-none` en esos className) y los
+botones sin ese override reciben el anillo nativo del navegador (`outlineStyle: "auto"`,
+confirmado por consola) — nada lo suprime. Los botones deshabilitados (Google/submit cuando
+Supabase no está configurado) correctamente salen del orden de tabulación, no es un bug. También
+se midió el contraste de la paleta (`--color-slate` sobre `--color-navy-soft` da 5.81:1, el más
+ajustado de todos) — todos los pares texto/fondo usados pasan WCAG AA. Conclusión: no había nada
+que arreglar acá; la sospecha de la pasada anterior no era un problema real.
+
+**Récord personal real, ya no una demo**: `personal_records` existía en el esquema desde la fase 1
+sin ningún escritor, y la celebración (`celebratePersonalRecord`) solo se disparaba desde un botón
+de prueba en `Hoy.tsx` que su propio comentario contradecía ("se usa SOLO cuando el motor detecta
+un récord real"). Ahora `markSetDone()` (`lib/session-log.ts`) compara el `load_kg_normalized` de
+la serie contra el máximo histórico real de ese ejercicio ANTES de encolarla (para no compararla
+contra sí misma), sin bloquear el toque de "hecha" — best-effort, sin conexión simplemente no hay
+celebración esa vez. La primera serie de un ejercicio nunca es "récord" (es el punto de partida).
+Si es un récord real, dispara la celebración y guarda la fila en `personal_records`. Se sacó el
+botón de prueba.
+
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
 Una query de TanStack Query con `enabled: false` se queda en `isPending: true` para siempre.
@@ -75,7 +94,7 @@ dependa de sesión.
 
 ### Verificado
 
-`npm run check` (lint + typecheck + **103 tests**) pasa, y también `npm run build` (build de
+`npm run check` (lint + typecheck + **104 tests**) pasa, y también `npm run build` (build de
 producción limpia, un solo warning de tamaño de bundle ya conocido). Todos los mappers nuevos de
 esta sesión (`session-event.ts`, `progress.ts`, `adaptation.ts`, `use-install-prompt.ts`) están
 probados sin base. La extensión de Chrome volvió a conectar: se vieron en el navegador `/instalar`
@@ -97,9 +116,9 @@ dispositivo físico.
    acá. Es el paso más urgente — hay mucho código nunca ejercitado contra Supabase de verdad.
    Correr `npm run db:types` en el mismo momento.
 2. Fase 4 (contenido real) está bloqueada por research y por el relevamiento del catálogo — no
-   arrancar sin eso. Mientras tanto queda pulir: navegación por teclado (nunca se probó con Tab),
-   y estados de foco visibles en botones custom (`motion.button` sin `focus-visible` explícito hoy
-   depende del estilo default del navegador).
+   arrancar sin eso. Teclado y contraste ya se verificaron limpios (ver arriba); no queda una
+   tarea técnica obvia pendiente sin tocar contenido — la próxima pasada probablemente tenga que
+   buscar en el código algo más específico para pulir en vez de un ítem ya anotado.
 3. Decisión de paleta (`docs/07-marca-blue-horse.md`) — bloqueada, es del usuario.
 
 ### Trabas conocidas
