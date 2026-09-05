@@ -57,10 +57,12 @@ vez contra una base real.
 ### Lo próximo, en orden
 
 1. Con `.env` cargado: probar registro por email, confirmar que el trigger crea el `profile`, y
-   completar el onboarding real (hoy solo se probó la UI, nunca la escritura a la base).
-2. Panel admin con catálogo placeholder (sigue pendiente, no bloqueado).
-3. `npm run db:types` para generar `packages/domain/src/database.types.ts` desde la base real
-   (nunca se corrió — hasta ahora no había una base contra la cual generarlos).
+   completar el onboarding real (hoy solo se probó la UI, nunca la escritura a la base). Con eso
+   confirmado, además se puede probar `useGymCatalog` de punta a punta: el seed ya tiene 13
+   estaciones de ejemplo cargadas para el gimnasio Blue Horse, así que debería mostrar el catálogo
+   real (`isPlaceholder: false`) apenas haya sesión.
+2. Panel admin (CRUD real de equipamiento/ejercicios vía UI, no solo seed).
+3. `npm run db:types` para generar `packages/domain/src/database.types.ts` desde la base real.
 4. Decisión de paleta (`docs/07-marca-blue-horse.md`) — bloqueada, es del usuario.
 
 ### Trabas conocidas

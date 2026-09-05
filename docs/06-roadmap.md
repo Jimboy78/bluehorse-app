@@ -17,8 +17,13 @@ Fotos, planilla de equipamiento y lista de ejercicios canónicos. Ver `05-releva
 - [x] Cliente de Supabase, cola offline, PWA con service worker
 - [x] Auth con Google y email (routing, sesión, pantalla de acceso)
 - [x] Onboarding mínimo (wizard de 4 pasos, actualiza `profile` y crea el primer `user_goal`)
-- [ ] Panel admin: alta de equipamiento con foto, ejercicios, mapeo — **con datos placeholder
-  mientras no esté el relevamiento real** (ver instrucción del usuario en `docs/ESTADO.md`)
+- [x] Lector del catálogo real (`useGymCatalog`): lee equipment/exercises/exercise_equipment de
+  Supabase, cae al gimnasio placeholder si el gym no tiene equipamiento cargado — el aviso de
+  "datos de ejemplo" se apaga solo cuando eso deje de pasar
+- [x] Seed con 13 estaciones de ejemplo + 16 mapeos, para que el lector de arriba tenga algo real
+  contra qué probar sin esperar el relevamiento
+- [ ] Panel admin: alta de equipamiento con foto, ejercicios, mapeo (CRUD real; hoy el catálogo de
+  ejemplo solo se carga por seed, no por UI)
 - [ ] Catálogo de Blue Horse cargado (bloqueado por Fase 0, no bloquea el resto del desarrollo)
 
 **Entregable**: el catálogo real, navegable desde la app.
