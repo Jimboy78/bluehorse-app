@@ -164,6 +164,28 @@ mostrar.
 - **Rechazar** deja la propuesta en `rejected`, **no toca ningún `target_load`**, y no vuelve a
   aparecer para ese ejercicio (`wasRecentlyRejected`).
 
+### Alta de ejercicios, molestias y cierre vacío
+
+Probado el formulario de ejercicios del panel (nunca se había tocado): nombre, patrón, modalidad,
+nivel, músculos primarios y secundarios, y el mapeo a estaciones, todo persiste bien. **La
+validación ya impide crear un ejercicio sin estación** ("Elegí en qué estación se hace, o marcá
+'peso corporal'"), que es justo lo que dejaría al motor sin poder proponerlo.
+
+Tres arreglos que salieron de ahí:
+
+1. **Cerrar una sesión sin marcar series tiraba lo que escribías.** El formulario *exigía* elegir
+   una sensación y ofrecía notas, pero ambas viven en `workout_logs` — y sin series no hay
+   `workout_log`, así que se descartaban en silencio. Ahora esa pantalla dice "No marcaste ninguna
+   serie, así que no hay entrenamiento que guardar", esconde sensación y notas, y deja reportar la
+   molestia, que sí se guarda sola (`pain_reports.workout_log_id` es nullable).
+2. **El slider de molestia no mostraba su valor**, a diferencia de los del onboarding: no se sabía
+   si estabas reportando un 2 o un 4, que es exactamente el dato.
+3. "1 estación(es) asociada(s)" pasó a singular/plural de verdad, y un ejercicio sin mapear se
+   muestra en ámbar: es trabajo a medio hacer, no un estado normal.
+
+**Ojo con las pruebas por script**: varios "bugs" que creí encontrar eran mis clics compitiendo con
+las animaciones de transición. Verificar siempre contra la base antes de dar por roto algo.
+
 **Moraleja para las próximas sesiones: `curl` contra la base y los tests verdes no dicen que la app
 funcione.** Verificado a mano el recorrido completo: alta → onboarding → plan generado → marcar
 series → cronómetro de descanso → sustitución → cerrar sesión → avance de la cola a la sesión

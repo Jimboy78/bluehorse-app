@@ -10,12 +10,13 @@ export type SessionFeel = 'easy' | 'right' | 'hard';
 
 export interface WorkoutLogCloseRow {
   readonly ended_at: string;
-  readonly session_feel: SessionFeel;
+  readonly session_feel: SessionFeel | null;
   readonly notes: string | null;
 }
 
 export function toWorkoutLogClose(
-  feel: SessionFeel,
+  /** `null` cuando no hubo entrenamiento que calificar. */
+  feel: SessionFeel | null,
   notes: string,
   endedAt: string,
 ): WorkoutLogCloseRow {

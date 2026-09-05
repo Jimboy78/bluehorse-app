@@ -47,9 +47,15 @@ export function SessionClose({
   const [notes, setNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
 
+  // Sin ninguna serie marcada no hay `workout_log`, y la sensación y las
+  // notas viven ahí: preguntarlas para después tirarlas es peor que no
+  // preguntarlas. La molestia sí se guarda igual, sola, así que esa se sigue
+  // ofreciendo.
+  const registroVacio = workoutLogId === null;
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!feel) {
+    if (!feel && !registroVacio) {
       setError('Elegí cómo te sentiste.');
       return;
     }
@@ -76,9 +82,18 @@ export function SessionClose({
       onSubmit={handleSubmit}
       className="flex flex-col gap-5"
     >
-      <h2 className="text-2xl font-bold tracking-tight">¿Cómo te sentiste?</h2>
+      <h2 className="text-2xl font-bold tracking-tight">
+        {registroVacio ? 'Cerrar la sesión' : '¿Cómo te sentiste?'}
+      </h2>
 
-      <div className="flex gap-2">
+      {registroVacio && (
+        <p className="rounded-lg border border-line bg-navy-soft px-4 py-3 text-sm text-slate">
+          No marcaste ninguna serie, así que no hay entrenamiento que guardar. Podés cerrarla igual
+          y pasar a la siguiente.
+        </p>
+      )}
+
+      <div className={`flex gap-2 ${registroVacio ? 'hidden' : ''}`}>
         {(Object.keys(FEEL_LABELS) as SessionFeel[]).map((f) => (
           <motion.button
             key={f}
@@ -118,7 +133,12 @@ export function SessionClose({
 
         {painRegion && (
           <label className="flex flex-col gap-1.5 text-sm" htmlFor="severity">
-            Qué tan fuerte, del 1 al 5
+            {/* Con el valor a la vista, igual que los sliders del onboarding:
+                sin esto no se sabe si lo que se está reportando es un 2 o un
+                4, que es justamente el dato. */}
+            <span>
+              Qué tan fuerte, del 1 al 5: <strong className="text-orange">{severity}</strong>
+            </span>
             <input
               id="severity"
               type="range"
@@ -132,7 +152,10 @@ export function SessionClose({
         )}
       </div>
 
-      <label className="flex flex-col gap-1.5 text-sm" htmlFor="close-notes">
+      <label
+        className={`flex flex-col gap-1.5 text-sm ${registroVacio ? 'hidden' : ''}`}
+        htmlFor="close-notes"
+      >
         Notas (opcional)
         <textarea
           id="close-notes"

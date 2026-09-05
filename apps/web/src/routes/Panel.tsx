@@ -416,6 +416,36 @@ function EquipmentSection({ gymId }: { gymId: string | null }) {
   );
 }
 
+/**
+ * Con cuántas estaciones quedó mapeado un ejercicio.
+ *
+ * "Sin equipamiento mapeado" no es un detalle: el motor no puede proponer un
+ * ejercicio que no se puede hacer en ninguna estación, así que esa fila es
+ * trabajo a medio hacer. Va en ámbar para que se vea al recorrer la lista,
+ * en vez de gris como todo lo demás.
+ */
+function ExerciseMappingNote({ stations, bodyweight }: { stations: number; bodyweight: boolean }) {
+  if (stations > 0) {
+    return (
+      <span className="text-xs text-slate">
+        {stations === 1 ? '1 estación asociada' : `${stations} estaciones asociadas`}
+      </span>
+    );
+  }
+
+  // Peso corporal es un caso legítimo, no un olvido: no necesita estación.
+  if (bodyweight) {
+    return <span className="text-xs text-slate">peso corporal, sin equipamiento</span>;
+  }
+
+  return (
+    <span className="flex items-center gap-1 text-xs text-amber">
+      <AlertCircle size={11} aria-hidden="true" />
+      sin equipamiento mapeado
+    </span>
+  );
+}
+
 /** Botonera del formulario de estaciones: cambia según si es alta o corrección. */
 function EquipmentFormActions({
   isEditing,
@@ -878,15 +908,12 @@ function ExerciseSection({ gymId }: { gymId: string | null }) {
             key={ex.id}
             className="flex items-center gap-3 rounded-xl border border-line bg-navy-soft px-4 py-3"
           >
-            <div className="flex flex-1 flex-col">
+            <div className="flex min-w-0 flex-1 flex-col">
               <span className="font-semibold">{ex.name}</span>
-              <span className="text-xs text-slate">
-                {ex.equipmentIds.length > 0
-                  ? `${ex.equipmentIds.length} estación(es) asociada(s)`
-                  : ex.modality === 'reps_bodyweight'
-                    ? 'peso corporal, sin equipamiento'
-                    : 'sin equipamiento mapeado'}
-              </span>
+              <ExerciseMappingNote
+                stations={ex.equipmentIds.length}
+                bodyweight={ex.modality === 'reps_bodyweight'}
+              />
             </div>
             <span className="text-xs uppercase tracking-wide text-slate">
               {PATTERN_LABELS[ex.pattern]}

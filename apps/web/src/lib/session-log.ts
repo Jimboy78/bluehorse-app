@@ -289,7 +289,8 @@ export interface CloseSessionInput {
   readonly planSessionId: string;
   /** `null` si no se marcó ninguna serie: no hay `workout_log` que cerrar. */
   readonly workoutLogId: string | null;
-  readonly feel: SessionFeel;
+  /** `null` si no se marcó ninguna serie: no hay entrenamiento que calificar. */
+  readonly feel: SessionFeel | null;
   readonly notes: string;
   readonly pain: { readonly region: BodyRegion; readonly severity: number } | null;
 }
