@@ -86,8 +86,9 @@ celebración esa vez. La primera serie de un ejercicio nunca es "récord" (es el
 Si es un récord real, dispara la celebración y guarda la fila en `personal_records`. Se sacó el
 botón de prueba.
 
-**Dos bugs de robustez reales, encontrados por revisión de código (no por el usuario) y ya
-arreglados:**
+**Cuatro bugs de robustez reales, encontrados por revisión de código (no por el usuario) y ya
+arreglados** — todos el mismo patrón: una mutación encadena dos o más escrituras a Supabase sin
+pensar qué pasa si la primera se confirma y la segunda falla:
 - `useGeneratePlan` (`lib/plan.ts`): `plans` tiene un índice único por socio con
   `status = 'active'`. Si sesiones/ítems fallaban a mitad de camino, el `plan` ya insertado quedaba
   huérfano y activo — cualquier reintento futuro chocaba con ese índice único, dejando al socio sin
@@ -98,10 +99,24 @@ arreglados:**
   `workout_log` y guardar el reporte de dolor. Si cualquiera de esos dos pasos fallaba después, la
   cola ya había avanzado con la sensación/notas de esa sesión perdidas para siempre. Reordenado:
   `workout_log` → `pain_report` → `plan_sessions` (recién esto último avanza la cola).
+- `useCompleteOnboarding` (`lib/onboarding.ts`) — **el más severo de los cuatro**: marcaba
+  `profiles.onboarded_at` ANTES de insertar el `user_goal`. Si esa segunda escritura fallaba, el
+  socio quedaba marcado "ya completó el onboarding" (`RequireOnboarding` solo mira ese campo) pero
+  sin ningún objetivo — pasaba el gate, llegaba a "Hoy", tocaba "Generar mi plan" y se encontraba
+  con un error de "falta el onboarding" que ya no podía resolver desde ninguna pantalla. Reordenado:
+  `user_goals` primero, `profiles.onboarded_at` al final.
+- `useCreateEquipment`/`useCreateExercise` (`lib/panel.ts`), menos severo (el panel es de uso
+  interno, no del socio): si subir la foto salía bien pero insertar `equipment` fallaba, la foto
+  quedaba huérfana en Storage para siempre; si insertar `exercises` salía bien pero mapear su
+  equipamiento fallaba, el ejercicio quedaba en el listado sin equipamiento asociado y, como el
+  panel todavía no tiene edición, sin forma de arreglarlo. Ambos casos ahora limpian (borran) lo que
+  ya se había escrito antes de relanzar el error.
 
-Ninguno de los dos se puede reproducir fácil sin forzar una falla de red a mitad de una escritura
-— no están cubiertos por test (son hooks que pegan contra Supabase, mismo criterio que el resto del
-proyecto), pero la lógica de rollback/orden en sí es simple de leer y revisar.
+Ninguno se puede reproducir fácil sin forzar una falla de red a mitad de una escritura — no están
+cubiertos por test (son hooks que pegan contra Supabase, mismo criterio que el resto del proyecto),
+pero la lógica de rollback/orden en sí es simple de leer y revisar. Quedan sin auditar: `panel.ts`
+ya se revisó completo; falta repasar si hay algún otro hook con el mismo patrón en el resto de
+`apps/web/src/lib/`.
 
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
