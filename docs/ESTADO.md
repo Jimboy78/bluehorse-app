@@ -61,10 +61,21 @@ había entrado.
 - Probado a mano: precarga correcta de una estación a discos, guardado de un cambio, confirmación
   con el conteo de mapeos, y borrado real de una estación descartable.
 
-**Hueco que sigue abierto:**
-- **Deshacer una serie no borra su `set_log`.** Ya está documentado en `Hoy.tsx` como
-  simplificación, pero la pantalla no lo dice: una serie marcada por error sigue contando en
-  `/progreso`. Necesita una rama de borrado en la cola offline.
+**El segundo hueco también quedó cerrado: deshacer una serie ahora la borra de verdad.**
+`dequeue()` en `outbox.ts` y `undoSetDone()` en `session-log.ts`. Si la escritura todavía no salió
+de la cola, se saca de ahí y listo; si ya salió, se encola un `set_log_delete` que viaja por la
+misma cola y aguanta la falta de señal como el resto. Verificado contra la base: marcar una serie
+llevó `set_logs` de 7 a 8, deshacerla lo devolvió a 7.
+
+Sin test unitario, igual que `markSetDone` y `sendOutboxItem`: la convención del repo es testear
+mappers puros, no la capa de I/O.
+
+**Lo que sigue abierto:**
+- **El progreso de la sesión no sobrevive un refresh.** `hechasPorItem` y el mapa de series
+  escritas viven en memoria. Después de recargar, las series marcadas se ven sin marcar, y volver a
+  marcarlas escribe un `set_log` duplicado. No lo introdujo el borrado — ya era así — pero ahora es
+  lo más grave que queda del flujo de sesión.
+- **El layout en 390px sigue sin verificarse** (ver arriba).
 
 **No se pudo probar el layout en ancho de teléfono**: la ventana del navegador está maximizada y
 `resize_window` no la achica, así que todo se miró a ~1860px. La app es de una sola columna

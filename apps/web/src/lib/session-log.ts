@@ -13,7 +13,7 @@ import {
 } from './mappers/session-close.ts';
 import { toSubstitutionEvent } from './mappers/session-event.ts';
 import { toSetLogInsert, toWorkoutLogInsert } from './mappers/session-log.ts';
-import { enqueue, flush, newClientId, type OutboxItem, startAutoFlush } from './outbox.ts';
+import { dequeue, enqueue, flush, newClientId, type OutboxItem, startAutoFlush } from './outbox.ts';
 import type { ActiveSessionItem } from './plan.ts';
 import { requireSupabase } from './supabase.ts';
 
@@ -37,6 +37,13 @@ export async function sendOutboxItem(item: OutboxItem): Promise<void> {
     const { error } = await client
       .from('set_logs')
       .upsert(item.payload as never, { onConflict: 'id', ignoreDuplicates: true });
+    if (error) throw error;
+    return;
+  }
+
+  if (item.kind === 'set_log_delete') {
+    const { id } = item.payload as { id: string };
+    const { error } = await client.from('set_logs').delete().eq('id', id);
     if (error) throw error;
     return;
   }
@@ -124,6 +131,11 @@ async function celebrateIfRecord(
  */
 export function useSessionLog(userId: string | undefined, planSessionId: string) {
   const workoutLogIdRef = useRef<{ sessionId: string; workoutLogId: string } | null>(null);
+  /**
+   * Qué serie escribió qué registro, para poder deshacerla. La clave es
+   * `itemId:setIndex` — la misma serie del mismo ejercicio.
+   */
+  const writtenSetsRef = useRef<Map<string, { setLogId: string; clientId: string }>>(new Map());
 
   /** Crea el `workout_log` recién en el primer evento de la sesión (serie o sustitución). */
   async function ensureWorkoutLog(): Promise<string | null> {
@@ -167,7 +179,7 @@ export function useSessionLog(userId: string | undefined, planSessionId: string)
     // "hecha" a una consulta de red.
     if (userId) void celebrateIfRecord(userId, item.exerciseId, setLogId, loadKg, completedAt);
 
-    await enqueue(
+    const clientId = await enqueue(
       'set_log',
       toSetLogInsert(
         setLogId,
@@ -187,7 +199,31 @@ export function useSessionLog(userId: string | undefined, planSessionId: string)
         completedAt,
       ),
     );
+    writtenSetsRef.current.set(`${item.id}:${setIndex}`, { setLogId, clientId });
 
+    void flush(sendOutboxItem);
+  }
+
+  /**
+   * Deshace una serie marcada por error. Antes esto solo cambiaba el tilde en
+   * pantalla: el `set_log` quedaba escrito igual, así que una serie que no se
+   * hizo seguía contando en Progreso y alimentando la adaptación.
+   *
+   * Si la escritura todavía no salió de la cola, alcanza con sacarla de ahí.
+   * Si ya salió, se encola un borrado, que viaja por la misma cola y aguanta
+   * la falta de señal igual que el resto.
+   */
+  async function undoSetDone(item: ActiveSessionItem, setIndex: number): Promise<void> {
+    const key = `${item.id}:${setIndex}`;
+    const written = writtenSetsRef.current.get(key);
+    if (!written) return; // nunca se llegó a registrar (se deshizo durante el descanso)
+
+    writtenSetsRef.current.delete(key);
+
+    const stillQueued = await dequeue(written.clientId);
+    if (stillQueued) return;
+
+    await enqueue('set_log_delete', { id: written.setLogId });
     void flush(sendOutboxItem);
   }
 
@@ -222,7 +258,7 @@ export function useSessionLog(userId: string | undefined, planSessionId: string)
   const current = workoutLogIdRef.current;
   const workoutLogId = current?.sessionId === planSessionId ? current.workoutLogId : null;
 
-  return { markSetDone, logSubstitution, workoutLogId };
+  return { markSetDone, undoSetDone, logSubstitution, workoutLogId };
 }
 
 export interface CloseSessionInput {

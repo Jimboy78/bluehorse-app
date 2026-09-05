@@ -10,7 +10,12 @@ import Dexie from 'dexie';
  * idempotencia. No hace falta sincronización bidireccional.
  */
 
-export type OutboxKind = 'workout_log' | 'set_log' | 'proposal_response' | 'session_event';
+export type OutboxKind =
+  | 'workout_log'
+  | 'set_log'
+  | 'set_log_delete'
+  | 'proposal_response'
+  | 'session_event';
 
 export interface OutboxItem {
   /** Clave de idempotencia generada en el cliente. El servidor descarta repetidos. */
@@ -52,6 +57,19 @@ export async function enqueue(kind: OutboxKind, payload: unknown, clientId = new
 
 export function pendingCount(): Promise<number> {
   return db.pending.count();
+}
+
+/**
+ * Saca una escritura de la cola si todavía no salió. Devuelve `true` si la
+ * encontró: en ese caso nunca llegó al servidor y no hay nada que deshacer
+ * del otro lado.
+ *
+ * Es la mitad barata de deshacer una serie. La otra mitad (encolar un borrado)
+ * solo hace falta cuando esto devuelve `false`.
+ */
+export async function dequeue(clientId: string): Promise<boolean> {
+  const deleted = await db.pending.where('clientId').equals(clientId).delete();
+  return deleted > 0;
 }
 
 export type Sender = (item: OutboxItem) => Promise<void>;

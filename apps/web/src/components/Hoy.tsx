@@ -48,7 +48,7 @@ export function Hoy() {
   const [substitutions, setSubstitutions] = useState<Record<string, Substitution>>({});
 
   const activePlanSessionId = plan.data?.kind === 'active' ? plan.data.session.planSessionId : '';
-  const { markSetDone, logSubstitution, workoutLogId } = useSessionLog(
+  const { markSetDone, undoSetDone, logSubstitution, workoutLogId } = useSessionLog(
     user?.id,
     activePlanSessionId,
   );
@@ -80,14 +80,22 @@ export function Hoy() {
   const seriesHechas = activeItemId ? (hechasPorItem[activeItemId] ?? []) : [];
 
   function markDone(indice: number) {
-    if (!activeItemId) return;
+    if (!activeItemId || !item) return;
     const previas = hechasPorItem[activeItemId] ?? [];
     const yaEstaba = previas.includes(indice);
     setHechasPorItem((mapa) => ({
       ...mapa,
       [activeItemId]: yaEstaba ? previas.filter((i) => i !== indice) : [...previas, indice],
     }));
-    if (!yaEstaba) setRestingIndex(indice);
+    if (yaEstaba) {
+      // Destildar tiene que borrar el registro, no solo el tilde: si no, una
+      // serie marcada por error sigue contando en Progreso y alimentando la
+      // adaptación como si se hubiera hecho.
+      void undoSetDone(item, indice);
+      if (restingIndex === indice) setRestingIndex(null);
+      return;
+    }
+    setRestingIndex(indice);
   }
 
   async function handleRestFinish(actualSeconds: number) {
