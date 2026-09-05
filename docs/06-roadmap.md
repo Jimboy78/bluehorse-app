@@ -31,7 +31,7 @@ Fotos, planilla de equipamiento y lista de ejercicios canónicos. Ver `05-releva
 
 **Entregable**: el catálogo real, navegable desde la app.
 
-## Fase 2 — Motor y sesión · **completa salvo el cierre de sesión**
+## Fase 2 — Motor y sesión · **completa**
 
 - [x] Generación de plan desde el catálogo real, persistida (`useGeneratePlan`, dispara al
   terminar el onboarding) y su lectura (`useActivePlan`, primera sesión pendiente de la cola)
@@ -43,17 +43,18 @@ Fotos, planilla de equipamiento y lista de ejercicios canónicos. Ver `05-releva
 - [x] Escritura real a `set_logs` (y `workout_logs`, creado al vuelo en la primera serie) vía la
   cola offline (`useSessionLog` + `startSessionOutbox`), con `load_kg_normalized` calculado con
   `toKg()` — nunca inventado si la estación no tiene tabla de conversión
-- [ ] Cierre de sesión: sensación, molestias, resumen (todavía no existe una pantalla para esto;
-  `workout_logs.session_feel`/`ended_at` quedan sin completar)
+- [x] Cierre de sesión (`SessionClose.tsx`): sensación, una molestia como mucho, notas. Marca
+  `plan_sessions` completada (así avanza la cola) y cierra el `workout_log` si se marcó alguna serie
 
-**Entregable**: podés dejar el Excel y usarla vos — salvo el cierre de sesión, ya se puede.
+**Entregable**: podés dejar el Excel y usarla vos.
 
 ## Fase 3 — Adaptación, progreso y offline
 
+- [x] Cola offline enchufada de punta a punta: `set_logs`/`workout_logs` escriben a través de
+  `useSessionLog`/`startSessionOutbox` (Fase 2), reintenta sola al volver la señal
 - [ ] Propuestas de ajuste con motivo, aceptar o rechazar
 - [ ] Sustitución por máquina ocupada
 - [ ] Progreso: evolución por ejercicio, adherencia y racha, volumen semanal, récords
-- [ ] Cola offline enchufada de punta a punta
 - [ ] Pantalla de instalación (destino del QR)
 
 **Entregable**: demo presentable a Blue Horse.

@@ -16,41 +16,43 @@ puede leer desde cualquier sesión nueva. **Actualizalo al terminar una sesión 
 
 ### Dónde quedó
 
-**Fase 1 completa** (salvo el relevamiento real). **Fase 2 completa salvo el cierre de sesión**:
+**Fase 1 completa** (salvo el relevamiento real). **Fase 2 completa**: motor persistido,
+pantalla "Hoy" real, escritura a `set_logs` vía cola offline, y ahora también **cierre de sesión**
+(`SessionClose.tsx`) — sensación, una molestia como mucho, notas. Cerrar marca `plan_sessions`
+como completada, que es lo único que hace avanzar la cola a la sesión siguiente (sin esto,
+`useActivePlan` iba a devolver la misma sesión para siempre).
 
-- Plan generado y persistido, pantalla "Hoy" real, y **ahora también la escritura real a
-  `set_logs`**: marcar una serie encola (Dexie) un `set_log` — y, en la primera serie de la
-  sesión, su `workout_log` — y los manda cuando hay señal. La cola arranca una sola vez, en la raíz
-  de la app (`startSessionOutbox`), no por pantalla: si el gimnasio tiene mala señal, reintenta
-  sin importar en qué parte de la app esté el socio.
-- El cronómetro ya usa el `rest_seconds` real de cada ítem, no el valor fijo de demo.
-- `load_kg_normalized` se calcula con `toKg()` del dominio usando la spec real de la estación —
-  `null` si no hay tabla de conversión, nunca un número inventado.
-- **Falta para cerrar Fase 2 del todo**: pantalla de cierre de sesión (sensación, molestias,
-  resumen). Hoy no hay forma de completar `workout_logs.ended_at`/`session_feel`.
+**Empieza Fase 3** en la próxima pasada. Su checklist, sin empezar (la cola offline ya se marcó
+hecha, se construyó en Fase 2 aunque estaba listada acá):
+- Propuestas de ajuste con motivo, aceptar o rechazar
+- Sustitución por máquina ocupada
+- Progreso: evolución por ejercicio, adherencia y racha, volumen semanal, récords
+- Pantalla de instalación (destino del QR)
 
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
 Una query de TanStack Query con `enabled: false` se queda en `isPending: true` para siempre.
 Chequear `auth.status !== 'signed-in'` antes que `query.isPending` en CUALQUIER componente que
-dependa de sesión, no solo los `RequireX`.
+dependa de sesión.
 
 ### Verificado
 
-`npm run check` (lint + typecheck + **79 tests**) pasa. Los mappers de `set_logs`/`workout_logs`
-(motor → filas, cálculo de `load_kg_normalized`) están probados sin necesitar base — incluye el
-caso "sin tabla de stack, no inventar". **La escritura real contra Supabase (incluida la cola
-offline hablando con la base de verdad) sigue sin probarse de punta a punta** — falta `.env` y una
-cuenta real completando una sesión.
+`npm run check` (lint + typecheck + **84 tests**) pasa. `Hoy.tsx` + `SessionClose.tsx` probados en
+navegador local sin romper el estado "sin configurar". Los mappers de cierre de sesión
+(`workout_logs` update, `plan_sessions` completado, `pain_reports`) están probados sin base.
+
+**Todavía sin probar de punta a punta contra una base real**: registro → onboarding → generar
+plan → marcar series → cerrar sesión → confirmar que la cola avanza a la sesión 2. Falta `.env`
+(el usuario tiene los valores) y una cuenta real completando el flujo entero.
 
 ### Lo próximo, en orden
 
-1. **Pantalla de cierre de sesión**: sensación (`session_feel`), molestias (`pain_reports`),
-   resumen, y completar `workout_logs.ended_at`. Cierra la Fase 2 entera.
-2. Con `.env` cargado: primera prueba de punta a punta real — registro → onboarding → plan →
-   marcar series → ver que `set_logs` tenga filas de verdad. Correr `npm run db:types` ahí mismo.
-3. Empezar Fase 3: propuestas de adaptación, sustitución por máquina ocupada, progreso.
-4. Decisión de paleta (`docs/07-marca-blue-horse.md`) — bloqueada, es del usuario.
+1. **Con `.env` cargado**: la primera prueba de punta a punta real de todo lo construido hasta
+   acá. Es el paso más urgente — hay mucho código nunca ejercitado contra Supabase de verdad.
+   Correr `npm run db:types` en el mismo momento.
+2. Empezar Fase 3: probablemente arrancar por sustitución de máquina ocupada (el motor ya tiene
+   `findSubstitutes()`, solo falta la UI) o por progreso (lectura de `set_logs` acumulados).
+3. Decisión de paleta (`docs/07-marca-blue-horse.md`) — bloqueada, es del usuario.
 
 ### Trabas conocidas
 
