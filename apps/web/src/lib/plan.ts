@@ -150,6 +150,160 @@ export function useGeneratePlan() {
   });
 }
 
+/**
+ * PEDIR LAS PRÓXIMAS SESIONES
+ *
+ * Terminar la cola era un callejón sin salida: la pantalla felicitaba y no
+ * ofrecía nada. Esto arma el plan siguiente con el mismo motor.
+ *
+ * Lo importante es lo que se lleva puesto del plan que terminó: la carga
+ * objetivo de cada ejercicio. Sin eso, alguien que entrenó ocho sesiones y
+ * aceptó tres propuestas de subir carga volvería a arrancar de cero, y el
+ * trabajo de la adaptación se perdería en el momento justo en que empieza a
+ * servir. No es una regla de entrenamiento nueva: es seguir donde quedó.
+ *
+ * La base tiene un índice único de un plan activo por persona, así que el
+ * anterior se archiva sí o sí. Se archiva DESPUÉS de tener el blueprint en la
+ * mano y se desarchiva si la inserción falla: quedarse sin plan activo es
+ * peor que no haber pedido nada.
+ */
+export function useRequestNextPlan() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error('No hay sesión activa.');
+      const client = requireSupabase();
+
+      const previousId = await activePlanId(client, user.id);
+      const carried = previousId ? await carriedLoads(client, previousId) : new Map();
+
+      const userSnapshot = await fetchUserSnapshot(client, user.id);
+      const gymId = userSnapshot.profile.gymId;
+      const { gym } = await fetchGymCatalog(client, gymId);
+      const blueprint = engine.generatePlan({
+        context: engineContext(user.id),
+        user: userSnapshot,
+        gym,
+        ruleset: activeRuleset,
+      });
+
+      // Recién acá se archiva: si algo de lo de arriba fallaba, la persona se
+      // quedaba sin plan activo y sin plan nuevo.
+      await setPlanStatus(client, previousId, 'archived');
+
+      try {
+        const planId = await insertPlan(client, user.id, gymId, blueprint, userSnapshot.goals[0]);
+        try {
+          await persistSessions(client, planId, blueprint.sessions);
+          await applyCarriedLoads(client, planId, carried);
+        } catch (error) {
+          await client.from('plans').delete().eq('id', planId);
+          throw error;
+        }
+        return planId;
+      } catch (error) {
+        await setPlanStatus(client, previousId, 'active');
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['active-plan', user?.id] });
+      void queryClient.invalidateQueries({ queryKey: ['proposals', user?.id] });
+    },
+  });
+}
+
+async function activePlanId(client: SupabaseClient, userId: string): Promise<string | null> {
+  const { data, error } = await client
+    .from('plans')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('status', 'active')
+    .maybeSingle();
+  if (error) throw error;
+  return (data?.id as string) ?? null;
+}
+
+/** No-op si no había plan previo: el primer plan de alguien no archiva nada. */
+async function setPlanStatus(
+  client: SupabaseClient,
+  planId: string | null,
+  status: 'active' | 'archived',
+): Promise<void> {
+  if (!planId) return;
+  const { error } = await client.from('plans').update({ status }).eq('id', planId);
+  if (error) throw error;
+}
+
+async function insertPlan(
+  client: SupabaseClient,
+  userId: string,
+  gymId: string,
+  blueprint: PlanBlueprint,
+  primaryGoal: UserSnapshot['goals'][number] | undefined,
+): Promise<string> {
+  const { data, error } = await client
+    .from('plans')
+    .insert(toPlanInsert(userId, gymId, blueprint, { ...primaryGoal }))
+    .select('id')
+    .single();
+  if (error) throw error;
+  return data.id as string;
+}
+
+/** La última carga objetivo de cada ejercicio en el plan que termina. */
+async function carriedLoads(
+  client: SupabaseClient,
+  planId: string,
+): Promise<Map<string, { value: number; unit: string }>> {
+  const { data, error } = await client
+    .from('plan_session_items')
+    .select('exercise_id, target_load, target_load_unit, plan_sessions!inner(plan_id)')
+    .eq('plan_sessions.plan_id', planId)
+    .not('target_load', 'is', null);
+  if (error) throw error;
+
+  const out = new Map<string, { value: number; unit: string }>();
+  for (const raw of data ?? []) {
+    const row = raw as {
+      exercise_id: string;
+      target_load: number;
+      target_load_unit: string | null;
+    };
+    // Sin unidad no se puede arrastrar: sería un número sin saber de qué.
+    if (row.target_load_unit === null) continue;
+    out.set(row.exercise_id, { value: row.target_load, unit: row.target_load_unit });
+  }
+  return out;
+}
+
+async function applyCarriedLoads(
+  client: SupabaseClient,
+  planId: string,
+  carried: Map<string, { value: number; unit: string }>,
+): Promise<void> {
+  if (carried.size === 0) return;
+
+  const { data: sessions, error } = await client
+    .from('plan_sessions')
+    .select('id')
+    .eq('plan_id', planId);
+  if (error) throw error;
+  const sessionIds = (sessions ?? []).map((s) => s.id as string);
+  if (sessionIds.length === 0) return;
+
+  for (const [exerciseId, load] of carried) {
+    const { error: applyError } = await client
+      .from('plan_session_items')
+      .update({ target_load: load.value, target_load_unit: load.unit })
+      .eq('exercise_id', exerciseId)
+      .in('plan_session_id', sessionIds);
+    if (applyError) throw applyError;
+  }
+}
+
 export interface ActiveSessionItem {
   readonly id: string;
   readonly exerciseId: string;

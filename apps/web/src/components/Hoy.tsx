@@ -7,7 +7,7 @@ import type { SetActual } from '../lib/mappers/session-log.ts';
 import { fadeUp, listContainer, listItem, screen, tappable } from '../lib/motion.ts';
 import { onboardingUnavailable, useProfileStatus } from '../lib/onboarding.ts';
 import type { ActiveSessionItem } from '../lib/plan.ts';
-import { useActivePlan, useGeneratePlan } from '../lib/plan.ts';
+import { useActivePlan, useGeneratePlan, useRequestNextPlan } from '../lib/plan.ts';
 import { useSessionLog } from '../lib/session-log.ts';
 import { useRestoredSession } from '../lib/session-restore.ts';
 import { RestTimer } from './RestTimer.tsx';
@@ -443,20 +443,7 @@ function PlanStateMessage({
   }
 
   if (plan.data?.kind === 'queue-empty') {
-    return (
-      <motion.div
-        variants={fadeUp}
-        initial="hidden"
-        animate="visible"
-        className="flex flex-col items-center gap-2 rounded-xl border border-line bg-navy-soft px-6 py-10 text-center"
-      >
-        <Trophy size={28} className="text-teal" aria-hidden="true" />
-        <p className="font-semibold">Completaste toda la cola generada.</p>
-        <p className="text-sm text-slate">
-          Todavía no hay una forma de pedir más sesiones — llega pronto.
-        </p>
-      </motion.div>
-    );
+    return <QueueDone />;
   }
 
   // plan.isError o plan.data?.kind === 'no-plan': mismo llamado a la acción.
@@ -504,4 +491,55 @@ function seriesDe(item: { id: string; sets: number }) {
     id: `${item.id}-serie-${numero + 1}`,
     numero,
   }));
+}
+
+/**
+ * Terminaste todas las sesiones del plan. Antes esto era un callejón: te
+ * felicitaba y no ofrecía nada. Ahora se pide el plan siguiente, que arranca
+ * con las cargas donde quedó el anterior.
+ */
+function QueueDone() {
+  const nextPlan = useRequestNextPlan();
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleRequest() {
+    setError(null);
+    try {
+      await nextPlan.mutateAsync();
+    } catch {
+      setError('No se pudieron generar las próximas sesiones. Probá de nuevo en un momento.');
+    }
+  }
+
+  return (
+    <motion.div
+      variants={fadeUp}
+      initial="hidden"
+      animate="visible"
+      className="flex flex-col items-center gap-3 rounded-xl border border-line bg-navy-soft px-6 py-10 text-center"
+    >
+      <Trophy size={28} className="text-teal" aria-hidden="true" />
+      <p className="font-semibold">Completaste toda la cola generada.</p>
+      <p className="max-w-[34ch] text-sm text-slate">
+        Las próximas arrancan con las cargas donde las dejaste.
+      </p>
+
+      {error && (
+        <p role="alert" className="text-sm text-orange">
+          {error}
+        </p>
+      )}
+
+      <motion.button
+        type="button"
+        {...tappable}
+        disabled={nextPlan.isPending}
+        onClick={handleRequest}
+        className="mt-1 flex items-center justify-center gap-2 rounded-xl bg-teal px-5 py-3 text-sm font-semibold text-navy disabled:opacity-50"
+      >
+        {nextPlan.isPending && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
+        Pedir las próximas sesiones
+      </motion.button>
+    </motion.div>
+  );
 }

@@ -68,6 +68,11 @@ Fotos, planilla de equipamiento y lista de ejercicios canónicos. Ver `05-releva
   según la plataforma (`beforeinstallprompt` real en Android/Chrome, instrucciones manuales en
   iOS/Safari, mensaje corto si ya está instalada)
 
+- [x] Pedir las próximas sesiones al terminar la cola (`useRequestNextPlan`): antes terminar el
+  plan era un callejón sin salida. El plan nuevo arrastra la carga objetivo de cada ejercicio del
+  que terminó, así que lo que se ganó adaptando no se pierde justo cuando empieza a servir. El
+  anterior queda `archived` (la base tiene un índice único de un plan activo por persona)
+
 **Entregable**: demo presentable a Blue Horse.
 
 ## Fase 4 — Contenido real

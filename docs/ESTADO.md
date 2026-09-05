@@ -186,6 +186,29 @@ Tres arreglos que salieron de ahí:
 **Ojo con las pruebas por script**: varios "bugs" que creí encontrar eran mis clics compitiendo con
 las animaciones de transición. Verificar siempre contra la base antes de dar por roto algo.
 
+### Terminar el plan ya no es un callejón sin salida
+
+Completar las 8 sesiones dejaba una pantalla que felicitaba y decía "todavía no hay una forma de
+pedir más sesiones". Ahora hay un botón que genera el plan siguiente con el mismo motor.
+
+Lo que importa es lo que se arrastra: **la carga objetivo de cada ejercicio del plan que terminó**.
+Sin eso, alguien que entrenó ocho sesiones y aceptó tres propuestas de subir carga volvería a
+arrancar de cero, y todo lo que ganó la adaptación se perdería justo cuando empieza a servir. No es
+una regla de entrenamiento nueva —el motor sigue decidiendo qué ejercicios y cuántas series—, es
+seguir donde quedó.
+
+El plan anterior queda `archived`: la base tiene un índice único de un plan activo por persona, así
+que el intercambio es obligatorio. Se archiva recién con el blueprint ya en la mano, y se
+desarchiva si la inserción falla — quedarse sin plan activo es peor que no haber pedido nada.
+
+Verificado: sembré 42,5 kg en Sentadilla, pedí las próximas sesiones, y el plan nuevo quedó con
+42,5 kg en las cuatro apariciones del ejercicio, con el viejo archivado.
+
+**Lo que NO se hizo, a propósito**: calibrar los `user_baselines` desde el historial real. La tabla
+lo contempla (`baseline_source` incluye `calibrated`), pero *qué* serie cuenta como baseline es una
+decisión de contenido —¿la más pesada?, ¿la más reciente?— y por la regla dura 2 sale de la
+investigación, no de acá.
+
 **Moraleja para las próximas sesiones: `curl` contra la base y los tests verdes no dicen que la app
 funcione.** Verificado a mano el recorrido completo: alta → onboarding → plan generado → marcar
 series → cronómetro de descanso → sustitución → cerrar sesión → avance de la cola a la sesión
