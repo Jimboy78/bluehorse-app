@@ -76,7 +76,20 @@ export function useCreateEquipment(gymId: string | null) {
       const { error } = await client
         .from('equipment')
         .insert(toEquipmentInsert(gymId, input, photoUrl));
-      if (error) throw error;
+      if (error) {
+        // La foto ya subió a Storage; si la fila no se pudo crear, no dejamos
+        // el archivo huérfano ahí para siempre. Best-effort de verdad: si el
+        // borrado también falla, no tapamos el error original con ese.
+        if (photoUrl) {
+          try {
+            const path = new URL(photoUrl).pathname.split('/equipment-photos/')[1];
+            if (path) await client.storage.from('equipment-photos').remove([path]);
+          } catch {
+            // limpieza fallida no es motivo para ocultar el error real de abajo.
+          }
+        }
+        throw error;
+      }
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['equipment-list', gymId] });
@@ -123,7 +136,18 @@ export function useCreateExercise(gymId: string | null) {
       const mappings = toExerciseEquipmentInserts(data.id, input.equipmentIds);
       if (mappings.length > 0) {
         const { error: mappingError } = await client.from('exercise_equipment').insert(mappings);
-        if (mappingError) throw mappingError;
+        if (mappingError) {
+          // El panel todavía no tiene edición: un ejercicio sin su mapeo de
+          // equipamiento quedaría atascado ahí para siempre (invisible para
+          // el motor, pero ocupando el nombre en el listado). Mejor que no
+          // exista a medias — se borra y el staff reintenta desde cero.
+          try {
+            await client.from('exercises').delete().eq('id', data.id);
+          } catch {
+            // limpieza fallida no es motivo para ocultar el error real de abajo.
+          }
+          throw mappingError;
+        }
       }
     },
     onSuccess: () => {
