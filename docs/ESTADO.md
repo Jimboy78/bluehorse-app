@@ -203,6 +203,19 @@ default. Un `insert` a `pain_reports` como anon devuelve 401 con el código de P
 (`42501`), no un error genérico. Primera vez en la sesión que esto se confirma contra una base
 real en vez de solo leyendo el SQL.
 
+**Dos huecos reales cerrados contra Postgres local, con usuarios de prueba creados y borrados
+después (vía Auth Admin API con la service key local, nada de esto tocó `.env` ni el cliente)**:
+- El trigger `on_auth_user_created` → `handle_new_user()` funciona: se creó un usuario real, y
+  `profiles` apareció solo con `gym_id` = Blue Horse (fallback por `join_code` ausente),
+  `display_name` desde los metadatos, `onboarded_at` en `null` — exactamente el estado que
+  `RequireOnboarding` necesita para mandar al onboarding. Es la primera vez que el flujo de
+  registro se prueba contra una base real en toda la sesión (antes solo se leía el SQL).
+- Se confirmó en carne propia el bug que arregló `useGeneratePlan` esta sesión: insertar un
+  segundo `plans` con `status='active'` para el mismo usuario devuelve `409` /
+  `duplicate key value violates unique constraint "plans_one_active_per_user_idx"` — el error
+  exacto que un socio vería para siempre si un plan a medias no se limpiara. El fix (borrar el
+  plan huérfano antes de relanzar el error) es la única salida de ese estado.
+
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
 Una query de TanStack Query con `enabled: false` se queda en `isPending: true` para siempre.
@@ -219,13 +232,16 @@ probados sin base. La extensión de Chrome volvió a conectar: se vieron en el n
 sesión" correcto, sin quedarse colgado en el spinner) y `/` con `Proposals` montado (no rompe nada
 sin sesión). Sin errores de consola propios de la app en ninguna.
 
-**Todavía sin probar de punta a punta contra una base real**: registro → onboarding → generar
-plan → marcar series → cerrar sesión → confirmar que la cola avanza a la sesión 2 → ver el
-progreso en `/progreso` → ver y resolver una propuesta de ajuste. Falta `.env` (el usuario tiene
-los valores) y una cuenta real completando el flujo entero. Tampoco se probó `/instalar` en un
-Android o iPhone real (`beforeinstallprompt` no dispara en `localhost` con Chrome desktop en todos
-los casos) — la rama de Safari/iOS y el flujo de instalación real quedan sin verificar en un
-dispositivo físico.
+**Todavía sin probar de punta a punta A TRAVÉS DE LA APP**: el registro real (vía Supabase Auth,
+no la UI de React) ya se probó contra la base local, ver arriba. Lo que falta es todo lo que pasa
+por `apps/web` de verdad — onboarding → generar plan → marcar series → cerrar sesión → confirmar
+que la cola avanza a la sesión 2 → ver el progreso en `/progreso` → ver y resolver una propuesta de
+ajuste — porque eso necesita el cliente de Supabase de la app corriendo, y este entorno tiene
+`Read(./.env)`/`Read(./.env.*)` denegado por `.claude/settings.json` (no es solo prudencia mía: es
+una regla del proyecto). Sigue siendo del usuario: pegar los valores en `.env` y correr la app.
+Tampoco se probó `/instalar` en un Android o iPhone real (`beforeinstallprompt` no dispara en
+`localhost` con Chrome desktop en todos los casos) — la rama de Safari/iOS y el flujo de
+instalación real quedan sin verificar en un dispositivo físico.
 
 ### Lo próximo, en orden
 
