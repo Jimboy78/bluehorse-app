@@ -13,22 +13,28 @@ import { checkConnection } from './lib/supabase.ts';
 import { useTodaySession } from './lib/use-today-session.ts';
 
 /**
- * Pantalla "Hoy": el plan real leído de la base, con el estado del esqueleto
- * abajo (útil mientras se termina la fase 2, no es contenido de producto).
+ * Pantalla "Hoy": el plan real leído de la base. El panel "Estado del
+ * esqueleto" (errores de configuración, estado de Supabase) solo se muestra
+ * en desarrollo (`import.meta.env.DEV`) — a un socio real no se le muestra un
+ * mensaje de zod sin traducir si algo está mal configurado.
  */
 export function App() {
   const { user, signOut } = useAuth();
   const todaySession = useTodaySession();
   const showsPlaceholderCatalog = todaySession?.isPlaceholder ?? true;
+  // Solo alimentan el panel "Estado del esqueleto", que es dev-only: no tiene
+  // sentido pedirle esto a Supabase en cada carga de la app de un socio real.
   const connection = useQuery({
     queryKey: ['health', 'supabase'],
     queryFn: checkConnection,
+    enabled: import.meta.env.DEV,
     retry: false,
   });
 
   const outbox = useQuery({
     queryKey: ['health', 'outbox'],
     queryFn: pendingCount,
+    enabled: import.meta.env.DEV,
     retry: false,
   });
 
@@ -92,35 +98,42 @@ export function App() {
 
       <Hoy />
 
-      <motion.section variants={fadeUp} initial="hidden" animate="visible" className="mt-auto pt-4">
-        <h2 className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate">
-          Estado del esqueleto
-        </h2>
-        <dl className="flex flex-col divide-y divide-line rounded-lg border border-line">
-          <Row
-            label="Configuración"
-            value={isConfigured ? 'variables cargadas' : (envError ?? 'sin .env')}
-            ok={isConfigured}
-          />
-          <Row
-            label="Supabase"
-            value={
-              connection.isPending ? 'consultando…' : (connection.data?.detail ?? 'sin respuesta')
-            }
-            ok={connection.data?.ok ?? false}
-          />
-          <Row
-            label="Motor"
-            value={`${activeRuleset.templates.length} plantillas · ${activeRuleset.source}`}
-            ok
-          />
-          <Row
-            label="Cola offline"
-            value={outbox.isPending ? 'leyendo…' : `${outbox.data ?? 0} pendientes`}
-            ok={(outbox.data ?? 0) === 0}
-          />
-        </dl>
-      </motion.section>
+      {import.meta.env.DEV && (
+        <motion.section
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          className="mt-auto pt-4"
+        >
+          <h2 className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate">
+            Estado del esqueleto (solo en desarrollo)
+          </h2>
+          <dl className="flex flex-col divide-y divide-line rounded-lg border border-line">
+            <Row
+              label="Configuración"
+              value={isConfigured ? 'variables cargadas' : (envError ?? 'sin .env')}
+              ok={isConfigured}
+            />
+            <Row
+              label="Supabase"
+              value={
+                connection.isPending ? 'consultando…' : (connection.data?.detail ?? 'sin respuesta')
+              }
+              ok={connection.data?.ok ?? false}
+            />
+            <Row
+              label="Motor"
+              value={`${activeRuleset.templates.length} plantillas · ${activeRuleset.source}`}
+              ok
+            />
+            <Row
+              label="Cola offline"
+              value={outbox.isPending ? 'leyendo…' : `${outbox.data ?? 0} pendientes`}
+              ok={(outbox.data ?? 0) === 0}
+            />
+          </dl>
+        </motion.section>
+      )}
     </main>
   );
 }
