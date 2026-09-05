@@ -30,7 +30,14 @@ como completada, que es lo único que hace avanzar la cola a la sesión siguient
   `session_event` tipo `substituted` (nuevo mapper `session-event.ts`, nueva rama en el sender de
   la cola offline en `session-log.ts`) sin pisar `plan_session_items` — la prescripción original
   (series/reps/descanso) se mantiene, solo cambia identidad de ejercicio/estación
-- Progreso: evolución por ejercicio, adherencia y racha, volumen semanal, récords — sin empezar
+- [x] Progreso (`/progreso`, `Progreso.tsx` + `lib/progress.ts` + `mappers/progress.ts`): lee
+  `set_logs`/`workout_logs` reales (nunca `plan_session_items`). Adherencia (sesiones, racha de
+  días consecutivos, última sesión), volumen semanal (reps × `load_kg_normalized`, agrupado por
+  semana ISO — series sin conversión posible quedan afuera de la suma, no cuentan como 0), récords
+  por ejercicio (comparados por `load_kg_normalized` cuando existe, pero siempre mostrando la carga
+  cruda que vio la máquina; sin forma de comparar, se marca "sin comparar entre estaciones" en vez
+  de inventar un ranking), evolución por ejercicio (últimas series). Acceso desde un botón nuevo en
+  el header de "Hoy". La aritmética de agregación es pura, con tests.
 - Pantalla de instalación (destino del QR) — sin empezar
 
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
@@ -41,23 +48,26 @@ dependa de sesión.
 
 ### Verificado
 
-`npm run check` (lint + typecheck + **86 tests**) pasa. `Hoy.tsx` (con el flujo de sustitución
-nuevo) + `SessionClose.tsx` probados en navegador local sin romper el estado "sin configurar" ni
-tirar errores de consola propios de la app. Los mappers de cierre de sesión (`workout_logs`
-update, `plan_sessions` completado, `pain_reports`) y el nuevo `toSubstitutionEvent` están
-probados sin base.
+`npm run check` (lint + typecheck + **96 tests**) pasa. `Hoy.tsx` (con el flujo de sustitución) +
+`SessionClose.tsx` probados en navegador local sin romper el estado "sin configurar" ni tirar
+errores de consola propios de la app. Los mappers nuevos (`session-event.ts`,
+`toSubstitutionEvent`, `progress.ts`: `computeAdherence`/`computeWeeklyVolume`/`computeRecords`)
+están probados sin base. **`/progreso` todavía NO se probó en el navegador**: la extensión de
+Chrome se desconectó a mitad de esta pasada (el tab que tenía abierto se cerró solo) y no volvió a
+conectar — pendiente re-verificar visualmente la próxima vez que la extensión esté disponible.
 
 **Todavía sin probar de punta a punta contra una base real**: registro → onboarding → generar
-plan → marcar series → cerrar sesión → confirmar que la cola avanza a la sesión 2. Falta `.env`
-(el usuario tiene los valores) y una cuenta real completando el flujo entero.
+plan → marcar series → cerrar sesión → confirmar que la cola avanza a la sesión 2 → ver el
+progreso reflejado en `/progreso`. Falta `.env` (el usuario tiene los valores) y una cuenta real
+completando el flujo entero.
 
 ### Lo próximo, en orden
 
 1. **Con `.env` cargado**: la primera prueba de punta a punta real de todo lo construido hasta
    acá. Es el paso más urgente — hay mucho código nunca ejercitado contra Supabase de verdad.
    Correr `npm run db:types` en el mismo momento.
-2. Seguir Fase 3: progreso (lectura de `set_logs`/`session_events` acumulados: evolución por
-   ejercicio, adherencia/racha, volumen semanal, récords) o propuestas de ajuste con motivo.
+2. Seguir Fase 3: propuestas de ajuste con motivo, aceptar o rechazar (es lo único que queda de su
+   checklist además de la pantalla de instalación).
 3. Decisión de paleta (`docs/07-marca-blue-horse.md`) — bloqueada, es del usuario.
 
 ### Trabas conocidas

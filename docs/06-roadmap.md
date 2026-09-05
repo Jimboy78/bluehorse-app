@@ -56,7 +56,8 @@ Fotos, planilla de equipamiento y lista de ejercicios canónicos. Ver `05-releva
 - [x] Sustitución por máquina ocupada: `SubstitutePicker` calcula reemplazos equivalentes con
   `engine.findSubstitutes()` contra el catálogo real, registra el cambio como `session_event`
   (vía la cola offline) sin pisar `plan_session_items`
-- [ ] Progreso: evolución por ejercicio, adherencia y racha, volumen semanal, récords
+- [x] Progreso: evolución por ejercicio, adherencia y racha, volumen semanal, récords —
+  `/progreso`, todo leído de `set_logs`/`workout_logs` reales, nunca de lo planificado
 - [ ] Pantalla de instalación (destino del QR)
 
 **Entregable**: demo presentable a Blue Horse.
