@@ -3,7 +3,7 @@
 -- Lo cierto y estable: el gimnasio real (Blue Horse) y los ejercicios
 -- canónicos globales. El equipamiento de acá abajo es PLACEHOLDER —
 -- prefijo "Ejemplo —" a propósito — porque el relevamiento real con fotos
--- (Fase 0, ver docs/06-relevamiento-catalogo.md) todavía no está. Existe
+-- (Fase 0, ver docs/05-relevamiento-catalogo.md) todavía no está. Existe
 -- para que el panel admin y la generación de plan tengan algo real contra
 -- qué probar mientras tanto, sin bloquear el desarrollo. Se borra cuando
 -- entre el catálogo real.
@@ -11,9 +11,21 @@
 -- Bucket de Storage para fotos de equipamiento. Las políticas de acceso
 -- viven como DDL en supabase/schemas/09_storage.sql; el bucket en sí es un
 -- INSERT y por eso va acá, no en el esquema declarativo.
-insert into storage.buckets (id, name, public)
-values ('equipment-photos', 'equipment-photos', true)
-on conflict (id) do nothing;
+--
+-- Límite de tamaño y tipos permitidos: nada le impedía a alguien de staff
+-- subir por error un video o una foto de 40 MB desde el celular. 8 MiB
+-- alcanza de sobra para una foto de estación y evita inflar Storage.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'equipment-photos',
+  'equipment-photos',
+  true,
+  8388608,
+  array['image/jpeg', 'image/png', 'image/webp', 'image/heic']
+)
+on conflict (id) do update set
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
 
 insert into gyms (id, slug, name, address, timezone, join_code)
 values (
