@@ -1,4 +1,5 @@
 import type {
+  Equipment,
   EquipmentCategory,
   ExperienceLevel,
   LoadUnit,
@@ -6,7 +7,7 @@ import type {
   MovementPattern,
   MuscleGroup,
 } from '@bh/domain';
-import { AlertCircle, Check, Loader2, MapPin, Plus } from 'lucide-react';
+import { AlertCircle, Check, Loader2, MapPin, Pencil, Plus, Trash2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { type FormEvent, useRef, useState } from 'react';
 import { fadeUp, tappable } from '../lib/motion.ts';
@@ -14,9 +15,12 @@ import { onboardingUnavailable } from '../lib/onboarding.ts';
 import {
   useCreateEquipment,
   useCreateExercise,
+  useDeleteEquipment,
   useEquipmentList,
+  useEquipmentUsage,
   useExerciseList,
   useProfileRole,
+  useUpdateEquipment,
 } from '../lib/panel.ts';
 import { type ExerciseFormInput, exerciseFormSchema } from './panel/exercise-schemas.ts';
 import { type EquipmentFormInput, equipmentFormSchema } from './panel/schemas.ts';
@@ -98,9 +102,30 @@ const emptyEquipmentForm = {
   setupNotes: '',
 };
 
+/** Domain -> formulario, para poder corregir una estación ya cargada. */
+function equipmentToForm(eq: Equipment): typeof emptyEquipmentForm {
+  const n = (v: number | undefined) => (v === undefined ? '' : String(v));
+  return {
+    name: eq.name,
+    category: eq.category,
+    loadUnit: eq.load.unit,
+    loadMin: n(eq.load.min),
+    loadMax: n(eq.load.max),
+    loadIncrement: n(eq.load.increment),
+    stackKgRaw: eq.load.stackKg?.join(',') ?? '',
+    baseWeightKg: n(eq.load.baseWeightKg),
+    quantity: String(eq.quantity),
+    locationNote: eq.locationNote ?? '',
+    setupNotes: eq.setupNotes ?? '',
+  };
+}
+
 function EquipmentSection({ gymId }: { gymId: string | null }) {
   const equipmentList = useEquipmentList(gymId);
+  const equipmentUsage = useEquipmentUsage(gymId);
   const createEquipment = useCreateEquipment(gymId);
+  const updateEquipment = useUpdateEquipment(gymId);
+  const deleteEquipment = useDeleteEquipment(gymId);
 
   const [form, setForm] = useState(emptyEquipmentForm);
   const [photo, setPhoto] = useState<File | null>(null);
@@ -108,8 +133,41 @@ function EquipmentSection({ gymId }: { gymId: string | null }) {
   // Qué se guardó recién. El formulario se vacía al guardar, y sin esto lo
   // único que cambia es el contador de estaciones, que queda lejos del botón:
   // cargando el gimnasio entero, una fila tras otra, no se ve si entró.
-  const [saved, setSaved] = useState<string | null>(null);
+  const [saved, setSaved] = useState<{ name: string; updated: boolean } | null>(null);
+  /** Estación que se está corrigiendo, o `null` si el formulario es un alta. */
+  const [editing, setEditing] = useState<Equipment | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  /** Deja el formulario en un estado conocido: alta vacía, o corrección de `eq`. */
+  function resetForm(eq: Equipment | null) {
+    setEditing(eq);
+    setForm(eq ? equipmentToForm(eq) : emptyEquipmentForm);
+    setPhoto(null);
+    setError(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+
+  function startEditing(eq: Equipment) {
+    resetForm(eq);
+    setSaved(null);
+    // El formulario está arriba de la lista: sin esto, tocar "Editar" en la
+    // estación número 40 no muestra ningún cambio en pantalla.
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function persist(input: EquipmentFormInput) {
+    if (editing) {
+      await updateEquipment.mutateAsync({
+        id: editing.id,
+        input,
+        photo,
+        currentPhotoUrl: editing.photoUrl,
+      });
+      return;
+    }
+    await createEquipment.mutateAsync({ input, photo });
+  }
 
   function field<K extends keyof typeof emptyEquipmentForm>(key: K) {
     return {
@@ -132,16 +190,16 @@ function EquipmentSection({ gymId }: { gymId: string | null }) {
     }
 
     try {
-      await createEquipment.mutateAsync({ input: parsed.data as EquipmentFormInput, photo });
-      setSaved(parsed.data.name);
-      setForm(emptyEquipmentForm);
-      setPhoto(null);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      const wasEditing = editing !== null;
+      await persist(parsed.data as EquipmentFormInput);
+      setSaved({ name: parsed.data.name, updated: wasEditing });
+      resetForm(null);
     } catch {
       setError('No se pudo guardar. Revisá tu conexión y probá de nuevo.');
     }
   }
 
+  const busy = createEquipment.isPending || updateEquipment.isPending;
   const showRange = NEEDS_RANGE.includes(form.loadUnit as LoadUnit);
   const showStack = form.loadUnit === 'stack_level';
   const showBaseWeight = NEEDS_BASE_WEIGHT.includes(form.loadUnit as LoadUnit);
@@ -156,10 +214,15 @@ function EquipmentSection({ gymId }: { gymId: string | null }) {
       <h2 className="text-lg font-bold tracking-tight">Equipamiento</h2>
 
       <form
+        ref={formRef}
         onSubmit={handleSubmit}
-        className="flex flex-col gap-4 rounded-xl border border-line bg-navy-soft p-5"
+        className={`flex flex-col gap-4 rounded-xl border bg-navy-soft p-5 ${
+          editing ? 'border-teal/50' : 'border-line'
+        }`}
       >
-        <h3 className="text-sm font-semibold text-slate">Agregar estación</h3>
+        <h3 className="text-sm font-semibold text-slate">
+          {editing ? `Corrigiendo: ${editing.name}` : 'Agregar estación'}
+        </h3>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <label className="flex flex-col gap-1.5 text-sm sm:col-span-2" htmlFor="eq-name">
@@ -320,21 +383,13 @@ function EquipmentSection({ gymId }: { gymId: string | null }) {
           </p>
         )}
 
-        <SavedNotice name={saved} />
+        <SavedNotice saved={saved} />
 
-        <motion.button
-          type="submit"
-          {...tappable}
-          disabled={createEquipment.isPending || onboardingUnavailable}
-          className="flex items-center justify-center gap-2 rounded-xl bg-teal px-4 py-3 text-sm font-semibold text-navy disabled:opacity-50"
-        >
-          {createEquipment.isPending ? (
-            <Loader2 size={16} className="animate-spin" aria-hidden="true" />
-          ) : (
-            <Plus size={16} aria-hidden="true" />
-          )}
-          Agregar al catálogo
-        </motion.button>
+        <EquipmentFormActions
+          isEditing={editing !== null}
+          busy={busy}
+          onCancel={() => resetForm(null)}
+        />
       </form>
 
       <h3 className="text-xs font-semibold uppercase tracking-wide text-slate">
@@ -347,39 +402,200 @@ function EquipmentSection({ gymId }: { gymId: string | null }) {
 
       <div className="flex flex-col gap-2">
         {equipmentList.data?.map((eq) => (
-          <div
+          <EquipmentRow
             key={eq.id}
-            className="flex items-center gap-3 rounded-xl border border-line bg-navy-soft px-4 py-3"
-          >
-            {eq.photoUrl ? (
-              <img
-                src={eq.photoUrl}
-                alt={eq.name}
-                className="size-11 shrink-0 rounded-lg object-cover"
-              />
-            ) : (
-              <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-navy text-xs text-slate">
-                sin foto
-              </span>
-            )}
-            <div className="flex flex-1 flex-col">
-              <span className="font-semibold">{eq.name}</span>
-              <span className="flex items-center gap-1 text-xs text-slate">
-                {eq.locationNote && (
-                  <>
-                    <MapPin size={11} aria-hidden="true" />
-                    {eq.locationNote}
-                  </>
-                )}
-              </span>
-            </div>
-            <span className="text-xs uppercase tracking-wide text-slate">
-              {CATEGORY_LABELS[eq.category]}
-            </span>
-          </div>
+            equipment={eq}
+            mappedExercises={equipmentUsage.data?.get(eq.id) ?? 0}
+            isEditing={editing?.id === eq.id}
+            onEdit={() => startEditing(eq)}
+            onDelete={() => deleteEquipment.mutateAsync({ id: eq.id, photoUrl: eq.photoUrl })}
+          />
         ))}
       </div>
     </motion.section>
+  );
+}
+
+/** Botonera del formulario de estaciones: cambia según si es alta o corrección. */
+function EquipmentFormActions({
+  isEditing,
+  busy,
+  onCancel,
+}: {
+  isEditing: boolean;
+  busy: boolean;
+  onCancel: () => void;
+}) {
+  return (
+    <div className="flex gap-2">
+      {isEditing && (
+        <motion.button
+          type="button"
+          {...tappable}
+          onClick={onCancel}
+          className="rounded-xl border border-line px-4 py-3 text-sm font-semibold text-slate"
+        >
+          Cancelar
+        </motion.button>
+      )}
+      <motion.button
+        type="submit"
+        {...tappable}
+        disabled={busy || onboardingUnavailable}
+        className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-teal px-4 py-3 text-sm font-semibold text-navy disabled:opacity-50"
+      >
+        {busy ? (
+          <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+        ) : isEditing ? (
+          <Check size={16} aria-hidden="true" />
+        ) : (
+          <Plus size={16} aria-hidden="true" />
+        )}
+        {isEditing ? 'Guardar cambios' : 'Agregar al catálogo'}
+      </motion.button>
+    </div>
+  );
+}
+
+/**
+ * Una estación del catálogo, con las dos acciones que hacían falta para poder
+ * relevar el gimnasio de verdad: corregirla y borrarla.
+ *
+ * El borrado es de dos toques y dice qué se lleva puesto. Los `set_logs` de
+ * quien ya la usó sobreviven (su `equipment_id` queda en null), pero los
+ * mapeos a ejercicios cascadean: borrar una estación mapeada deja al motor
+ * sin poder proponer esos ejercicios, y eso no se puede deshacer.
+ */
+function EquipmentRow({
+  equipment: eq,
+  mappedExercises,
+  isEditing,
+  onEdit,
+  onDelete,
+}: {
+  equipment: Equipment;
+  mappedExercises: number;
+  isEditing: boolean;
+  onEdit: () => void;
+  onDelete: () => Promise<unknown>;
+}) {
+  const [confirming, setConfirming] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  async function handleDelete() {
+    setDeleting(true);
+    setFailed(false);
+    try {
+      await onDelete();
+    } catch {
+      setFailed(true);
+      setDeleting(false);
+      setConfirming(false);
+    }
+  }
+
+  return (
+    <div
+      className={`flex flex-col gap-2 rounded-xl border bg-navy-soft px-4 py-3 ${
+        isEditing ? 'border-teal/50' : 'border-line'
+      }`}
+    >
+      <div className="flex items-center gap-3">
+        {eq.photoUrl ? (
+          <img
+            src={eq.photoUrl}
+            alt={eq.name}
+            className="size-11 shrink-0 rounded-lg object-cover"
+          />
+        ) : (
+          <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-navy text-xs text-slate">
+            sin foto
+          </span>
+        )}
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="font-semibold">{eq.name}</span>
+          <span className="flex items-center gap-1 text-xs text-slate">
+            {eq.locationNote && (
+              <>
+                <MapPin size={11} aria-hidden="true" />
+                {eq.locationNote}
+              </>
+            )}
+          </span>
+        </div>
+        <span className="shrink-0 text-xs uppercase tracking-wide text-slate">
+          {CATEGORY_LABELS[eq.category]}
+        </span>
+      </div>
+
+      {confirming ? (
+        <div className="flex flex-col gap-2 rounded-lg bg-navy px-3 py-2.5">
+          <p className="text-xs text-slate">
+            {mappedExercises > 0 ? (
+              <>
+                Borrar <strong className="font-semibold text-ink">{eq.name}</strong> también borra{' '}
+                {mappedExercises === 1
+                  ? 'el ejercicio que tiene mapeado'
+                  : `los ${mappedExercises} ejercicios que tiene mapeados`}
+                . Lo que ya entrenó alguien no se pierde.
+              </>
+            ) : (
+              <>
+                Borrar <strong className="font-semibold text-ink">{eq.name}</strong>. Lo que ya
+                entrenó alguien no se pierde.
+              </>
+            )}
+          </p>
+          <div className="flex gap-2">
+            <motion.button
+              type="button"
+              {...tappable}
+              onClick={() => setConfirming(false)}
+              className="flex-1 rounded-lg border border-line px-3 py-2 text-xs font-semibold text-slate"
+            >
+              No, dejala
+            </motion.button>
+            <motion.button
+              type="button"
+              {...tappable}
+              disabled={deleting}
+              onClick={handleDelete}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-orange px-3 py-2 text-xs font-semibold text-navy disabled:opacity-50"
+            >
+              {deleting && <Loader2 size={13} className="animate-spin" aria-hidden="true" />}
+              Sí, borrala
+            </motion.button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex gap-2">
+          <motion.button
+            type="button"
+            {...tappable}
+            onClick={onEdit}
+            className="flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-xs font-semibold text-slate"
+          >
+            <Pencil size={12} aria-hidden="true" />
+            Editar
+          </motion.button>
+          <motion.button
+            type="button"
+            {...tappable}
+            onClick={() => setConfirming(true)}
+            className="flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-xs font-semibold text-slate"
+          >
+            <Trash2 size={12} aria-hidden="true" />
+            Borrar
+          </motion.button>
+          {failed && (
+            <span role="alert" className="self-center text-xs text-orange">
+              No se pudo borrar. Probá de nuevo.
+            </span>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -454,7 +670,7 @@ function ExerciseSection({ gymId }: { gymId: string | null }) {
 
   const [form, setForm] = useState(emptyExerciseForm);
   const [error, setError] = useState<string | null>(null);
-  const [saved, setSaved] = useState<string | null>(null);
+  const [saved, setSaved] = useState<{ name: string; updated: boolean } | null>(null);
 
   function toggle<K extends 'primaryMuscles' | 'secondaryMuscles' | 'equipmentIds'>(
     key: K,
@@ -480,7 +696,7 @@ function ExerciseSection({ gymId }: { gymId: string | null }) {
 
     try {
       await createExercise.mutateAsync(parsed.data as ExerciseFormInput);
-      setSaved(parsed.data.name);
+      setSaved({ name: parsed.data.name, updated: false });
       setForm(emptyExerciseForm);
     } catch {
       setError('No se pudo guardar. Revisá tu conexión y probá de nuevo.');
@@ -631,7 +847,7 @@ function ExerciseSection({ gymId }: { gymId: string | null }) {
           </p>
         )}
 
-        <SavedNotice name={saved} />
+        <SavedNotice saved={saved} />
 
         <motion.button
           type="submit"
@@ -731,11 +947,11 @@ function ChipPicker({
  * decenas de filas seguidas: sin esto, la única señal de que una entró es un
  * contador que queda fuera de la vista.
  */
-function SavedNotice({ name }: { name: string | null }) {
-  if (name === null) return null;
+function SavedNotice({ saved }: { saved: { name: string; updated: boolean } | null }) {
+  if (saved === null) return null;
   return (
     <motion.p
-      key={name}
+      key={saved.name}
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
       role="status"
@@ -743,7 +959,8 @@ function SavedNotice({ name }: { name: string | null }) {
     >
       <Check size={15} aria-hidden="true" />
       <span>
-        Se agregó <strong className="font-semibold">{name}</strong>.
+        {saved.updated ? 'Se guardaron los cambios de' : 'Se agregó'}{' '}
+        <strong className="font-semibold">{saved.name}</strong>.
       </span>
     </motion.p>
   );

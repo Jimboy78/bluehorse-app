@@ -98,6 +98,135 @@ export function useCreateEquipment(gymId: string | null) {
   });
 }
 
+/** Saca el path dentro del bucket a partir de la URL pública. `null` si no matchea. */
+function photoPath(photoUrl: string | null): string | null {
+  if (!photoUrl) return null;
+  try {
+    return new URL(photoUrl).pathname.split('/equipment-photos/')[1] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Borra una foto del bucket sin hacer ruido. La limpieza de un archivo que ya
+ * no referencia nadie no puede tapar (ni provocar) el error de la operación
+ * que importaba.
+ */
+async function removePhotoQuietly(photoUrl: string | null): Promise<void> {
+  const path = photoPath(photoUrl);
+  if (!path) return;
+  try {
+    await requireSupabase().storage.from('equipment-photos').remove([path]);
+  } catch {
+    // una foto huérfana molesta menos que un error inventado.
+  }
+}
+
+/**
+ * Cuántos ejercicios tiene mapeados cada estación. Es lo que se pierde al
+ * borrarla: `exercise_equipment` cascadea, así que la fila se va sin avisar y
+ * el motor deja de poder proponer esos ejercicios. Los `set_logs` no se
+ * pierden (su `equipment_id` queda en null), el historial sobrevive.
+ */
+export function useEquipmentUsage(gymId: string | null) {
+  return useQuery({
+    queryKey: ['equipment-usage', gymId],
+    enabled: !!gymId,
+    queryFn: async () => {
+      const client = requireSupabase();
+      const { data, error } = await client
+        .from('exercise_equipment')
+        .select('equipment_id, equipment!inner(gym_id)')
+        .eq('equipment.gym_id', gymId as string);
+      if (error) throw error;
+
+      const counts = new Map<string, number>();
+      for (const row of data ?? []) {
+        const id = (row as { equipment_id: string }).equipment_id;
+        counts.set(id, (counts.get(id) ?? 0) + 1);
+      }
+      return counts;
+    },
+  });
+}
+
+/**
+ * Corregir una estación ya cargada. Relevar el gimnasio son decenas de filas
+ * a mano: sin esto, un nombre mal tipeado o una carga máxima equivocada solo
+ * se arreglaba por SQL.
+ *
+ * `photo: null` deja la foto que ya tenía; para reemplazarla se manda una
+ * nueva y la vieja se borra del bucket después de que la fila se actualizó.
+ */
+export function useUpdateEquipment(gymId: string | null) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      input,
+      photo,
+      currentPhotoUrl,
+    }: {
+      id: string;
+      input: EquipmentFormInput;
+      photo: File | null;
+      currentPhotoUrl: string | null;
+    }) => {
+      if (!gymId) throw new Error('No se pudo determinar el gimnasio.');
+      const client = requireSupabase();
+
+      const newPhotoUrl = await uploadEquipmentPhoto(photo, gymId);
+      const { error } = await client
+        .from('equipment')
+        .update(toEquipmentInsert(gymId, input, newPhotoUrl ?? currentPhotoUrl))
+        .eq('id', id);
+
+      if (error) {
+        // Misma limpieza que en el alta: la foto nueva ya subió y la fila no
+        // cambió, así que ese archivo no lo referencia nadie.
+        await removePhotoQuietly(newPhotoUrl);
+        throw error;
+      }
+
+      // Recién acá: si la fila no se hubiera actualizado, borrar la vieja
+      // dejaría a la estación sin foto y sin haber cambiado nada.
+      if (newPhotoUrl) await removePhotoQuietly(currentPhotoUrl);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['equipment-list', gymId] });
+      void queryClient.invalidateQueries({ queryKey: ['equipment-usage', gymId] });
+      void queryClient.invalidateQueries({ queryKey: ['gym-catalog', gymId] });
+    },
+  });
+}
+
+/**
+ * Borrar una estación que no existe o que se cargó dos veces. La foto se
+ * borra después de la fila, por la misma razón de siempre: si la fila no se
+ * pudo borrar, la estación sigue viva y sin foto no sirve.
+ */
+export function useDeleteEquipment(gymId: string | null) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, photoUrl }: { id: string; photoUrl: string | null }) => {
+      const client = requireSupabase();
+
+      const { error } = await client.from('equipment').delete().eq('id', id);
+      if (error) throw error;
+
+      await removePhotoQuietly(photoUrl);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['equipment-list', gymId] });
+      void queryClient.invalidateQueries({ queryKey: ['equipment-usage', gymId] });
+      void queryClient.invalidateQueries({ queryKey: ['gym-catalog', gymId] });
+    },
+  });
+}
+
 /**
  * Ejercicios visibles para el gimnasio: los propios más los globales
  * (`gym_id is null`, como los del seed). Reutiliza la misma consulta que

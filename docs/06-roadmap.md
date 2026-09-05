@@ -27,6 +27,10 @@ Fotos, planilla de equipamiento y lista de ejercicios canónicos. Ver `05-releva
   condicionales, ubicación, notas
 - [x] Panel admin: alta de ejercicios (patrón, músculos, modalidad, nivel, cues) y mapeo a
   equipamiento en el mismo alta — completa el panel de catálogo de la Fase 1
+- [x] Panel admin: corregir y borrar estaciones. Relevar el gimnasio son decenas de filas a mano y
+  hasta acá el panel era solo de alta: un nombre mal tipeado o una carga máxima equivocada solo se
+  arreglaba por SQL. El borrado es de dos toques y dice qué se lleva puesto (los mapeos a
+  ejercicios cascadean; los `set_logs` de quien ya la usó sobreviven)
 - [ ] Catálogo de Blue Horse cargado (bloqueado por Fase 0, no bloquea el resto del desarrollo)
 
 **Entregable**: el catálogo real, navegable desde la app.

@@ -50,9 +50,18 @@ Se agregó confirmación al guardar en el panel: antes el formulario se vaciaba 
 cambiaba era un contador lejos del botón, así que cargando el gimnasio fila por fila no se veía si
 había entrado.
 
-**Dos huecos anotados, no resueltos** (son features, no ajustes):
-- **El panel es solo de alta.** No hay forma de editar ni borrar una estación cargada mal. Relevar
-  el gimnasio son decenas de filas a mano: un error de tipeo hoy solo se arregla por SQL.
+**Uno de los dos huecos ya está cerrado** — el panel dejó de ser solo de alta:
+- **Editar y borrar estaciones** (`useUpdateEquipment`, `useDeleteEquipment`, `useEquipmentUsage`
+  en `lib/panel.ts`; `EquipmentRow` y `EquipmentFormActions` en `Panel.tsx`). "Editar" precarga el
+  formulario, lo marca en teal y hace scroll hasta él — tocar editar en la fila 40 no mostraba
+  ningún cambio si no. "Borrar" es de dos toques y dice qué se lleva: los mapeos a ejercicios
+  cascadean, así que avisa cuántos son; los `set_logs` de quien ya la usó no se pierden
+  (`equipment_id` queda en null). La foto vieja se borra del bucket recién después de que la fila
+  se actualizó, no antes.
+- Probado a mano: precarga correcta de una estación a discos, guardado de un cambio, confirmación
+  con el conteo de mapeos, y borrado real de una estación descartable.
+
+**Hueco que sigue abierto:**
 - **Deshacer una serie no borra su `set_log`.** Ya está documentado en `Hoy.tsx` como
   simplificación, pero la pantalla no lo dice: una serie marcada por error sigue contando en
   `/progreso`. Necesita una rama de borrado en la cola offline.
