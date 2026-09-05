@@ -8,6 +8,7 @@ import {
   toPlanSessionComplete,
   toWorkoutLogClose,
 } from './mappers/session-close.ts';
+import { toSubstitutionEvent } from './mappers/session-event.ts';
 import { toSetLogInsert, toWorkoutLogInsert } from './mappers/session-log.ts';
 import { enqueue, flush, newClientId, type OutboxItem, startAutoFlush } from './outbox.ts';
 import type { ActiveSessionItem } from './plan.ts';
@@ -37,9 +38,17 @@ export async function sendOutboxItem(item: OutboxItem): Promise<void> {
     return;
   }
 
-  // proposal_response / session_event: todavía no tienen escritor. Se drenan
-  // cuando llegue esa parte del roadmap; hasta entonces quedan en cola sin
-  // romper el flush de lo que sí sabemos mandar.
+  if (item.kind === 'session_event') {
+    const { error } = await client
+      .from('session_events')
+      .upsert(item.payload as never, { onConflict: 'id', ignoreDuplicates: true });
+    if (error) throw error;
+    return;
+  }
+
+  // proposal_response: todavía no tiene escritor. Se drena cuando llegue esa
+  // parte del roadmap; hasta entonces queda en cola sin romper el flush de
+  // lo que sí sabemos mandar.
 }
 
 /** Arranca el reintento automático al recuperar señal. Se llama una sola vez, en la raíz de la app. */
@@ -55,12 +64,9 @@ export function startSessionOutbox(): () => void {
 export function useSessionLog(userId: string | undefined, planSessionId: string) {
   const workoutLogIdRef = useRef<{ sessionId: string; workoutLogId: string } | null>(null);
 
-  async function markSetDone(
-    item: ActiveSessionItem,
-    setIndex: number,
-    restActualSeconds: number,
-  ): Promise<void> {
-    if (!userId) return; // sin sesión no hay a quién atribuirle el registro
+  /** Crea el `workout_log` recién en el primer evento de la sesión (serie o sustitución). */
+  async function ensureWorkoutLog(): Promise<string | null> {
+    if (!userId) return null; // sin sesión no hay a quién atribuirle el registro
 
     if (workoutLogIdRef.current?.sessionId !== planSessionId) {
       const workoutLogId = crypto.randomUUID();
@@ -77,11 +83,22 @@ export function useSessionLog(userId: string | undefined, planSessionId: string)
       workoutLogIdRef.current = { sessionId: planSessionId, workoutLogId };
     }
 
+    return workoutLogIdRef.current.workoutLogId;
+  }
+
+  async function markSetDone(
+    item: ActiveSessionItem,
+    setIndex: number,
+    restActualSeconds: number,
+  ): Promise<void> {
+    const workoutLogId = await ensureWorkoutLog();
+    if (!workoutLogId) return;
+
     await enqueue(
       'set_log',
       toSetLogInsert(
         crypto.randomUUID(),
-        workoutLogIdRef.current.workoutLogId,
+        workoutLogId,
         {
           planSessionItemId: item.id,
           exerciseId: item.exerciseId,
@@ -101,10 +118,38 @@ export function useSessionLog(userId: string | undefined, planSessionId: string)
     void flush(sendOutboxItem);
   }
 
+  /** Registra que se cambió de estación por estar ocupada. No pisa `plan_session_items`. */
+  async function logSubstitution(
+    planSessionItemId: string,
+    fromExerciseId: string,
+    toExerciseId: string,
+    fromEquipmentId: string | null,
+    toEquipmentId: string | null,
+  ): Promise<void> {
+    const workoutLogId = await ensureWorkoutLog();
+    if (!workoutLogId) return;
+
+    await enqueue(
+      'session_event',
+      toSubstitutionEvent(
+        crypto.randomUUID(),
+        workoutLogId,
+        planSessionItemId,
+        fromExerciseId,
+        toExerciseId,
+        fromEquipmentId,
+        toEquipmentId,
+        new Date().toISOString(),
+      ),
+    );
+
+    void flush(sendOutboxItem);
+  }
+
   const current = workoutLogIdRef.current;
   const workoutLogId = current?.sessionId === planSessionId ? current.workoutLogId : null;
 
-  return { markSetDone, workoutLogId };
+  return { markSetDone, logSubstitution, workoutLogId };
 }
 
 export interface CloseSessionInput {

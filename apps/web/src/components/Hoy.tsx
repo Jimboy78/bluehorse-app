@@ -1,15 +1,28 @@
+import type { SubstituteOption } from '@bh/engine';
 import { AlertCircle, Dumbbell, Loader2, MapPin, Trophy } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
 import { celebratePersonalRecord } from '../lib/celebrate.ts';
 import { fadeUp, listContainer, listItem, screen, tappable } from '../lib/motion.ts';
-import { onboardingUnavailable } from '../lib/onboarding.ts';
+import { onboardingUnavailable, useProfileStatus } from '../lib/onboarding.ts';
+import type { ActiveSessionItem } from '../lib/plan.ts';
 import { useActivePlan, useGeneratePlan } from '../lib/plan.ts';
 import { useSessionLog } from '../lib/session-log.ts';
 import { RestTimer } from './RestTimer.tsx';
 import { SessionClose } from './SessionClose.tsx';
 import { SetRow } from './SetRow.tsx';
+import { SubstitutePicker } from './SubstitutePicker.tsx';
+
+/** Lo que reemplaza a un ítem cuando su estación estaba ocupada. Los objetivos
+ * (series, reps, descanso) siguen siendo los de la prescripción original —
+ * solo cambia qué ejercicio/estación se usó de verdad. */
+interface Substitution {
+  readonly exerciseId: string;
+  readonly equipmentId: string | null;
+  readonly name: string;
+  readonly sector: string;
+}
 
 /**
  * La pantalla "Hoy" real: lee el plan que ya está guardado en la base
@@ -24,20 +37,39 @@ export function Hoy() {
   const { status, user } = useAuth();
   const plan = useActivePlan();
 
+  const profile = useProfileStatus();
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [seriesHechas, setSeriesHechas] = useState<number[]>([]);
   const [restingIndex, setRestingIndex] = useState<number | null>(null);
   const [closing, setClosing] = useState(false);
+  const [showingSubstitutes, setShowingSubstitutes] = useState(false);
+  const [substitutions, setSubstitutions] = useState<Record<string, Substitution>>({});
 
   const activePlanSessionId = plan.data?.kind === 'active' ? plan.data.session.planSessionId : '';
-  const { markSetDone, workoutLogId } = useSessionLog(user?.id, activePlanSessionId);
+  const { markSetDone, logSubstitution, workoutLogId } = useSessionLog(
+    user?.id,
+    activePlanSessionId,
+  );
 
   if (status !== 'signed-in' || plan.isPending || plan.isError || plan.data?.kind !== 'active') {
     return <PlanStateMessage authStatus={status} plan={plan} />;
   }
 
   const session = plan.data.session;
-  const item = session.items.find((i) => i.id === activeItemId);
+  const original = session.items.find((i) => i.id === activeItemId);
+  const substitution = original ? substitutions[original.id] : undefined;
+  // Los objetivos (series, reps, descanso) son los de la prescripción
+  // original; solo la identidad del ejercicio/estación cambia si se sustituyó.
+  const item: ActiveSessionItem | undefined =
+    original && substitution
+      ? {
+          ...original,
+          exerciseId: substitution.exerciseId,
+          equipmentId: substitution.equipmentId,
+          name: substitution.name,
+          sector: substitution.sector,
+        }
+      : original;
 
   function markDone(indice: number) {
     setSeriesHechas((previas) =>
@@ -51,6 +83,27 @@ export function Hoy() {
       await markSetDone(item, restingIndex, actualSeconds);
     }
     setRestingIndex(null);
+  }
+
+  async function handlePickSubstitute(option: SubstituteOption, name: string, sector: string) {
+    if (!original) return;
+    setSubstitutions((prev) => ({
+      ...prev,
+      [original.id]: {
+        exerciseId: option.exerciseId,
+        equipmentId: option.equipmentId,
+        name,
+        sector,
+      },
+    }));
+    setShowingSubstitutes(false);
+    await logSubstitution(
+      original.id,
+      original.exerciseId,
+      option.exerciseId,
+      original.equipmentId,
+      option.equipmentId,
+    );
   }
 
   if (closing) {
@@ -67,62 +120,26 @@ export function Hoy() {
     <div className="flex flex-col gap-6">
       <AnimatePresence mode="wait">
         {item ? (
-          <motion.section key="detalle" {...screen} className="flex flex-col gap-5">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex flex-col gap-1">
-                <h2 className="text-2xl font-bold tracking-tight">{item.name}</h2>
-                <p className="flex items-center gap-1.5 text-sm text-slate">
-                  <MapPin size={14} aria-hidden="true" />
-                  {item.sector}
-                </p>
-              </div>
-              <motion.button
-                type="button"
-                {...tappable}
-                onClick={() => {
-                  setActiveItemId(null);
-                  setSeriesHechas([]);
-                  setRestingIndex(null);
-                }}
-                className="rounded-full border border-line px-4 py-2 text-xs font-semibold text-slate"
-              >
-                Volver
-              </motion.button>
-            </div>
-
-            <p className="rounded-lg bg-navy-soft px-3.5 py-2.5 text-xs text-slate">
-              {item.rationale}
-            </p>
-
-            {restingIndex !== null ? (
-              <motion.div
-                key="timer"
-                {...screen}
-                className="rounded-2xl border border-line bg-navy-soft px-4 py-8"
-              >
-                <RestTimer prescribedSeconds={item.restSeconds} onFinish={handleRestFinish} />
-              </motion.div>
-            ) : (
-              <motion.div
-                variants={listContainer}
-                initial="hidden"
-                animate="visible"
-                className="flex flex-col gap-2.5"
-              >
-                {seriesDe(item).map(({ id, numero: i }) => (
-                  <motion.div key={id} variants={listItem}>
-                    <SetRow
-                      index={i}
-                      targetLoad={item.load}
-                      targetReps={item.reps}
-                      done={seriesHechas.includes(i)}
-                      onToggle={() => markDone(i)}
-                    />
-                  </motion.div>
-                ))}
-              </motion.div>
-            )}
-          </motion.section>
+          <ExerciseDetail
+            item={item}
+            original={original}
+            userId={user?.id}
+            gymId={profile.data?.gymId ?? null}
+            showingSubstitutes={showingSubstitutes}
+            restingIndex={restingIndex}
+            seriesHechas={seriesHechas}
+            onBack={() => {
+              setActiveItemId(null);
+              setSeriesHechas([]);
+              setRestingIndex(null);
+              setShowingSubstitutes(false);
+            }}
+            onShowSubstitutes={() => setShowingSubstitutes(true)}
+            onPickSubstitute={handlePickSubstitute}
+            onCancelSubstitutes={() => setShowingSubstitutes(false)}
+            onRestFinish={handleRestFinish}
+            onToggleSet={markDone}
+          />
         ) : (
           <motion.section key="lista" {...screen} className="flex flex-col gap-4">
             <h2 className="text-2xl font-bold tracking-tight">Hoy te toca</h2>
@@ -188,6 +205,114 @@ export function Hoy() {
         Probar celebración de récord
       </motion.button>
     </div>
+  );
+}
+
+/**
+ * Vista de detalle de un ejercicio: series, cronómetro de descanso, o el
+ * selector de sustitución — según qué esté pasando en ese momento. Aparte de
+ * `Hoy` para no acumular ramas en un solo componente.
+ */
+function ExerciseDetail({
+  item,
+  original,
+  userId,
+  gymId,
+  showingSubstitutes,
+  restingIndex,
+  seriesHechas,
+  onBack,
+  onShowSubstitutes,
+  onPickSubstitute,
+  onCancelSubstitutes,
+  onRestFinish,
+  onToggleSet,
+}: {
+  item: ActiveSessionItem;
+  original: ActiveSessionItem | undefined;
+  userId: string | undefined;
+  gymId: string | null;
+  showingSubstitutes: boolean;
+  restingIndex: number | null;
+  seriesHechas: number[];
+  onBack: () => void;
+  onShowSubstitutes: () => void;
+  onPickSubstitute: (option: SubstituteOption, name: string, sector: string) => void;
+  onCancelSubstitutes: () => void;
+  onRestFinish: (actualSeconds: number) => void;
+  onToggleSet: (indice: number) => void;
+}) {
+  return (
+    <motion.section key="detalle" {...screen} className="flex flex-col gap-5">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-2xl font-bold tracking-tight">{item.name}</h2>
+          <p className="flex items-center gap-1.5 text-sm text-slate">
+            <MapPin size={14} aria-hidden="true" />
+            {item.sector}
+          </p>
+        </div>
+        <motion.button
+          type="button"
+          {...tappable}
+          onClick={onBack}
+          className="rounded-full border border-line px-4 py-2 text-xs font-semibold text-slate"
+        >
+          Volver
+        </motion.button>
+      </div>
+
+      <p className="rounded-lg bg-navy-soft px-3.5 py-2.5 text-xs text-slate">{item.rationale}</p>
+
+      {!showingSubstitutes && restingIndex === null && (
+        <motion.button
+          type="button"
+          {...tappable}
+          onClick={onShowSubstitutes}
+          className="self-start rounded-full border border-line px-3.5 py-2 text-xs font-semibold text-slate"
+        >
+          Máquina ocupada
+        </motion.button>
+      )}
+
+      {showingSubstitutes && original ? (
+        <SubstitutePicker
+          userId={userId}
+          gymId={gymId}
+          exerciseId={original.exerciseId}
+          equipmentId={original.equipmentId}
+          onPick={onPickSubstitute}
+          onCancel={onCancelSubstitutes}
+        />
+      ) : restingIndex !== null ? (
+        <motion.div
+          key="timer"
+          {...screen}
+          className="rounded-2xl border border-line bg-navy-soft px-4 py-8"
+        >
+          <RestTimer prescribedSeconds={item.restSeconds} onFinish={onRestFinish} />
+        </motion.div>
+      ) : (
+        <motion.div
+          variants={listContainer}
+          initial="hidden"
+          animate="visible"
+          className="flex flex-col gap-2.5"
+        >
+          {seriesDe(item).map(({ id, numero: i }) => (
+            <motion.div key={id} variants={listItem}>
+              <SetRow
+                index={i}
+                targetLoad={item.load}
+                targetReps={item.reps}
+                done={seriesHechas.includes(i)}
+                onToggle={() => onToggleSet(i)}
+              />
+            </motion.div>
+          ))}
+        </motion.div>
+      )}
+    </motion.section>
   );
 }
 
