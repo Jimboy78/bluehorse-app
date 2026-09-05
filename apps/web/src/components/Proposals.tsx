@@ -1,3 +1,5 @@
+import type { LoadUnit } from '@bh/domain';
+import { formatLoad } from '@bh/domain';
 import { AlertCircle, ArrowRight, Check, Sparkles, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { usePendingProposals, useResolveProposal } from '../lib/adaptation.ts';
@@ -64,9 +66,11 @@ export function Proposals() {
               <p className="text-sm">{proposal.reasonText}</p>
               {proposal.fromValue !== null && proposal.toValue !== null && (
                 <p className="flex items-center gap-1.5 font-mono text-xs text-slate">
-                  {proposal.fromValue}
+                  {showValue(proposal.fromValue, proposal.loadUnit)}
                   <ArrowRight size={11} aria-hidden="true" />
-                  <span className="text-teal">{proposal.toValue}</span>
+                  <span className="text-teal">
+                    {showValue(proposal.toValue, proposal.loadUnit)}
+                  </span>
                 </p>
               )}
               {showsPlaceholderContent && (
@@ -102,4 +106,17 @@ export function Proposals() {
       </AnimatePresence>
     </motion.section>
   );
+}
+
+/**
+ * Los valores de una propuesta son texto genérico: una de carga guarda "20",
+ * un deload guarda "60%". Cuando hay unidad se muestra como lo muestra la
+ * máquina — con coma decimal y el kg al lado, igual que en todo el resto de
+ * la app (regla dura 5). Sin unidad se muestra tal cual vino.
+ */
+function showValue(value: string | null, unit: LoadUnit | null): string {
+  if (value === null) return '';
+  if (unit === null) return value;
+  const n = Number(value);
+  return Number.isNaN(n) ? value : formatLoad({ value: n, unit });
 }

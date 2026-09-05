@@ -48,7 +48,7 @@ export function usePendingProposals() {
       const { data: pendingRows, error: pendingError } = await client
         .from('adaptation_proposals')
         .select(
-          'id, user_id, plan_id, type, target_ref, from_value, to_value, reason_code, reason_text, ruleset_version, status',
+          'id, user_id, plan_id, type, target_ref, from_value, to_value, load_unit, reason_code, reason_text, ruleset_version, status',
         )
         .eq('plan_id', planRow.id)
         .eq('status', 'pending');
@@ -72,7 +72,7 @@ async function generateProposals(
   const { data: resolvedRows, error: resolvedError } = await client
     .from('adaptation_proposals')
     .select(
-      'id, user_id, plan_id, type, target_ref, from_value, to_value, reason_code, reason_text, ruleset_version, status',
+      'id, user_id, plan_id, type, target_ref, from_value, to_value, load_unit, reason_code, reason_text, ruleset_version, status',
     )
     .eq('plan_id', planId)
     .neq('status', 'pending');
@@ -133,7 +133,7 @@ async function generateProposals(
     .from('adaptation_proposals')
     .insert(blueprints.map((b) => toProposalInsert(userId, planId, b)))
     .select(
-      'id, user_id, plan_id, type, target_ref, from_value, to_value, reason_code, reason_text, ruleset_version, status',
+      'id, user_id, plan_id, type, target_ref, from_value, to_value, load_unit, reason_code, reason_text, ruleset_version, status',
     );
   if (insertError) throw insertError;
 

@@ -73,6 +73,7 @@ export const proposalRowSchema = z.object({
   reason_text: z.string(),
   ruleset_version: z.string(),
   status: proposalStatusSchema,
+  load_unit: loadUnitSchema.nullable(),
 });
 export type ProposalRow = z.infer<typeof proposalRowSchema>;
 
@@ -85,6 +86,7 @@ export function toAdaptationProposal(row: ProposalRow): AdaptationProposal {
     targetRef: row.target_ref,
     fromValue: row.from_value,
     toValue: row.to_value,
+    loadUnit: row.load_unit,
     reasonCode: row.reason_code,
     reasonText: row.reason_text,
     rulesetVersion: row.ruleset_version,
@@ -101,6 +103,7 @@ export function toProposalInsert(userId: string, planId: string, blueprint: Prop
     target_ref: blueprint.targetRef,
     from_value: blueprint.fromValue,
     to_value: blueprint.toValue,
+    load_unit: blueprint.loadUnit,
     reason_code: blueprint.reasonCode,
     reason_text: blueprint.reasonText,
     ruleset_version: blueprint.rulesetVersion,

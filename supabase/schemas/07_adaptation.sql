@@ -18,7 +18,12 @@ create table adaptation_proposals (
   ruleset_version text not null references rulesets (version),
   status proposal_status not null default 'pending',
   created_at timestamptz not null default now(),
-  resolved_at timestamptz
+  resolved_at timestamptz,
+  /* La unidad de `from_value`/`to_value` cuando la propuesta es de carga.
+     Sin esto, "20" no dice si son kilos, libras o un nivel de pin, y la
+     pantalla no puede mostrarlo como lo muestra la máquina (regla dura 5).
+     Nula en las propuestas que no son de carga: un deload dice "60%". */
+  load_unit load_unit
 );
 
 create index proposals_pending_idx on adaptation_proposals (user_id, created_at desc)

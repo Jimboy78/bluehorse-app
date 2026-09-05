@@ -44,10 +44,12 @@ describe('toAdaptationProposal', () => {
       reason_code: 'rir_above_target',
       reason_text: 'Te sobraron repeticiones.',
       ruleset_version: 'v0-placeholder',
+      load_unit: 'kg' as const,
       status: 'pending',
     });
     expect(proposal).toEqual({
       id: 'p-1',
+      loadUnit: 'kg',
       userId: 'u-1',
       planId: 'plan-1',
       type: 'load_increase',
@@ -69,6 +71,8 @@ describe('toProposalInsert', () => {
       targetRef: { planId: 'plan-1' },
       fromValue: null,
       toValue: '70%',
+      // Un deload no habla de carga: "70%" no tiene unidad que guardar.
+      loadUnit: null,
       reasonCode: 'absence',
       reasonText: 'Volviste después de un tiempo.',
       rulesetVersion: 'v0-placeholder',
@@ -81,6 +85,7 @@ describe('toProposalInsert', () => {
       target_ref: { planId: 'plan-1' },
       from_value: null,
       to_value: '70%',
+      load_unit: null,
       reason_code: 'absence',
       reason_text: 'Volviste después de un tiempo.',
       ruleset_version: 'v0-placeholder',

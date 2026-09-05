@@ -4,6 +4,7 @@ import type {
   Exercise,
   Id,
   LoadReading,
+  LoadUnit,
   Plan,
   PlanSessionItem,
   Profile,
@@ -96,6 +97,12 @@ export interface ProposalBlueprint {
   readonly targetRef: Readonly<Record<string, string>>;
   readonly fromValue: string | null;
   readonly toValue: string | null;
+  /**
+   * La unidad de `fromValue`/`toValue` cuando la propuesta es de carga, para
+   * poder mostrarla como la muestra la máquina. Nula cuando esos valores no
+   * son una carga: un deload dice "60%".
+   */
+  readonly loadUnit: LoadUnit | null;
   /** Código estable para métricas: `rir_above_target`, `stalled`, `absence`. */
   readonly reasonCode: string;
   /** El motivo en castellano, tal cual se le muestra. */

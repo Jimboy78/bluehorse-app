@@ -39,6 +39,7 @@ export type Database = {
           created_at: string
           from_value: string | null
           id: string
+          load_unit: Database["public"]["Enums"]["load_unit"] | null
           plan_id: string
           reason_code: string
           reason_text: string
@@ -54,6 +55,7 @@ export type Database = {
           created_at?: string
           from_value?: string | null
           id?: string
+          load_unit?: Database["public"]["Enums"]["load_unit"] | null
           plan_id: string
           reason_code: string
           reason_text: string
@@ -69,6 +71,7 @@ export type Database = {
           created_at?: string
           from_value?: string | null
           id?: string
+          load_unit?: Database["public"]["Enums"]["load_unit"] | null
           plan_id?: string
           reason_code?: string
           reason_text?: string

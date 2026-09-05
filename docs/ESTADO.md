@@ -151,6 +151,19 @@ Llegar ahí destapó cuatro bugs más:
 4. **`applyLoadChange` guardaba `target_load` sin `target_load_unit`**: un 20 que no se sabía si
    eran kilos, libras o un nivel de pin. La misma incoherencia que el check de `set_logs` prohíbe.
 
+### Aceptar y rechazar, los dos probados
+
+`adaptation_proposals` sumó una columna `load_unit` (migración aditiva). Sin ella, `to_value`
+guardaba "20" y no había forma de saber si eran kilos, libras o un nivel de pin — el mismo agujero
+que `target_load` sin unidad. Ahora la propuesta se muestra **17,5 kg → 20 kg**, con coma decimal
+y unidad, como el resto de la app; un deload sigue diciendo "60%" porque no tiene unidad que
+mostrar.
+
+- **Aceptar** aplica la carga a las sesiones pendientes (`target_load 20.00` +
+  `target_load_unit plates_kg`) y no vuelve a proponer lo mismo.
+- **Rechazar** deja la propuesta en `rejected`, **no toca ningún `target_load`**, y no vuelve a
+  aparecer para ese ejercicio (`wasRecentlyRejected`).
+
 **Moraleja para las próximas sesiones: `curl` contra la base y los tests verdes no dicen que la app
 funcione.** Verificado a mano el recorrido completo: alta → onboarding → plan generado → marcar
 series → cronómetro de descanso → sustitución → cerrar sesión → avance de la cola a la sesión

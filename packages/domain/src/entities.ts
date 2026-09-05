@@ -207,6 +207,8 @@ export interface AdaptationProposal {
   readonly targetRef: Readonly<Record<string, string>>;
   readonly fromValue: string | null;
   readonly toValue: string | null;
+  /** Unidad de esos valores cuando son una carga; `null` si no lo son. */
+  readonly loadUnit: LoadUnit | null;
   readonly reasonCode: string;
   /** El motivo en castellano, tal cual se le muestra al usuario. */
   readonly reasonText: string;
