@@ -1,6 +1,7 @@
 import { Loader2 } from 'lucide-react';
 import { lazy, type ReactNode, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router';
+import { RouteError } from './components/RouteError.tsx';
 import { RequireAdmin } from './routes/RequireAdmin.tsx';
 import { RequireAuth } from './routes/RequireAuth.tsx';
 import { RequireOnboarding } from './routes/RequireOnboarding.tsx';
@@ -14,6 +15,10 @@ import { RequireOnboarding } from './routes/RequireOnboarding.tsx';
  * de catálogo son pesados, y nadie que entra a `/instalar` desde el QR necesita
  * bajarlos todavía. Los guards (`RequireX`) se quedan eager: son livianos y hacen
  * falta antes de saber qué pantalla se va a pedir.
+ *
+ * Cada ruta tiene su propio `errorElement` (`RouteError`): sin eso, un error de
+ * render dentro de una pantalla deja al socio con la pantalla de error genérica
+ * de React Router en inglés, en vez del mensaje en castellano de `CrashScreen`.
  */
 const App = lazy(() => import('./App.tsx').then((m) => ({ default: m.App })));
 const Instalar = lazy(() => import('./routes/Instalar.tsx').then((m) => ({ default: m.Instalar })));
@@ -40,10 +45,12 @@ export const router = createBrowserRouter([
   {
     path: '/instalar',
     element: lazyPage(<Instalar />),
+    errorElement: <RouteError />,
   },
   {
     path: '/auth',
     element: lazyPage(<SignIn />),
+    errorElement: <RouteError />,
   },
   {
     path: '/onboarding',
@@ -52,6 +59,7 @@ export const router = createBrowserRouter([
         <Onboarding />
       </RequireAuth>,
     ),
+    errorElement: <RouteError />,
   },
   {
     path: '/panel',
@@ -62,6 +70,7 @@ export const router = createBrowserRouter([
         </RequireAdmin>
       </RequireAuth>,
     ),
+    errorElement: <RouteError />,
   },
   {
     path: '/progreso',
@@ -72,6 +81,7 @@ export const router = createBrowserRouter([
         </RequireOnboarding>
       </RequireAuth>,
     ),
+    errorElement: <RouteError />,
   },
   {
     path: '/',
@@ -82,5 +92,6 @@ export const router = createBrowserRouter([
         </RequireOnboarding>
       </RequireAuth>,
     ),
+    errorElement: <RouteError />,
   },
 ]);

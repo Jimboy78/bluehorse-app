@@ -2,6 +2,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router';
+import { ErrorBoundary } from './components/ErrorBoundary.tsx';
 import { AuthProvider } from './lib/auth/AuthProvider.tsx';
 import { queryClient } from './lib/query-client.ts';
 import { startSessionOutbox } from './lib/session-log.ts';
@@ -17,10 +18,12 @@ startSessionOutbox();
 
 createRoot(container).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <RouterProvider router={router} />
-      </AuthProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <RouterProvider router={router} />
+        </AuthProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   </StrictMode>,
 );
