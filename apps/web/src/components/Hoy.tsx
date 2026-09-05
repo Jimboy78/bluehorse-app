@@ -8,6 +8,7 @@ import { onboardingUnavailable } from '../lib/onboarding.ts';
 import { useActivePlan, useGeneratePlan } from '../lib/plan.ts';
 import { useSessionLog } from '../lib/session-log.ts';
 import { RestTimer } from './RestTimer.tsx';
+import { SessionClose } from './SessionClose.tsx';
 import { SetRow } from './SetRow.tsx';
 
 /**
@@ -26,9 +27,10 @@ export function Hoy() {
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [seriesHechas, setSeriesHechas] = useState<number[]>([]);
   const [restingIndex, setRestingIndex] = useState<number | null>(null);
+  const [closing, setClosing] = useState(false);
 
   const activePlanSessionId = plan.data?.kind === 'active' ? plan.data.session.planSessionId : '';
-  const { markSetDone } = useSessionLog(user?.id, activePlanSessionId);
+  const { markSetDone, workoutLogId } = useSessionLog(user?.id, activePlanSessionId);
 
   if (status !== 'signed-in' || plan.isPending || plan.isError || plan.data?.kind !== 'active') {
     return <PlanStateMessage authStatus={status} plan={plan} />;
@@ -49,6 +51,16 @@ export function Hoy() {
       await markSetDone(item, restingIndex, actualSeconds);
     }
     setRestingIndex(null);
+  }
+
+  if (closing) {
+    return (
+      <SessionClose
+        planSessionId={session.planSessionId}
+        workoutLogId={workoutLogId}
+        onClosed={() => setClosing(false)}
+      />
+    );
   }
 
   return (
@@ -153,6 +165,15 @@ export function Hoy() {
               El orden es una sugerencia: tocá el que esté libre. Si una máquina está ocupada, la
               app te ofrece un reemplazo equivalente.
             </p>
+
+            <motion.button
+              type="button"
+              {...tappable}
+              onClick={() => setClosing(true)}
+              className="rounded-xl border border-line px-4 py-3 text-sm font-semibold text-slate"
+            >
+              Terminar sesión
+            </motion.button>
           </motion.section>
         )}
       </AnimatePresence>

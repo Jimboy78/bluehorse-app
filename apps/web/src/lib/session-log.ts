@@ -1,4 +1,13 @@
+import type { BodyRegion } from '@bh/domain';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
+import { useAuth } from './auth/AuthProvider.tsx';
+import {
+  type SessionFeel,
+  toPainReportInsert,
+  toPlanSessionComplete,
+  toWorkoutLogClose,
+} from './mappers/session-close.ts';
 import { toSetLogInsert, toWorkoutLogInsert } from './mappers/session-log.ts';
 import { enqueue, flush, newClientId, type OutboxItem, startAutoFlush } from './outbox.ts';
 import type { ActiveSessionItem } from './plan.ts';
@@ -92,5 +101,74 @@ export function useSessionLog(userId: string | undefined, planSessionId: string)
     void flush(sendOutboxItem);
   }
 
-  return { markSetDone };
+  const current = workoutLogIdRef.current;
+  const workoutLogId = current?.sessionId === planSessionId ? current.workoutLogId : null;
+
+  return { markSetDone, workoutLogId };
+}
+
+export interface CloseSessionInput {
+  readonly planSessionId: string;
+  /** `null` si no se marcó ninguna serie: no hay `workout_log` que cerrar. */
+  readonly workoutLogId: string | null;
+  readonly feel: SessionFeel;
+  readonly notes: string;
+  readonly pain: { readonly region: BodyRegion; readonly severity: number } | null;
+}
+
+/**
+ * Cierra la sesión: marca `plan_sessions` como completada (así la cola
+ * avanza a la siguiente) y, si hubo alguna serie, cierra su `workout_log`.
+ *
+ * A diferencia de `markSetDone`, esto NO pasa por la cola offline: es una
+ * acción deliberada al terminar, no algo que tenga que sobrevivir un corte de
+ * señal a mitad de una serie. Igual intenta vaciar la cola primero — si el
+ * `workout_log` de esta sesión todavía no llegó al servidor, actualizarlo
+ * de una no tendría ninguna fila que tocar.
+ */
+export function useCloseSession() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: CloseSessionInput) => {
+      if (!user) throw new Error('No hay sesión activa.');
+      const client = requireSupabase();
+      const now = new Date().toISOString();
+
+      await flush(sendOutboxItem);
+
+      const { error: sessionError } = await client
+        .from('plan_sessions')
+        .update(toPlanSessionComplete(now))
+        .eq('id', input.planSessionId);
+      if (sessionError) throw sessionError;
+
+      if (input.workoutLogId) {
+        const { error: workoutError } = await client
+          .from('workout_logs')
+          .update(toWorkoutLogClose(input.feel, input.notes, now))
+          .eq('id', input.workoutLogId);
+        if (workoutError) throw workoutError;
+      }
+
+      if (input.pain) {
+        const { error: painError } = await client
+          .from('pain_reports')
+          .insert(
+            toPainReportInsert(
+              user.id,
+              input.workoutLogId,
+              input.pain.region,
+              input.pain.severity,
+              now,
+            ),
+          );
+        if (painError) throw painError;
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['active-plan', user?.id] });
+    },
+  });
 }
