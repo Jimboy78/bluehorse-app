@@ -83,6 +83,14 @@ antes de hacerlo.
   resuelve `nextLoad()` en `packages/domain/src/load.ts`; no lo reimplementes.
 - **Service worker con `autoUpdate`.** Recargaría la app en medio de una serie. Está en `prompt` a
   propósito.
+- **Una query de TanStack Query con `enabled: false` se queda en `isPending: true` para siempre.**
+  Pasó dos veces en la misma sesión: un componente `RequireX` que chequea `query.isPending` antes
+  que `auth.status` se cuelga en el spinner cuando Supabase no está configurado (la query queda
+  deshabilitada y nunca resuelve). Todo gate nuevo chequea `status !== 'signed-in'` primero.
+- **`supabase db diff` no lee `schema_paths` desde la CLI ≥ 2.116.** El comando correcto es
+  `npm run db:sync` (`supabase db schema declarative sync --apply`). Y esa sincronización rechaza
+  `INSERT` sobre tablas de sistema (`storage.buckets`, etc.): los inserts van en `seed.sql`, las
+  políticas (`CREATE POLICY`) sí son DDL y van en `schemas/`.
 
 ## Documentación
 
