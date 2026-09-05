@@ -51,6 +51,15 @@ describe('equipmentFormSchema', () => {
   it('rechaza una categoría que no existe', () => {
     expect(equipmentFormSchema.safeParse({ ...base, category: 'crossfit' }).success).toBe(false);
   });
+
+  it('rechaza un mínimo mayor que el máximo', () => {
+    const result = equipmentFormSchema.safeParse({ ...base, loadMin: '300', loadMax: '0' });
+    expect(result.success).toBe(false);
+  });
+
+  it('acepta mínimo o máximo vacíos: nada que comparar todavía', () => {
+    expect(equipmentFormSchema.safeParse({ ...base, loadMax: '' }).success).toBe(true);
+  });
 });
 
 describe('parseStackKg', () => {

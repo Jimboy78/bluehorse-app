@@ -33,6 +33,13 @@ export const equipmentFormSchema = z
     message:
       'Una estación de pin necesita la tabla de kg por nivel, o los gráficos no van a poder usarla.',
     path: ['stackKgRaw'],
+  })
+  .refine((v) => v.loadMin === null || v.loadMax === null || v.loadMin <= v.loadMax, {
+    // Sin este chequeo, snapToEquipment() (packages/domain/src/load.ts) clampea
+    // siempre al máximo sin avisar: un mínimo mayor que el máximo no rompe nada
+    // visiblemente, solo hace que el mínimo cargado quede ignorado en silencio.
+    message: 'La carga mínima no puede ser mayor que la máxima.',
+    path: ['loadMax'],
   });
 
 export type EquipmentFormInput = z.infer<typeof equipmentFormSchema>;
