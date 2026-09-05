@@ -136,6 +136,17 @@ de cuando se armaba el esqueleto en fase 1/2, nunca se lo sacó. Ahora vive detr
 offline) tampoco corren fuera de desarrollo. El manejo de errores que sí ve un socio real
 (Supabase mal configurado, sin sesión) sigue en `SignIn.tsx`/`Hoy.tsx`, sin tocar.
 
+**Red de contención para errores de render**: la app no tenía ningún error boundary — un error de
+render en cualquier pantalla dejaba al socio con una pantalla en blanco, sin ninguna pista de qué
+pasó. Se agregó `CrashScreen.tsx` (el mensaje en castellano, con la tranquilidad real de que las
+series ya marcadas no se pierden — van por la cola offline antes de cualquier render),
+`RouteError.tsx` como `errorElement` de cada ruta en `router.tsx`, y `ErrorBoundary.tsx` envolviendo
+`<RouterProvider>` en `main.tsx` para lo que queda afuera de las rutas (`AuthProvider`,
+`QueryClientProvider`). **Detalle importante verificado con un throw forzado en el navegador**: sin
+`errorElement` por ruta, `createBrowserRouter` muestra su propia pantalla de error genérica en
+inglés ("Unexpected Application Error") por ENCIMA de cualquier `ErrorBoundary` de React puesto
+afuera del router — un límite de error normal ahí no alcanza. Los dos hacen falta.
+
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
 Una query de TanStack Query con `enabled: false` se queda en `isPending: true` para siempre.
