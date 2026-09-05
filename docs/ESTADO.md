@@ -70,11 +70,18 @@ llevó `set_logs` de 7 a 8, deshacerla lo devolvió a 7.
 Sin test unitario, igual que `markSetDone` y `sendOutboxItem`: la convención del repo es testear
 mappers puros, no la capa de I/O.
 
+**Y el progreso de la sesión ahora sobrevive un refresh** (`lib/session-restore.ts`). El teléfono
+se bloquea, se queda sin batería o el navegador descarta la pestaña: al volver, las series marcadas
+seguían apareciendo sin marcar, volver a marcarlas duplicaba el `set_log`, y —peor— se creaba un
+`workout_log` nuevo para la misma sesión, partiendo el entrenamiento en dos registros.
+
+`useRestoredSession` lee el `workout_log` abierto de la sesión y sus `set_logs`, y con eso
+reconstruye la pantalla y reengancha los refs de `useSessionLog`. La fuente de verdad es la base,
+no el estado local. Verificado: dos series marcadas, recarga completa, la lista mostró `2/3`, y
+marcar la tercera dejó `set_logs` en 10 (sin duplicar las dos anteriores) y los `workout_logs`
+abiertos en 4 (sin crear uno nuevo).
+
 **Lo que sigue abierto:**
-- **El progreso de la sesión no sobrevive un refresh.** `hechasPorItem` y el mapa de series
-  escritas viven en memoria. Después de recargar, las series marcadas se ven sin marcar, y volver a
-  marcarlas escribe un `set_log` duplicado. No lo introdujo el borrado — ya era así — pero ahora es
-  lo más grave que queda del flujo de sesión.
 - **El layout en 390px sigue sin verificarse** (ver arriba).
 
 **No se pudo probar el layout en ancho de teléfono**: la ventana del navegador está maximizada y

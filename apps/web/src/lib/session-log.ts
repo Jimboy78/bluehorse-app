@@ -15,6 +15,7 @@ import { toSubstitutionEvent } from './mappers/session-event.ts';
 import { toSetLogInsert, toWorkoutLogInsert } from './mappers/session-log.ts';
 import { dequeue, enqueue, flush, newClientId, type OutboxItem, startAutoFlush } from './outbox.ts';
 import type { ActiveSessionItem } from './plan.ts';
+import type { RestoredSession } from './session-restore.ts';
 import { requireSupabase } from './supabase.ts';
 
 /**
@@ -129,13 +130,34 @@ async function celebrateIfRecord(
  * cuando se marca la primera serie — si el socio abre la sesión y no hace
  * nada, no queda un registro vacío en la base.
  */
-export function useSessionLog(userId: string | undefined, planSessionId: string) {
+export function useSessionLog(
+  userId: string | undefined,
+  planSessionId: string,
+  restored?: RestoredSession,
+) {
   const workoutLogIdRef = useRef<{ sessionId: string; workoutLogId: string } | null>(null);
   /**
    * Qué serie escribió qué registro, para poder deshacerla. La clave es
    * `itemId:setIndex` — la misma serie del mismo ejercicio.
    */
   const writtenSetsRef = useRef<Map<string, { setLogId: string; clientId: string }>>(new Map());
+  /** Qué sesión ya se reconstruyó desde la base, para hacerlo una sola vez. */
+  const restoredForRef = useRef<string | null>(null);
+
+  // Reengancha la sesión que quedó a medias: el `workout_log` abierto y las
+  // series que ya se registraron. Sin esto, después de recargar se crea un
+  // `workout_log` nuevo y las series marcadas se duplican.
+  if (restored && restoredForRef.current !== planSessionId) {
+    restoredForRef.current = planSessionId;
+    if (restored.workoutLogId) {
+      workoutLogIdRef.current = { sessionId: planSessionId, workoutLogId: restored.workoutLogId };
+    }
+    for (const [key, setLogId] of restored.setLogIds) {
+      // `clientId` vacío: esa escritura ya salió de la cola hace rato, así que
+      // deshacerla es siempre por borrado, nunca sacándola de la cola.
+      writtenSetsRef.current.set(key, { setLogId, clientId: '' });
+    }
+  }
 
   /** Crea el `workout_log` recién en el primer evento de la sesión (serie o sustitución). */
   async function ensureWorkoutLog(): Promise<string | null> {

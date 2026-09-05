@@ -8,6 +8,7 @@ import { onboardingUnavailable, useProfileStatus } from '../lib/onboarding.ts';
 import type { ActiveSessionItem } from '../lib/plan.ts';
 import { useActivePlan, useGeneratePlan } from '../lib/plan.ts';
 import { useSessionLog } from '../lib/session-log.ts';
+import { useRestoredSession } from '../lib/session-restore.ts';
 import { RestTimer } from './RestTimer.tsx';
 import { SessionClose } from './SessionClose.tsx';
 import { SetRow } from './SetRow.tsx';
@@ -48,10 +49,20 @@ export function Hoy() {
   const [substitutions, setSubstitutions] = useState<Record<string, Substitution>>({});
 
   const activePlanSessionId = plan.data?.kind === 'active' ? plan.data.session.planSessionId : '';
+  const restored = useRestoredSession(user?.id, activePlanSessionId);
   const { markSetDone, undoSetDone, logSubstitution, workoutLogId } = useSessionLog(
     user?.id,
     activePlanSessionId,
+    restored.data,
   );
+
+  // Reconstruye en pantalla lo que ya está registrado en la base. Se hace una
+  // vez por sesión: después manda lo que la persona va tocando, no la query.
+  const [restoredFor, setRestoredFor] = useState<string | null>(null);
+  if (restored.data && restoredFor !== activePlanSessionId) {
+    setRestoredFor(activePlanSessionId);
+    setHechasPorItem(restored.data.doneByItem);
+  }
 
   if (status !== 'signed-in' || plan.isPending || plan.isError || plan.data?.kind !== 'active') {
     return <PlanStateMessage authStatus={status} plan={plan} />;
