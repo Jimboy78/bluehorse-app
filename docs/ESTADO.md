@@ -86,6 +86,23 @@ celebración esa vez. La primera serie de un ejercicio nunca es "récord" (es el
 Si es un récord real, dispara la celebración y guarda la fila en `personal_records`. Se sacó el
 botón de prueba.
 
+**Dos bugs de robustez reales, encontrados por revisión de código (no por el usuario) y ya
+arreglados:**
+- `useGeneratePlan` (`lib/plan.ts`): `plans` tiene un índice único por socio con
+  `status = 'active'`. Si sesiones/ítems fallaban a mitad de camino, el `plan` ya insertado quedaba
+  huérfano y activo — cualquier reintento futuro chocaba con ese índice único, dejando al socio sin
+  poder generar un plan NUNCA MÁS, sin ninguna pantalla para borrar el huérfano. Ahora, si falla
+  persistir sesiones/ítems, se borra el plan recién insertado (`on delete cascade`) antes de
+  relanzar el error.
+- `useCloseSession` (`lib/session-log.ts`): marcaba `plan_sessions` completada ANTES de cerrar el
+  `workout_log` y guardar el reporte de dolor. Si cualquiera de esos dos pasos fallaba después, la
+  cola ya había avanzado con la sensación/notas de esa sesión perdidas para siempre. Reordenado:
+  `workout_log` → `pain_report` → `plan_sessions` (recién esto último avanza la cola).
+
+Ninguno de los dos se puede reproducir fácil sin forzar una falla de red a mitad de una escritura
+— no están cubiertos por test (son hooks que pegan contra Supabase, mismo criterio que el resto del
+proyecto), pero la lógica de rollback/orden en sí es simple de leer y revisar.
+
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
 Una query de TanStack Query con `enabled: false` se queda en `isPending: true` para siempre.
@@ -116,9 +133,9 @@ dispositivo físico.
    acá. Es el paso más urgente — hay mucho código nunca ejercitado contra Supabase de verdad.
    Correr `npm run db:types` en el mismo momento.
 2. Fase 4 (contenido real) está bloqueada por research y por el relevamiento del catálogo — no
-   arrancar sin eso. Teclado y contraste ya se verificaron limpios (ver arriba); no queda una
-   tarea técnica obvia pendiente sin tocar contenido — la próxima pasada probablemente tenga que
-   buscar en el código algo más específico para pulir en vez de un ítem ya anotado.
+   arrancar sin eso. Mientras tanto, seguir revisando mutaciones multi-paso (varias escrituras a
+   Supabase en un mismo hook) buscando el mismo patrón que los dos bugs de arriba: ¿qué pasa si
+   esta escritura en particular falla después de que la anterior ya se confirmó?
 3. Decisión de paleta (`docs/07-marca-blue-horse.md`) — bloqueada, es del usuario.
 
 ### Trabas conocidas
