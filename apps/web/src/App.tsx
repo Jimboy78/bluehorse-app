@@ -44,8 +44,11 @@ export function App() {
         variants={fadeUp}
         initial="hidden"
         animate="visible"
-        className="flex items-start justify-between gap-4"
+        className="flex flex-col gap-3"
       >
+        {/* Título y acciones en filas separadas, no en columnas: el contenedor
+            es `max-w-md` siempre, así que con los botones al costado el
+            encabezado partía "Arroyo / Seco" en dos líneas. */}
         <div className="flex flex-col gap-1">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">
             Blue Horse Gym · Arroyo Seco
@@ -53,25 +56,27 @@ export function App() {
           <h1 className="text-3xl font-bold tracking-tight">Push your limits</h1>
           {user?.email && <p className="text-xs text-slate">{user.email}</p>}
         </div>
-        <div className="flex flex-col items-end gap-2">
-          <motion.button
-            type="button"
-            {...tappable}
-            onClick={() => void signOut()}
-            className="flex items-center gap-1.5 rounded-full border border-line px-3 py-2 text-xs font-semibold text-slate"
-          >
-            <LogOut size={13} aria-hidden="true" />
-            Salir
-          </motion.button>
+        <div className="flex items-center gap-2">
           <motion.div {...tappable}>
             <Link
               to="/progreso"
-              className="flex items-center gap-1.5 rounded-full border border-line px-3 py-2 text-xs font-semibold text-teal"
+              className="flex items-center gap-1.5 rounded-full border border-line px-3.5 py-2 text-xs font-semibold text-teal"
             >
               <TrendingUp size={13} aria-hidden="true" />
               Progreso
             </Link>
           </motion.div>
+          {/* Salir al otro extremo: es lo único acá que interrumpe el
+              entrenamiento, y no se toca sin querer al ir a Progreso. */}
+          <motion.button
+            type="button"
+            {...tappable}
+            onClick={() => void signOut()}
+            className="ml-auto flex items-center gap-1.5 rounded-full border border-line px-3.5 py-2 text-xs font-semibold text-slate"
+          >
+            <LogOut size={13} aria-hidden="true" />
+            Salir
+          </motion.button>
         </div>
       </motion.header>
 

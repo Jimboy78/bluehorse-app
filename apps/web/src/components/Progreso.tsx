@@ -100,16 +100,22 @@ function AdherenceCard({
       variants={fadeUp}
       initial="hidden"
       animate="visible"
-      className="grid grid-cols-3 gap-2.5 rounded-xl border border-line bg-navy-soft p-4"
+      className="flex flex-col gap-3 rounded-xl border border-line bg-navy-soft p-4"
     >
-      <Stat value={totalSessions} label="sesiones (90 días)" />
-      <Stat value={currentStreakDays} label="racha de días" icon={<Flame size={14} />} />
-      <div className="flex flex-col items-center gap-0.5 text-center">
-        <span className="text-lg font-bold tabular-nums">
-          {lastSessionAt ? formatDate(lastSessionAt) : '—'}
-        </span>
-        <span className="text-[0.65rem] uppercase tracking-wider text-slate">última sesión</span>
+      <div className="grid grid-cols-3 gap-2.5">
+        {/* "sesiones (90 días)" partía en dos líneas y dejaba las tres
+            columnas desparejas. La ventana es la misma para las tres, así que
+            se dice una sola vez, abajo. */}
+        <Stat value={totalSessions} label="sesiones" />
+        <Stat value={currentStreakDays} label="racha de días" icon={<Flame size={14} />} />
+        <div className="flex flex-col items-center gap-0.5 text-center">
+          <span className="text-lg font-bold tabular-nums">
+            {lastSessionAt ? formatDate(lastSessionAt) : '—'}
+          </span>
+          <span className="text-[0.65rem] uppercase tracking-wider text-slate">última sesión</span>
+        </div>
       </div>
+      <p className="text-center text-[0.65rem] text-slate">últimos 90 días</p>
     </motion.section>
   );
 }

@@ -81,14 +81,23 @@ no el estado local. Verificado: dos series marcadas, recarga completa, la lista 
 marcar la tercera dejó `set_logs` en 10 (sin duplicar las dos anteriores) y los `workout_logs`
 abiertos en 4 (sin crear uno nuevo).
 
-**Lo que sigue abierto:**
-- **El layout en 390px sigue sin verificarse** (ver arriba).
+**Tres arreglos visuales que salieron de mirar la app a 390px:**
+- La chapita "sugerido" estaba al costado del nombre y le comía 91px: en un teléfono
+  "Peso muerto rumano" partía en dos líneas y esa tarjeta quedaba 110px de alto contra 70px de las
+  otras. Ahora la chapita va en la línea de abajo, junto a series/reps, y el nombre se queda con
+  todo el ancho (243px en las cuatro filas).
+- El encabezado de `App.tsx` tenía los botones al costado del título. Como el contenedor es
+  `max-w-md` siempre, eso partía "Blue Horse Gym · Arroyo / Seco" en dos líneas incluso en
+  escritorio. Título y acciones ahora van en filas separadas, con "Salir" al extremo opuesto de
+  "Progreso" para no tocarlo sin querer.
+- En `/progreso`, "sesiones (90 días)" partía en dos líneas y dejaba las tres columnas de
+  adherencia desparejas. La ventana es la misma para las tres, así que se dice una sola vez abajo.
 
-**No se pudo probar el layout en ancho de teléfono**: la ventana del navegador está maximizada y
-`resize_window` no la achica, así que todo se miró a ~1860px. La app es de una sola columna
-(solo 6 usos de breakpoints en todo el código, todos en una grilla del panel), pero **el layout en
-390px sigue sin verificarse de verdad** — es lo primero a mirar en la próxima sesión con una
-ventana no maximizada.
+**El layout en ancho de teléfono ya está verificado.** La ventana del navegador está maximizada y
+`resize_window` no la achica, pero un iframe de 390px sí crea un viewport real (las media queries y
+el overflow se evalúan contra él). Ninguna pantalla desborda a lo ancho: `/`, `/progreso`,
+`/panel` e `/instalar` dieron `scrollWidth === clientWidth` y cero elementos pasados del borde.
+Truco a reusar: inyectar un iframe a `localhost:5173` con `width:390px` y medir adentro.
 
 **Moraleja para las próximas sesiones: `curl` contra la base y los tests verdes no dicen que la app
 funcione.** Verificado a mano el recorrido completo: alta → onboarding → plan generado → marcar

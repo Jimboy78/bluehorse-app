@@ -260,20 +260,25 @@ function SessionItemRow({
             <Dumbbell size={18} aria-hidden="true" />
           )}
         </span>
-        <span className="flex flex-1 flex-col">
+        {/* El nombre se queda con todo el ancho de la fila: con la chapita
+            "sugerido" al costado, en un teléfono "Peso muerto rumano" partía
+            en dos líneas y esa tarjeta quedaba 40px más alta que las demás. */}
+        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span className="font-semibold">{substitution?.name ?? item.name}</span>
-          <span className="font-mono text-xs text-slate">
-            {hechas > 0 ? `${hechas}/${item.sets}` : item.sets} × {item.reps} · {item.load}
+          <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="font-mono text-xs text-slate">
+              {hechas > 0 ? `${hechas}/${item.sets}` : item.sets} × {item.reps} · {item.load}
+            </span>
+            {sugerido && !completo && (
+              <span className="rounded-full border border-teal/40 px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-teal">
+                sugerido
+              </span>
+            )}
           </span>
           {substitution && (
             <span className="text-[0.65rem] text-slate">reemplaza a {item.name}</span>
           )}
         </span>
-        {sugerido && !completo && (
-          <span className="rounded-full border border-teal/40 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wider text-teal">
-            sugerido
-          </span>
-        )}
       </motion.button>
     </motion.li>
   );
