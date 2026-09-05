@@ -1,8 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { ExerciseFormInput } from '../routes/panel/exercise-schemas.ts';
 import type { EquipmentFormInput } from '../routes/panel/schemas.ts';
 import { useAuth } from './auth/AuthProvider.tsx';
+import { fetchExercises } from './catalog.ts';
 import { equipmentRowSchema, toDomainEquipment } from './mappers/catalog.ts';
 import { toEquipmentInsert } from './mappers/equipment-form.ts';
+import { toExerciseEquipmentInserts, toExerciseInsert } from './mappers/exercise-form.ts';
 import { requireSupabase } from './supabase.ts';
 
 /**
@@ -77,6 +80,54 @@ export function useCreateEquipment(gymId: string | null) {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['equipment-list', gymId] });
+      void queryClient.invalidateQueries({ queryKey: ['gym-catalog', gymId] });
+    },
+  });
+}
+
+/**
+ * Ejercicios visibles para el gimnasio: los propios más los globales
+ * (`gym_id is null`, como los del seed). Reutiliza la misma consulta que
+ * arma el `GymSnapshot` real (`fetchExercises`), para no mantener dos
+ * versiones del mismo join contra `exercise_equipment`.
+ */
+export function useExerciseList(gymId: string | null) {
+  const equipmentList = useEquipmentList(gymId);
+
+  return useQuery({
+    queryKey: ['exercise-list', gymId, equipmentList.data?.map((e) => e.id)],
+    enabled: !!gymId && equipmentList.isSuccess,
+    queryFn: () => {
+      const client = requireSupabase();
+      const ownedEquipmentIds = new Set((equipmentList.data ?? []).map((e) => e.id));
+      return fetchExercises(client, gymId as string, ownedEquipmentIds);
+    },
+  });
+}
+
+export function useCreateExercise(gymId: string | null) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: ExerciseFormInput) => {
+      if (!gymId) throw new Error('No se pudo determinar el gimnasio.');
+      const client = requireSupabase();
+
+      const { data, error } = await client
+        .from('exercises')
+        .insert(toExerciseInsert(gymId, input))
+        .select('id')
+        .single();
+      if (error) throw error;
+
+      const mappings = toExerciseEquipmentInserts(data.id, input.equipmentIds);
+      if (mappings.length > 0) {
+        const { error: mappingError } = await client.from('exercise_equipment').insert(mappings);
+        if (mappingError) throw mappingError;
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['exercise-list', gymId] });
       void queryClient.invalidateQueries({ queryKey: ['gym-catalog', gymId] });
     },
   });

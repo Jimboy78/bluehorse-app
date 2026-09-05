@@ -60,7 +60,8 @@ async function fetchEquipment(client: SupabaseClient, gymId: string) {
   return (data ?? []).map((row) => toDomainEquipment(equipmentRowSchema.parse(row)));
 }
 
-async function fetchExercises(
+/** Exportada para reuso del panel admin, que necesita la lista real aunque el equipamiento esté vacío. */
+export async function fetchExercises(
   client: SupabaseClient,
   gymId: string,
   ownedEquipmentIds: ReadonlySet<string>,
