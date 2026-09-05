@@ -55,7 +55,10 @@ como completada, que es lo único que hace avanzar la cola a la sesión siguient
 **Fase 3 cerrada.** Sigue Fase 4 (contenido real), bloqueada por el research y por el relevamiento
 del catálogo (Fase 0, del usuario) — no hay más código de producto para escribir sin esos dos
 insumos. Lo que queda mientras tanto es técnico: verificación end-to-end contra Supabase real,
-`npm run db:types`, y pulir lo ya construido (performance, code-splitting del bundle, accesibilidad).
+`npm run db:types`, y pulir lo ya construido (performance, accesibilidad).
+
+**Code-splitting por ruta ya hecho** (`router.tsx`, todas las pantallas via `React.lazy()`): el
+chunk principal bajó de ~966kB a ~318kB, sin warning de tamaño. Ya no es una traba pendiente.
 
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
@@ -87,8 +90,8 @@ dispositivo físico.
    acá. Es el paso más urgente — hay mucho código nunca ejercitado contra Supabase de verdad.
    Correr `npm run db:types` en el mismo momento.
 2. Fase 4 (contenido real) está bloqueada por research y por el relevamiento del catálogo — no
-   arrancar sin eso. Mientras tanto: code-splitting del bundle (`React.lazy()` por ruta, ya anotado
-   como traba conocida) y accesibilidad general son mejoras técnicas que no dependen de nadie.
+   arrancar sin eso. Mientras tanto: accesibilidad general (foco, `aria-live` en las tarjetas de
+   propuestas/récords que aparecen sin recargar) es una mejora técnica que no depende de nadie.
 3. Decisión de paleta (`docs/07-marca-blue-horse.md`) — bloqueada, es del usuario.
 
 ### Trabas conocidas
@@ -96,7 +99,5 @@ dispositivo físico.
 - **Node**: Node 24.20.0 portable en `%LOCALAPPDATA%\node24` — anteponer al PATH en cada sesión.
 - **Después de cada `npm run db:reset`, correr `npm run db:ruleset`** (con `SUPABASE_URL` y
   `SUPABASE_SERVICE_ROLE_KEY` de `npx supabase status -o env`) o la generación de plan falla.
-- El bundle de producción crece con cada feature. Separar por rutas con `React.lazy()` cuando el
-  árbol de rutas crezca más.
 - Loop autónomo corriendo cada 15 min (`CronCreate` job `f04a93b3`, session-only, expira en 7 días
   o al cerrar esta sesión).
