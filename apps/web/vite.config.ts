@@ -21,7 +21,7 @@ export default defineConfig({
       // 'prompt', no 'autoUpdate': si el service worker recarga la app en medio
       // de una serie, el usuario pierde lo que estaba cargando.
       registerType: 'prompt',
-      includeAssets: ['favicon.svg', 'icon.svg'],
+      includeAssets: ['favicon.svg', 'icon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'Blue Horse',
         short_name: 'Blue Horse',
@@ -39,7 +39,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,woff2}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         // Las fotos de máquinas viven en Supabase Storage: se cachean al usarlas,
         // no en la instalación, para no bajar 100 imágenes de una.
         runtimeCaching: [
