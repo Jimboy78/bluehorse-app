@@ -180,6 +180,12 @@ async function applyLoadChange(
  * "aceptar" no cambiaría nada la próxima vez que aparezca ese ejercicio.
  * `deload` solo se resuelve: repartir el volumen reducido entre sesiones
  * pendientes queda para cuando haga falta, no se inventa acá.
+ *
+ * La carga se aplica ANTES de marcar la propuesta como resuelta, no después:
+ * si `applyLoadChange` fallara con la propuesta ya en `accepted`, quedaría
+ * resuelta para siempre (deja de aparecer en `usePendingProposals`) sin que
+ * el cambio de carga se haya aplicado nunca — inconsistencia silenciosa, sin
+ * forma de reintentar desde la UI.
  */
 export function useResolveProposal() {
   const { user } = useAuth();
@@ -190,17 +196,17 @@ export function useResolveProposal() {
       const client = requireSupabase();
       const now = new Date().toISOString();
 
-      const { error: updateError } = await client
-        .from('adaptation_proposals')
-        .update({ status: accept ? 'accepted' : 'rejected', resolved_at: now })
-        .eq('id', proposal.id);
-      if (updateError) throw updateError;
-
       const exerciseId = proposal.targetRef.exerciseId;
       const isLoadChange = proposal.type === 'load_increase' || proposal.type === 'load_decrease';
       if (accept && isLoadChange && exerciseId && proposal.toValue !== null) {
         await applyLoadChange(client, proposal.planId, exerciseId, Number(proposal.toValue));
       }
+
+      const { error: updateError } = await client
+        .from('adaptation_proposals')
+        .update({ status: accept ? 'accepted' : 'rejected', resolved_at: now })
+        .eq('id', proposal.id);
+      if (updateError) throw updateError;
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['proposals', user?.id] });
