@@ -216,6 +216,15 @@ después (vía Auth Admin API con la service key local, nada de esto tocó `.env
   exacto que un socio vería para siempre si un plan a medias no se limpiara. El fix (borrar el
   plan huérfano antes de relanzar el error) es la única salida de ese estado.
 
+**Aislamiento entre socios, confirmado con dos usuarios reales y JWTs de sesión de verdad (no
+service role)**: creé dos cuentas, inicié sesión como una de las dos (password grant real) y
+probé contra `workout_logs` — insertar una fila con el `user_id` de la OTRA cuenta devuelve `403`
+(`new row violates row-level security policy`); insertar con el propio `user_id` anda (`201`); y
+un `select` sin filtro devuelve únicamente la fila propia, la de la otra cuenta ni aparece. Es la
+propiedad de seguridad más importante para una app multi-socio real, y ahora está confirmada de
+punta a punta (login real → escritura → lectura), no solo leída en el SQL. Las dos cuentas y sus
+filas se borraron después.
+
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
 Una query de TanStack Query con `enabled: false` se queda en `isPending: true` para siempre.
