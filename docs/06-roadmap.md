@@ -22,8 +22,10 @@ Fotos, planilla de equipamiento y lista de ejercicios canónicos. Ver `05-releva
   "datos de ejemplo" se apaga solo cuando eso deje de pasar
 - [x] Seed con 13 estaciones de ejemplo + 16 mapeos, para que el lector de arriba tenga algo real
   contra qué probar sin esperar el relevamiento
-- [ ] Panel admin: alta de equipamiento con foto, ejercicios, mapeo (CRUD real; hoy el catálogo de
-  ejemplo solo se carga por seed, no por UI)
+- [x] Panel admin (`/panel`, gated por `role`): alta de equipamiento con foto (bucket de Storage
+  con RLS: lectura pública, escritura solo staff/admin), categoría, unidad de carga con campos
+  condicionales, ubicación, notas
+- [ ] Panel admin: alta y mapeo de ejercicios (falta; hoy solo equipamiento)
 - [ ] Catálogo de Blue Horse cargado (bloqueado por Fase 0, no bloquea el resto del desarrollo)
 
 **Entregable**: el catálogo real, navegable desde la app.

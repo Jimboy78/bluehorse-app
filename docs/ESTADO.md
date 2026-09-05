@@ -5,70 +5,54 @@ puede leer desde cualquier sesión nueva. **Actualizalo al terminar una sesión 
 
 ---
 
-## Última actualización: 4 de septiembre de 2026 (loop autónomo, corre cada 15 min)
+## Última actualización: 5 de septiembre de 2026 (loop autónomo, corre cada 15 min)
 
 ### Instrucciones vigentes del usuario
 
-1. **No bloquear por falta de catálogo real.** Mientras no lleguen las fotos/máquinas de Blue
-   Horse (Fase 0), seguir desarrollando con datos placeholder marcados como tales (prefijo
-   "Ejemplo —"), que se dejan de usar solos cuando el catálogo real reemplace `placeholder-gym.ts`.
-2. **Toda prescripción de entrenamiento sale de `docs/research/`**, nunca inventada. Ver memoria
-   `feedback_base_cientifica`.
-3. **Verificar en `localhost:5173`**, no en el deploy de Vercel. El deploy es para compartir.
+1. **No bloquear por falta de catálogo real.** Placeholders marcados como tales, que se dejan de
+   usar solos cuando el dato real los reemplace.
+2. **Toda prescripción de entrenamiento sale de `docs/research/`**, nunca inventada.
+3. **Verificar en `localhost:5173`**, no en el deploy de Vercel.
 
 ### Dónde quedó
 
-Fase 1 del roadmap, muy avanzada:
+Fase 1 del roadmap, casi completa:
 
-- Motor, esquema, PWA, sistema de movimiento, auth (Google+email), onboarding de 4 pasos — de
+- Motor, esquema, PWA, sistema de movimiento, auth, onboarding, catálogo real con fallback — de
   pasadas anteriores.
-- **La vista previa ahora usa el motor real**: `apps/web/src/lib/use-today-session.ts` llama a
-  `engine.generatePlan()` contra `placeholder-gym.ts` (gimnasio de ejemplo, prefijo "Ejemplo —").
-  El motor detectó y avisó un hueco real en los datos de ejemplo (faltaba un ejercicio de patrón
-  "isolation"); se corrigió agregando uno.
-- **Supabase local verificado por primera vez contra Postgres real** (Docker): 20 tablas, RLS en
-  todas, 26 políticas, seed con Blue Horse + 16 ejercicios canónicos. Encontré y corregí dos
-  problemas reales en el camino:
-  - Maté un proceso de `supabase start` creyendo que estaba colgado (CPU casi nula) cuando en
-    realidad seguía bajando imágenes de Docker — quedó a mitad de aplicar el esquema, y el
-    `stop` posterior backupeó ese estado roto. Lección: verificar cantidad de tablas antes de
-    confiar en una instancia restaurada de backup.
-  - La CLI de Supabase ≥ 2.116 cambió el flujo declarativo: `db diff` **ya no lee
-    `schema_paths`** (la propia CLI lo advierte). El comando correcto ahora es
-    `supabase db schema declarative sync --apply`. Renombré `db:diff` → `db:sync` en
-    `package.json` y corregí la skill `cambiar-esquema` y el `README.md`, que documentaban el
-    comando viejo.
-- Deploy de prueba sigue en <https://bluehorse-app.vercel.app>, redeploya solo con cada push.
+- **Panel admin** (`/panel`): alta de equipamiento con foto, gateado por `profiles.role`
+  (member/staff/admin). Bucket de Storage `equipment-photos` con RLS (lectura pública, escritura
+  solo staff/admin) — verificado contra Postgres real.
+- Falta: alta de ejercicios y su mapeo a equipamiento desde el panel (hoy solo hay alta de
+  equipamiento; los ejercicios siguen entrando por seed).
+
+### Bug repetido esta sesión — anotado para no volver a caer
+
+**Una consulta de TanStack Query con `enabled: false` se queda en `isPending: true` para
+siempre.** Si un componente de guardia (`RequireX`) chequea `isPending` antes que el estado de
+auth, se cuelga en el spinner en vez de dejar pasar cuando Supabase no está configurado. Ya pasó
+en `RequireOnboarding` (pasada anterior) y se repitió en `RequireAdmin` esta pasada. **Regla:
+todo componente `RequireX` nuevo tiene que chequear `status !== 'signed-in'` ANTES que
+`query.isPending`.**
 
 ### Verificado
 
-`npm run check` (lint + typecheck + **45 tests**) pasa. Sesión de hoy con motor real probada en
-`localhost:5173`. Esquema de base **verificado por primera vez contra una instancia real**
-(migración `20260904235408_initial_schema.sql` aplicada limpia, seed aplicado, RLS confirmado por
-consulta directa a `pg_policies`).
-
-**Pendiente del usuario**: crear el archivo `.env` local — está bloqueado para mí por una regla de
-permisos que yo mismo configuré (nunca tocar `.env` sin que el usuario lo vea). Los valores exactos
-(URL y anon key de la instancia local ya levantada) se los di en el chat de esa pasada; están
-también disponibles corriendo `npx supabase status` con la instancia arriba. Una vez creado ese
-archivo y reiniciado `npm run dev`, se puede probar auth y onboarding de punta a punta por primera
-vez contra una base real.
+`npm run check` (lint + typecheck + **61 tests**) pasa. `/panel` probado en navegador local: sin
+`.env`, muestra el aviso de "no configurado" y el formulario deshabilitado en vez de colgarse (una
+vez corregido el bug de arriba). La escritura real (subir foto, insertar equipamiento) sigue sin
+probarse de punta a punta — falta `.env`.
 
 ### Lo próximo, en orden
 
-1. Con `.env` cargado: probar registro por email, confirmar que el trigger crea el `profile`, y
-   completar el onboarding real (hoy solo se probó la UI, nunca la escritura a la base). Con eso
-   confirmado, además se puede probar `useGymCatalog` de punta a punta: el seed ya tiene 13
-   estaciones de ejemplo cargadas para el gimnasio Blue Horse, así que debería mostrar el catálogo
-   real (`isPlaceholder: false`) apenas haya sesión.
-2. Panel admin (CRUD real de equipamiento/ejercicios vía UI, no solo seed).
-3. `npm run db:types` para generar `packages/domain/src/database.types.ts` desde la base real.
+1. Con `.env` cargado: probar el panel de punta a punta (crear equipamiento, subir foto, ver que
+   aparezca en el catálogo real vía `useGymCatalog`).
+2. Panel admin: alta y mapeo de ejercicios.
+3. `npm run db:types` para generar `packages/domain/src/database.types.ts`.
 4. Decisión de paleta (`docs/07-marca-blue-horse.md`) — bloqueada, es del usuario.
 
 ### Trabas conocidas
 
-- **Node**: Node 24.20.0 portable en `%LOCALAPPDATA%\node24` — anteponer al PATH en cada sesión
-  de shell nueva.
+- **Node**: Node 24.20.0 portable en `%LOCALAPPDATA%\node24` — anteponer al PATH en cada sesión.
 - El bundle de producción crece con cada feature. Separar por rutas con `React.lazy()` cuando
   existan pantallas reales de fase 2.
 - Loop autónomo corriendo cada 15 min (`CronCreate` job `f04a93b3`, session-only, expira en 7 días
