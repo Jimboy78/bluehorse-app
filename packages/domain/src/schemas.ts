@@ -9,6 +9,8 @@ import {
   MODALITIES,
   MOVEMENT_PATTERNS,
   MUSCLE_GROUPS,
+  PROPOSAL_STATUSES,
+  PROPOSAL_TYPES,
   SEXES,
 } from './enums.ts';
 
@@ -27,6 +29,8 @@ export const equipmentCategorySchema = z.enum(EQUIPMENT_CATEGORIES);
 export const muscleGroupSchema = z.enum(MUSCLE_GROUPS);
 export const bodyRegionSchema = z.enum(BODY_REGIONS);
 export const baselineSourceSchema = z.enum(BASELINE_SOURCES);
+export const proposalTypeSchema = z.enum(PROPOSAL_TYPES);
+export const proposalStatusSchema = z.enum(PROPOSAL_STATUSES);
 
 export const loadReadingSchema = z.object({
   value: z.number().finite().nullable(),

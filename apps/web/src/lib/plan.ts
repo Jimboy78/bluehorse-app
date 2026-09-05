@@ -20,7 +20,11 @@ import { requireSupabase } from './supabase.ts';
  * `db:reset` porque el ruleset no vive en `seed.sql` — ver CLAUDE.md.
  */
 
-async function fetchUserSnapshot(client: SupabaseClient, userId: string): Promise<UserSnapshot> {
+/** Exportada para reuso: la revisión de progreso necesita el mismo snapshot que generar el plan. */
+export async function fetchUserSnapshot(
+  client: SupabaseClient,
+  userId: string,
+): Promise<UserSnapshot> {
   const { data: profileRow, error: profileError } = await client
     .from('profiles')
     .select('id, gym_id, display_name, birth_date, sex, experience_level')

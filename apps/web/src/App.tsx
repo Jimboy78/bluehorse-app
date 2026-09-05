@@ -3,6 +3,7 @@ import { LogOut, TrendingUp } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router';
 import { Hoy } from './components/Hoy.tsx';
+import { Proposals } from './components/Proposals.tsx';
 import { useAuth } from './lib/auth/AuthProvider.tsx';
 import { activeRuleset, showsPlaceholderContent } from './lib/engine.ts';
 import { envError, isConfigured } from './lib/env.ts';
@@ -86,6 +87,8 @@ export function App() {
           {showsPlaceholderCatalog && ' El catálogo de Blue Horse todavía no está cargado.'}
         </motion.p>
       )}
+
+      <Proposals />
 
       <Hoy />
 
