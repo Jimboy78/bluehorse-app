@@ -153,6 +153,17 @@ contenido visible mientras cargaban, sin `role` ni texto — un lector de pantal
 saber que algo estaba pasando. Ahora son `role="status"` con un `sr-only` descriptivo. Los
 spinners al lado de texto visible en un botón (no son el único contenido) no se tocaron.
 
+**Bug real en el deploy de Vercel, encontrado por revisión de `vercel.json` (no probado en vivo,
+todavía sin pushear)**: la app usa `createBrowserRouter` (rutas reales: `/auth`, `/progreso`,
+`/instalar`, `/onboarding`, `/panel`), pero `vercel.json` no tenía ningún rewrite de SPA. Sin eso,
+Vercel solo sabe servir `index.html` en `/` — cualquier navegación directa a otra ruta (refrescar,
+un link compartido, y sobre todo **escanear el QR que apunta directo a `/instalar`**) devuelve el
+404 de Vercel en vez de la app. Se agregó el rewrite estándar (`/(.*) → /index.html`; Vercel sirve
+los archivos reales del build antes de aplicar el rewrite, así que JS/CSS/manifest/`sw.js` siguen
+sirviéndose directo). **No se puede verificar en local** — `vite preview` trae su propio fallback
+de SPA incorporado, así que este bug solo se manifiesta en el deploy real. Falta confirmarlo
+after el próximo push a Vercel.
+
 ### Bug repetido esta sesión (tres veces) — regla ya en `CLAUDE.md`
 
 Una query de TanStack Query con `enabled: false` se queda en `isPending: true` para siempre.
