@@ -8,6 +8,13 @@
 -- qué probar mientras tanto, sin bloquear el desarrollo. Se borra cuando
 -- entre el catálogo real.
 
+-- Bucket de Storage para fotos de equipamiento. Las políticas de acceso
+-- viven como DDL en supabase/schemas/09_storage.sql; el bucket en sí es un
+-- INSERT y por eso va acá, no en el esquema declarativo.
+insert into storage.buckets (id, name, public)
+values ('equipment-photos', 'equipment-photos', true)
+on conflict (id) do nothing;
+
 insert into gyms (id, slug, name, address, timezone, join_code)
 values (
   '11111111-1111-4111-8111-111111111111',
