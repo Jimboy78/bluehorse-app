@@ -23,6 +23,9 @@ sesión. La planilla y las columnas están en `docs/05-relevamiento-catalogo.md`
   mezcla kg, lb, pines y discos: mirá la máquina, no adivines.
 - **`load_increment` en cero o vacío.** Sin escalón, el motor propone 63,7 kg en una prensa que sube
   de a 5.
+- **`load_min` mayor que `load_max`.** El panel (`/panel`) ya lo rechaza al cargar a mano, pero si
+  alguna vez se carga por otra vía (seed, importación masiva), revisalo: `snapToEquipment()` no
+  avisa, clampea siempre al máximo y el mínimo queda ignorado en silencio.
 - **`stack_kg` vacío en una estación de pin.** Es válido, pero entonces esa estación no aparece en
   ningún gráfico comparativo: la carga no se puede normalizar. Si la máquina tiene los kg escritos
   al costado, cargalos.
