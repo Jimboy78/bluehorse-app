@@ -229,6 +229,29 @@ parejo.
 Las dos cuentas quedan en la base local a propósito: tener una principiante y una intermedia sirve
 para probar que el motor ramifique.
 
+### La cola offline, probada cortando la señal de verdad
+
+Era la promesa central del diseño ("en el gimnasio la señal se corta") y nunca se había probado sin
+red. Simulando el corte (fetch a Supabase que falla + `navigator.onLine` en false):
+
+1. Se marcan series con normalidad, la pantalla responde igual.
+2. Quedan **3 ítems en cola con `attempts: 0`** — `flush()` ni lo intenta sin señal, no gasta
+   reintentos.
+3. En el servidor, **nada**.
+4. Vuelve la señal → evento `online` → `startAutoFlush` drena sola → llegan el `workout_log` y las
+   dos series con sus datos correctos (`rir: 3`, el `rirTarget` de principiante del ruleset).
+
+Funciona tal como está escrito que debería.
+
+**Dos cosas más que salieron de ahí:**
+- El contador "Cola offline" del panel de desarrollo era una foto del arranque (la query no
+  refrescaba): marcaba 0 justo mientras se apilaban las series, que es el único momento en que ese
+  panel sirve. Ahora refresca cada 2s. Verificado: 0 → 1 → 0.
+- **Una URL mal tipeada mostraba la pantalla de "Algo se rompió"**, con el texto de "si marcaste
+  series ya están guardadas" — alarmante y falso para una dirección equivocada, y el único botón
+  era "Recargar", que vuelve a lo mismo. Ahora hay una ruta `*` que dice que la página no existe y
+  ofrece volver al entrenamiento.
+
 **Moraleja para las próximas sesiones: `curl` contra la base y los tests verdes no dicen que la app
 funcione.** Verificado a mano el recorrido completo: alta → onboarding → plan generado → marcar
 series → cronómetro de descanso → sustitución → cerrar sesión → avance de la cola a la sesión

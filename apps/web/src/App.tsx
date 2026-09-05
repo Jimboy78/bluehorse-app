@@ -36,6 +36,11 @@ export function App() {
     queryFn: pendingCount,
     enabled: import.meta.env.DEV,
     retry: false,
+    // La cola cambia mientras se entrena, no al montar la pantalla. Sin esto
+    // el contador era una foto del arranque: quedándose en 0 justo cuando se
+    // corta la señal y empiezan a apilarse las series, que es el único
+    // momento en que este panel sirve para algo.
+    refetchInterval: 2000,
   });
 
   return (

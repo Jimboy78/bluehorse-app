@@ -2,6 +2,7 @@ import { Loader2 } from 'lucide-react';
 import { lazy, type ReactNode, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router';
 import { RouteError } from './components/RouteError.tsx';
+import { NoEncontrada } from './routes/NoEncontrada.tsx';
 import { RedirectIfSignedIn } from './routes/RedirectIfSignedIn.tsx';
 import { RequireAdmin } from './routes/RequireAdmin.tsx';
 import { RequireAuth } from './routes/RequireAuth.tsx';
@@ -98,6 +99,14 @@ export const router = createBrowserRouter([
         </RequireOnboarding>
       </RequireAuth>,
     ),
+    errorElement: <RouteError />,
+  },
+  {
+    // Cualquier otra dirección. Sin esto, una URL mal tipeada caía en el
+    // `errorElement` y mostraba la pantalla de "algo se rompió", que asusta
+    // sin motivo y no lleva a ningún lado.
+    path: '*',
+    element: <NoEncontrada />,
     errorElement: <RouteError />,
   },
 ]);
