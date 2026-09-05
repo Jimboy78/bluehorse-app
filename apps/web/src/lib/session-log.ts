@@ -64,10 +64,23 @@ export function startSessionOutbox(): () => void {
  * ya registrado para ese ejercicio ANTES de encolar esta serie (evita
  * compararla contra sí misma si ya llegó al servidor). Best-effort a
  * propósito — sin conexión, o con Supabase sin configurar, simplemente no
- * hay celebración esta vez; nunca rompe el registro de la serie en sí.
+ * hay celebración esta vez; nunca rompe el registro de la serie en sí (y no
+ * pasa por la cola offline: si falla, no se reintenta más tarde como sí pasa
+ * con `set_log`/`session_event` — es una decisión, no un olvido).
  *
  * Exige un récord anterior real (no solo un valor): la primera vez que se
  * hace un ejercicio no es un "récord", es el punto de partida.
+ *
+ * OJO al agregar un campo de carga real en `SetRow` (hoy `markSetDone` solo
+ * confirma "hecho", `loadKg` sale de `item.targetLoad` — lo que el motor
+ * PLANIFICÓ, no lo que el socio efectivamente levantó). Mientras eso no
+ * exista, un "récord" acá es "la carga que el plan subió y la persona
+ * confirmó", no necesariamente un logro nuevo de desempeño — son la misma
+ * cosa solo porque el motor solo sube la carga cuando `reviewProgress()`
+ * detecta que a la persona le sobraron repeticiones. El día que exista carga
+ * real editable, esta función tiene que compararla a ELLA, no a la
+ * planificada, o va a inflar `personal_records` con progresión del plan en
+ * vez de desempeño real.
  */
 async function celebrateIfRecord(
   userId: string,
