@@ -28,9 +28,9 @@ subestima o inventa tonos con facilidad.
 **No hay turquesa ni naranja en ningún punto de la imagen.** Es relevante porque no es lo que
 asumí antes.
 
-## Conflicto con la paleta ya cargada en el código — hay que decidir
+## Conflicto con la paleta ya cargada en el código — resuelto el 5 de septiembre de 2026
 
-`apps/web/src/styles.css` define hoy:
+`apps/web/src/styles.css` definía:
 
 ```
 --color-teal:   #2ec4b6
@@ -43,19 +43,28 @@ un subagente sobre las fotos de la grilla de Instagram (equipamiento con luces L
 Nunca se verificaron por píxel. Este análisis sí es por píxel, y el logo real es monocromático:
 negro, blanco, y un degradé de azules.
 
-Dos caminos, y prefiero que la decisión sea tuya porque es de marca, no técnica:
+**Decisión tomada: opción 1** — alinear la app al logo real. El azul del ícono es el acento de
+toda la UI, no solo del isotipo. Ámbar y naranja quedan como colores **semánticos** (alerta,
+"provisorio"), que era la objeción de esa opción: la distinción no se pierde porque esos dos
+siguen existiendo, solo dejan de competir con el acento.
 
-1. **Alinear la app al logo real**: reemplazar teal/naranja por el degradé de azules
-   (`#7594a6` → `#82a9ec` → `#abe6f8`) como único acento, con blanco para texto sobre negro. Más
-   fiel a la identidad real de Blue Horse, pero pierde el contraste de "color semántico" que hoy
-   separa, por ejemplo, "provisorio" (ámbar) de "acento" (teal) en la UI — con todo en azul hay que
-   resolver esa distinción de otra forma (¿con forma/ícono en vez de color?).
-2. **Mantener teal/naranja como paleta funcional de la app** y usar el degradé azul del logo *solo*
-   en el ícono/isotipo, tratándolo como un elemento de marca puntual y no como el sistema de color
-   de toda la interfaz. Es lo que hacen muchas apps: el logo tiene su propio color y la UI tiene la
-   suya, mientras el logo aparezca en algún lado reconocible (splash, header).
+Los tokens vigentes (`styles.css`), ya aplicados:
 
-No cambié `styles.css` todavía — es una decisión de diseño, no la tomo por vos.
+| Token | Hex | Rol |
+|---|---|---|
+| `--color-navy` | `#05070c` | Fondo, cerca del negro del logo |
+| `--color-surface` / `-2` / `-3` | `#0c111b` / `#131b28` / `#1b2534` | Tres niveles de superficie sobre el fondo |
+| `--color-line` / `--color-line-bright` | `#1e2836` / `#2f3d52` | Bordes |
+| `--color-ink` / `--color-slate` / `--color-slate-dim` | `#eef3fb` / `#93a3bd` / `#5f6d85` | Texto |
+| `--color-brand-deep` | `#3f7fc4` | Acento oscuro (bordes, estados apagados) |
+| `--color-brand` | `#6fb4ef` | **Acento principal** |
+| `--color-brand-soft` | `#82a9ec` | Medio del degradé del logo, tal cual |
+| `--color-brand-bright` | `#abe6f8` | Brillo del degradé del logo, tal cual |
+| `--color-amber` / `--color-orange` | `#f0a03c` / `#f2622e` | Semánticos: "provisorio", alerta |
+| `--color-lime` | `#7fd88f` | Semántico: confirmación |
+
+`--color-teal` y `--color-navy-soft` ya no existen: se renombraron a `--color-brand` y
+`--color-surface` en todo `src`. Contraste WCAG AA verificado por script antes de aplicar.
 
 ## Dónde usarlo y dónde no
 
@@ -64,32 +73,31 @@ No cambié `styles.css` todavía — es una decisión de diseño, no la tomo por
 - Splash screen de la PWA si el fondo de esa pantalla es negro — encaja sin procesar.
 
 **No sirve, tal cual está, para:**
-- Ícono de la PWA (`apps/web/public/icon.svg`, `favicon.svg`, `icon-maskable.svg`) — esos son SVG
-  vectoriales simplificados que hice yo como placeholder; este es un PNG rasterizado de 2048px con
-  texto denso que se vuelve ilegible a 48px (tamaño real de un ícono de app). Ver siguiente sección.
+- Ícono de la PWA **sin procesar** — es un PNG rasterizado de 2048px con texto denso que se
+  vuelve ilegible a 48px (tamaño real de un ícono de app). Los íconos que usá la app salen de este
+  archivo pero pasados por el recorte y la cuantización de la sección siguiente.
 - Cualquier fondo que no sea negro — no tiene transparencia.
 - Modo claro de la app — es 100% para fondo oscuro, no existe versión clara.
 
-## Qué falta generar antes de reemplazar los íconos actuales
+## Íconos: generados el 5 de septiembre de 2026
 
-El ícono placeholder que hice (`apps/web/public/icon.svg`) es un SVG simple: sirve como marcador
-de posición pero no es la marca real. Para reemplazarlo con este asset hace falta procesarlo, no
-usarlo directo:
+Los cuatro pasos que faltaban están hechos. El PNG de 2048px no se usó directo — se procesó con
+PIL y se cuantizó a 96 colores, porque el texto circular y el detalle fino del degradé se vuelven
+ilegibles por debajo de ~64px.
 
-1. **Quitar el fondo negro** (`rembg`/BiRefNet — mismo pipeline que se sugirió para las fotos del
-   catálogo, corre local en la RTX 3060) para tener el mascota con transparencia real.
-2. **Versión simplificada para tamaño chico.** El logo actual tiene texto circular y detalle fino
-   que se pierde por debajo de ~64px. Un ícono de PWA se ve a 16–48px en la mayoría de los
-   contextos (pestaña del navegador, pantalla de inicio). Hace falta una versión reducida — solo
-   la cabeza de caballo, sin el texto circular ni las líneas laterales — para esos tamaños.
-3. **Versión maskable** (con zona de seguridad circular, para Android) a partir de la simplificada.
-4. **Versión monocromática** para el favicon de pestaña (algunos navegadores lo muestran muy chico
-   y sin color).
+| Archivo | Qué es |
+|---|---|
+| `apps/web/public/icon-192.png`, `icon-512.png` | Ícono de la PWA |
+| `apps/web/public/icon-maskable-512.png` | Versión maskable: escudo al 76% para aguantar el recorte circular de Android |
+| `apps/web/public/apple-touch-icon.png` | iOS |
+| `apps/web/public/favicon.svg` | Redibujado (anillo + barra con discos), legible a 16px |
+| `apps/web/public/brand/mascota.webp` | El mascota completo, para `/auth` y el splash |
 
-Ninguno de estos cuatro pasos está hecho todavía. Los archivos actuales en `apps/web/public/`
-siguen siendo el placeholder simple que generé al armar el esqueleto.
+Se borraron `icon.svg` e `icon-maskable.svg`: eran los placeholders vectoriales que hice al armar
+el esqueleto y seguían con la paleta vieja (turquesa/naranja). `theme_color` y `background_color`
+del manifest pasaron de `#0b1a2b` a `#05070c`, el negro del logo.
 
-## Decisión pendiente tuya
+**Lo que sigue sin hacerse**: quitar el fondo negro con `rembg`/BiRefNet para tener el mascota con
+transparencia real. No hizo falta — toda la app corre sobre fondo oscuro, que es donde el asset
+encaja sin procesar. Si alguna vez hay modo claro, ahí sí.
 
-Elegir entre las dos opciones de la sección de conflicto de paleta, y confirmar si querés que
-arranque el procesamiento del ícono (los 4 pasos de arriba) para tenerlo listo para producción.

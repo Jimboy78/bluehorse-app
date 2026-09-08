@@ -1,6 +1,7 @@
 import { Download, Share, SquarePlus, Wifi } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router';
+import { Button, buttonClass, Card, Mascota, Notice } from '../components/ui/index.ts';
 import { fadeUp, listContainer, listItem, tappable } from '../lib/motion.ts';
 import { useInstallPrompt } from '../lib/use-install-prompt.ts';
 
@@ -21,16 +22,18 @@ export function Instalar() {
         variants={fadeUp}
         initial="hidden"
         animate="visible"
-        className="flex flex-col items-center gap-3 text-center"
+        className="flex flex-col items-center gap-4 text-center"
       >
-        <img src="/icon.svg" alt="" className="size-16" aria-hidden="true" />
-        <div className="flex flex-col gap-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">
+        <Mascota size={168} />
+        <div className="flex flex-col gap-1.5">
+          <p className="font-display text-[0.7rem] font-medium uppercase tracking-[0.28em] text-brand">
             Blue Horse Gym · Arroyo Seco
           </p>
-          <h1 className="text-3xl font-bold tracking-tight">Push your limits</h1>
+          <h1 className="font-display text-4xl font-semibold uppercase leading-none tracking-tight">
+            Push your limits
+          </h1>
         </div>
-        <p className="text-sm text-slate">
+        <p className="text-sm leading-relaxed text-slate">
           Tu entrenamiento, ajustado a lo que hay en el gimnasio. Instalala una vez y arrancás desde
           el ícono, como cualquier app.
         </p>
@@ -49,17 +52,12 @@ export function Instalar() {
 
 function StandaloneCta() {
   return (
-    <motion.div
-      variants={fadeUp}
-      initial="hidden"
-      animate="visible"
-      className="flex flex-col gap-4"
-    >
-      <p className="rounded-lg border border-teal/40 bg-teal/10 px-4 py-3 text-center text-sm">
+    <div className="flex flex-col gap-4">
+      <Notice tone="info">
         Ya la tenés instalada. Abrila desde el ícono en tu pantalla de inicio.
-      </p>
-      <CtaLink />
-    </motion.div>
+      </Notice>
+      <CtaLink primary />
+    </div>
   );
 }
 
@@ -78,22 +76,17 @@ function AndroidOrOtherCta({
       className="flex flex-col gap-4"
     >
       {canPromptInstall && (
-        <motion.button
-          type="button"
-          {...tappable}
-          onClick={() => void onInstall()}
-          className="flex items-center justify-center gap-2.5 rounded-xl bg-teal px-4 py-3.5 text-sm font-semibold text-navy"
-        >
+        <Button variant="primary" size="lg" onClick={() => void onInstall()}>
           <Download size={16} aria-hidden="true" />
           Instalar la app
-        </motion.button>
+        </Button>
       )}
-      <p className="text-center text-xs text-slate">
+      <p className="text-center text-xs leading-relaxed text-slate">
         {canPromptInstall
           ? 'O seguí sin instalar: también funciona directo desde el navegador.'
           : 'Tu navegador todavía no ofrece instalar — desde el menú (⋮) buscá "Agregar a pantalla de inicio". También funciona directo desde acá.'}
       </p>
-      <CtaLink />
+      <CtaLink primary={!canPromptInstall} />
     </motion.div>
   );
 }
@@ -128,34 +121,29 @@ function IosSteps() {
         className="flex flex-col gap-2.5"
       >
         {steps.map((step, i) => (
-          <motion.li
-            key={step.text}
-            variants={listItem}
-            className="flex items-center gap-3 rounded-xl border border-line bg-navy-soft px-4 py-3"
-          >
-            <span className="grid size-8 shrink-0 place-items-center rounded-full bg-navy text-xs font-bold text-teal">
-              {i + 1}
-            </span>
-            <span className="text-teal">{step.icon}</span>
-            <span className="text-sm">{step.text}</span>
+          <motion.li key={step.text} variants={listItem}>
+            <Card animate={false} className="flex items-center gap-3 px-4 py-3.5">
+              <span className="grid size-9 shrink-0 place-items-center rounded-full border border-brand/30 bg-brand/10 font-display text-sm font-semibold text-brand">
+                {i + 1}
+              </span>
+              <span className="text-brand">{step.icon}</span>
+              <span className="text-sm leading-snug">{step.text}</span>
+            </Card>
           </motion.li>
         ))}
       </motion.ol>
       <p className="text-center text-xs text-slate">
-        Preferís no instalarla ahora? También funciona directo desde Safari.
+        ¿Preferís no instalarla ahora? También funciona directo desde Safari.
       </p>
-      <CtaLink />
+      <CtaLink primary />
     </motion.div>
   );
 }
 
-function CtaLink() {
+function CtaLink({ primary = false }: { primary?: boolean }) {
   return (
     <motion.div {...tappable}>
-      <Link
-        to="/auth"
-        className="flex items-center justify-center rounded-xl border border-line px-4 py-3.5 text-sm font-semibold text-ink"
-      >
+      <Link to="/auth" className={buttonClass(primary ? 'primary' : 'secondary', 'lg', 'w-full')}>
         Entrar
       </Link>
     </motion.div>

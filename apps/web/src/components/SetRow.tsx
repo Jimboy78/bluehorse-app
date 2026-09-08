@@ -8,6 +8,9 @@ import { checkPop, haptic, hapticPattern, spring, tappable } from '../lib/motion
  * El caso común es que la serie salga como estaba planificada, así que confirmar
  * cuesta un toque y el objetivo viene pre-cargado. Editar es la excepción, no el
  * camino principal: ahí es donde las apps de gimnasio pierden a la gente.
+ *
+ * La carga va en la condensada y grande: es el único dato que se busca con la
+ * vista mientras se acomoda el pin de la máquina, a un brazo de distancia.
  */
 
 export interface SetRowProps {
@@ -32,13 +35,15 @@ export function SetRow({ index, targetLoad, targetReps, done, onToggle }: SetRow
         onToggle();
       }}
       transition={spring.settle}
-      className={`flex w-full items-center gap-4 rounded-xl border px-4 py-3.5 text-left ${
-        done ? 'border-teal/40 bg-teal/10' : 'border-line bg-navy-soft'
+      className={`flex w-full items-center gap-4 rounded-card border px-4 py-4 text-left transition-colors duration-150 ${
+        done
+          ? 'border-brand/40 bg-brand/10 shadow-brand'
+          : 'border-line bg-surface shadow-card hover:border-line-bright'
       }`}
     >
       <span
-        className={`grid size-8 shrink-0 place-items-center rounded-full border text-sm font-semibold tabular-nums ${
-          done ? 'border-teal text-teal' : 'border-line text-slate'
+        className={`grid size-9 shrink-0 place-items-center rounded-full border font-display text-sm font-semibold tabular-nums transition-colors ${
+          done ? 'border-brand bg-brand/20 text-brand' : 'border-line-bright text-slate'
         }`}
       >
         <AnimatePresence mode="wait" initial={false}>
@@ -62,14 +67,20 @@ export function SetRow({ index, targetLoad, targetReps, done, onToggle }: SetRow
 
       <span className="flex flex-1 items-baseline gap-2">
         <span
-          className={`font-mono text-lg font-semibold tabular-nums ${done ? 'text-teal' : 'text-ink'}`}
+          className={`font-display text-2xl font-semibold tabular-nums leading-none ${
+            done ? 'text-brand' : 'text-ink'
+          }`}
         >
           {targetLoad}
         </span>
         <span className="text-sm text-slate">× {targetReps}</span>
       </span>
 
-      <span className="text-xs uppercase tracking-[0.12em] text-slate">
+      <span
+        className={`font-display text-[0.65rem] uppercase tracking-[0.18em] ${
+          done ? 'text-brand' : 'text-slate-dim'
+        }`}
+      >
         {done ? 'hecha' : 'tocá'}
       </span>
     </motion.button>

@@ -1,7 +1,7 @@
-import { Loader2 } from 'lucide-react';
 import { lazy, type ReactNode, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router';
 import { RouteError } from './components/RouteError.tsx';
+import { PageLoader } from './components/ui/index.ts';
 import { NoEncontrada } from './routes/NoEncontrada.tsx';
 import { RedirectIfSignedIn } from './routes/RedirectIfSignedIn.tsx';
 import { RequireAdmin } from './routes/RequireAdmin.tsx';
@@ -31,17 +31,8 @@ const Panel = lazy(() => import('./routes/Panel.tsx').then((m) => ({ default: m.
 const Progreso = lazy(() => import('./routes/Progreso.tsx').then((m) => ({ default: m.Progreso })));
 const SignIn = lazy(() => import('./routes/SignIn.tsx').then((m) => ({ default: m.SignIn })));
 
-function PageFallback() {
-  return (
-    <div role="status" className="grid min-h-dvh place-items-center">
-      <Loader2 size={22} className="animate-spin text-slate" aria-hidden="true" />
-      <span className="sr-only">Cargando…</span>
-    </div>
-  );
-}
-
 function lazyPage(node: ReactNode) {
-  return <Suspense fallback={<PageFallback />}>{node}</Suspense>;
+  return <Suspense fallback={<PageLoader />}>{node}</Suspense>;
 }
 
 export const router = createBrowserRouter([

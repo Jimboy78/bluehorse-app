@@ -1,13 +1,19 @@
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { type FormEvent, useState } from 'react';
+import { Button, Field, fieldClass, Mascota, Notice } from '../components/ui/index.ts';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
 import { signInSchema, signUpSchema } from '../lib/auth/schemas.ts';
-import { fadeUp, tappable } from '../lib/motion.ts';
+import { fadeUp } from '../lib/motion.ts';
 
 /**
  * Pantalla de acceso. Google primero (un toque, sin contraseña que recordar
  * parado en el gimnasio) y email/contraseña como alternativa siempre visible.
+ *
+ * Es la única pantalla donde el mascota aparece grande: acá hay tiempo para
+ * mirarla, y es lo que conecta el cartel del gimnasio con la app. De "Hoy"
+ * para adentro la marca se reduce al isotipo de la barra — quien está entre
+ * series no necesita que le recuerden dónde está.
  *
  * No exige ser socio de Blue Horse para crear la cuenta — ver ADR y el
  * onboarding, que es donde se asocia al gimnasio con el código de invitación.
@@ -71,31 +77,28 @@ export function SignIn() {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-8 px-6 py-10">
+    <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-7 px-6 py-10">
       <motion.header
         variants={fadeUp}
         initial="hidden"
         animate="visible"
-        className="flex flex-col items-center gap-2 text-center"
+        className="flex flex-col items-center gap-3 text-center"
       >
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">
-          Blue Horse Gym
-        </p>
-        <h1 className="text-3xl font-bold tracking-tight">
-          {mode === 'sign-in' ? 'Entrá a tu cuenta' : 'Creá tu cuenta'}
-        </h1>
+        <Mascota size={148} />
+        <div className="flex flex-col gap-1.5">
+          <p className="font-display text-[0.7rem] font-medium uppercase tracking-[0.28em] text-brand">
+            Blue Horse Gym · Arroyo Seco
+          </p>
+          <h1 className="font-display text-4xl font-semibold uppercase leading-none tracking-tight">
+            {mode === 'sign-in' ? 'Entrá' : 'Creá tu cuenta'}
+          </h1>
+        </div>
       </motion.header>
 
       {unconfigured && (
-        <motion.p
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          className="flex items-start gap-2 rounded-lg border border-amber/40 bg-amber/10 px-4 py-3 text-sm"
-        >
-          <AlertCircle size={16} className="mt-0.5 shrink-0 text-amber" aria-hidden="true" />
+        <Notice tone="warn" icon={<AlertCircle size={16} aria-hidden="true" />}>
           Supabase no está configurado en este entorno: no se puede entrar todavía.
-        </motion.p>
+        </Notice>
       )}
 
       <motion.div
@@ -104,12 +107,11 @@ export function SignIn() {
         animate="visible"
         className="flex flex-col gap-5"
       >
-        <motion.button
-          type="button"
-          {...tappable}
+        <Button
+          variant="secondary"
+          size="lg"
           disabled={unconfigured || googleBusy}
           onClick={handleGoogle}
-          className="flex items-center justify-center gap-2.5 rounded-xl border border-line bg-navy-soft px-4 py-3.5 text-sm font-semibold disabled:opacity-50"
         >
           {googleBusy ? (
             <Loader2 size={16} className="animate-spin" aria-hidden="true" />
@@ -117,14 +119,15 @@ export function SignIn() {
             <GoogleMark />
           )}
           Continuar con Google
-        </motion.button>
+        </Button>
 
-        <div className="flex items-center gap-3 text-xs text-slate">
-          <span className="h-px flex-1 bg-line" />o con tu email
-          <span className="h-px flex-1 bg-line" />
+        <div className="flex items-center gap-3 font-display text-[0.65rem] uppercase tracking-[0.2em] text-slate-dim">
+          <span className="h-px flex-1 bg-gradient-to-r from-transparent to-line-bright" />o con tu
+          email
+          <span className="h-px flex-1 bg-gradient-to-l from-transparent to-line-bright" />
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
           <AnimatePresence initial={false}>
             {mode === 'sign-up' && (
               <motion.div
@@ -134,44 +137,41 @@ export function SignIn() {
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden"
               >
-                <label className="flex flex-col gap-1.5 text-sm" htmlFor="displayName">
-                  Nombre
+                <Field label="Nombre" htmlFor="displayName">
                   <input
                     id="displayName"
                     type="text"
                     autoComplete="name"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    className="rounded-lg border border-line bg-navy-soft px-3.5 py-2.5 text-ink outline-none focus:border-teal"
+                    className={fieldClass}
                   />
-                </label>
+                </Field>
               </motion.div>
             )}
           </AnimatePresence>
 
-          <label className="flex flex-col gap-1.5 text-sm" htmlFor="email">
-            Email
+          <Field label="Email" htmlFor="email">
             <input
               id="email"
               type="email"
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="rounded-lg border border-line bg-navy-soft px-3.5 py-2.5 text-ink outline-none focus:border-teal"
+              className={fieldClass}
             />
-          </label>
+          </Field>
 
-          <label className="flex flex-col gap-1.5 text-sm" htmlFor="password">
-            Contraseña
+          <Field label="Contraseña" htmlFor="password">
             <input
               id="password"
               type="password"
               autoComplete={mode === 'sign-in' ? 'current-password' : 'new-password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="rounded-lg border border-line bg-navy-soft px-3.5 py-2.5 text-ink outline-none focus:border-teal"
+              className={fieldClass}
             />
-          </label>
+          </Field>
 
           <AnimatePresence>
             {error && (
@@ -188,15 +188,16 @@ export function SignIn() {
             )}
           </AnimatePresence>
 
-          <motion.button
+          <Button
             type="submit"
-            {...tappable}
+            variant="primary"
+            size="lg"
+            className="mt-1"
             disabled={unconfigured || busy}
-            className="mt-1 flex items-center justify-center gap-2 rounded-xl bg-teal px-4 py-3.5 text-sm font-semibold text-navy disabled:opacity-50"
           >
             {busy && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
             {mode === 'sign-in' ? 'Entrar' : 'Crear cuenta'}
-          </motion.button>
+          </Button>
         </form>
 
         <button
@@ -205,7 +206,7 @@ export function SignIn() {
             setMode((m) => (m === 'sign-in' ? 'sign-up' : 'sign-in'));
             setError(null);
           }}
-          className="text-center text-sm text-slate underline-offset-4 hover:underline"
+          className="text-center text-sm text-slate underline-offset-4 transition-colors hover:text-brand hover:underline"
         >
           {mode === 'sign-in' ? '¿No tenés cuenta? Creala' : '¿Ya tenés cuenta? Entrá'}
         </button>

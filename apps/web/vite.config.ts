@@ -25,7 +25,7 @@ export default defineConfig({
       // 'prompt', no 'autoUpdate': si el service worker recarga la app en medio
       // de una serie, el usuario pierde lo que estaba cargando.
       registerType: 'prompt',
-      includeAssets: ['favicon.svg', 'icon.svg', 'apple-touch-icon.png'],
+      includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'Blue Horse',
         short_name: 'Blue Horse',
@@ -35,15 +35,25 @@ export default defineConfig({
         scope: '/',
         display: 'standalone',
         orientation: 'portrait',
-        background_color: '#0b1a2b',
-        theme_color: '#0b1a2b',
+        background_color: '#05070c',
+        theme_color: '#05070c',
+        // El ícono real de Blue Horse es un PNG con degradé (ver
+        // docs/07-marca-blue-horse.md): no hay versión vectorial. El maskable
+        // lleva el escudo al 76% del lienzo porque Android recorta hasta un
+        // 20% de cada borde y sin ese margen se come el anillo.
         icons: [
-          { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
-          { src: '/icon-maskable.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'maskable' },
+          { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          {
+            src: '/icon-maskable-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2}'],
         // Las fotos de máquinas viven en Supabase Storage: se cachean al usarlas,
         // no en la instalación, para no bajar 100 imágenes de una.
         runtimeCaching: [

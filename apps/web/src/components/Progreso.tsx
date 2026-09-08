@@ -1,13 +1,14 @@
 import type { LoadReading } from '@bh/domain';
 import { formatLoad } from '@bh/domain';
-import { AlertCircle, Flame, Loader2, TrendingUp, Trophy } from 'lucide-react';
+import { AlertCircle, CalendarDays, Flame, TrendingUp, Trophy } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
 import type { PersonalRecord, SetRecord, WeeklyVolumePoint } from '../lib/mappers/progress.ts';
-import { fadeUp, listContainer, listItem, tappable } from '../lib/motion.ts';
+import { listContainer, listItem } from '../lib/motion.ts';
 import { useProgress } from '../lib/progress.ts';
+import { Card, Chip, EmptyState, Notice, Skeleton } from './ui/index.ts';
 
 const GYM_TZ = 'America/Argentina/Buenos_Aires';
 
@@ -30,16 +31,18 @@ export function Progreso() {
 
   if (status !== 'signed-in') {
     return (
-      <p className="rounded-xl border border-line bg-navy-soft px-4 py-6 text-center text-sm text-slate">
+      <EmptyState icon={<TrendingUp size={24} aria-hidden="true" />} title="Sin sesión">
         Iniciá sesión para ver tu progreso.
-      </p>
+      </EmptyState>
     );
   }
 
   if (progress.isPending) {
     return (
-      <div role="status" className="grid place-items-center py-16">
-        <Loader2 size={20} className="animate-spin text-slate" aria-hidden="true" />
+      <div role="status" className="flex flex-col gap-5">
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-48 w-full" />
+        <Skeleton className="h-36 w-full" />
         <span className="sr-only">Cargando tu progreso…</span>
       </div>
     );
@@ -47,33 +50,26 @@ export function Progreso() {
 
   if (progress.isError) {
     return (
-      <p className="flex items-center gap-1.5 rounded-xl border border-line bg-navy-soft px-4 py-6 text-sm text-slate">
-        <AlertCircle size={14} aria-hidden="true" />
+      <Notice tone="error" role="alert" icon={<AlertCircle size={16} aria-hidden="true" />}>
         No se pudo leer tu progreso. Probá de nuevo en un momento.
-      </p>
+      </Notice>
     );
   }
 
   const data = progress.data;
   if (!data || data.adherence.totalSessions === 0) {
     return (
-      <motion.div
-        variants={fadeUp}
-        initial="hidden"
-        animate="visible"
-        className="flex flex-col items-center gap-2 rounded-xl border border-line bg-navy-soft px-6 py-10 text-center"
+      <EmptyState
+        icon={<TrendingUp size={24} aria-hidden="true" />}
+        title="Todavía no registraste nada"
       >
-        <TrendingUp size={26} className="text-teal" aria-hidden="true" />
-        <p className="font-semibold">Todavía no registraste ninguna serie.</p>
-        <p className="text-sm text-slate">
-          Marcá series en "Hoy" y acá vas a ver tu adherencia, tu volumen y tus récords.
-        </p>
-      </motion.div>
+        Marcá series en "Hoy" y acá vas a ver tu adherencia, tu volumen y tus récords.
+      </EmptyState>
     );
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       <AdherenceCard
         totalSessions={data.adherence.totalSessions}
         currentStreakDays={data.adherence.currentStreakDays}
@@ -96,89 +92,110 @@ function AdherenceCard({
   lastSessionAt: string | null;
 }) {
   return (
-    <motion.section
-      variants={fadeUp}
-      initial="hidden"
-      animate="visible"
-      className="flex flex-col gap-3 rounded-xl border border-line bg-navy-soft p-4"
-    >
-      <div className="grid grid-cols-3 gap-2.5">
-        {/* "sesiones (90 días)" partía en dos líneas y dejaba las tres
-            columnas desparejas. La ventana es la misma para las tres, así que
-            se dice una sola vez, abajo. */}
+    <Card className="flex flex-col gap-3 p-4">
+      {/* "sesiones (90 días)" partía en dos líneas y dejaba las tres columnas
+          desparejas. La ventana es la misma para las tres, así que se dice una
+          sola vez, abajo. */}
+      <div className="grid grid-cols-3 divide-x divide-line/70">
         <Stat value={totalSessions} label="sesiones" />
-        <Stat value={currentStreakDays} label="racha de días" icon={<Flame size={14} />} />
-        <div className="flex flex-col items-center gap-0.5 text-center">
-          <span className="text-lg font-bold tabular-nums">
-            {lastSessionAt ? formatDate(lastSessionAt) : '—'}
-          </span>
-          <span className="text-[0.65rem] uppercase tracking-wider text-slate">última sesión</span>
-        </div>
+        <Stat value={currentStreakDays} label="racha" icon={<Flame size={15} />} />
+        <Stat
+          value={lastSessionAt ? formatDate(lastSessionAt) : '—'}
+          label="última"
+          icon={<CalendarDays size={15} />}
+          muted
+        />
       </div>
-      <p className="text-center text-[0.65rem] text-slate">últimos 90 días</p>
-    </motion.section>
+      <p className="text-center font-display text-[0.6rem] uppercase tracking-[0.2em] text-slate-dim">
+        últimos 90 días
+      </p>
+    </Card>
   );
 }
 
-function Stat({ value, label, icon }: { value: number; label: string; icon?: ReactNode }) {
+function Stat({
+  value,
+  label,
+  icon,
+  muted = false,
+}: {
+  value: ReactNode;
+  label: string;
+  icon?: ReactNode;
+  muted?: boolean;
+}) {
   return (
-    <div className="flex flex-col items-center gap-0.5 text-center">
-      <span className="flex items-center gap-1 text-lg font-bold tabular-nums text-teal">
-        {icon}
+    <div className="flex flex-col items-center gap-1 px-1 text-center">
+      <span
+        className={`flex items-center gap-1.5 font-display text-2xl font-semibold leading-none tabular-nums ${
+          muted ? 'text-ink' : 'text-brand'
+        }`}
+      >
+        {icon && <span className={muted ? 'text-slate-dim' : 'text-brand/70'}>{icon}</span>}
         {value}
       </span>
-      <span className="text-[0.65rem] uppercase tracking-wider text-slate">{label}</span>
+      <span className="font-display text-[0.6rem] uppercase tracking-[0.18em] text-slate">
+        {label}
+      </span>
     </div>
   );
 }
 
+/**
+ * Volumen de las últimas ocho semanas.
+ *
+ * Las barras van con degradé hacia arriba y no en un azul plano: en un gráfico
+ * de ocho columnas sobre negro, el color sólido hace que la más alta y la más
+ * baja se lean casi igual de "llenas". El degradé le da dirección a la altura.
+ */
 function WeeklyVolumeChart({ points }: { points: readonly WeeklyVolumePoint[] }) {
-  const maxKg = Math.max(1, ...points.map((p) => p.volumeKg));
   const recent = points.slice(-8);
+  const maxKg = Math.max(1, ...recent.map((p) => p.volumeKg));
 
   return (
-    <motion.section
-      variants={fadeUp}
-      initial="hidden"
-      animate="visible"
-      className="flex flex-col gap-3 rounded-xl border border-line bg-navy-soft p-4"
-    >
-      <h3 className="text-sm font-semibold">Volumen semanal</h3>
+    <Card className="flex flex-col gap-4 p-4">
+      <div className="flex items-baseline justify-between gap-3">
+        <h3 className="font-display text-sm font-medium uppercase tracking-[0.16em]">
+          Volumen semanal
+        </h3>
+        {recent.length > 0 && (
+          <span className="font-mono text-[0.65rem] text-slate-dim">
+            máx {Math.round(maxKg).toLocaleString('es-AR')} kg
+          </span>
+        )}
+      </div>
       {recent.length === 0 ? (
-        <p className="text-xs text-slate">
+        <p className="text-xs leading-relaxed text-slate">
           Sin series con carga convertible a kg todavía (peso corporal, bandas y pines sin tabla no
           entran en esta cuenta).
         </p>
       ) : (
-        <div className="flex h-28 items-end gap-2">
-          {recent.map((point) => (
-            <div key={point.weekStart} className="flex flex-1 flex-col items-center gap-1.5">
-              <div
-                className="w-full rounded-t bg-teal/70"
-                style={{ height: `${Math.max(4, (point.volumeKg / maxKg) * 100)}%` }}
+        <div className="flex h-32 items-end gap-1.5">
+          {recent.map((point, i) => (
+            <div key={point.weekStart} className="flex flex-1 flex-col items-center gap-2">
+              <motion.div
+                initial={{ height: 0 }}
+                animate={{ height: `${Math.max(3, (point.volumeKg / maxKg) * 100)}%` }}
+                transition={{ delay: 0.04 * i, type: 'spring', stiffness: 180, damping: 24 }}
+                className="w-full rounded-t-md bg-gradient-to-t from-brand-deep/40 to-brand"
                 title={`${point.volumeKg} kg`}
               />
-              <span className="font-mono text-[0.6rem] text-slate">
+              <span className="font-mono text-[0.55rem] leading-none text-slate-dim">
                 {formatDate(point.weekStart)}
               </span>
             </div>
           ))}
         </div>
       )}
-    </motion.section>
+    </Card>
   );
 }
 
 function RecordsList({ records }: { records: readonly PersonalRecord[] }) {
   return (
-    <motion.section
-      variants={fadeUp}
-      initial="hidden"
-      animate="visible"
-      className="flex flex-col gap-3 rounded-xl border border-line bg-navy-soft p-4"
-    >
-      <h3 className="flex items-center gap-1.5 text-sm font-semibold">
-        <Trophy size={15} className="text-orange" aria-hidden="true" />
+    <Card className="flex flex-col gap-3 p-4">
+      <h3 className="flex items-center gap-2 font-display text-sm font-medium uppercase tracking-[0.16em]">
+        <Trophy size={15} className="text-amber" aria-hidden="true" />
         Récords
       </h3>
       {records.length === 0 ? (
@@ -194,24 +211,26 @@ function RecordsList({ records }: { records: readonly PersonalRecord[] }) {
             <motion.li
               key={record.exerciseId}
               variants={listItem}
-              className="flex items-center justify-between gap-3 rounded-lg border border-line bg-navy px-3.5 py-2.5"
+              className="flex items-center justify-between gap-3 rounded-xl border border-line/70 bg-navy px-3.5 py-3"
             >
-              <span className="flex min-w-0 flex-col">
-                <span className="text-sm font-semibold">{record.exerciseName}</span>
-                <span className="text-[0.65rem] text-slate">
+              <span className="flex min-w-0 flex-col gap-0.5">
+                <span className="truncate text-sm font-semibold">{record.exerciseName}</span>
+                <span className="text-[0.65rem] text-slate-dim">
                   {formatDate(record.achievedAt)}
                   {!record.isRanked && ' · sin comparar entre estaciones'}
                 </span>
               </span>
-              <span className="shrink-0 font-mono text-sm text-teal">
+              <span className="shrink-0 font-display text-base font-semibold tabular-nums text-brand">
                 {formatLoadOrDash(record.load)}
-                {record.reps !== null && <span className="text-slate"> × {record.reps}</span>}
+                {record.reps !== null && (
+                  <span className="text-sm font-normal text-slate"> × {record.reps}</span>
+                )}
               </span>
             </motion.li>
           ))}
         </motion.ul>
       )}
-    </motion.section>
+    </Card>
   );
 }
 
@@ -237,47 +256,39 @@ function ExerciseEvolution({
   if (exercises.length === 0) return null;
 
   return (
-    <motion.section
-      variants={fadeUp}
-      initial="hidden"
-      animate="visible"
-      className="flex flex-col gap-3 rounded-xl border border-line bg-navy-soft p-4"
-    >
-      <h3 className="text-sm font-semibold">Evolución por ejercicio</h3>
+    <Card className="flex flex-col gap-3.5 p-4">
+      <h3 className="font-display text-sm font-medium uppercase tracking-[0.16em]">
+        Evolución por ejercicio
+      </h3>
       <div className="flex flex-wrap gap-1.5">
         {exercises.map((exercise) => (
-          <motion.button
+          <Chip
             key={exercise.id}
-            type="button"
-            {...tappable}
-            aria-pressed={selectedId === exercise.id}
+            selected={selectedId === exercise.id}
             onClick={() => setSelectedId(exercise.id)}
-            className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
-              selectedId === exercise.id
-                ? 'border-teal bg-teal/10 text-teal'
-                : 'border-line text-slate'
-            }`}
           >
             {exercise.name}
-          </motion.button>
+          </Chip>
         ))}
       </div>
       {recentSets.length === 0 ? (
         <p className="text-xs text-slate">Sin series registradas todavía para este ejercicio.</p>
       ) : (
-        <ul className="flex flex-col divide-y divide-line">
+        <ul className="flex flex-col divide-y divide-line/70">
           {recentSets.map((set) => (
-            <li key={set.id} className="flex items-center justify-between gap-3 py-2 text-sm">
+            <li key={set.id} className="flex items-center justify-between gap-3 py-2.5">
               <span className="text-xs text-slate">{formatDate(set.completedAt)}</span>
-              <span className="font-mono text-teal">
+              <span className="font-display text-base font-semibold tabular-nums text-ink">
                 {formatLoadOrDash(set.load)}
-                {set.reps !== null && <span className="text-slate"> × {set.reps}</span>}
+                {set.reps !== null && (
+                  <span className="text-sm font-normal text-slate"> × {set.reps}</span>
+                )}
               </span>
             </li>
           ))}
         </ul>
       )}
-    </motion.section>
+    </Card>
   );
 }
 

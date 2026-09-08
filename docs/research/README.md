@@ -10,6 +10,7 @@ repeticiones), esta es la que se puede curar al ruleset.
 | `02-cardio-resistencia-recomposicion.md` | `prescription.cardio`, `.endurance`, `.recomposition` | **Requiere extender el esquema primero** — el cardio no cabe en `sets`/`reps` |
 | `03-progresion-descarga.md` | `progression`, `regression`, `deload` de todos los objetivos | **Curable, la mejor fuente de las cuatro** — DOIs verificables, señala controversias en vez de taparlas |
 | `04-individualizacion-seguridad.md` | `byLevel`, modificadores, calibración, contraindicaciones | **Curable con huecos marcados** — la Parte D (seguridad) es la más floja: hay que reforzarla antes de un socio real |
+| `05-seguridad-reforzada.md` | refuerza la Parte D de `04` (cribado, señales de alarma, dolor por zona, poblaciones especiales) | **Curable** — tapa el hueco que señalaba la fila de arriba |
 
 Nada de esto está aplicado todavía. El ruleset activo sigue siendo `v0-placeholder`.
 
@@ -31,8 +32,14 @@ Nada de esto está aplicado todavía. El ruleset activo sigue siendo `v0-placeho
 - **`04`**: la más corta y la que más se apoya en "consenso" antes que en metaanálisis puntuales —
   varias filas en confianza MEDIA o BAJA. La Parte D (contraindicaciones y seguridad) es la que
   menos evidencia dura tiene de las cuatro. Es exactamente donde no conviene quedarse con lo
-  mínimo: antes de que la app la use alguien que no seas vos, esa parte necesita revisión aparte
-  (posiblemente con alguien con formación clínica, no solo con más investigación de IA).
+  mínimo — ver `05` abajo, que refuerza justo esta parte.
+- **`05`**: hecha específicamente para tapar el hueco de seguridad que dejaba `04`. Cinco bloques:
+  cribado PAR-Q+ (con la tabla de preguntas que bloquean el alta si hay respuesta de riesgo),
+  heurísticas de señales de alarma en curso, dolor por zona corporal, poblaciones especiales
+  (embarazo, adultos mayores, condiciones crónicas) y el texto de disclaimer. Cada bloque con su
+  propia confianza y citas (Riebe 2015/ACSM, ACOG, HealthLink BC, Warburton et al. 2014). Sigue
+  aplicando el mismo criterio que las demás: verificar a mano una muestra de citas antes de curar,
+  sobre todo acá — es la parte que más protege a un socio real con una condición previa.
 
 ## Antes de curar al ruleset
 

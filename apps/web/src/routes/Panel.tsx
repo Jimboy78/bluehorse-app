@@ -10,7 +10,17 @@ import type {
 import { AlertCircle, Check, Loader2, MapPin, Pencil, Plus, Trash2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { type FormEvent, useRef, useState } from 'react';
-import { fadeUp, tappable } from '../lib/motion.ts';
+import {
+  Button,
+  Card,
+  Chip,
+  cardClass,
+  Field,
+  fieldClass,
+  Notice,
+  SectionLabel,
+} from '../components/ui/index.ts';
+import { fadeUp } from '../lib/motion.ts';
 import { onboardingUnavailable } from '../lib/onboarding.ts';
 import {
   useCreateEquipment,
@@ -45,15 +55,16 @@ export function Panel() {
         animate="visible"
         className="flex flex-col gap-1"
       >
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">Panel admin</p>
-        <h1 className="text-3xl font-bold tracking-tight">Catálogo de Blue Horse</h1>
+        <SectionLabel className="text-brand">Panel admin</SectionLabel>
+        <h1 className="font-display text-3xl font-semibold tracking-tight">
+          Catálogo de Blue Horse
+        </h1>
       </motion.header>
 
       {onboardingUnavailable && (
-        <p className="flex items-start gap-2 rounded-lg border border-amber/40 bg-amber/10 px-4 py-3 text-sm">
-          <AlertCircle size={16} className="mt-0.5 shrink-0 text-amber" aria-hidden="true" />
+        <Notice tone="warn" icon={<AlertCircle size={16} aria-hidden="true" />}>
           Supabase no está configurado: el panel no puede leer ni guardar todavía.
-        </p>
+        </Notice>
       )}
 
       <EquipmentSection gymId={gymId} />
@@ -211,38 +222,30 @@ function EquipmentSection({ gymId }: { gymId: string | null }) {
       animate="visible"
       className="flex flex-col gap-4"
     >
-      <h2 className="text-lg font-bold tracking-tight">Equipamiento</h2>
+      <SectionLabel>Equipamiento</SectionLabel>
 
       <form
         ref={formRef}
         onSubmit={handleSubmit}
-        className={`flex flex-col gap-4 rounded-xl border bg-navy-soft p-5 ${
-          editing ? 'border-teal/50' : 'border-line'
-        }`}
+        className={cardClass(editing ? 'brand' : 'default', 'flex flex-col gap-4 p-5')}
       >
-        <h3 className="text-sm font-semibold text-slate">
+        <SectionLabel className={editing ? 'text-brand' : ''}>
           {editing ? `Corrigiendo: ${editing.name}` : 'Agregar estación'}
-        </h3>
+        </SectionLabel>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <label className="flex flex-col gap-1.5 text-sm sm:col-span-2" htmlFor="eq-name">
-            Nombre
+          <Field label="Nombre" htmlFor="eq-name" className="sm:col-span-2">
             <input
               id="eq-name"
               type="text"
               {...field('name')}
               placeholder="Prensa 45°"
-              className="rounded-lg border border-line bg-navy px-3.5 py-2.5 outline-none focus:border-teal"
+              className={fieldClass}
             />
-          </label>
+          </Field>
 
-          <label className="flex flex-col gap-1.5 text-sm" htmlFor="eq-category">
-            Categoría
-            <select
-              id="eq-category"
-              {...field('category')}
-              className="rounded-lg border border-line bg-navy px-3.5 py-2.5 outline-none focus:border-teal"
-            >
+          <Field label="Categoría" htmlFor="eq-category">
+            <select id="eq-category" {...field('category')} className={fieldClass}>
               <option value="">Elegir…</option>
               {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>
@@ -250,15 +253,10 @@ function EquipmentSection({ gymId }: { gymId: string | null }) {
                 </option>
               ))}
             </select>
-          </label>
+          </Field>
 
-          <label className="flex flex-col gap-1.5 text-sm" htmlFor="eq-unit">
-            Cómo carga
-            <select
-              id="eq-unit"
-              {...field('loadUnit')}
-              className="rounded-lg border border-line bg-navy px-3.5 py-2.5 outline-none focus:border-teal"
-            >
+          <Field label="Cómo carga" htmlFor="eq-unit">
+            <select id="eq-unit" {...field('loadUnit')} className={fieldClass}>
               <option value="">Elegir…</option>
               {Object.entries(LOAD_UNIT_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>
@@ -266,121 +264,116 @@ function EquipmentSection({ gymId }: { gymId: string | null }) {
                 </option>
               ))}
             </select>
-          </label>
+          </Field>
 
           {showRange && (
             <>
-              <label className="flex flex-col gap-1.5 text-sm" htmlFor="eq-min">
-                Carga mínima
+              <Field label="Carga mínima" htmlFor="eq-min">
                 <input
                   id="eq-min"
                   type="number"
                   inputMode="decimal"
                   {...field('loadMin')}
-                  className="rounded-lg border border-line bg-navy px-3.5 py-2.5 outline-none focus:border-teal"
+                  className={fieldClass}
                 />
-              </label>
-              <label className="flex flex-col gap-1.5 text-sm" htmlFor="eq-max">
-                Carga máxima
+              </Field>
+              <Field label="Carga máxima" htmlFor="eq-max">
                 <input
                   id="eq-max"
                   type="number"
                   inputMode="decimal"
                   {...field('loadMax')}
-                  className="rounded-lg border border-line bg-navy px-3.5 py-2.5 outline-none focus:border-teal"
+                  className={fieldClass}
                 />
-              </label>
-              <label className="flex flex-col gap-1.5 text-sm" htmlFor="eq-increment">
-                Escalón real
+              </Field>
+              <Field label="Escalón real" htmlFor="eq-increment">
                 <input
                   id="eq-increment"
                   type="number"
                   inputMode="decimal"
                   {...field('loadIncrement')}
                   placeholder="2.5"
-                  className="rounded-lg border border-line bg-navy px-3.5 py-2.5 outline-none focus:border-teal"
+                  className={fieldClass}
                 />
-              </label>
+              </Field>
             </>
           )}
 
           {showBaseWeight && (
-            <label className="flex flex-col gap-1.5 text-sm" htmlFor="eq-base">
-              Peso de la barra/carro (kg)
+            <Field label="Peso de la barra/carro (kg)" htmlFor="eq-base">
               <input
                 id="eq-base"
                 type="number"
                 inputMode="decimal"
                 {...field('baseWeightKg')}
                 placeholder="20"
-                className="rounded-lg border border-line bg-navy px-3.5 py-2.5 outline-none focus:border-teal"
+                className={fieldClass}
               />
-            </label>
+            </Field>
           )}
 
           {showStack && (
-            <label className="flex flex-col gap-1.5 text-sm sm:col-span-2" htmlFor="eq-stack">
-              Kilos de cada nivel (separados por coma, del 1 en adelante)
+            <Field
+              label="Kilos de cada nivel (separados por coma, del 1 en adelante)"
+              htmlFor="eq-stack"
+              className="sm:col-span-2"
+            >
               <input
                 id="eq-stack"
                 type="text"
                 {...field('stackKgRaw')}
                 placeholder="5,10,15,20,25,30"
-                className="rounded-lg border border-line bg-navy px-3.5 py-2.5 font-mono outline-none focus:border-teal"
+                className={`${fieldClass} font-mono`}
               />
-            </label>
+            </Field>
           )}
 
-          <label className="flex flex-col gap-1.5 text-sm" htmlFor="eq-quantity">
-            Cantidad de unidades
+          <Field label="Cantidad de unidades" htmlFor="eq-quantity">
             <input
               id="eq-quantity"
               type="number"
               min={1}
               {...field('quantity')}
-              className="rounded-lg border border-line bg-navy px-3.5 py-2.5 outline-none focus:border-teal"
+              className={fieldClass}
             />
-          </label>
+          </Field>
 
-          <label className="flex flex-col gap-1.5 text-sm" htmlFor="eq-location">
-            Ubicación en el gimnasio
+          <Field label="Ubicación en el gimnasio" htmlFor="eq-location">
             <input
               id="eq-location"
               type="text"
               {...field('locationNote')}
               placeholder="fondo a la derecha"
-              className="rounded-lg border border-line bg-navy px-3.5 py-2.5 outline-none focus:border-teal"
+              className={fieldClass}
             />
-          </label>
+          </Field>
 
-          <label className="flex flex-col gap-1.5 text-sm sm:col-span-2" htmlFor="eq-setup">
-            Notas de ajuste
+          <Field label="Notas de ajuste" htmlFor="eq-setup" className="sm:col-span-2">
             <textarea
               id="eq-setup"
               {...field('setupNotes')}
               rows={2}
               placeholder="asiento con 5 posiciones"
-              className="rounded-lg border border-line bg-navy px-3.5 py-2.5 outline-none focus:border-teal"
+              className={fieldClass}
             />
-          </label>
+          </Field>
 
-          <label className="flex flex-col gap-1.5 text-sm sm:col-span-2" htmlFor="eq-photo">
-            Foto
+          <Field label="Foto" htmlFor="eq-photo" className="sm:col-span-2">
             <input
               id="eq-photo"
               ref={fileInputRef}
               type="file"
               accept="image/*"
               onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
-              className="rounded-lg border border-line bg-navy px-3.5 py-2.5 text-xs file:mr-3 file:rounded-md file:border-0 file:bg-teal file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-navy"
+              className={`${fieldClass} py-2.5 text-xs file:mr-3 file:rounded-md file:border-0 file:bg-brand file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-navy`}
             />
-          </label>
+          </Field>
         </div>
 
         {error && (
-          <p role="alert" className="text-sm text-orange">
+          <Notice tone="error" role="alert">
             {error}
-          </p>
+          </Notice>
         )}
 
         <SavedNotice saved={saved} />
@@ -392,13 +385,13 @@ function EquipmentSection({ gymId }: { gymId: string | null }) {
         />
       </form>
 
-      <h3 className="text-xs font-semibold uppercase tracking-wide text-slate">
+      <SectionLabel>
         {equipmentList.data
           ? `${equipmentList.data.length} estaciones cargadas`
           : onboardingUnavailable
             ? 'sin datos: falta configurar Supabase'
             : 'Cargando…'}
-      </h3>
+      </SectionLabel>
 
       <div className="flex flex-col gap-2">
         {equipmentList.data?.map((eq) => (
@@ -459,20 +452,15 @@ function EquipmentFormActions({
   return (
     <div className="flex gap-2">
       {isEditing && (
-        <motion.button
-          type="button"
-          {...tappable}
-          onClick={onCancel}
-          className="rounded-xl border border-line px-4 py-3 text-sm font-semibold text-slate"
-        >
+        <Button variant="ghost" onClick={onCancel}>
           Cancelar
-        </motion.button>
+        </Button>
       )}
-      <motion.button
+      <Button
         type="submit"
-        {...tappable}
+        variant="primary"
         disabled={busy || onboardingUnavailable}
-        className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-teal px-4 py-3 text-sm font-semibold text-navy disabled:opacity-50"
+        className="flex-1"
       >
         {busy ? (
           <Loader2 size={16} className="animate-spin" aria-hidden="true" />
@@ -482,7 +470,7 @@ function EquipmentFormActions({
           <Plus size={16} aria-hidden="true" />
         )}
         {isEditing ? 'Guardar cambios' : 'Agregar al catálogo'}
-      </motion.button>
+      </Button>
     </div>
   );
 }
@@ -526,11 +514,7 @@ function EquipmentRow({
   }
 
   return (
-    <div
-      className={`flex flex-col gap-2 rounded-xl border bg-navy-soft px-4 py-3 ${
-        isEditing ? 'border-teal/50' : 'border-line'
-      }`}
-    >
+    <Card tone={isEditing ? 'brand' : 'default'} className="flex flex-col gap-2 px-4 py-3">
       <div className="flex items-center gap-3">
         {eq.photoUrl ? (
           <img
@@ -578,46 +562,36 @@ function EquipmentRow({
             )}
           </p>
           <div className="flex gap-2">
-            <motion.button
-              type="button"
-              {...tappable}
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => setConfirming(false)}
-              className="flex-1 rounded-lg border border-line px-3 py-2 text-xs font-semibold text-slate"
+              className="flex-1"
             >
               No, dejala
-            </motion.button>
-            <motion.button
-              type="button"
-              {...tappable}
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
               disabled={deleting}
               onClick={handleDelete}
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-orange px-3 py-2 text-xs font-semibold text-navy disabled:opacity-50"
+              className="flex-1"
             >
               {deleting && <Loader2 size={13} className="animate-spin" aria-hidden="true" />}
               Sí, borrala
-            </motion.button>
+            </Button>
           </div>
         </div>
       ) : (
         <div className="flex gap-2">
-          <motion.button
-            type="button"
-            {...tappable}
-            onClick={onEdit}
-            className="flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-xs font-semibold text-slate"
-          >
+          <Button variant="ghost" size="sm" onClick={onEdit}>
             <Pencil size={12} aria-hidden="true" />
             Editar
-          </motion.button>
-          <motion.button
-            type="button"
-            {...tappable}
-            onClick={() => setConfirming(true)}
-            className="flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-xs font-semibold text-slate"
-          >
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setConfirming(true)}>
             <Trash2 size={12} aria-hidden="true" />
             Borrar
-          </motion.button>
+          </Button>
           {failed && (
             <span role="alert" className="self-center text-xs text-orange">
               No se pudo borrar. Probá de nuevo.
@@ -625,7 +599,7 @@ function EquipmentRow({
           )}
         </div>
       )}
-    </div>
+    </Card>
   );
 }
 
@@ -740,36 +714,31 @@ function ExerciseSection({ gymId }: { gymId: string | null }) {
       animate="visible"
       className="flex flex-col gap-4"
     >
-      <h2 className="text-lg font-bold tracking-tight">Ejercicios</h2>
+      <SectionLabel>Ejercicios</SectionLabel>
 
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-4 rounded-xl border border-line bg-navy-soft p-5"
-      >
-        <h3 className="text-sm font-semibold text-slate">Agregar ejercicio</h3>
+      <form onSubmit={handleSubmit} className={cardClass('default', 'flex flex-col gap-4 p-5')}>
+        <SectionLabel>Agregar ejercicio</SectionLabel>
 
-        <label className="flex flex-col gap-1.5 text-sm" htmlFor="ex-name">
-          Nombre
+        <Field label="Nombre" htmlFor="ex-name">
           <input
             id="ex-name"
             type="text"
             value={form.name}
             onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
             placeholder="Curl de bíceps"
-            className="rounded-lg border border-line bg-navy px-3.5 py-2.5 outline-none focus:border-teal"
+            className={fieldClass}
           />
-        </label>
+        </Field>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <label className="flex flex-col gap-1.5 text-sm" htmlFor="ex-pattern">
-            Patrón de movimiento
+          <Field label="Patrón de movimiento" htmlFor="ex-pattern">
             <select
               id="ex-pattern"
               value={form.pattern}
               onChange={(e) =>
                 setForm((f) => ({ ...f, pattern: e.target.value as MovementPattern }))
               }
-              className="rounded-lg border border-line bg-navy px-3.5 py-2.5 outline-none focus:border-teal"
+              className={fieldClass}
             >
               <option value="">Elegir…</option>
               {Object.entries(PATTERN_LABELS).map(([value, label]) => (
@@ -778,15 +747,14 @@ function ExerciseSection({ gymId }: { gymId: string | null }) {
                 </option>
               ))}
             </select>
-          </label>
+          </Field>
 
-          <label className="flex flex-col gap-1.5 text-sm" htmlFor="ex-modality">
-            Cómo se registra
+          <Field label="Cómo se registra" htmlFor="ex-modality">
             <select
               id="ex-modality"
               value={form.modality}
               onChange={(e) => setForm((f) => ({ ...f, modality: e.target.value as Modality }))}
-              className="rounded-lg border border-line bg-navy px-3.5 py-2.5 outline-none focus:border-teal"
+              className={fieldClass}
             >
               <option value="">Elegir…</option>
               {Object.entries(MODALITY_LABELS).map(([value, label]) => (
@@ -795,17 +763,16 @@ function ExerciseSection({ gymId }: { gymId: string | null }) {
                 </option>
               ))}
             </select>
-          </label>
+          </Field>
 
-          <label className="flex flex-col gap-1.5 text-sm" htmlFor="ex-level">
-            Nivel mínimo
+          <Field label="Nivel mínimo" htmlFor="ex-level">
             <select
               id="ex-level"
               value={form.skillLevel}
               onChange={(e) =>
                 setForm((f) => ({ ...f, skillLevel: e.target.value as ExperienceLevel }))
               }
-              className="rounded-lg border border-line bg-navy px-3.5 py-2.5 outline-none focus:border-teal"
+              className={fieldClass}
             >
               <option value="">Elegir…</option>
               {Object.entries(EXPERIENCE_LABELS).map(([value, label]) => (
@@ -814,7 +781,7 @@ function ExerciseSection({ gymId }: { gymId: string | null }) {
                 </option>
               ))}
             </select>
-          </label>
+          </Field>
 
           <div className="flex items-end gap-4 text-sm">
             <label className="flex items-center gap-2">
@@ -859,31 +826,29 @@ function ExerciseSection({ gymId }: { gymId: string | null }) {
           />
         )}
 
-        <label className="flex flex-col gap-1.5 text-sm" htmlFor="ex-cues">
-          Indicaciones de ejecución (opcional)
+        <Field label="Indicaciones de ejecución (opcional)" htmlFor="ex-cues">
           <textarea
             id="ex-cues"
             value={form.cues}
             onChange={(e) => setForm((f) => ({ ...f, cues: e.target.value }))}
             rows={2}
             placeholder="Codos pegados al cuerpo, sin balanceo."
-            className="rounded-lg border border-line bg-navy px-3.5 py-2.5 outline-none focus:border-teal"
+            className={fieldClass}
           />
-        </label>
+        </Field>
 
         {error && (
-          <p role="alert" className="text-sm text-orange">
+          <Notice tone="error" role="alert">
             {error}
-          </p>
+          </Notice>
         )}
 
         <SavedNotice saved={saved} />
 
-        <motion.button
+        <Button
           type="submit"
-          {...tappable}
+          variant="primary"
           disabled={createExercise.isPending || onboardingUnavailable}
-          className="flex items-center justify-center gap-2 rounded-xl bg-teal px-4 py-3 text-sm font-semibold text-navy disabled:opacity-50"
         >
           {createExercise.isPending ? (
             <Loader2 size={16} className="animate-spin" aria-hidden="true" />
@@ -891,23 +856,20 @@ function ExerciseSection({ gymId }: { gymId: string | null }) {
             <Plus size={16} aria-hidden="true" />
           )}
           Agregar ejercicio
-        </motion.button>
+        </Button>
       </form>
 
-      <h3 className="text-xs font-semibold uppercase tracking-wide text-slate">
+      <SectionLabel>
         {exerciseList.data
           ? `${exerciseList.data.length} ejercicios disponibles`
           : onboardingUnavailable
             ? 'sin datos: falta configurar Supabase'
             : 'Cargando…'}
-      </h3>
+      </SectionLabel>
 
       <div className="flex flex-col gap-2">
         {exerciseList.data?.map((ex) => (
-          <div
-            key={ex.id}
-            className="flex items-center gap-3 rounded-xl border border-line bg-navy-soft px-4 py-3"
-          >
+          <Card key={ex.id} className="flex items-center gap-3 px-4 py-3">
             <div className="flex min-w-0 flex-1 flex-col">
               <span className="font-semibold">{ex.name}</span>
               <ExerciseMappingNote
@@ -918,7 +880,7 @@ function ExerciseSection({ gymId }: { gymId: string | null }) {
             <span className="text-xs uppercase tracking-wide text-slate">
               {PATTERN_LABELS[ex.pattern]}
             </span>
-          </div>
+          </Card>
         ))}
       </div>
     </motion.section>
@@ -948,20 +910,9 @@ function ChipPicker({
       ) : (
         <div className="flex flex-wrap gap-1.5">
           {entries.map(([value, text]) => (
-            <motion.button
-              key={value}
-              type="button"
-              {...tappable}
-              aria-pressed={selected.includes(value)}
-              onClick={() => onToggle(value)}
-              className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
-                selected.includes(value)
-                  ? 'border-teal bg-teal/10 text-teal'
-                  : 'border-line bg-navy'
-              }`}
-            >
+            <Chip key={value} selected={selected.includes(value)} onClick={() => onToggle(value)}>
               {text}
-            </motion.button>
+            </Chip>
           ))}
         </div>
       )}
@@ -982,7 +933,7 @@ function SavedNotice({ saved }: { saved: { name: string; updated: boolean } | nu
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
       role="status"
-      className="flex items-center gap-2 text-sm text-teal"
+      className="flex items-center gap-2 text-sm text-brand"
     >
       <Check size={15} aria-hidden="true" />
       <span>

@@ -155,11 +155,13 @@ max_indexes = 5
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-site_url = "http://127.0.0.1:3000"
+site_url = "http://localhost:5173"
 # The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
 # external_url = ""
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["https://127.0.0.1:3000"]
+# `localhost` y `127.0.0.1` no son lo mismo para el allow-list de Auth: Vite sirve en
+# `localhost`, y el callback de Google vuelve exactamente al origen desde el que salió.
+additional_redirect_urls = ["http://localhost:5173", "http://127.0.0.1:5173"]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # JWT issuer URL. If not set, defaults to auth.external_url.
@@ -318,6 +320,17 @@ max_frequency = "5s"
 # Use an external OAuth provider. The full list of providers are: `apple`, `azure`, `bitbucket`,
 # `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin_oidc`, `notion`, `twitch`,
 # `twitter`, `x`, `slack`, `spotify`, `workos`, `zoom`.
+[auth.external.google]
+enabled = true
+client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
+# El secreto NUNCA va literal acá: este archivo se versiona. Sale de `.env`
+# (ver `.env.example`), que está en .gitignore.
+secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
+# El GoTrue local no puede validar el nonce contra Google sin un dominio real.
+# Con esto en false, entrar con Google en localhost falla siempre. En el
+# proyecto de la nube se configura desde el panel y esta línea no aplica.
+skip_nonce_check = true
+
 [auth.external.apple]
 enabled = false
 client_id = ""

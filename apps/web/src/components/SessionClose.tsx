@@ -3,8 +3,9 @@ import { AlertCircle, Check, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { type FormEvent, useState } from 'react';
 import type { SessionFeel } from '../lib/mappers/session-close.ts';
-import { fadeUp, tappable } from '../lib/motion.ts';
+import { fadeUp } from '../lib/motion.ts';
 import { useCloseSession } from '../lib/session-log.ts';
+import { Button, Chip, Field, fieldClass, Notice } from './ui/index.ts';
 
 /**
  * Cierre de sesión: 30 segundos, no un formulario largo. Sensación, una
@@ -80,29 +81,33 @@ export function SessionClose({
       initial="hidden"
       animate="visible"
       onSubmit={handleSubmit}
-      className="flex flex-col gap-5"
+      className="flex flex-col gap-6"
     >
-      <h2 className="text-2xl font-bold tracking-tight">
+      <h2 className="font-display text-3xl font-semibold uppercase leading-none tracking-tight">
         {registroVacio ? 'Cerrar la sesión' : '¿Cómo te sentiste?'}
       </h2>
 
       {registroVacio && (
-        <p className="rounded-lg border border-line bg-navy-soft px-4 py-3 text-sm text-slate">
+        <Notice tone="info">
           No marcaste ninguna serie, así que no hay entrenamiento que guardar. Podés cerrarla igual
           y pasar a la siguiente.
-        </p>
+        </Notice>
       )}
 
+      {/* Tres botones grandes y del mismo ancho: se contesta sin leer, por
+          posición, con el teléfono todavía en la mano transpirada. */}
       <div className={`flex gap-2 ${registroVacio ? 'hidden' : ''}`}>
         {(Object.keys(FEEL_LABELS) as SessionFeel[]).map((f) => (
           <motion.button
             key={f}
             type="button"
-            {...tappable}
             aria-pressed={feel === f}
+            whileTap={{ scale: 0.97 }}
             onClick={() => setFeel(f)}
-            className={`flex-1 rounded-xl border px-4 py-3 text-sm font-semibold ${
-              feel === f ? 'border-teal bg-teal/10 text-teal' : 'border-line bg-navy-soft'
+            className={`flex-1 rounded-card border px-3 py-4 font-display text-base font-medium uppercase tracking-[0.1em] transition-colors ${
+              feel === f
+                ? 'border-brand bg-brand/12 text-brand shadow-brand'
+                : 'border-line bg-surface text-slate shadow-card hover:border-line-bright'
             }`}
           >
             {FEEL_LABELS[f]}
@@ -110,34 +115,31 @@ export function SessionClose({
         ))}
       </div>
 
-      <div className="flex flex-col gap-2">
-        <span className="text-sm">¿Alguna molestia? (opcional)</span>
+      <div className="flex flex-col gap-2.5">
+        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate">
+          ¿Alguna molestia? (opcional)
+        </span>
         <div className="flex flex-wrap gap-1.5">
           {(Object.keys(REGION_LABELS) as BodyRegion[]).map((region) => (
-            <motion.button
+            <Chip
               key={region}
-              type="button"
-              {...tappable}
-              aria-pressed={painRegion === region}
+              tone="orange"
+              selected={painRegion === region}
               onClick={() => setPainRegion((prev) => (prev === region ? null : region))}
-              className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
-                painRegion === region
-                  ? 'border-orange bg-orange/10 text-orange'
-                  : 'border-line bg-navy-soft'
-              }`}
             >
               {REGION_LABELS[region]}
-            </motion.button>
+            </Chip>
           ))}
         </div>
 
         {painRegion && (
-          <label className="flex flex-col gap-1.5 text-sm" htmlFor="severity">
+          <label className="mt-1 flex flex-col gap-1 text-sm" htmlFor="severity">
             {/* Con el valor a la vista, igual que los sliders del onboarding:
                 sin esto no se sabe si lo que se está reportando es un 2 o un
                 4, que es justamente el dato. */}
-            <span>
-              Qué tan fuerte, del 1 al 5: <strong className="text-orange">{severity}</strong>
+            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate">
+              Qué tan fuerte, del 1 al 5:{' '}
+              <strong className="font-display text-base text-orange">{severity}</strong>
             </span>
             <input
               id="severity"
@@ -152,20 +154,20 @@ export function SessionClose({
         )}
       </div>
 
-      <label
-        className={`flex flex-col gap-1.5 text-sm ${registroVacio ? 'hidden' : ''}`}
+      <Field
+        label="Notas (opcional)"
         htmlFor="close-notes"
+        className={registroVacio ? 'hidden' : ''}
       >
-        Notas (opcional)
         <textarea
           id="close-notes"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={2}
           placeholder="Algo para recordar la próxima vez…"
-          className="rounded-lg border border-line bg-navy-soft px-3.5 py-2.5 outline-none focus:border-teal"
+          className={fieldClass}
         />
-      </label>
+      </Field>
 
       {error && (
         <p role="alert" className="flex items-center gap-1.5 text-sm text-orange">
@@ -174,19 +176,14 @@ export function SessionClose({
         </p>
       )}
 
-      <motion.button
-        type="submit"
-        {...tappable}
-        disabled={closeSession.isPending}
-        className="flex items-center justify-center gap-2 rounded-xl bg-teal px-4 py-3.5 text-sm font-semibold text-navy disabled:opacity-50"
-      >
+      <Button type="submit" variant="primary" size="lg" disabled={closeSession.isPending}>
         {closeSession.isPending ? (
           <Loader2 size={16} className="animate-spin" aria-hidden="true" />
         ) : (
           <Check size={16} aria-hidden="true" />
         )}
         Terminar sesión
-      </motion.button>
+      </Button>
     </motion.form>
   );
 }

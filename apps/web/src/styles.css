@@ -1,21 +1,98 @@
 @import "tailwindcss";
 
 /**
- * Paleta tomada del branding real de Blue Horse: azul marino dominante,
- * acento turquesa, naranja del logo. El ámbar queda reservado para marcar
- * contenido provisorio, así que no se usa como color decorativo.
+ * SISTEMA VISUAL — "hielo sobre negro"
+ *
+ * Sale del ícono real de Blue Horse Gym (ver docs/07-marca-blue-horse.md): un
+ * mascota en degradé de azul hielo sobre negro casi puro, con blanco en el
+ * texto. La app usa ese mismo material: fondo negro con una bruma azul muy
+ * baja, superficies apenas levantadas, y el degradé de la marca reservado
+ * para lo que importa (acción principal, progreso, marca).
+ *
+ * El ámbar y el naranja son semánticos (provisorio, error, esfuerzo), no
+ * decorativos: no salen del ícono a propósito, porque su trabajo es
+ * distinguirse del azul de la marca, no combinar con él.
  */
+
+/* ------------------------------------------------------------------ fuentes
+ *
+ * Las dos van servidas desde `public/fonts` y no desde un CDN: la app es una
+ * PWA que se usa en el subsuelo de un gimnasio, con señal mala o sin señal.
+ * Una fuente que depende de fonts.googleapis.com se cae justo ahí, y el
+ * service worker no puede precachear lo que no forma parte del build.
+ *
+ * Son los archivos variables latinos de Fontsource (SIL Open Font License,
+ * copia en `public/fonts/*-OFL.txt`), un solo subset cada una: 77 KB los dos.
+ */
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("/fonts/inter-latin-wght.woff2") format("woff2-variations");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Oswald Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 700;
+  src: url("/fonts/oswald-latin-wght.woff2") format("woff2-variations");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 @theme {
-  --color-navy: #0b1a2b;
-  --color-navy-soft: #142942;
-  --color-ink: #eaf0f8;
-  --color-slate: #93a4bd;
-  --color-line: #22364f;
-  --color-teal: #2ec4b6;
+  /* --- superficies. Cuatro niveles, no dos: sin escalones intermedios toda
+     tarjeta anidada (el selector de sustitutos dentro del detalle, la carga
+     dentro del cronómetro) queda del mismo color que su contenedor y el
+     borde es lo único que la separa. */
+  --color-navy: #05070c;
+  --color-surface: #0c111b;
+  --color-surface-2: #131b28;
+  --color-surface-3: #1b2534;
+
+  /* --- líneas. `line` es el borde normal; `line-bright` es el filo de luz de
+     arriba de una tarjeta, que es lo que la levanta del fondo. */
+  --color-line: #1e2836;
+  --color-line-bright: #2f3d52;
+
+  /* --- texto */
+  --color-ink: #eef3fb;
+  --color-slate: #93a3bd;
+  --color-slate-dim: #5f6d85;
+
+  /* --- marca: el degradé del caballo, de sombra a brillo. */
+  --color-brand-deep: #3f7fc4;
+  --color-brand: #6fb4ef;
+  --color-brand-soft: #82a9ec;
+  --color-brand-bright: #abe6f8;
+
+  /* --- semánticos */
   --color-amber: #f0a03c;
   --color-orange: #f2622e;
+  --color-lime: #7fd88f;
 
-  --font-sans: "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-sans:
+    "Inter Variable", "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
+  /* Condensada y en versalitas: es la voz del ícono (BLUE HORSE / GYM) y la
+     que mejor aguanta un número de 5 rem en una pantalla de teléfono. */
+  --font-display: "Oswald Variable", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", monospace;
+
+  /* --- sombras. En una UI oscura una sombra negra no se ve: lo que da
+     profundidad es el halo de color y el filo de luz de arriba. */
+  --shadow-card: 0 1px 0 0 rgb(255 255 255 / 0.04) inset, 0 8px 24px -12px rgb(0 0 0 / 0.8);
+  --shadow-raised: 0 1px 0 0 rgb(255 255 255 / 0.06) inset, 0 16px 40px -20px rgb(0 0 0 / 0.9);
+  --shadow-brand: 0 0 0 1px rgb(111 180 239 / 0.25), 0 10px 30px -10px rgb(111 180 239 / 0.35);
+  --shadow-brand-lg: 0 0 0 1px rgb(111 180 239 / 0.3), 0 18px 44px -12px rgb(111 180 239 / 0.45);
+
+  --radius-card: 1rem;
+  --radius-panel: 1.25rem;
 }
 
 html {
@@ -24,12 +101,25 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/**
+ * El fondo no es un negro plano: dos brumas azules muy bajas (una arriba, del
+ * lado del encabezado, otra abajo a la derecha) le dan volumen a la pantalla
+ * sin costar un solo píxel de contraste al texto. `fixed` para que no se
+ * muevan al hacer scroll — si se movieran, se leerían como contenido.
+ */
 body {
   background-color: var(--color-navy);
+  background-image:
+    radial-gradient(80rem 40rem at 50% -20rem, rgb(111 180 239 / 0.1), transparent 70%),
+    radial-gradient(50rem 50rem at 110% 110%, rgb(63 127 196 / 0.07), transparent 70%);
+  background-attachment: fixed;
   color: var(--color-ink);
   font-family: var(--font-sans);
+  font-feature-settings: "cv05", "ss01";
   /* La app se usa parado, con el teléfono en una mano: sin rebote horizontal. */
   overscroll-behavior-x: none;
+  /* El destello gris de Android al tocar pelea con el hundido de `tappable`. */
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Objetivos táctiles mínimos: se usa con las manos sudadas, entre series. */
@@ -52,8 +142,94 @@ a {
  * no cada vez que se toca un botón con el dedo.
  */
 :focus-visible {
-  outline: 2px solid var(--color-teal);
+  outline: 2px solid var(--color-brand);
   outline-offset: 2px;
+}
+
+::selection {
+  background-color: rgb(111 180 239 / 0.3);
+  color: var(--color-ink);
+}
+
+/**
+ * Los sliders nativos en oscuro se ven grises y con un pulgar de 12px que en
+ * un teléfono no se agarra. Los dos que hay (frecuencia en el onboarding,
+ * intensidad de una molestia) son de los pocos controles donde la persona
+ * arrastra en vez de tocar: el pulgar tiene que ser del tamaño de un dedo.
+ */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 2.75rem;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--color-surface-3);
+  box-shadow: inset 0 1px 0 rgb(0 0 0 / 0.5);
+}
+
+input[type="range"]::-moz-range-track {
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--color-surface-3);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -0.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  border: 2px solid var(--color-navy);
+  background: linear-gradient(160deg, var(--color-brand-bright), var(--color-brand-deep));
+  box-shadow: var(--shadow-brand);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  border: 2px solid var(--color-navy);
+  background: linear-gradient(160deg, var(--color-brand-bright), var(--color-brand-deep));
+  box-shadow: var(--shadow-brand);
+}
+
+/* Los `accent-orange` de una molestia reportada pintan el pulgar de naranja
+   sin duplicar todo el bloque de arriba. */
+input[type="range"].accent-orange::-webkit-slider-thumb {
+  background: linear-gradient(160deg, #ffb37a, var(--color-orange));
+  box-shadow:
+    0 0 0 1px rgb(242 98 46 / 0.3),
+    0 10px 30px -10px rgb(242 98 46 / 0.4);
+}
+
+input[type="range"].accent-orange::-moz-range-thumb {
+  background: linear-gradient(160deg, #ffb37a, var(--color-orange));
+}
+
+/* El date picker nativo trae un ícono negro sobre fondo oscuro: invisible. */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
+  cursor: pointer;
+}
+
+/* Las flechitas de un `number` roban 20px al campo de carga, que se toca con
+   el dedo y ya tiene sus dos botones de escalón al lado. */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 @media (prefers-reduced-motion: reduce) {

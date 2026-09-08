@@ -3,9 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#0b1a2b" />
+    <meta name="theme-color" content="#05070c" />
     <meta name="description" content="Tu entrenamiento en Blue Horse, adaptado a lo que hay en el gimnasio." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Las dos variables llegan antes que la hoja de estilos: sin esto el primer
+         render usa la fuente del sistema y el título salta de ancho al cargar Oswald. -->
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-latin-wght.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/oswald-latin-wght.woff2" crossorigin />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <title>Blue Horse</title>
   </head>

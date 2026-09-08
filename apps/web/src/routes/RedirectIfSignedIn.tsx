@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router';
+import { PageLoader } from '../components/ui/index.ts';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
 
 /**
@@ -18,15 +19,7 @@ export function RedirectIfSignedIn({ children }: { children: ReactNode }) {
   const { status } = useAuth();
 
   if (status === 'loading') {
-    return (
-      <div role="status" className="grid min-h-dvh place-items-center">
-        <div
-          aria-hidden="true"
-          className="size-6 animate-spin rounded-full border-2 border-line border-t-teal"
-        />
-        <span className="sr-only">Cargando…</span>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   if (status === 'signed-in') {

@@ -5,7 +5,8 @@ import { motion } from 'motion/react';
 import { useMemo } from 'react';
 import { useGymCatalog } from '../lib/catalog.ts';
 import { activeRuleset, engine, engineContext } from '../lib/engine.ts';
-import { fadeUp, tappable } from '../lib/motion.ts';
+import { tappable } from '../lib/motion.ts';
+import { Button, Card, Skeleton } from './ui/index.ts';
 
 /**
  * "Esta máquina está ocupada": ofrece un reemplazo equivalente calculado por
@@ -46,15 +47,18 @@ export function SubstitutePicker({
   const equipmentById = new Map((catalog.data?.gym.equipment ?? []).map((e) => [e.id, e]));
 
   return (
-    <motion.div
-      variants={fadeUp}
-      initial="hidden"
-      animate="visible"
-      className="flex flex-col gap-3 rounded-xl border border-line bg-navy-soft p-4"
-    >
-      <h3 className="text-sm font-semibold">¿Con qué la reemplazamos?</h3>
+    <Card className="flex flex-col gap-3 p-4">
+      <h3 className="font-display text-sm font-medium uppercase tracking-[0.16em]">
+        ¿Con qué la reemplazamos?
+      </h3>
 
-      {catalog.isPending && <p className="text-xs text-slate">Buscando alternativas…</p>}
+      {catalog.isPending && (
+        <div role="status" className="flex flex-col gap-1.5">
+          <Skeleton className="h-14 w-full" />
+          <Skeleton className="h-14 w-full" />
+          <span className="sr-only">Buscando alternativas…</span>
+        </div>
+      )}
 
       {!catalog.isPending && options.length === 0 && (
         <p className="flex items-center gap-1.5 text-xs text-slate">
@@ -79,13 +83,15 @@ export function SubstitutePicker({
                   equipment?.locationNote ?? 'sin ubicación',
                 )
               }
-              className="flex items-center justify-between gap-3 rounded-lg border border-line bg-navy px-3.5 py-2.5 text-left text-sm"
+              className="flex items-center justify-between gap-3 rounded-xl border border-line/70 bg-navy px-3.5 py-3 text-left transition-colors hover:border-brand/50"
             >
-              <span className="flex min-w-0 flex-col">
-                <span className="font-semibold">{exercise?.name ?? 'Ejercicio'}</span>
-                <span className="text-xs text-slate">{option.reason}</span>
+              <span className="flex min-w-0 flex-col gap-0.5">
+                <span className="text-sm font-semibold">{exercise?.name ?? 'Ejercicio'}</span>
+                <span className="text-xs leading-snug text-slate">{option.reason}</span>
               </span>
-              <span className="shrink-0 text-xs font-mono text-teal">
+              {/* Cuánto se parece al original, que es la única forma de elegir
+                  entre dos reemplazos sin saber de biomecánica. */}
+              <span className="shrink-0 font-display text-sm font-semibold tabular-nums text-brand">
                 {Math.round(option.equivalence * 100)}%
               </span>
             </motion.button>
@@ -93,14 +99,9 @@ export function SubstitutePicker({
         })}
       </div>
 
-      <motion.button
-        type="button"
-        {...tappable}
-        onClick={onCancel}
-        className="rounded-lg border border-line px-3.5 py-2 text-xs font-semibold text-slate"
-      >
+      <Button variant="quiet" size="sm" onClick={onCancel}>
         Cancelar
-      </motion.button>
-    </motion.div>
+      </Button>
+    </Card>
   );
 }

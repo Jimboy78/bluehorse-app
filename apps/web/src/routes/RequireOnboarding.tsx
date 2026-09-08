@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router';
+import { PageLoader } from '../components/ui/index.ts';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
 import { useProfileStatus } from '../lib/onboarding.ts';
 
@@ -15,15 +16,7 @@ export function RequireOnboarding({ children }: { children: ReactNode }) {
   if (status !== 'signed-in') return children;
 
   if (profile.isPending) {
-    return (
-      <div role="status" className="grid min-h-dvh place-items-center">
-        <div
-          aria-hidden="true"
-          className="size-6 animate-spin rounded-full border-2 border-line border-t-teal"
-        />
-        <span className="sr-only">Cargando…</span>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   if (profile.data && !profile.data.onboarded) {

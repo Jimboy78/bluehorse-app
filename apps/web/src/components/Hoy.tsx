@@ -1,5 +1,15 @@
 import type { SubstituteOption } from '@bh/engine';
-import { AlertCircle, Check, Dumbbell, Loader2, MapPin, Trophy } from 'lucide-react';
+import {
+  AlertCircle,
+  ArrowLeft,
+  Check,
+  ChevronRight,
+  Dumbbell,
+  Loader2,
+  MapPin,
+  Repeat2,
+  Trophy,
+} from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
@@ -14,6 +24,7 @@ import { RestTimer } from './RestTimer.tsx';
 import { SessionClose } from './SessionClose.tsx';
 import { SetRow } from './SetRow.tsx';
 import { SubstitutePicker } from './SubstitutePicker.tsx';
+import { Button, Card, EmptyState, Skeleton } from './ui/index.ts';
 
 /** Lo que reemplaza a un ítem cuando su estación estaba ocupada. Los objetivos
  * (series, reps, descanso) siguen siendo los de la prescripción original —
@@ -148,6 +159,12 @@ export function Hoy() {
     );
   }
 
+  const seriesTotales = session.items.reduce((total, i) => total + i.sets, 0);
+  const seriesCompletas = session.items.reduce(
+    (total, i) => total + Math.min((hechasPorItem[i.id] ?? []).length, i.sets),
+    0,
+  );
+
   return (
     <div className="flex flex-col gap-6">
       <AnimatePresence mode="wait">
@@ -172,9 +189,12 @@ export function Hoy() {
             onToggleSet={markDone}
           />
         ) : (
-          <motion.section key="lista" {...screen} className="flex flex-col gap-4">
-            <h2 className="text-2xl font-bold tracking-tight">Hoy te toca</h2>
-            <p className="text-xs text-slate">{session.focus}</p>
+          <motion.section key="lista" {...screen} className="flex flex-col gap-5">
+            <SessionHero
+              focus={session.focus}
+              seriesCompletas={seriesCompletas}
+              seriesTotales={seriesTotales}
+            />
 
             <motion.ul
               variants={listContainer}
@@ -200,23 +220,81 @@ export function Hoy() {
               ))}
             </motion.ul>
 
-            <p className="text-xs text-slate">
+            <p className="px-1 text-xs leading-relaxed text-slate">
               El orden es una sugerencia: tocá el que esté libre. Si una máquina está ocupada, la
               app te ofrece un reemplazo equivalente.
             </p>
 
-            <motion.button
-              type="button"
-              {...tappable}
-              onClick={() => setClosing(true)}
-              className="rounded-xl border border-line px-4 py-3 text-sm font-semibold text-slate"
-            >
+            <Button variant="ghost" size="lg" onClick={() => setClosing(true)}>
               Terminar sesión
-            </motion.button>
+            </Button>
           </motion.section>
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+/**
+ * El encabezado de la sesión del día.
+ *
+ * La barra de progreso es por series y no por ejercicios a propósito: con
+ * cinco ejercicios, contar por ejercicio hace que la barra no se mueva
+ * durante las tres series de cada uno — justo el rato en que la persona más
+ * quiere ver que avanzó.
+ */
+function SessionHero({
+  focus,
+  seriesCompletas,
+  seriesTotales,
+}: {
+  focus: string;
+  seriesCompletas: number;
+  seriesTotales: number;
+}) {
+  const porcentaje = seriesTotales === 0 ? 0 : (seriesCompletas / seriesTotales) * 100;
+  const terminada = seriesTotales > 0 && seriesCompletas >= seriesTotales;
+
+  return (
+    <motion.div
+      variants={fadeUp}
+      initial="hidden"
+      animate="visible"
+      className="flex flex-col gap-4"
+    >
+      <div className="flex flex-col gap-1">
+        <p className="font-display text-[0.7rem] font-medium uppercase tracking-[0.28em] text-brand">
+          Blue Horse · Arroyo Seco
+        </p>
+        <h1 className="font-display text-[2.6rem] font-semibold uppercase leading-[0.95] tracking-tight">
+          Hoy te toca
+        </h1>
+        <p className="text-sm text-slate">{focus}</p>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <div className="flex items-baseline justify-between gap-3">
+          <span className="font-display text-xs font-medium uppercase tracking-[0.18em] text-slate">
+            {terminada ? 'Sesión completa' : 'Series de hoy'}
+          </span>
+          <span className="font-display text-sm font-semibold tabular-nums text-ink">
+            {seriesCompletas}
+            <span className="text-slate-dim">/{seriesTotales}</span>
+          </span>
+        </div>
+        {/* `h-1.5` y no una barra gorda: es un indicador de fondo, no el
+            contenido. El degradé va de izquierda a derecha para que el avance
+            se lea como movimiento aunque el porcentaje sea bajo. */}
+        <div className="h-1.5 overflow-hidden rounded-full bg-surface-2">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${porcentaje}%` }}
+            transition={{ type: 'spring', stiffness: 200, damping: 30 }}
+            className="h-full rounded-full bg-gradient-to-r from-brand-deep via-brand to-brand-bright"
+          />
+        </div>
+      </div>
+    </motion.div>
   );
 }
 
@@ -246,42 +324,85 @@ function SessionItemRow({
         type="button"
         {...tappable}
         onClick={onOpen}
-        className={`flex w-full items-center gap-3.5 rounded-xl border px-4 py-3.5 text-left ${
-          completo ? 'border-teal/40 bg-teal/5' : 'border-line bg-navy-soft'
+        className={`flex w-full items-center gap-3.5 rounded-card border px-4 py-3.5 text-left transition-colors duration-150 ${
+          completo
+            ? 'border-brand/35 bg-brand/[0.07]'
+            : sugerido
+              ? 'border-brand/45 bg-surface shadow-brand'
+              : 'border-line bg-surface shadow-card hover:border-line-bright'
         }`}
       >
         <span
-          className={`grid size-10 shrink-0 place-items-center rounded-lg ${
-            completo ? 'bg-teal/15 text-teal' : 'bg-navy text-teal'
+          className={`grid size-11 shrink-0 place-items-center rounded-xl border ${
+            completo
+              ? 'border-brand/40 bg-brand/15 text-brand'
+              : sugerido
+                ? 'border-brand/40 bg-gradient-to-b from-brand/25 to-brand/5 text-brand'
+                : 'border-line bg-navy text-slate'
           }`}
         >
           {completo ? (
-            <Check size={18} aria-hidden="true" />
+            <Check size={19} strokeWidth={2.5} aria-hidden="true" />
           ) : (
-            <Dumbbell size={18} aria-hidden="true" />
+            <Dumbbell size={19} aria-hidden="true" />
           )}
         </span>
         {/* El nombre se queda con todo el ancho de la fila: con la chapita
             "sugerido" al costado, en un teléfono "Peso muerto rumano" partía
             en dos líneas y esa tarjeta quedaba 40px más alta que las demás. */}
-        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span className="font-semibold">{substitution?.name ?? item.name}</span>
-          <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className="font-mono text-xs text-slate">
-              {hechas > 0 ? `${hechas}/${item.sets}` : item.sets} × {item.reps} · {item.load}
-            </span>
+        <span className="flex min-w-0 flex-1 flex-col gap-1.5">
+          <span className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <span className="font-semibold leading-tight">{substitution?.name ?? item.name}</span>
             {sugerido && !completo && (
-              <span className="rounded-full border border-teal/40 px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-teal">
-                sugerido
+              <span className="rounded-full bg-brand/15 px-2 py-0.5 font-display text-[0.6rem] font-medium uppercase tracking-[0.14em] text-brand">
+                empezá por acá
               </span>
             )}
           </span>
+          <span className="flex items-center gap-2.5">
+            <SetDots total={item.sets} done={hechas} />
+            <span className="font-mono text-xs text-slate">
+              {item.reps} reps · {item.load}
+            </span>
+          </span>
           {substitution && (
-            <span className="text-[0.65rem] text-slate">reemplaza a {item.name}</span>
+            <span className="flex items-center gap-1 text-[0.65rem] text-slate-dim">
+              <Repeat2 size={11} aria-hidden="true" />
+              reemplaza a {item.name}
+            </span>
           )}
         </span>
+        <ChevronRight
+          size={16}
+          className={completo ? 'shrink-0 text-brand/60' : 'shrink-0 text-slate-dim'}
+          aria-hidden="true"
+        />
       </motion.button>
     </motion.li>
+  );
+}
+
+/**
+ * Cuántas series de este ejercicio llevás, sin leer un número. Tres puntos y
+ * dos llenos se entienden de un vistazo; "2/3" hay que leerlo.
+ */
+function SetDots({ total, done }: { total: number; done: number }) {
+  // Identidad estable por punto, mismo criterio que `seriesDe`: la posición
+  // no alcanza como clave de React.
+  const puntos = Array.from({ length: total }, (_, i) => ({
+    id: `punto-${i + 1}`,
+    lleno: i < done,
+  }));
+
+  return (
+    <span className="flex shrink-0 items-center gap-1" aria-hidden="true">
+      {puntos.map((punto) => (
+        <span
+          key={punto.id}
+          className={`size-1.5 rounded-full ${punto.lleno ? 'bg-brand' : 'bg-line-bright'}`}
+        />
+      ))}
+    </span>
   );
 }
 
@@ -321,37 +442,40 @@ function ExerciseDetail({
 }) {
   return (
     <motion.section key="detalle" {...screen} className="flex flex-col gap-5">
-      <div className="flex items-start justify-between gap-4">
-        {/* `min-w-0` para que el nombre pueda achicarse: sin eso un ejercicio
-            de nombre largo empuja al botón "Volver" fuera de la tarjeta. */}
-        <div className="flex min-w-0 flex-col gap-1">
-          <h2 className="text-2xl font-bold tracking-tight">{item.name}</h2>
-          <p className="flex items-center gap-1.5 text-sm text-slate">
-            <MapPin size={14} aria-hidden="true" />
-            {item.sector}
-          </p>
-        </div>
+      <div className="flex flex-col gap-3">
         <motion.button
           type="button"
           {...tappable}
           onClick={onBack}
-          className="shrink-0 rounded-full border border-line px-4 py-2 text-xs font-semibold text-slate"
+          className="flex w-fit items-center gap-1.5 rounded-full border border-line px-3.5 py-2 text-xs font-semibold text-slate transition-colors hover:border-line-bright hover:text-ink"
         >
-          Volver
+          <ArrowLeft size={14} aria-hidden="true" />
+          Volver a la sesión
         </motion.button>
+        {/* `min-w-0` para que el nombre pueda achicarse: sin eso un ejercicio
+            de nombre largo desborda la tarjeta. */}
+        <div className="flex min-w-0 flex-col gap-1.5">
+          <h2 className="font-display text-3xl font-semibold uppercase leading-[1.05] tracking-tight">
+            {item.name}
+          </h2>
+          <p className="flex items-center gap-1.5 text-sm text-slate">
+            <MapPin size={14} className="text-brand" aria-hidden="true" />
+            {item.sector}
+          </p>
+        </div>
       </div>
 
-      <p className="rounded-lg bg-navy-soft px-3.5 py-2.5 text-xs text-slate">{item.rationale}</p>
+      {/* La barra de la marca al costado convierte el consejo del motor en una
+          cita, no en otro párrafo gris más de la pantalla. */}
+      <p className="border-l-2 border-brand/50 bg-surface/60 py-2.5 pl-3.5 pr-3 text-sm leading-relaxed text-slate">
+        {item.rationale}
+      </p>
 
       {!showingSubstitutes && restingIndex === null && (
-        <motion.button
-          type="button"
-          {...tappable}
-          onClick={onShowSubstitutes}
-          className="self-start rounded-full border border-line px-3.5 py-2 text-xs font-semibold text-slate"
-        >
+        <Button variant="ghost" size="sm" className="self-start" onClick={onShowSubstitutes}>
+          <Repeat2 size={13} aria-hidden="true" />
           Máquina ocupada
-        </motion.button>
+        </Button>
       )}
 
       {showingSubstitutes && original ? (
@@ -364,19 +488,17 @@ function ExerciseDetail({
           onCancel={onCancelSubstitutes}
         />
       ) : restingIndex !== null ? (
-        <motion.div
-          key="timer"
-          {...screen}
-          className="rounded-2xl border border-line bg-navy-soft px-4 py-8"
-        >
-          <RestTimer
-            prescribedSeconds={item.restSeconds}
-            repsTarget={item.repsTarget}
-            targetRir={item.targetRir}
-            targetLoad={item.targetLoad}
-            loadSpec={item.equipmentLoadSpec}
-            onFinish={onRestFinish}
-          />
+        <motion.div key="timer" {...screen}>
+          <Card animate={false} className="px-4 py-8">
+            <RestTimer
+              prescribedSeconds={item.restSeconds}
+              repsTarget={item.repsTarget}
+              targetRir={item.targetRir}
+              targetLoad={item.targetLoad}
+              loadSpec={item.equipmentLoadSpec}
+              onFinish={onRestFinish}
+            />
+          </Card>
         </motion.div>
       ) : (
         <motion.div
@@ -421,27 +543,16 @@ function PlanStateMessage({
   // el estado de auth ANTES que `isPending`, mismo criterio que RequireX.
   if (authStatus !== 'signed-in') {
     return (
-      <div className="flex flex-col items-center gap-2 rounded-xl border border-line bg-navy-soft px-6 py-10 text-center">
-        <Dumbbell size={28} className="text-slate" aria-hidden="true" />
-        <p className="text-sm text-slate">
-          {authStatus === 'unconfigured'
-            ? 'Supabase no está configurado: no se puede leer ni generar el plan todavía.'
-            : 'Iniciá sesión para ver tu plan.'}
-        </p>
-      </div>
+      <EmptyState icon={<Dumbbell size={24} aria-hidden="true" />} title="Sin sesión">
+        {authStatus === 'unconfigured'
+          ? 'Supabase no está configurado: no se puede leer ni generar el plan todavía.'
+          : 'Iniciá sesión para ver tu plan.'}
+      </EmptyState>
     );
   }
 
   if (plan.isPending) {
-    return (
-      <div role="status" className="grid place-items-center py-16">
-        <div
-          aria-hidden="true"
-          className="size-6 animate-spin rounded-full border-2 border-line border-t-teal"
-        />
-        <span className="sr-only">Cargando tu plan…</span>
-      </div>
-    );
+    return <SessionSkeleton />;
   }
 
   if (plan.data?.kind === 'queue-empty') {
@@ -450,40 +561,59 @@ function PlanStateMessage({
 
   // plan.isError o plan.data?.kind === 'no-plan': mismo llamado a la acción.
   return (
-    <motion.div
-      variants={fadeUp}
-      initial="hidden"
-      animate="visible"
-      className="flex flex-col items-center gap-4 rounded-xl border border-line bg-navy-soft px-6 py-10 text-center"
+    <EmptyState
+      icon={<Dumbbell size={24} aria-hidden="true" />}
+      title="Todavía no tenés un plan"
+      action={
+        <div className="flex flex-col items-center gap-2">
+          <Button
+            variant="primary"
+            size="lg"
+            disabled={generatePlan.isPending || onboardingUnavailable}
+            onClick={() => generatePlan.mutate()}
+          >
+            {generatePlan.isPending && (
+              <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+            )}
+            Generar mi plan
+          </Button>
+          {generatePlan.isError && (
+            <p role="alert" className="flex items-center gap-1.5 text-xs text-orange">
+              <AlertCircle size={13} aria-hidden="true" />
+              No se pudo generar. Probá de nuevo en un momento.
+            </p>
+          )}
+        </div>
+      }
     >
-      <Dumbbell size={28} className="text-teal" aria-hidden="true" />
-      <div className="flex flex-col gap-1">
-        <p className="font-semibold">Todavía no tenés un plan generado.</p>
-        <p className="text-sm text-slate">
-          {plan.isError
-            ? 'No se pudo consultar tu plan. Revisá tu conexión y probá de nuevo.'
-            : 'Generalo con lo que ya cargaste en el onboarding.'}
-        </p>
+      {plan.isError
+        ? 'No se pudo consultar tu plan. Revisá tu conexión y probá de nuevo.'
+        : 'Generalo con lo que ya cargaste en el onboarding.'}
+    </EmptyState>
+  );
+}
+
+/**
+ * La forma de la sesión mientras se lee de la base, en vez de un spinner
+ * centrado: al llegar los datos la pantalla no salta, porque los bloques ya
+ * están donde van a estar los ejercicios.
+ */
+function SessionSkeleton() {
+  return (
+    <div role="status" className="flex flex-col gap-5">
+      <div className="flex flex-col gap-2">
+        <Skeleton className="h-3 w-40" />
+        <Skeleton className="h-10 w-56" />
+        <Skeleton className="h-3 w-32" />
       </div>
-      <motion.button
-        type="button"
-        {...tappable}
-        disabled={generatePlan.isPending || onboardingUnavailable}
-        onClick={() => generatePlan.mutate()}
-        className="flex items-center gap-2 rounded-xl bg-teal px-4 py-3 text-sm font-semibold text-navy disabled:opacity-50"
-      >
-        {generatePlan.isPending && (
-          <Loader2 size={16} className="animate-spin" aria-hidden="true" />
-        )}
-        Generar mi plan
-      </motion.button>
-      {generatePlan.isError && (
-        <p role="alert" className="flex items-center gap-1.5 text-xs text-orange">
-          <AlertCircle size={13} aria-hidden="true" />
-          No se pudo generar. Probá de nuevo en un momento.
-        </p>
-      )}
-    </motion.div>
+      <Skeleton className="h-1.5 w-full" />
+      <div className="flex flex-col gap-2.5">
+        <Skeleton className="h-[4.75rem] w-full" />
+        <Skeleton className="h-[4.75rem] w-full" />
+        <Skeleton className="h-[4.75rem] w-full" />
+      </div>
+      <span className="sr-only">Cargando tu plan…</span>
+    </div>
   );
 }
 
@@ -514,34 +644,26 @@ function QueueDone() {
   }
 
   return (
-    <motion.div
-      variants={fadeUp}
-      initial="hidden"
-      animate="visible"
-      className="flex flex-col items-center gap-3 rounded-xl border border-line bg-navy-soft px-6 py-10 text-center"
+    <EmptyState
+      icon={<Trophy size={24} aria-hidden="true" />}
+      title="Completaste toda la cola"
+      action={
+        <div className="flex flex-col items-center gap-2">
+          <Button variant="primary" size="lg" disabled={nextPlan.isPending} onClick={handleRequest}>
+            {nextPlan.isPending && (
+              <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+            )}
+            Pedir las próximas sesiones
+          </Button>
+          {error && (
+            <p role="alert" className="text-xs text-orange">
+              {error}
+            </p>
+          )}
+        </div>
+      }
     >
-      <Trophy size={28} className="text-teal" aria-hidden="true" />
-      <p className="font-semibold">Completaste toda la cola generada.</p>
-      <p className="max-w-[34ch] text-sm text-slate">
-        Las próximas arrancan con las cargas donde las dejaste.
-      </p>
-
-      {error && (
-        <p role="alert" className="text-sm text-orange">
-          {error}
-        </p>
-      )}
-
-      <motion.button
-        type="button"
-        {...tappable}
-        disabled={nextPlan.isPending}
-        onClick={handleRequest}
-        className="mt-1 flex items-center justify-center gap-2 rounded-xl bg-teal px-5 py-3 text-sm font-semibold text-navy disabled:opacity-50"
-      >
-        {nextPlan.isPending && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
-        Pedir las próximas sesiones
-      </motion.button>
-    </motion.div>
+      Las próximas arrancan con las cargas donde las dejaste.
+    </EmptyState>
   );
 }

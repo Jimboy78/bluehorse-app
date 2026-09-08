@@ -15,12 +15,7 @@
       "Bash(git show:*)"
     ],
     "ask": [],
-    "deny": [
-      "Read(./.env)",
-      "Read(./.env.*)",
-      "Bash(rm -rf:*)",
-      "Bash(npx supabase db reset --linked:*)"
-    ]
+    "deny": ["Bash(rm -rf:*)", "Bash(npx supabase db reset --linked:*)"]
   },
   "hooks": {
     "PostToolUse": [

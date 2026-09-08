@@ -1,26 +1,30 @@
 import { useQuery } from '@tanstack/react-query';
-import { LogOut, RefreshCw, TrendingUp } from 'lucide-react';
+import { Info, RefreshCw, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
-import { Link } from 'react-router';
+import { AppShell } from './components/AppShell.tsx';
 import { Hoy } from './components/Hoy.tsx';
 import { Proposals } from './components/Proposals.tsx';
-import { useAuth } from './lib/auth/AuthProvider.tsx';
+import { Button, Card, Notice, SectionLabel } from './components/ui/index.ts';
 import { activeRuleset, showsPlaceholderContent } from './lib/engine.ts';
 import { envError, isConfigured } from './lib/env.ts';
-import { fadeUp, tappable } from './lib/motion.ts';
+import { fadeUp } from './lib/motion.ts';
 import { type OutboxHealth, outboxHealth } from './lib/outbox.ts';
 import { checkConnection } from './lib/supabase.ts';
 import { useServiceWorkerUpdate } from './lib/use-sw-update.ts';
 import { useTodaySession } from './lib/use-today-session.ts';
 
 /**
- * Pantalla "Hoy": el plan real leído de la base. El panel "Estado del
- * esqueleto" (errores de configuración, estado de Supabase) solo se muestra
- * en desarrollo (`import.meta.env.DEV`) — a un socio real no se le muestra un
- * mensaje de zod sin traducir si algo está mal configurado.
+ * Pantalla "Hoy": el plan real leído de la base. El encabezado y la
+ * navegación viven en `AppShell`; acá quedan los avisos que valen para toda
+ * la sesión (versión nueva, contenido provisorio), las propuestas del motor y
+ * el entrenamiento.
+ *
+ * El panel "Estado del esqueleto" (errores de configuración, estado de
+ * Supabase) solo se muestra en desarrollo (`import.meta.env.DEV`) — a un socio
+ * real no se le muestra un mensaje de zod sin traducir si algo está mal
+ * configurado.
  */
 export function App() {
-  const { user, signOut } = useAuth();
   const todaySession = useTodaySession();
   const showsPlaceholderCatalog = todaySession?.isPlaceholder ?? true;
   // Solo alimentan el panel "Estado del esqueleto", que es dev-only: no tiene
@@ -45,65 +49,24 @@ export function App() {
   });
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-8 px-5 py-8">
+    <AppShell>
       <ServiceWorkerUpdate />
-      <motion.header
-        variants={fadeUp}
-        initial="hidden"
-        animate="visible"
-        className="flex flex-col gap-3"
-      >
-        {/* Título y acciones en filas separadas, no en columnas: el contenedor
-            es `max-w-md` siempre, así que con los botones al costado el
-            encabezado partía "Arroyo / Seco" en dos líneas. */}
-        <div className="flex flex-col gap-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">
-            Blue Horse Gym · Arroyo Seco
-          </p>
-          <h1 className="text-3xl font-bold tracking-tight">Push your limits</h1>
-          {user?.email && <p className="text-xs text-slate">{user.email}</p>}
-        </div>
-        <div className="flex items-center gap-2">
-          <motion.div {...tappable}>
-            <Link
-              to="/progreso"
-              className="flex items-center gap-1.5 rounded-full border border-line px-3.5 py-2 text-xs font-semibold text-teal"
-            >
-              <TrendingUp size={13} aria-hidden="true" />
-              Progreso
-            </Link>
-          </motion.div>
-          {/* Salir al otro extremo: es lo único acá que interrumpe el
-              entrenamiento, y no se toca sin querer al ir a Progreso. */}
-          <motion.button
-            type="button"
-            {...tappable}
-            onClick={() => void signOut()}
-            className="ml-auto flex items-center gap-1.5 rounded-full border border-line px-3.5 py-2 text-xs font-semibold text-slate"
-          >
-            <LogOut size={13} aria-hidden="true" />
-            Salir
-          </motion.button>
-        </div>
-      </motion.header>
 
       {(showsPlaceholderContent || showsPlaceholderCatalog) && (
-        <motion.p
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          className="rounded-lg border border-amber/40 bg-amber/10 px-4 py-3 text-sm"
-        >
+        <Notice tone="warn" icon={<Info size={16} aria-hidden="true" />}>
           <strong className="font-semibold">Vista previa con datos de ejemplo.</strong>
           {showsPlaceholderContent && (
             <>
               {' '}
               El ruleset activo es{' '}
-              <code className="font-mono text-xs">{activeRuleset.version}</code>.
+              <code className="rounded bg-amber/15 px-1 font-mono text-xs text-amber">
+                {activeRuleset.version}
+              </code>
+              .
             </>
           )}
           {showsPlaceholderCatalog && ' El catálogo de Blue Horse todavía no está cargado.'}
-        </motion.p>
+        </Notice>
       )}
 
       <Proposals />
@@ -115,39 +78,43 @@ export function App() {
           variants={fadeUp}
           initial="hidden"
           animate="visible"
-          className="mt-auto pt-4"
+          className="mt-auto flex flex-col gap-2.5 pt-4"
         >
-          <h2 className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate">
+          <SectionLabel icon={<Sparkles size={12} aria-hidden="true" />}>
             Estado del esqueleto (solo en desarrollo)
-          </h2>
-          <dl className="flex flex-col divide-y divide-line rounded-lg border border-line">
-            <Row
-              label="Configuración"
-              value={isConfigured ? 'variables cargadas' : (envError ?? 'sin .env')}
-              ok={isConfigured}
-            />
-            <Row
-              label="Supabase"
-              value={
-                connection.isPending ? 'consultando…' : (connection.data?.detail ?? 'sin respuesta')
-              }
-              ok={connection.data?.ok ?? false}
-            />
-            <Row
-              label="Motor"
-              value={`${activeRuleset.templates.length} plantillas · ${activeRuleset.source}`}
-              ok
-            />
-            <Row
-              label="Cola offline"
-              value={outbox.isPending ? 'leyendo…' : describeQueue(outbox.data)}
-              // Pendientes esperando señal es normal; que alguno falle, no.
-              ok={(outbox.data?.failing ?? 0) === 0}
-            />
-          </dl>
+          </SectionLabel>
+          <Card animate={false} className="overflow-hidden">
+            <dl className="flex flex-col divide-y divide-line/70">
+              <Row
+                label="Configuración"
+                value={isConfigured ? 'variables cargadas' : (envError ?? 'sin .env')}
+                ok={isConfigured}
+              />
+              <Row
+                label="Supabase"
+                value={
+                  connection.isPending
+                    ? 'consultando…'
+                    : (connection.data?.detail ?? 'sin respuesta')
+                }
+                ok={connection.data?.ok ?? false}
+              />
+              <Row
+                label="Motor"
+                value={`${activeRuleset.templates.length} plantillas · ${activeRuleset.source}`}
+                ok
+              />
+              <Row
+                label="Cola offline"
+                value={outbox.isPending ? 'leyendo…' : describeQueue(outbox.data)}
+                // Pendientes esperando señal es normal; que alguno falle, no.
+                ok={(outbox.data?.failing ?? 0) === 0}
+              />
+            </dl>
+          </Card>
         </motion.section>
       )}
-    </main>
+    </AppShell>
   );
 }
 
@@ -159,7 +126,7 @@ function Row({ label, value, ok }: { label: string; value: string; ok: boolean }
         <span>{value}</span>
         <span
           aria-hidden="true"
-          className={`size-2 shrink-0 rounded-full ${ok ? 'bg-teal' : 'bg-amber'}`}
+          className={`size-2 shrink-0 rounded-full ${ok ? 'bg-lime' : 'bg-amber'}`}
         />
         <span className="sr-only">{ok ? 'correcto' : 'requiere atención'}</span>
       </dd>
@@ -188,23 +155,18 @@ function ServiceWorkerUpdate() {
   if (!needsRefresh) return null;
 
   return (
-    <motion.div
-      variants={fadeUp}
-      initial="hidden"
-      animate="visible"
+    <Notice
+      tone="info"
       role="status"
-      className="flex items-center justify-between gap-3 rounded-lg border border-teal/40 bg-teal/10 px-4 py-3 text-sm"
+      icon={<RefreshCw size={16} aria-hidden="true" />}
+      className="items-center"
     >
-      <span>Hay una versión nueva de la app.</span>
-      <motion.button
-        type="button"
-        {...tappable}
-        onClick={() => void applyUpdate()}
-        className="flex shrink-0 items-center gap-1.5 rounded-full bg-teal px-3.5 py-2 text-xs font-semibold text-navy"
-      >
-        <RefreshCw size={13} aria-hidden="true" />
-        Actualizar
-      </motion.button>
-    </motion.div>
+      <span className="flex flex-wrap items-center justify-between gap-3">
+        Hay una versión nueva de la app.
+        <Button variant="primary" size="sm" onClick={() => void applyUpdate()}>
+          Actualizar
+        </Button>
+      </span>
+    </Notice>
   );
 }

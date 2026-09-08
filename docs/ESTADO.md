@@ -5,6 +5,171 @@ puede leer desde cualquier sesión nueva. **Actualizalo al terminar una sesión 
 
 ---
 
+## Última actualización: 8 de septiembre de 2026 (segunda sesión del día)
+
+Sesión de cierre de los tres pendientes que dejó la sesión anterior: verificar el rediseño en el
+navegador, terminar el login con Google, y commitear.
+
+### El rediseño, verificado en el navegador (por fin)
+
+La extensión de Chrome conectó esta vez sin problemas. Recorrido real:
+
+- `/auth` e `/instalar` (sin sesión): paleta hielo-sobre-negro aplicada, sin errores de consola.
+- Flujo completo con una cuenta nueva por Google: onboarding → plan generado → `/` (Hoy) con el
+  aviso de `RULESET PROVISORIO`, tabbar Hoy/Progreso.
+- `/panel`, promoviendo la cuenta de prueba a `role: admin` por REST directo (sin volver a
+  loguearse — confirma otra vez que el rol se lee en cada request, no en el JWT): el formulario de
+  "Agregar ejercicio" se ve bien, los checkboxes "Compuesto"/"Unilateral" quedaron alineados junto
+  a "Nivel mínimo" (el arreglo a mano de los `<label>` huérfanos de la sesión anterior aguantó),
+  chips de músculos con la UI nueva, 71 estaciones cargadas listadas con Editar/Borrar.
+
+Sin errores de consola en ninguna pantalla. **El punto 1 de la lista del rediseño, cerrado.**
+
+### Login con Google: terminado, local y en la nube
+
+Faltaba crear el cliente OAuth y pegar las credenciales. Se hizo todo por el navegador (con
+permiso explícito del usuario para tocar Google Cloud Console, ya autenticado como
+`martiniseba78@gmail.com`):
+
+- Cliente OAuth "Blue Horse PWA" creado en el proyecto `blue-horse-gym` de Google Cloud, tipo
+  Aplicación web, con los dos redirect URI (local `127.0.0.1:54321` y el de nube, agregado después
+  de crear el proyecto Supabase Cloud).
+- Client ID y secret pegados en `.env` (el secret lo pegó el propio agente esta vez: el usuario
+  aclaró explícitamente que no hay problema porque `.env` no se commitea).
+- **Usuario de prueba agregado en la pantalla de consentimiento de Google** — sin esto el login da
+  `access_denied` siempre, y no estaba cargado ningún usuario todavía pese a que `ESTADO.md` de la
+  sesión anterior decía que la pantalla de consentimiento ya estaba configurada. Confirmado con
+  Información de marca: todos los campos obligatorios ya estaban completos, no hacía falta nada
+  más ahí.
+- **Probado de punta a punta en local**: `npm run db:start` (Docker ya lo había arrancado el
+  usuario), clic en "Continuar con Google", selector de cuenta, consentimiento, redirect a
+  `/onboarding` con una cuenta nueva. Funciona.
+
+**Proyecto Supabase Cloud creado** (pedido nuevo del usuario, "abrí el free tier"): organización
+`Blue Horse Gym` nueva (separada de `EdificAr`/`KioscoCau`, las otras dos del usuario), proyecto
+`Blue Horse Gym` en São Paulo (`sa-east-1`, más cerca de Arroyo Seco que la región Americas
+genérica), free tier. Ref: `oxmrstldgzkqnufubulx`. Google habilitado ahí también, con el mismo
+client ID/secret. **No probado de punta a punta** (eso requiere un deploy real con el dominio de
+producción en `Site URL`/`Redirect URLs`, que todavía no existe — ver más abajo).
+
+**Contraseña de la base del proyecto cloud: no quedó guardada.** Se generó al crear el proyecto,
+pero Supabase no la vuelve a mostrar después y no se copió a tiempo. Si hace falta conectar
+directo a Postgres (por ejemplo para `db:sync` contra la nube), resetearla desde el dashboard
+primero.
+
+`.env` quedó con las credenciales cloud bajo `CLOUD_SUPABASE_*` (URL, anon key, service role key),
+sin pisar las `VITE_SUPABASE_*` que la app usa para local — la app sigue apuntando a Supabase local
+por defecto, estas son solo para cuando se despliegue.
+
+**Lo que falta para el proyecto cloud** (no es parte de esta sesión, queda para cuando haya un
+deploy real):
+- `Site URL` y `Redirect URLs` en Authentication → URL Configuration: sin dominio de producción
+  todavía (Vercel no tiene un `.vercel` local guardado con la URL del deploy).
+- Aplicar el esquema (`supabase db push` o el flujo de `npm run db:sync` contra la nube en vez de
+  local) — el proyecto cloud está vacío, sin las tablas de `supabase/schemas/`.
+- El ruleset placeholder (mismo problema que en local: no va en `seed.sql`, hay que insertarlo a
+  mano con la service key).
+
+### Commit pendiente
+
+Con `npm run check` verde (lint + typecheck + 151 tests) después de estos cambios, sigue el
+commit de los ~48 archivos del rediseño más los nuevos de esta sesión
+(`docs/08-google-oauth.md`, `.env` no se commitea).
+
+---
+
+## Última actualización: 8 de septiembre de 2026
+
+Sesión corta de cierre del rediseño visual del 5/9. **Nada commiteado todavía: 48 archivos.**
+`npm run check` pasa (lint + typecheck + 151 tests, exit 0) con Node 24 portable.
+
+### Lo que se cerró
+
+De los cinco pendientes que dejó el rediseño (ver la memoria `rediseno_visual_2026-09-05`),
+quedaron cerrados cuatro:
+
+- **`routes/Panel.tsx` a las primitivas de `ui/`.** Era el que solo había recibido el renombre de
+  tokens por sed. 13 `<label>` escritos a mano pasaron a `Field`, los `motion.button` a `Button` y
+  `Chip` (queda cero), los formularios y las filas a `Card`/`cardClass`, los títulos a
+  `SectionLabel` y los avisos a `Notice`. La conversión se hizo por script y rompió cuatro cierres
+  de JSX (dos `</label>` huérfanos y dos `</Field>` sobre los checkboxes de "Compuesto" y
+  "Unilateral", que son `<label>` de verdad porque envuelven al input): arreglados a mano.
+- **`RestTimer.tsx` bajo el límite de complejidad.** El rediseño lo había dejado en 22 contra el
+  máximo 15 — no rompía el check porque es warning, pero entraba como deuda con el commit. El
+  anillo, el halo y los dígitos se fueron a `RestDial`, y los ternarios anidados
+  (`isDone ? … : isFinishing ? … : …`) pasaron a una tabla `PHASE` de tres estados con
+  `restPhase(remaining)`. Se leía el orden de las condiciones para saber qué se veía cuándo.
+- **`package-lock.json`.** El diff era de 154 líneas porque se había regenerado con el Node 22.3.0
+  del PATH en vez del Node 24 portable: npm 10 borra los campos `libc` de las deps opcionales.
+  Regenerado con npm 11.19.0 (`--package-lock-only --ignore-scripts`), el diff quedó en 8 líneas,
+  y son correctas: sincronizan cuatro rangos con `apps/web/package.json`, que los pinnea exactos.
+- **`docs/07-marca-blue-horse.md`.** Decía todavía que la paleta era "decisión pendiente tuya" y
+  que los íconos "siguen siendo el placeholder". Las dos cosas se resolvieron el 5/9: ahora
+  documenta la opción elegida (el azul del logo es el acento de toda la UI; ámbar y naranja quedan
+  semánticos) con la tabla de los 11 tokens vigentes, y qué archivo es cada ícono. Lo único que
+  sigue sin hacerse es quitar el fondo negro con `rembg`, que no hizo falta porque toda la app
+  corre sobre oscuro.
+
+### Entrar con Google: configurado a medias
+
+Pedido nuevo del usuario. **El código ya existía desde el esqueleto** — `signInWithGoogle()` en
+`lib/auth/AuthProvider.tsx` y el botón de `routes/SignIn.tsx`—, lo que faltaba era configuración.
+
+Hecho en Google Cloud Console (proyecto nuevo **`blue-horse-gym`**, sin organización):
+pantalla de consentimiento con app "Blue Horse", tipo **Externo** (arranca en modo prueba: solo
+entran los correos cargados como usuarios de prueba), correo de asistencia y contacto
+`martiniseba78@gmail.com`.
+
+Hecho en el repo:
+
+- `supabase/config.toml`: bloque `[auth.external.google]` con `enabled = true` y las credenciales
+  por `env(...)`. **`skip_nonce_check = true`**: sin eso el GoTrue local no puede validar el nonce
+  del `id_token` sin un dominio real y entrar con Google falla siempre. Solo aplica al local.
+- `site_url` pasó de `http://127.0.0.1:3000` (el default de la CLI, que no es donde sirve Vite) a
+  `http://localhost:5173`, y `additional_redirect_urls` lleva `localhost` **y** `127.0.0.1` en el
+  5173: para el allow-list de Auth no son el mismo origen, y el callback vuelve exactamente al
+  origen del que salió.
+- `.env.example`: `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID` y `_SECRET`, con el aviso de que hay
+  que `npm run db:stop && npm run db:start` — no alcanza `db:reset`, GoTrue lee el provider al
+  arrancar el contenedor.
+- **`docs/08-google-oauth.md`** nuevo: el recorrido completo y la tabla de errores. La trampa
+  principal está anotada ahí — el URI de redirección que se carga en Google es el de **Supabase**
+  (`http://127.0.0.1:54321/auth/v1/callback`), no el de la app; poner el de la app da
+  `redirect_uri_mismatch`.
+
+**Falta**: crear el cliente OAuth tipo "Aplicación web" y pegar client ID y secret en `.env`. El
+secret lo pega el usuario.
+
+### Lo que quedó bloqueado, y por qué
+
+1. **Verificar el rediseño en el navegador — sigue sin hacerse, y ahora importa más**, porque
+   `Panel.tsx` cambió entero en esta sesión. Es el punto 1 de la lista del rediseño y el único que
+   no se pudo tocar.
+2. **La extensión de Chrome no conecta con esta sesión.** Se perdieron muchos turnos acá. Lo que
+   pasó, en orden: al principio había una sola extensión conectada, reportada como `isLocal: true`,
+   que en realidad manejaba **la otra computadora** del usuario — cada `navigate` abría la pestaña
+   allá. El usuario corrió `/login` a mitad de sesión ("Remote Control disconnected") y después
+   suspendió esa máquina. Desde ahí `list_connected_browsers` devuelve `[]` y `tabs_context_mcp`
+   dice que la extensión no está conectada, **con las tres cuentas iguales** (extensión, claude.ai
+   y Claude Code, todas `martiniseba78@gmail.com`) y Chrome reiniciado por completo. Queda por
+   probar reiniciar la sesión de Claude Code: el canal se establece al arrancar.
+3. **Docker no arranca desde el agente.** Se lanzó `Docker Desktop.exe` dos veces y el proceso no
+   queda vivo — necesita la sesión interactiva del usuario. Sin Docker no hay Supabase local, así
+   que el login de Google tampoco se puede probar de punta a punta.
+
+El dev server sí quedó andando en `localhost:5173` con el Node 24 portable.
+
+### Ojo con esto la próxima
+
+- **`npm run dev -- --host 127.0.0.1` deja el server sirviendo 404 en `/`.** Se probó para
+  esquivar el problema de la extensión y no funciona: hay que arrancarlo sin `--host`.
+- El Node del PATH por defecto sigue siendo **22.3.0**, y `CLAUDE.md` pide 22.12 mínimo. Hay que
+  anteponer `%LOCALAPPDATA%
+ode24` en cada sesión — si no, cosas como `package-lock.json` se
+  regeneran mal y en silencio.
+
+---
+
 ## Última actualización: 5 de septiembre de 2026 (loop autónomo, corre cada 15 min)
 
 ### Lo más importante de esta sesión: la app se probó por primera vez de verdad
@@ -384,19 +549,21 @@ como completada, que es lo único que hace avanzar la cola a la sesión siguient
   (`display-mode: standalone`) solo muestra un mensaje corto. Todas las ramas ofrecen "Entrar" sin
   instalar. La detección de plataforma es pura, con tests.
 
-**Fase 3 cerrada.** Sigue Fase 4 (contenido real). **Corrección importante: el research NO está
-pendiente de producirse — ya existe** en `docs/research/` (4 documentos, segunda tanda, con DOIs
-verificables) y `docs/research/README.md` ya lo evalúa documento por documento. Lo que bloquea
-Fase 4 es la curación, no la investigación en sí, y esa curación es explícitamente del usuario
-(o de alguien con criterio clínico para la Parte D de seguridad) — no algo que yo deba decidir
-solo: verificar a mano una muestra de los DOIs citados (sobre todo en `03` y `04`), decidir qué
-hacer con las filas en confianza BAJA, y solo `02` (cardio) necesita además extender
-`ruleset.ts` con un esquema nuevo (session_type/intensity_zone/etc., propuesto en el research)
-antes de poder cargarse — eso sí es un cambio de código, pero lo dejo para cuando se sepa qué
-forma final le van a dar al resto de la curación, no antes. Ver `docs/research/README.md` para el
-detalle completo y la skill `activar-ruleset` para el procedimiento. Sigue bloqueada también por
-el relevamiento del catálogo (Fase 0, del usuario). Lo que queda mientras tanto es técnico:
-verificación end-to-end contra Supabase real, y pulir lo ya construido.
+**Fase 3 cerrada.** Sigue Fase 4 (contenido real). **El research está completo**: 5 documentos en
+`docs/research/` (`01`-`04` de la segunda tanda + `05-seguridad-reforzada.md`, que el usuario
+agregó el 2026-09-05 específicamente para tapar el hueco de seguridad que señalaba `04` — cribado
+PAR-Q+, señales de alarma, dolor por zona, poblaciones especiales), con DOIs verificables, y
+`docs/research/README.md` ya evalúa los cinco documento por documento. Lo que bloquea Fase 4 es la
+curación, no la investigación en sí, y esa curación es explícitamente del usuario (o de alguien con
+criterio clínico para la parte de seguridad) — no algo que yo deba decidir solo: verificar a mano
+una muestra de los DOIs citados (sobre todo en `03`, `04` y `05`), decidir qué hacer con las filas
+en confianza BAJA, y solo `02` (cardio) necesita además extender `ruleset.ts` con un esquema nuevo
+(session_type/intensity_zone/etc., propuesto en el research) antes de poder cargarse — eso sí es un
+cambio de código, pero lo dejo para cuando se sepa qué forma final le van a dar al resto de la
+curación, no antes. Ver `docs/research/README.md` para el detalle completo y la skill
+`activar-ruleset` para el procedimiento. Sigue bloqueada también por el relevamiento del catálogo
+(Fase 0, del usuario — en curso, ver `docs/relevamiento/inventario.md`). Lo que queda mientras
+tanto es técnico: verificación end-to-end contra Supabase real, y pulir lo ya construido.
 
 **Code-splitting por ruta ya hecho** (`router.tsx`, todas las pantallas via `React.lazy()`): el
 chunk principal bajó de ~966kB a ~318kB, sin warning de tamaño. Ya no es una traba pendiente.
@@ -667,16 +834,35 @@ instalación real quedan sin verificar en un dispositivo físico.
    Ver `docs/research/README.md`. Solo el esquema nuevo de cardio en `ruleset.ts` (paso 3 de esa
    guía) es código, y conviene esperar a que se resuelvan los pasos 1-2 antes de tocarlo, para no
    tener que rehacerlo si la forma final cambia.
-3. Relevamiento del catálogo real (Fase 0) — también del usuario.
-4. Decisión de paleta (`docs/07-marca-blue-horse.md`) — bloqueada, es del usuario.
+3. Relevamiento del catálogo real (Fase 0) — **58 estaciones reales ya cargadas en `equipment`**
+   (Postgres local, gimnasio Blue Horse), a partir de `docs/relevamiento/inventario.md`. El usuario
+   decidió no completar marca/cantidad de lo que falta y seguir así. `load_min`/`load_max`/
+   `load_increment`/`stack_kg` quedaron en `null` en todas — nadie midió el rango real de carga por
+   estación todavía, y eso sigue siendo trabajo in situ, no algo que se pueda completar desde acá.
+   `load_unit` sí se completó en las 58 (stack_level para selectorizadas, plates_kg para las de
+   discos, none para cardio/accesorios, etc.) porque es clasificación del tipo de máquina, no un
+   número de prescripción inventado. Las 13 filas `Ejemplo —` del seed quedaron sin tocar (son
+   fixture de otra parte del sistema, no del relevamiento real). Sin fotos: por pedido del usuario,
+   `fotos-maquinas/` no se usó como material del catálogo (era solo para que yo entienda el
+   equipamiento) — la foto de cada estación queda pendiente de sacarse aparte, para eso.
+
+**Paleta de colores: resuelta el 2026-09-05.** El usuario mandó el ícono real de Blue Horse Gym
+(fondo negro, caballo en degradé de azules, blanco) y pidió tomar la paleta de ahí — revierte la
+instrucción anterior del mismo día que decía lo contrario. Aplicado en `apps/web/src/styles.css`:
+`--color-navy`/`--color-navy-soft` más oscuros (cerca del negro del ícono), `--color-teal` pasó a
+un azul cobalto (`#4fa3e3`) sacado del degradé del caballo — sigue llamándose `--color-teal` en el
+CSS para no tocar cada `text-teal`/`bg-teal` del código. `--color-amber`/`--color-orange` quedaron
+igual (son semánticos: alerta, "provisorio"; el ícono no tiene naranja). Contraste WCAG AA
+verificado por script antes de aplicar (par más ajustado: 6.74:1, teal sobre navy-soft). Verificado
+visualmente en el navegador contra `/` con sesión real — sin romper nada.
 
 ### Trabas conocidas
 
 - **Node**: Node 24.20.0 portable en `%LOCALAPPDATA%\node24` — anteponer al PATH en cada sesión.
 - **Después de cada `npm run db:reset`, correr `npm run db:ruleset`** (con `SUPABASE_URL` y
   `SUPABASE_SERVICE_ROLE_KEY` de `npx supabase status -o env`) o la generación de plan falla.
-- Loop autónomo corriendo cada 15 min (`CronCreate` job `f04a93b3`, session-only, expira en 7 días
-  o al cerrar esta sesión).
+- El loop autónomo (`CronCreate` job `f04a93b3`) fue cancelado a pedido del usuario el 2026-09-05.
+  No hay ningún loop corriendo.
 - **El Postgres local puede estar corriendo sin que el agente lo haya arrancado** — `npx supabase
   status` lo confirma (imprime las claves `anon`/`service_role` y `DB_URL`, todas de desarrollo,
   no secretas de verdad). Con eso corriendo se puede verificar CUALQUIER lógica de negocio en vivo

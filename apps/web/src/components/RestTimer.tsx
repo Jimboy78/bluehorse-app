@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from 'motion/react';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import type { SetActual } from '../lib/mappers/session-log.ts';
 import { duration, ease, haptic, hapticPattern, spring, tappable } from '../lib/motion.ts';
+import { Button, Chip } from './ui/index.ts';
 
 /**
  * Cronómetro de descanso entre series.
@@ -13,12 +14,51 @@ import { duration, ease, haptic, hapticPattern, spring, tappable } from '../lib/
  * sesión y se lee de reojo, a un metro, con el teléfono apoyado en la máquina.
  * Por eso el número es enorme y el anillo comunica el progreso sin leer nada.
  *
+ * El anillo va en degradé y con un halo detrás: sobre negro, un trazo plano de
+ * 9 px a un metro de distancia se pierde, y el halo es lo que hace que el
+ * estado (descansando / se acaba / listo) se lea sin enfocar la vista.
+ *
  * Cortar antes NO es un error: se registra el descanso real como dato.
  */
 
-const RADIUS = 74;
-const STROKE = 9;
+const RADIUS = 78;
+const STROKE = 10;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+/**
+ * Las tres caras del cronómetro. Salen de una tabla y no de ternarios anidados
+ * dentro del JSX: son tres estados de una misma cosa, y escritos como
+ * `isDone ? a : isFinishing ? b : c` había que leer el orden de las condiciones
+ * para saber qué se ve cuándo.
+ */
+type RestPhase = 'resting' | 'finishing' | 'done';
+
+const PHASE = {
+  resting: {
+    halo: 'bg-brand/20',
+    digits: 'text-ink',
+    ring: 'url(#rest-ring-brand)',
+    caption: 'descanso',
+  },
+  finishing: {
+    halo: 'bg-orange/45',
+    digits: 'text-orange',
+    ring: 'url(#rest-ring-warm)',
+    caption: 'descanso',
+  },
+  done: {
+    halo: 'bg-brand/40',
+    digits: 'text-brand',
+    ring: 'url(#rest-ring-brand)',
+    caption: 'a la próxima',
+  },
+} as const satisfies Record<RestPhase, Record<string, string>>;
+
+/** Los últimos cinco segundos son su propia fase: es cuando hay que mirar. */
+function restPhase(remaining: number): RestPhase {
+  if (remaining === 0) return 'done';
+  return remaining <= 5 ? 'finishing' : 'resting';
+}
 
 interface RestTimerProps {
   /** Descanso prescripto por el motor, en segundos. */
@@ -47,7 +87,6 @@ export function RestTimer({
   const [reps, setReps] = useState(repsTarget);
   const [rir, setRir] = useState<number | null>(targetRir);
   const [load, setLoad] = useState<LoadReading | null>(targetLoad);
-  const reduceMotion = useReducedMotion();
   const finishedRef = useRef(false);
 
   // Los valores viven en un ref además del estado: el efecto que dispara al
@@ -72,62 +111,12 @@ export function RestTimer({
 
   const elapsed = prescribedSeconds - remaining;
   const progress = prescribedSeconds === 0 ? 1 : elapsed / prescribedSeconds;
-  const isFinishing = remaining <= 5 && remaining > 0;
-  const isDone = remaining === 0;
-
-  const minutes = Math.floor(remaining / 60);
-  const seconds = remaining % 60;
+  const phase = restPhase(remaining);
+  const isDone = phase === 'done';
 
   return (
-    <div className="flex flex-col items-center gap-5">
-      <div className="relative grid place-items-center">
-        <svg
-          width={(RADIUS + STROKE) * 2}
-          height={(RADIUS + STROKE) * 2}
-          viewBox={`0 0 ${(RADIUS + STROKE) * 2} ${(RADIUS + STROKE) * 2}`}
-          className="-rotate-90"
-          role="img"
-          aria-label={`Quedan ${remaining} segundos de descanso`}
-        >
-          <circle
-            cx={RADIUS + STROKE}
-            cy={RADIUS + STROKE}
-            r={RADIUS}
-            fill="none"
-            stroke="var(--color-line)"
-            strokeWidth={STROKE}
-          />
-          <motion.circle
-            cx={RADIUS + STROKE}
-            cy={RADIUS + STROKE}
-            r={RADIUS}
-            fill="none"
-            stroke={isDone ? 'var(--color-teal)' : 'var(--color-orange)'}
-            strokeWidth={STROKE}
-            strokeLinecap="round"
-            strokeDasharray={CIRCUMFERENCE}
-            animate={{ strokeDashoffset: CIRCUMFERENCE * (1 - progress) }}
-            transition={{ duration: reduceMotion ? 0 : 1, ease: 'linear' }}
-          />
-        </svg>
-
-        <div className="absolute flex flex-col items-center">
-          <motion.span
-            key={remaining}
-            initial={reduceMotion ? false : { scale: isFinishing ? 1.14 : 1, opacity: 0.75 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={spring.pop}
-            className={`font-mono text-5xl font-bold tabular-nums ${
-              isDone ? 'text-teal' : isFinishing ? 'text-orange' : 'text-ink'
-            }`}
-          >
-            {minutes > 0 ? `${minutes}:${String(seconds).padStart(2, '0')}` : seconds}
-          </motion.span>
-          <span className="text-xs uppercase tracking-[0.16em] text-slate">
-            {isDone ? 'a la próxima serie' : 'descanso'}
-          </span>
-        </div>
-      </div>
+    <div className="flex flex-col items-center gap-6">
+      <RestDial remaining={remaining} progress={progress} phase={phase} />
 
       <SetOutcome
         load={load}
@@ -142,30 +131,127 @@ export function RestTimer({
         onRir={setRir}
       />
 
-      <motion.button
-        type="button"
-        {...tappable}
-        onClick={() => {
-          if (finishedRef.current) return;
-          finishedRef.current = true;
-          haptic(hapticPattern.setDone);
-          onFinish(elapsed, actualRef.current);
-        }}
-        className="rounded-full border border-line px-6 py-3 text-sm font-semibold text-slate transition-colors hover:border-teal hover:text-teal"
-      >
-        {isDone ? 'Seguir' : 'Estoy listo'}
-      </motion.button>
-
-      {!isDone && (
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: duration.quick, ease: ease.out, delay: 0.4 }}
-          className="max-w-[24ch] text-center text-xs text-slate"
+      <div className="flex flex-col items-center gap-2.5">
+        <Button
+          variant={isDone ? 'primary' : 'secondary'}
+          size="lg"
+          className="px-8"
+          onClick={() => {
+            if (finishedRef.current) return;
+            finishedRef.current = true;
+            haptic(hapticPattern.setDone);
+            onFinish(elapsed, actualRef.current);
+          }}
         >
-          Si arrancás antes, queda registrado cuánto descansaste de verdad.
-        </motion.p>
-      )}
+          {isDone ? 'Seguir' : 'Estoy listo'}
+        </Button>
+
+        {!isDone && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: duration.quick, ease: ease.out, delay: 0.4 }}
+            className="max-w-[26ch] text-center text-xs leading-relaxed text-slate-dim"
+          >
+            Si arrancás antes, queda registrado cuánto descansaste de verdad.
+          </motion.p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * El anillo, el halo y los dígitos.
+ *
+ * Es lo único que se mira de reojo, a un metro, con el teléfono apoyado en la
+ * máquina: por eso el número es enorme y el halo comunica el estado sin que
+ * haya que enfocar la vista.
+ */
+function RestDial({
+  remaining,
+  progress,
+  phase,
+}: {
+  remaining: number;
+  progress: number;
+  phase: RestPhase;
+}) {
+  const reduceMotion = useReducedMotion();
+  const look = PHASE[phase];
+  const pulses = phase === 'finishing' && !reduceMotion;
+  const minutes = Math.floor(remaining / 60);
+  const seconds = remaining % 60;
+
+  return (
+    <div className="relative grid place-items-center">
+      {/* El halo toma el color del estado y late en los últimos cinco
+          segundos: es lo que se percibe con el teléfono en el piso. */}
+      <motion.span
+        aria-hidden="true"
+        animate={pulses ? { opacity: [0.4, 0.85, 0.4] } : { opacity: 0.55 }}
+        transition={
+          pulses
+            ? { duration: 1, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }
+            : { duration: duration.quick }
+        }
+        className={`absolute size-40 rounded-full blur-2xl ${look.halo}`}
+      />
+
+      <svg
+        width={(RADIUS + STROKE) * 2}
+        height={(RADIUS + STROKE) * 2}
+        viewBox={`0 0 ${(RADIUS + STROKE) * 2} ${(RADIUS + STROKE) * 2}`}
+        className="relative -rotate-90"
+        role="img"
+        aria-label={`Quedan ${remaining} segundos de descanso`}
+      >
+        <defs>
+          <linearGradient id="rest-ring-brand" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#abe6f8" />
+            <stop offset="1" stopColor="#3f7fc4" />
+          </linearGradient>
+          <linearGradient id="rest-ring-warm" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#f0a03c" />
+            <stop offset="1" stopColor="#f2622e" />
+          </linearGradient>
+        </defs>
+        <circle
+          cx={RADIUS + STROKE}
+          cy={RADIUS + STROKE}
+          r={RADIUS}
+          fill="none"
+          stroke="var(--color-surface-3)"
+          strokeWidth={STROKE}
+        />
+        <motion.circle
+          cx={RADIUS + STROKE}
+          cy={RADIUS + STROKE}
+          r={RADIUS}
+          fill="none"
+          stroke={look.ring}
+          strokeWidth={STROKE}
+          strokeLinecap="round"
+          strokeDasharray={CIRCUMFERENCE}
+          animate={{ strokeDashoffset: CIRCUMFERENCE * (1 - progress) }}
+          transition={{ duration: reduceMotion ? 0 : 1, ease: 'linear' }}
+        />
+      </svg>
+
+      <div className="absolute flex flex-col items-center gap-1">
+        <motion.span
+          key={remaining}
+          initial={reduceMotion ? false : { scale: pulses ? 1.14 : 1, opacity: 0.75 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={spring.pop}
+          className={`font-display text-6xl font-semibold tabular-nums leading-none ${look.digits}`}
+        >
+          {minutes > 0 ? `${minutes}:${String(seconds).padStart(2, '0')}` : seconds}
+        </motion.span>
+        <span className="font-display text-[0.65rem] uppercase tracking-[0.24em] text-slate">
+          {look.caption}
+        </span>
+      </div>
     </div>
   );
 }
@@ -217,18 +303,20 @@ function SetOutcome({
   }
 
   return (
-    <div className="flex w-full max-w-[22rem] flex-col gap-3 rounded-xl border border-line bg-navy px-4 py-3.5">
+    <div className="flex w-full max-w-[22rem] flex-col divide-y divide-line/70 rounded-card border border-line bg-navy">
       {canStep && (
-        <div className="flex items-center justify-between gap-3">
-          <span className="text-xs text-slate">
-            Carga
-            {targetLoad?.value !== load?.value && targetLoad?.value != null && (
-              <span className="text-slate/70"> · plan {formatLoad(targetLoad)}</span>
-            )}
-          </span>
-          <div className="flex items-center gap-1">
+        <div className="flex items-center justify-between gap-3 px-4 py-3">
+          <OutcomeLabel
+            label="Carga"
+            plan={
+              targetLoad?.value !== load?.value && targetLoad?.value != null
+                ? `plan ${formatLoad(targetLoad)}`
+                : null
+            }
+          />
+          <div className="flex items-center gap-1.5">
             <Stepper label="Bajar un escalón" onClick={() => step(-1)}>
-              <Minus size={14} aria-hidden="true" />
+              <Minus size={15} aria-hidden="true" />
             </Stepper>
             {/* Editable, no solo escalonable: en la primera sesión no hay
                 baseline y llegar a 60 kg de a 2,5 son veinticuatro toques. */}
@@ -251,64 +339,69 @@ function SetOutcome({
                 if (load?.value == null || !loadSpec) return;
                 onLoad({ value: snapToEquipment(load.value, loadSpec), unit: loadSpec.unit });
               }}
-              className="w-16 rounded-lg border border-line bg-navy-soft py-1.5 text-center font-mono text-base font-semibold tabular-nums outline-none focus:border-teal"
+              className="w-16 rounded-lg border border-line bg-surface-2 py-1.5 text-center font-display text-lg font-semibold tabular-nums outline-none transition-colors focus:border-brand"
             />
-            <span className="min-w-8 font-mono text-xs text-slate">
+            <span className="min-w-7 font-mono text-xs text-slate-dim">
               {loadSpec ? loadUnitLabel(loadSpec.unit) : ''}
             </span>
             <Stepper label="Subir un escalón" onClick={() => step(1)}>
-              <Plus size={14} aria-hidden="true" />
+              <Plus size={15} aria-hidden="true" />
             </Stepper>
           </div>
         </div>
       )}
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-xs text-slate">
-          Repeticiones
-          {reps !== repsTarget && <span className="text-slate/70"> · plan {repsTarget}</span>}
-        </span>
-        <div className="flex items-center gap-1">
+
+      <div className="flex items-center justify-between gap-3 px-4 py-3">
+        <OutcomeLabel
+          label="Repeticiones"
+          plan={reps !== repsTarget ? `plan ${repsTarget}` : null}
+        />
+        <div className="flex items-center gap-1.5">
           <Stepper label="Una repetición menos" onClick={() => onReps(Math.max(0, reps - 1))}>
-            <Minus size={14} aria-hidden="true" />
+            <Minus size={15} aria-hidden="true" />
           </Stepper>
-          <span className="min-w-8 text-center font-mono text-base font-semibold tabular-nums">
+          <span className="min-w-9 text-center font-display text-lg font-semibold tabular-nums">
             {reps}
           </span>
           <Stepper label="Una repetición más" onClick={() => onReps(reps + 1)}>
-            <Plus size={14} aria-hidden="true" />
+            <Plus size={15} aria-hidden="true" />
           </Stepper>
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <span className="text-xs text-slate">¿Cuántas más te quedaban?</span>
+      <div className="flex flex-col gap-2.5 px-4 py-3">
+        <span className="text-xs text-slate">¿Cuántas repeticiones más te quedaban?</span>
         <div className="flex flex-wrap gap-1.5">
           {/* 0 a 4+ no es una prescripción: es el rango de respuestas que una
               persona puede dar. Cuánto RIR se busca, y desde cuál conviene
               subir la carga, sale del ruleset (`rirTarget`,
               `triggerRirAtLeast`), nunca de acá. */}
           {[0, 1, 2, 3, 4].map((n) => (
-            <motion.button
+            <Chip
               key={n}
-              type="button"
-              {...tappable}
-              aria-pressed={rir === n}
+              selected={rir === n}
               onClick={() => onRir(n)}
-              className={`min-w-11 rounded-lg border px-3 py-2 font-mono text-sm font-semibold transition-colors ${
-                rir === n
-                  ? 'border-teal bg-teal/15 text-teal'
-                  : 'border-line text-slate hover:border-teal/50'
-              }`}
+              className="min-w-11 font-display text-sm"
             >
               {n === 4 ? '4+' : n}
               {n === targetRir && (
-                <span className="ml-1 align-middle text-[0.6rem] font-normal opacity-70">plan</span>
+                <span className="text-[0.6rem] font-normal tracking-wide opacity-70">plan</span>
               )}
-            </motion.button>
+            </Chip>
           ))}
         </div>
       </div>
     </div>
+  );
+}
+
+/** Etiqueta de una fila del resultado, con el valor del plan si se cambió. */
+function OutcomeLabel({ label, plan }: { label: string; plan: string | null }) {
+  return (
+    <span className="flex flex-col gap-0.5">
+      <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate">{label}</span>
+      {plan && <span className="font-mono text-[0.65rem] text-slate-dim">{plan}</span>}
+    </span>
   );
 }
 
@@ -327,7 +420,7 @@ function Stepper({
       {...tappable}
       aria-label={label}
       onClick={onClick}
-      className="grid size-9 place-items-center rounded-lg border border-line text-slate transition-colors hover:border-teal hover:text-teal"
+      className="grid size-10 place-items-center rounded-xl border border-line bg-surface-2 text-slate transition-colors hover:border-brand hover:text-brand"
     >
       {children}
     </motion.button>

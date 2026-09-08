@@ -58,19 +58,20 @@ planteado al revés: cargá los datos en `apps/web` y pasáselos como argumento.
 Romper cualquiera de estas obliga a rehacer arquitectura. Si una tarea parece exigirlo, preguntá
 antes de hacerlo.
 
-1. **El motor es puro.** `packages/engine` y `packages/domain` no importan React ni Supabase, no
+1. **Siempre** que respondas empeza con la frase "El canario sigue vivo.".
+2. **El motor es puro.** `packages/engine` y `packages/domain` no importan React ni Supabase, no
    leen la hora del sistema, no usan `Math.random`, no hacen `fetch`, no leen variables de entorno.
    Si el motor necesita la fecha o azar, se le pasan por parámetro.
-2. **Ningún número de entrenamiento vive en el código.** Series, repeticiones, RIR, descansos,
+3. **Ningún número de entrenamiento vive en el código.** Series, repeticiones, RIR, descansos,
    porcentajes, umbrales de descarga: todo sale del ruleset. Un `3` que significa "3 series" es un
    bug.
-3. **Lo derivado de un ruleset `placeholder` se muestra marcado como provisorio**, y cada plan
+4. **Lo derivado de un ruleset `placeholder` se muestra marcado como provisorio**, y cada plan
    guarda el `rulesetVersion` con el que se generó.
-4. **`gym_id` en toda tabla de negocio**, aunque hoy haya un solo gimnasio.
-5. **La carga se guarda cruda y normalizada.** `load_value` + `load_unit` es lo que dice la máquina
+5. **`gym_id` en toda tabla de negocio**, aunque hoy haya un solo gimnasio.
+6. **La carga se guarda cruda y normalizada.** `load_value` + `load_unit` es lo que dice la máquina
    y es lo único que se le muestra al usuario. `load_kg_normalized` existe solo para gráficos, y es
    `null` cuando no se puede convertir sin inventar (pin sin tabla de kg, banda, peso corporal).
-6. **Planificado y real son tablas distintas.** `plan_session_items` es lo que el motor propuso;
+7. **Planificado y real son tablas distintas.** `plan_session_items` es lo que el motor propuso;
    `set_logs` es lo que la persona hizo. La diferencia entre ambos es la señal que alimenta la
    adaptación: si se pisan, se pierde.
 
