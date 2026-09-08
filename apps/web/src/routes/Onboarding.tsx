@@ -3,6 +3,7 @@ import { AlertCircle, Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { type FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router';
+import type { z } from 'zod';
 import {
   BrandMark,
   Button,
@@ -30,10 +31,10 @@ import {
 } from './onboarding/schemas.ts';
 
 /**
- * Onboarding en 4 pasos. No pide carga por ejercicio: el catálogo de Blue
- * Horse todavía no está cargado (Fase 0 del roadmap), así que "declared" solo
- * guarda la intención — la calibración real ocurre en la primera sesión,
- * contra equipamiento real.
+ * Onboarding en 4 pasos. No pide carga por ejercicio a propósito: nadie mide su
+ * fuerza en las 58 estaciones antes de la primera sesión, y preguntarlo sería
+ * pedirle a alguien que invente números. "declared" guarda la intención; la
+ * calibración real sale de lo que registre entrenando.
  */
 
 const GOAL_LABELS: Record<Goal, string> = {
@@ -62,6 +63,25 @@ const SEX_LABELS: Record<Sex, string> = {
 type Draft = Partial<OnboardingInput>;
 
 const STEPS = ['objetivo', 'personal', 'frecuencia', 'calibracion'] as const;
+
+/** Nombre en castellano de cada campo del wizard, para poder decir qué falta. */
+const FIELD_LABELS: Record<string, string> = {
+  goal: 'el objetivo',
+  birthDate: 'la fecha de nacimiento',
+  sex: 'el sexo',
+  experienceLevel: 'el nivel de experiencia',
+  sessionsPerWeekTarget: 'las sesiones por semana',
+  sessionMinutesTarget: 'los minutos por sesión',
+  baselineMode: 'si ya sabés cuánto levantás',
+};
+
+function missingFields(error: z.ZodError): string[] {
+  const names = error.issues.map((issue) => {
+    const field = String(issue.path[0] ?? '');
+    return FIELD_LABELS[field] ?? field;
+  });
+  return [...new Set(names)];
+}
 
 export function Onboarding() {
   const navigate = useNavigate();
@@ -96,7 +116,9 @@ export function Onboarding() {
     const full = { ...draft, ...patch };
     const parsed = onboardingSchema.safeParse(full);
     if (!parsed.success) {
-      setError('Faltan datos. Volvé a los pasos anteriores y completalos.');
+      // Decir QUÉ falta, no solo que falta algo: "volvé a los pasos anteriores"
+      // deja a alguien que cree haber completado todo sin ninguna salida.
+      setError(`Falta completar: ${missingFields(parsed.error).join(', ')}.`);
       return;
     }
     try {
@@ -485,9 +507,8 @@ function CalibrationStep({
     <motion.form {...screen} onSubmit={handleSubmit} className="flex flex-col gap-5">
       <StepTitle>¿Ya sabés cuánto levantás?</StepTitle>
       <p className="text-sm leading-relaxed text-slate">
-        El catálogo de Blue Horse todavía se está cargando: por ahora esto solo guarda tu
-        preferencia. Cuando esté disponible el equipamiento real, te lo preguntamos ejercicio por
-        ejercicio.
+        Nadie mide su fuerza en cada máquina antes de empezar. Elegí lo que te quede cómodo: la
+        carga de cada ejercicio se ajusta sola con lo que registres en las primeras sesiones.
       </p>
 
       <div className="flex flex-col gap-2">

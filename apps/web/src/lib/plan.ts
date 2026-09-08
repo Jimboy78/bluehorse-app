@@ -1,4 +1,11 @@
-import type { EquipmentLoadSpec, ExperienceLevel, LoadReading, Sex } from '@bh/domain';
+import type {
+  EquipmentLoadSpec,
+  ExperienceLevel,
+  LoadReading,
+  Sex,
+  UserBaseline,
+  UserConstraint,
+} from '@bh/domain';
 import { formatLoad } from '@bh/domain';
 import type { PlanBlueprint, UserSnapshot } from '@bh/engine';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -43,6 +50,26 @@ export async function fetchUserSnapshot(
     throw new Error('El socio no tiene ningún objetivo cargado todavía (falta el onboarding).');
   }
 
+  // Molestias y lesiones vigentes (`active_to` nulo). Sin esto el motor no puede
+  // sacar del plan lo que irrita una zona que duele: la regla existe en el
+  // ruleset y en el motor, pero nunca recibía con qué dispararse.
+  const { data: constraintRows, error: constraintError } = await client
+    .from('user_constraints')
+    .select('type, body_region, exercise_id, equipment_id, severity')
+    .eq('user_id', userId)
+    .is('active_to', null);
+  if (constraintError) throw constraintError;
+
+  // Punto de partida por ejercicio: lo declarado o lo que la app calibró. Es de
+  // donde sale la carga objetivo del plan y lo que el ajuste por ausencia
+  // reduce al volver.
+  const { data: baselineRows, error: baselineError } = await client
+    .from('user_baselines')
+    .select('exercise_id, source, load_value, load_unit, reps, recorded_at')
+    .eq('user_id', userId)
+    .order('recorded_at', { ascending: false });
+  if (baselineError) throw baselineError;
+
   return {
     profile: {
       id: profileRow.id,
@@ -59,9 +86,46 @@ export async function fetchUserSnapshot(
       sessionsPerWeekTarget: g.sessions_per_week_target,
       sessionMinutesTarget: g.session_minutes_target,
     })),
-    constraints: [],
-    baselines: [],
+    constraints: (constraintRows ?? []).map((c) => ({
+      type: c.type as UserConstraint['type'],
+      bodyRegion: c.body_region as UserConstraint['bodyRegion'],
+      exerciseId: c.exercise_id,
+      equipmentId: c.equipment_id,
+      severity: c.severity,
+    })),
+    // Una fila por ejercicio: la más reciente. La consulta viene ordenada, así
+    // que la primera de cada ejercicio gana.
+    baselines: dedupeByExercise(baselineRows ?? []),
   };
+}
+
+/** Baseline vigente de cada ejercicio: la más reciente de las registradas. */
+export function dedupeByExercise(rows: readonly BaselineRow[]): UserBaseline[] {
+  const seen = new Set<string>();
+  const out: UserBaseline[] = [];
+
+  for (const row of rows) {
+    if (seen.has(row.exercise_id)) continue;
+    seen.add(row.exercise_id);
+    out.push({
+      exerciseId: row.exercise_id,
+      source: row.source,
+      load: { value: row.load_value, unit: row.load_unit },
+      reps: row.reps ?? 0,
+      recordedAt: row.recorded_at,
+    });
+  }
+
+  return out;
+}
+
+export interface BaselineRow {
+  readonly exercise_id: string;
+  readonly source: UserBaseline['source'];
+  readonly load_value: number | null;
+  readonly load_unit: LoadReading['unit'];
+  readonly reps: number | null;
+  readonly recorded_at: string;
 }
 
 /**

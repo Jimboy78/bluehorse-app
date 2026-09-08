@@ -89,8 +89,21 @@ export function useSubmitScreening() {
 
       return cleared;
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['health-screening', user?.id] });
+    /**
+     * Se escribe el estado nuevo en la caché en vez de solo invalidar.
+     *
+     * Con `invalidateQueries` sola había una carrera real: la pantalla navegaba
+     * al onboarding apenas guardaba, `RequireScreening` montaba mientras la
+     * consulta todavía se estaba rehaciendo, leía el dato viejo
+     * (`answered: false`) y rebotaba de vuelta al cribado — con el formulario en
+     * blanco, como si no se hubiera guardado nada. Se guardaba bien; lo que
+     * fallaba era lo que el guard veía en ese instante.
+     */
+    onSuccess: (cleared) => {
+      queryClient.setQueryData<ScreeningState>(
+        ['health-screening', user?.id, activeRuleset.version],
+        { required: true, answered: true, cleared, needsDisclaimer: false },
+      );
     },
   });
 }

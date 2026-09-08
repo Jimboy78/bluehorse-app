@@ -77,10 +77,31 @@ es al revés.
   el dolor por zona saca lo que corresponde y deja el plan con ítems; el cardio sale con duración y
   zona y sin RIR; el plan persiste sin errores de FK y ningún ítem queda marcado como provisorio; el
   cribado guarda las respuestas y no pisa el historial. Limpieza completa después.
-- **Falta verlo en el navegador.** La extensión de Chrome se desconectó a mitad de sesión (el
-  `/login` cambió de cuenta: `martiniseba78@` → `thejimmy788@`), así que la capa de React con el
-  contenido nuevo —la pantalla `/salud`, el aviso de evidencia floja, el cardio mostrado en minutos—
-  no se recorrió a mano.
+### Probado en el navegador, y ahí aparecieron los bugs que los tests no ven
+
+Recorrido completo con un socio real: cribado → onboarding → plan. Tres bugs, todos de los que
+solo se ven usando la app:
+
+1. **El cribado guardaba bien pero rebotaba al formulario en blanco.** `useSubmitScreening` solo
+   invalidaba la query; la pantalla navegaba al onboarding, `RequireScreening` montaba mientras la
+   consulta se estaba rehaciendo, leía el dato viejo (`answered: false`) y mandaba de vuelta a
+   `/salud`. Se veía como "no se guardó nada" cuando en realidad se había guardado. Ahora se escribe
+   el estado nuevo en la caché (`setQueryData`) en vez de solo invalidar.
+2. **El motor nunca recibía las molestias ni los baselines.** `fetchUserSnapshot` devolvía
+   `constraints: []` y `baselines: []` literales — quedaron así desde el esqueleto. O sea: toda la
+   regla de dolor por zona, y todo el punto de partida de carga, existían en el ruleset y en el motor
+   pero **no tenían con qué dispararse**. Es el mismo patrón que el catálogo desconectado: la lógica
+   estaba, el dato no llegaba. Verificado después del arreglo: con una molestia lumbar de severidad
+   4 cargada, el plan generado no trae ningún ejercicio de bisagra ni trabajo directo de lumbares, y
+   conserva el resto.
+3. **"Faltan datos" no decía cuáles.** Si la validación final del onboarding fallaba, el mensaje
+   mandaba a "volver a los pasos anteriores" sin decir a cuál. Alguien que cree haber completado
+   todo queda sin salida. Ahora nombra los campos que faltan.
+
+Confirmado en pantalla: el aviso de "vista previa provisoria" desapareció, el de evidencia floja
+aparece para potencia con su explicación, los ejercicios son de Blue Horse real y aptos para el
+nivel del socio, y las repeticiones son las de potencia (1-3, 1-5) y no las de hipertrofia. Sin
+errores de consola.
 
 ---
 
