@@ -8,6 +8,24 @@ description: Cómo cargar el equipamiento y los ejercicios de Blue Horse desde e
 El catálogo es el cuello de botella real del proyecto: sin él, el motor no puede armar ni una
 sesión. La planilla y las columnas están en `docs/05-relevamiento-catalogo.md`.
 
+## La fuente de verdad es un archivo, no la base
+
+`supabase/catalog/blue-horse.json` tiene las 58 estaciones y los 58 ejercicios con su mapeo. Se
+aplica con:
+
+```bash
+SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... npm run db:catalog
+```
+
+Es idempotente y no destructivo: resuelve por nombre, actualiza lo que cambió, inserta lo que falta,
+y lo que ya no está en el archivo lo **desactiva** (`is_active = false`) en vez de borrarlo — los
+`set_logs` de quien ya usó esa estación siguen apuntando a su fila.
+
+**Editá el archivo, no la base.** Cargar a mano por `/panel` sirve para una corrección puntual, pero
+el próximo `db:catalog` la pisa. Si el cambio tiene que durar, va al JSON.
+
+Correlo también después de cada `npm run db:reset`, junto con `npm run db:ruleset`.
+
 ## El orden importa
 
 1. **Equipamiento** (`equipment`): una fila por estación física.

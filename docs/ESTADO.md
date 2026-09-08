@@ -5,6 +5,85 @@ puede leer desde cualquier sesión nueva. **Actualizalo al terminar una sesión 
 
 ---
 
+## Última actualización: 8 de septiembre de 2026 (tercera sesión: Fase 4 completa)
+
+**El MVP está cerrado.** Los números que devuelve el motor ya no están inventados: salen de
+`docs/research/`, curados a `packages/engine/src/rulesets/v1-research.json`, que es el ruleset activo.
+
+### El bug de fondo que había que encontrar primero
+
+**El catálogo real estaba desconectado del motor.** Había 58 estaciones cargadas en Postgres, pero
+**cero ejercicios mapeados a ellas**: los 16 ejercicios existentes apuntaban a las 13 máquinas
+"Ejemplo —" del seed. Aunque el ruleset hubiera sido perfecto, la app mandaba a máquinas que no
+existen en Blue Horse. Y las 58 estaciones vivían solo en la base: un `db:reset` las borraba sin
+dejar rastro en git.
+
+Ahora el catálogo es un archivo versionado (`supabase/catalog/blue-horse.json`, 58 estaciones + 58
+ejercicios + 94 mapeos) que se aplica con `npm run db:catalog`. Es idempotente y no destructivo: lo
+que sale del archivo se **desactiva**, nunca se borra, para que los `set_logs` históricos sigan
+apuntando a su fila.
+
+### El esquema del ruleset, extendido antes de curar
+
+Forzar el contenido al esquema viejo hubiera sido al revés (lo dice la skill `activar-ruleset`). Se
+agregó: cardio por zonas e intervalos, volumen semanal por músculo, ventana de %1RM, escalones de
+desentrenamiento, ventana de rotación, paso de progresión separado por tren, y dos bloques
+**opcionales** — `safety` y `cardio`. Que sean opcionales es a propósito: un ruleset provisorio no
+debe inventar contenido de seguridad, así que `v0-placeholder` no los trae y la app no ofrece
+cribado cuando no hay con qué.
+
+### El motor, ahora adaptativo de verdad
+
+Seis reglas que el research ya decía y el código ignoraba:
+
+| Regla | Qué hace |
+|---|---|
+| Nivel de experiencia | No le propone a un principiante peso muerto con barra. Antes lo hacía |
+| Dolor por zona | Una molestia lumbar de severidad ≥3 saca los patrones de bisagra y explica qué sí puede hacer |
+| Edad | Desde los 60: más repeticiones, menos intensidad, más descanso |
+| Volumen semanal | Avisa si un músculo pasa el techo útil o queda bajo el piso |
+| Vuelta tras ausencia | 95 días sin entrenar → arranca con 30% menos de carga, y lo dice |
+| Rotación | El plan siguiente evita los ejercicios del anterior, si hay alternativa |
+
+Y tres decisiones de calidad que salieron de mirar los planes generados, no de los tests:
+
+- **El ejercicio principal tiene que poder cargarse.** Elegía "Hiperextensiones" (peso corporal) como
+  principal de bisagra para un intermedio: toda la progresión se mide en kilos, así que ese slot no
+  progresaba nunca.
+- **La variante más exigente que la persona puede hacer.** Le daba "Sentadilla goblet con kettlebell
+  4×1-5 al 85-100% del 1RM" a un avanzado de fuerza. No hay kettlebell que aguante esa carga. Ahora
+  da sentadilla con barra.
+- **El slot de aislamiento equilibra.** Elegía otro ejercicio de glúteo cuando el glúteo ya venía de
+  sentadilla, bisagra y zancada — y pasaba el techo semanal. Ahora elige el músculo menos trabajado.
+
+Fuera de eso, dos correcciones de contenido: fuerza avanzada usa 4 series en el principal y no 5
+(con 5 el volumen semanal pasaba el techo de la misma investigación), y `minSetsPerMuscle` del
+objetivo cardio quedó en 0 (la ACSM recomienda dos sesiones semanales de fuerza, no una cantidad de
+series por músculo: poner un número ahí y avisar contra él era inventar el umbral y la alarma).
+
+### Seguridad
+
+Tabla `health_screenings` nueva (RLS: solo el socio, ni el staff; select + insert, sin update ni
+delete, para que el historial no se pueda reescribir), pantalla `/salud` con el PAR-Q+ de 7
+preguntas y el aviso legal, y el guard `RequireScreening` **antes** que `RequireOnboarding` —
+preguntarle el objetivo de entrenamiento a alguien que quizá no debería entrenar sin ver a un médico
+es al revés.
+
+### Verificado
+
+- `npm run check`: lint, typecheck y **180 tests** (55 del motor, 24 nuevos sobre la lógica adaptativa).
+- **Punta a punta contra Postgres real** con el motor y el catálogo reales: los 6 objetivos × 4
+  niveles generan planes completos sin patrones sin cubrir y sin nada por encima del nivel del socio;
+  el dolor por zona saca lo que corresponde y deja el plan con ítems; el cardio sale con duración y
+  zona y sin RIR; el plan persiste sin errores de FK y ningún ítem queda marcado como provisorio; el
+  cribado guarda las respuestas y no pisa el historial. Limpieza completa después.
+- **Falta verlo en el navegador.** La extensión de Chrome se desconectó a mitad de sesión (el
+  `/login` cambió de cuenta: `martiniseba78@` → `thejimmy788@`), así que la capa de React con el
+  contenido nuevo —la pantalla `/salud`, el aviso de evidencia floja, el cardio mostrado en minutos—
+  no se recorrió a mano.
+
+---
+
 ## Última actualización: 8 de septiembre de 2026 (segunda sesión del día)
 
 Sesión de cierre de los tres pendientes que dejó la sesión anterior: verificar el rediseño en el

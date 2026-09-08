@@ -12,7 +12,30 @@ repeticiones), esta es la que se puede curar al ruleset.
 | `04-individualizacion-seguridad.md` | `byLevel`, modificadores, calibración, contraindicaciones | **Curable con huecos marcados** — la Parte D (seguridad) es la más floja: hay que reforzarla antes de un socio real |
 | `05-seguridad-reforzada.md` | refuerza la Parte D de `04` (cribado, señales de alarma, dolor por zona, poblaciones especiales) | **Curable** — tapa el hueco que señalaba la fila de arriba |
 
-Nada de esto está aplicado todavía. El ruleset activo sigue siendo `v0-placeholder`.
+**Curado el 8 de septiembre de 2026 a `packages/engine/src/rulesets/v1-research.json`**, que es el
+ruleset activo. Cada bloque de `prescription` lleva su `confidence` (la columna "Confianza" de estas
+tablas) y, cuando es `low`, un `confidenceNote` que dice en qué es floja — la app lo muestra en
+pantalla. El criterio para esas filas, decidido por el usuario: se usa el **extremo conservador** del
+rango y queda marcado, en vez de descartarlas o de tomarlas como si fueran sólidas.
+
+Lo que se decidió al curar, y no sale directo de las tablas:
+
+- **Potencia** no propone subir carga sola. Se regula por velocidad de barra, no por repeticiones en
+  reserva, y la app no mide velocidad: proponer un aumento por RIR sería aplicarle un criterio que
+  no es el suyo. Queda en `rirTarget: null`, que es lo que apaga esa regla en el motor.
+- **Resistencia muscular en sala** (`endurance`) es lo más flojo del conjunto: la investigación
+  cubre resistencia *aeróbica*, no series de 20 repeticiones. Se usa el extremo liviano de
+  hipertrofia, que es el anclaje con evidencia más cercano, y queda marcado como BAJA.
+- **Cuando el volumen por sesión choca con el techo semanal, gana el techo.** Por eso fuerza
+  avanzada usa 4 series en el principal (el valor documentado) y no 5 (el tope del rango): con 5 y
+  tres sesiones semanales, glúteos y dorsales pasaban las 15 series que la misma investigación marca
+  como límite útil.
+- **`minSetsPerMuscle` del objetivo cardio queda en 0.** La recomendación de la ACSM es de dos
+  sesiones semanales de fuerza, no de una cantidad de series por músculo. Poner un número ahí y
+  después avisar contra él hubiera sido inventar el umbral y la alarma.
+
+Lo que **no** se curó y sigue pendiente: verificar a mano una muestra de los DOIs. Los valores están
+tomados tal como los reporta cada documento; si alguna cita está mal, el número que sostiene también.
 
 ## Lectura crítica (no tomar como verdad ciega)
 

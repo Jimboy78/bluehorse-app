@@ -12,9 +12,14 @@ gimnasio cuyo equipamiento no esté cargado.
 
 ## Estado
 
-Fase 1 del roadmap: esqueleto y catálogo. **Todo el contenido de prescripción es provisorio** hasta
-que exista un ruleset con `source: "research"`. Nada de lo que hoy devuelve el motor sirve como
-consejo para una persona real.
+Fases 1 a 4 completas. El ruleset activo es **`v1-research`**, curado desde `docs/research/`: los
+números que devuelve el motor salen de la investigación, no están inventados. Cada bloque lleva su
+nivel de confianza, y los que se apoyan en evidencia floja (potencia, resistencia muscular en sala)
+lo dicen en pantalla.
+
+Lo que falta antes de dársela a un socio real: verificar a mano una muestra de los DOIs citados, y
+medir in situ el rango de carga de cada estación (`load_min`/`load_max`/`load_increment` siguen en
+`null`).
 
 ## Comandos
 
@@ -65,8 +70,10 @@ antes de hacerlo.
 3. **Ningún número de entrenamiento vive en el código.** Series, repeticiones, RIR, descansos,
    porcentajes, umbrales de descarga: todo sale del ruleset. Un `3` que significa "3 series" es un
    bug.
-4. **Lo derivado de un ruleset `placeholder` se muestra marcado como provisorio**, y cada plan
-   guarda el `rulesetVersion` con el que se generó.
+4. **La evidencia se muestra como es.** Lo derivado de un ruleset `placeholder` va marcado como
+   provisorio, y un bloque con `confidence: "low"` avisa en pantalla en qué es floja la evidencia.
+   Presentar una fila de consenso con la misma cara que un metaanálisis es mentir por omisión. Cada
+   plan guarda el `rulesetVersion` con el que se generó.
 5. **`gym_id` en toda tabla de negocio**, aunque hoy haya un solo gimnasio.
 6. **La carga se guarda cruda y normalizada.** `load_value` + `load_unit` es lo que dice la máquina
    y es lo único que se le muestra al usuario. `load_kg_normalized` existe solo para gráficos, y es
@@ -97,10 +104,21 @@ antes de hacerlo.
   `npm run db:sync` (`supabase db schema declarative sync --apply`). Y esa sincronización rechaza
   `INSERT` sobre tablas de sistema (`storage.buckets`, etc.): los inserts van en `seed.sql`, las
   políticas (`CREATE POLICY`) sí son DDL y van en `schemas/`.
-- **`npm run db:reset` deja `rulesets` vacía.** El ruleset placeholder no está en `seed.sql` (subirlo
-  requiere la `service_role` key, que nunca va en un archivo versionado). Cualquier insert en
-  `plans` falla por la FK a `rulesets(version)` hasta correr `npm run db:ruleset` de nuevo después
-  de cada reset. Sacá `SUPABASE_URL`/`SERVICE_ROLE_KEY` de `npx supabase status -o env`.
+- **`npm run db:reset` deja `rulesets` vacía y el catálogo real borrado.** Ninguno de los dos está en
+  `seed.sql` (subirlos requiere la `service_role` key, que nunca va en un archivo versionado).
+  Después de cada reset hay que correr **los dos**:
+
+  ```bash
+  npm run db:ruleset -- packages/engine/src/rulesets/v1-research.json
+  npm run db:catalog
+  ```
+
+  Sin el primero, cualquier insert en `plans` falla por la FK a `rulesets(version)`. Sin el segundo,
+  el motor arma planes con las 13 máquinas de ejemplo del seed en vez de las 58 reales. Sacá
+  `SUPABASE_URL`/`SERVICE_ROLE_KEY` de `npx supabase status -o env`.
+- **El catálogo real vive en `supabase/catalog/blue-horse.json`, no en la base.** Editar una estación
+  a mano desde `/panel` sirve para una corrección puntual, pero el próximo `db:catalog` la pisa. Si
+  el cambio tiene que durar, va al JSON.
 
 ## Documentación
 

@@ -43,6 +43,10 @@ export interface PlanSessionItemInsertRow {
   readonly rest_seconds: number;
   readonly rationale: string;
   readonly is_placeholder: boolean;
+  /** Cardio: duración del bloque (o del trabajo de cada vuelta) y zona. Nulos en sala. */
+  readonly target_duration_seconds: number | null;
+  readonly target_intensity_zone: number | null;
+  readonly target_interval_rest_seconds: number | null;
 }
 
 export function toPlanInsert(
@@ -93,5 +97,8 @@ export function toPlanSessionItemInserts(
     rest_seconds: item.restSeconds,
     rationale: item.rationale,
     is_placeholder: item.isPlaceholder,
+    target_duration_seconds: item.targetDurationSeconds,
+    target_intensity_zone: item.targetIntensityZone,
+    target_interval_rest_seconds: item.targetIntervalRestSeconds,
   }));
 }

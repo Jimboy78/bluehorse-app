@@ -14,9 +14,26 @@ const item: SessionItemBlueprint = {
   restSeconds: 90,
   rationale: 'Va primero.',
   isPlaceholder: true,
+  targetDurationSeconds: null,
+  targetIntensityZone: null,
+  targetIntervalRestSeconds: null,
 };
 
 const itemSinCarga: SessionItemBlueprint = { ...item, exerciseId: 'ex-2', targetLoad: null };
+
+/** Un bloque de cardio: se prescribe por duración y zona, no por series. */
+const itemCardio: SessionItemBlueprint = {
+  ...item,
+  exerciseId: 'ex-cardio',
+  targetLoad: null,
+  targetRir: null,
+  targetSets: 1,
+  targetRepsMin: 1,
+  targetRepsMax: 1,
+  restSeconds: 0,
+  targetDurationSeconds: 2400,
+  targetIntensityZone: 2,
+};
 
 const session: SessionBlueprint = {
   sequenceIndex: 0,
@@ -73,5 +90,23 @@ describe('toPlanSessionItemInserts', () => {
   it('guarda null en carga y unidad cuando no hay baseline, no un valor inventado', () => {
     const rows = toPlanSessionItemInserts('session-1', [itemSinCarga]);
     expect(rows[0]).toMatchObject({ target_load: null, target_load_unit: null });
+  });
+
+  it('persiste duración y zona en un bloque de cardio', () => {
+    const rows = toPlanSessionItemInserts('session-1', [itemCardio]);
+    expect(rows[0]).toMatchObject({
+      target_duration_seconds: 2400,
+      target_intensity_zone: 2,
+      target_rir: null,
+    });
+  });
+
+  it('deja los campos de cardio nulos en el trabajo de sala', () => {
+    const rows = toPlanSessionItemInserts('session-1', [item]);
+    expect(rows[0]).toMatchObject({
+      target_duration_seconds: null,
+      target_intensity_zone: null,
+      target_interval_rest_seconds: null,
+    });
   });
 });

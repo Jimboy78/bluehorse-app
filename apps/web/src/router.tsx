@@ -7,6 +7,7 @@ import { RedirectIfSignedIn } from './routes/RedirectIfSignedIn.tsx';
 import { RequireAdmin } from './routes/RequireAdmin.tsx';
 import { RequireAuth } from './routes/RequireAuth.tsx';
 import { RequireOnboarding } from './routes/RequireOnboarding.tsx';
+import { RequireScreening } from './routes/RequireScreening.tsx';
 
 /**
  * Árbol de rutas de la app. Crece por fase del roadmap:
@@ -29,6 +30,7 @@ const Onboarding = lazy(() =>
 );
 const Panel = lazy(() => import('./routes/Panel.tsx').then((m) => ({ default: m.Panel })));
 const Progreso = lazy(() => import('./routes/Progreso.tsx').then((m) => ({ default: m.Progreso })));
+const Salud = lazy(() => import('./routes/Salud.tsx').then((m) => ({ default: m.Salud })));
 const SignIn = lazy(() => import('./routes/SignIn.tsx').then((m) => ({ default: m.SignIn })));
 
 function lazyPage(node: ReactNode) {
@@ -51,10 +53,23 @@ export const router = createBrowserRouter([
     errorElement: <RouteError />,
   },
   {
+    // El cribado de salud. No lleva `RequireScreening` (sería un bucle) ni
+    // `RequireOnboarding`: se responde antes que nada.
+    path: '/salud',
+    element: lazyPage(
+      <RequireAuth>
+        <Salud />
+      </RequireAuth>,
+    ),
+    errorElement: <RouteError />,
+  },
+  {
     path: '/onboarding',
     element: lazyPage(
       <RequireAuth>
-        <Onboarding />
+        <RequireScreening>
+          <Onboarding />
+        </RequireScreening>
       </RequireAuth>,
     ),
     errorElement: <RouteError />,
@@ -74,9 +89,11 @@ export const router = createBrowserRouter([
     path: '/progreso',
     element: lazyPage(
       <RequireAuth>
-        <RequireOnboarding>
-          <Progreso />
-        </RequireOnboarding>
+        <RequireScreening>
+          <RequireOnboarding>
+            <Progreso />
+          </RequireOnboarding>
+        </RequireScreening>
       </RequireAuth>,
     ),
     errorElement: <RouteError />,
@@ -85,9 +102,11 @@ export const router = createBrowserRouter([
     path: '/',
     element: lazyPage(
       <RequireAuth>
-        <RequireOnboarding>
-          <App />
-        </RequireOnboarding>
+        <RequireScreening>
+          <RequireOnboarding>
+            <App />
+          </RequireOnboarding>
+        </RequireScreening>
       </RequireAuth>,
     ),
     errorElement: <RouteError />,

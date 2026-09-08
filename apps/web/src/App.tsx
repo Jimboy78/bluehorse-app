@@ -1,3 +1,4 @@
+import type { Goal } from '@bh/domain';
 import { useQuery } from '@tanstack/react-query';
 import { Info, RefreshCw, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -7,6 +8,7 @@ import { Proposals } from './components/Proposals.tsx';
 import { Button, Card, Notice, SectionLabel } from './components/ui/index.ts';
 import { activeRuleset, showsPlaceholderContent } from './lib/engine.ts';
 import { envError, isConfigured } from './lib/env.ts';
+import { useActiveGoal } from './lib/goal.ts';
 import { fadeUp } from './lib/motion.ts';
 import { type OutboxHealth, outboxHealth } from './lib/outbox.ts';
 import { checkConnection } from './lib/supabase.ts';
@@ -26,6 +28,7 @@ import { useTodaySession } from './lib/use-today-session.ts';
  */
 export function App() {
   const todaySession = useTodaySession();
+  const activeGoal = useActiveGoal();
   const showsPlaceholderCatalog = todaySession?.isPlaceholder ?? true;
   // Solo alimentan el panel "Estado del esqueleto", que es dev-only: no tiene
   // sentido pedirle esto a Supabase en cada carga de la app de un socio real.
@@ -68,6 +71,8 @@ export function App() {
           {showsPlaceholderCatalog && ' El catálogo de Blue Horse todavía no está cargado.'}
         </Notice>
       )}
+
+      <EvidenceNotice goal={activeGoal.data ?? null} />
 
       <Proposals />
 
@@ -150,6 +155,27 @@ function describeQueue(health: OutboxHealth | undefined): string {
  * Aviso de versión nueva. Discreto y arriba de todo, pero sin recargar solo:
  * hacerlo en medio de una serie borraría lo que la persona estaba cargando.
  */
+/**
+ * Aviso cuando el objetivo del socio se apoya en evidencia floja.
+ *
+ * La investigación no es pareja: fuerza e hipertrofia tienen metaanálisis
+ * detrás; potencia y resistencia muscular en sala tienen consenso y poco más.
+ * Mostrar las dos cosas con la misma cara sería mentir por omisión, así que
+ * cuando el bloque está marcado como confianza baja se dice, con el motivo que
+ * el propio ruleset trae.
+ */
+function EvidenceNotice({ goal }: { readonly goal: Goal | null }) {
+  if (!goal) return null;
+  const block = activeRuleset.prescription[goal];
+  if (block?.confidence !== 'low' || !block.confidenceNote) return null;
+
+  return (
+    <Notice tone="warn" icon={<Info size={16} aria-hidden="true" />}>
+      <strong className="font-semibold">Sobre este objetivo:</strong> {block.confidenceNote}
+    </Notice>
+  );
+}
+
 function ServiceWorkerUpdate() {
   const { needsRefresh, applyUpdate } = useServiceWorkerUpdate();
   if (!needsRefresh) return null;

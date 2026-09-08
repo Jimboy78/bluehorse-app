@@ -1,0 +1,1114 @@
+{
+  "gym": {
+    "name": "Blue Horse Gym",
+    "slug": "blue-horse"
+  },
+  "notes": [
+    "Fuente de verdad del catálogo real de Blue Horse. Se aplica con `npm run db:catalog`.",
+    "Las estaciones salen del relevamiento (docs/relevamiento/inventario.md). Los ejercicios son clasificación mecánica (patrón, músculos, nivel), no prescripción: ningún número de series, repeticiones o carga vive acá — eso es del ruleset.",
+    "load_min/load_max/load_increment/stack_kg están en null donde nadie midió todavía el rango real de la estación. Se completan in situ, no se inventan.",
+    "Lo que no está en este archivo se desactiva al aplicarlo (is_active=false), nunca se borra: los set_logs históricos siguen apuntando a su fila.",
+    "Wall ball y slam ball quedan como `reps_bodyweight` a propósito: el implemento tiene un peso fijo y no se progresa como una barra. Así siguen disponibles sin colarse en el ejercicio principal de una sesión de fuerza, donde una prescripción de 1-5 repeticiones pesadas no tendría sentido."
+  ],
+  "equipment": [
+    {
+      "name": "Abdominal Isolator (crunch)",
+      "category": "selectorized",
+      "load_unit": "stack_level",
+      "quantity": 1
+    },
+    {
+      "name": "Abductor/Aductor combinado, con asiento",
+      "category": "selectorized",
+      "load_unit": "stack_level",
+      "quantity": 1
+    },
+    {
+      "name": "Aductores, sentado en el aire",
+      "category": "selectorized",
+      "load_unit": "stack_level",
+      "quantity": 1,
+      "setup_notes": "cantidad sin confirmar"
+    },
+    {
+      "name": "Chest Press vertical",
+      "category": "selectorized",
+      "load_unit": "stack_level",
+      "quantity": 1
+    },
+    {
+      "name": "Cross Over funcional doble (Dual Cable Cross)",
+      "category": "selectorized",
+      "load_unit": "stack_level",
+      "quantity": 3
+    },
+    {
+      "name": "Dual Lat Pulldown & Row",
+      "category": "selectorized",
+      "load_unit": "stack_level",
+      "quantity": 1
+    },
+    {
+      "name": "Extensión de glúteos, sentado",
+      "category": "selectorized",
+      "load_unit": "stack_level",
+      "quantity": 1
+    },
+    {
+      "name": "Fondos de tríceps con poleas",
+      "category": "selectorized",
+      "load_unit": "stack_level",
+      "quantity": 1,
+      "setup_notes": "sin foto, sin verificar in situ todavía"
+    },
+    {
+      "name": "Glute Isolator (patada de burro)",
+      "category": "selectorized",
+      "load_unit": "stack_level",
+      "quantity": 1
+    },
+    {
+      "name": "Hip Thrust con asiento",
+      "category": "selectorized",
+      "load_unit": "stack_level",
+      "quantity": 1
+    },
+    {
+      "name": "Lat Pulldown (jalón al pecho)",
+      "category": "selectorized",
+      "load_unit": "stack_level",
+      "quantity": 1
+    },
+    {
+      "name": "Leg Extension",
+      "category": "selectorized",
+      "load_unit": "stack_level",
+      "quantity": 2
+    },
+    {
+      "name": "Pec Deck / Fly / Mariposa",
+      "category": "selectorized",
+      "load_unit": "stack_level",
+      "quantity": 2
+    },
+    {
+      "name": "Prone Leg Curl (femoral acostado)",
+      "category": "selectorized",
+      "load_unit": "stack_level",
+      "quantity": 1
+    },
+    {
+      "name": "Remo sentado con polea",
+      "category": "selectorized",
+      "load_unit": "stack_level",
+      "quantity": 1
+    },
+    {
+      "name": "Belt Squat",
+      "category": "plate_loaded",
+      "load_unit": "plates_kg",
+      "quantity": 1
+    },
+    {
+      "name": "Gemelos sentado a discos",
+      "category": "plate_loaded",
+      "load_unit": "plates_kg",
+      "quantity": 1
+    },
+    {
+      "name": "Multifunción (búlgaras/peso muerto/remo unilateral)",
+      "brand": "G-FITNESS",
+      "category": "plate_loaded",
+      "load_unit": "plates_kg",
+      "quantity": 1
+    },
+    {
+      "name": "Prensa de piernas horizontal (Linear Leg Press)",
+      "category": "plate_loaded",
+      "load_unit": "plates_kg",
+      "quantity": 1
+    },
+    {
+      "name": "Press Militar Inclinado en Pronación",
+      "category": "plate_loaded",
+      "load_unit": "plates_kg",
+      "quantity": 1
+    },
+    {
+      "name": "Remo sentado con discos",
+      "category": "plate_loaded",
+      "load_unit": "plates_kg",
+      "quantity": 1
+    },
+    {
+      "name": "Riel de Hip Thrust con barra (sled)",
+      "category": "plate_loaded",
+      "load_unit": "plates_kg",
+      "quantity": 1
+    },
+    {
+      "name": "Sentadilla Hack con carro guía",
+      "category": "plate_loaded",
+      "load_unit": "plates_kg",
+      "quantity": 1
+    },
+    {
+      "name": "Sentadilla Hack sin carro guía",
+      "category": "plate_loaded",
+      "load_unit": "plates_kg",
+      "quantity": 1
+    },
+    {
+      "name": "Mancuernas sueltas (set)",
+      "category": "free_weight",
+      "load_unit": "kg",
+      "quantity": 1,
+      "setup_notes": "por par; secuencia declarada: 1, 2, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25, 27.5, 30, 45, 50 kg (más fichas intermedias completando el patrón)"
+    },
+    {
+      "name": "Banco de hiperextensión / GHD",
+      "category": "rack",
+      "load_unit": "bodyweight",
+      "quantity": 1
+    },
+    {
+      "name": "Banco de press inclinado con rack",
+      "category": "rack",
+      "load_unit": "plates_kg",
+      "quantity": 1
+    },
+    {
+      "name": "Banco de press plano con rack",
+      "category": "rack",
+      "load_unit": "plates_kg",
+      "quantity": 1
+    },
+    {
+      "name": "Máquina Smith",
+      "category": "rack",
+      "load_unit": "plates_kg",
+      "quantity": 1
+    },
+    {
+      "name": "Multipower",
+      "category": "rack",
+      "load_unit": "plates_kg",
+      "quantity": 2
+    },
+    {
+      "name": "Rack de mancuernas hexagonales",
+      "brand": "G-FITNESS",
+      "category": "rack",
+      "load_unit": "none",
+      "quantity": 1
+    },
+    {
+      "name": "Rack de sentadilla libre",
+      "category": "rack",
+      "load_unit": "plates_kg",
+      "quantity": 1
+    },
+    {
+      "name": "Rack de sentadilla para armar",
+      "category": "rack",
+      "load_unit": "plates_kg",
+      "quantity": 1,
+      "location_note": "zona funcional, fondo del gimnasio"
+    },
+    {
+      "name": "Rack en A de mancuernas livianas",
+      "brand": "Gamelan",
+      "category": "rack",
+      "load_unit": "none",
+      "quantity": 1
+    },
+    {
+      "name": "Rig de pared (dominadas + bolsa de boxeo + soga + TRX)",
+      "category": "rack",
+      "load_unit": "bodyweight",
+      "quantity": 1
+    },
+    {
+      "name": "Bicis semi-acostadas (reclinadas)",
+      "category": "cardio",
+      "load_unit": "none",
+      "quantity": 2
+    },
+    {
+      "name": "Bicis sentadas normales",
+      "category": "cardio",
+      "load_unit": "none",
+      "quantity": 2
+    },
+    {
+      "name": "Caminador Elíptico",
+      "category": "cardio",
+      "load_unit": "none",
+      "quantity": 1
+    },
+    {
+      "name": "Cintas (treadmills)",
+      "category": "cardio",
+      "load_unit": "none",
+      "quantity": 5,
+      "setup_notes": "sin foto, sin verificar in situ todavía"
+    },
+    {
+      "name": "Escaladora",
+      "category": "cardio",
+      "load_unit": "none",
+      "quantity": 1,
+      "setup_notes": "sin foto, sin verificar in situ todavía"
+    },
+    {
+      "name": "Ab wheel",
+      "category": "accessory",
+      "load_unit": "none",
+      "quantity": 1,
+      "setup_notes": "cantidad sin confirmar"
+    },
+    {
+      "name": "Banco abdominal declinado (con rodillos)",
+      "category": "accessory",
+      "load_unit": "bodyweight",
+      "quantity": 1
+    },
+    {
+      "name": "Bandas elásticas con arnés",
+      "category": "accessory",
+      "load_unit": "band",
+      "quantity": 1,
+      "setup_notes": "cantidad sin confirmar"
+    },
+    {
+      "name": "Cajones pliométricos",
+      "brand": "Gamelan",
+      "category": "accessory",
+      "load_unit": "none",
+      "quantity": 2
+    },
+    {
+      "name": "Colchonetas plegables",
+      "brand": "G-FITNESS",
+      "category": "accessory",
+      "load_unit": "none",
+      "quantity": 1,
+      "setup_notes": "cantidad sin confirmar"
+    },
+    {
+      "name": "Conos de agilidad",
+      "category": "accessory",
+      "load_unit": "none",
+      "quantity": 1,
+      "setup_notes": "cantidad sin confirmar"
+    },
+    {
+      "name": "Discos de equilibrio",
+      "category": "accessory",
+      "load_unit": "none",
+      "quantity": 1,
+      "setup_notes": "cantidad sin confirmar"
+    },
+    {
+      "name": "Foam roller",
+      "category": "accessory",
+      "load_unit": "none",
+      "quantity": 1,
+      "setup_notes": "cantidad sin confirmar"
+    },
+    {
+      "name": "Kettlebells",
+      "category": "accessory",
+      "load_unit": "none",
+      "quantity": 1,
+      "setup_notes": "cantidad sin confirmar"
+    },
+    {
+      "name": "Mini-vallas de agilidad",
+      "category": "accessory",
+      "load_unit": "none",
+      "quantity": 1,
+      "setup_notes": "cantidad sin confirmar"
+    },
+    {
+      "name": "Pelotas suizas",
+      "category": "accessory",
+      "load_unit": "none",
+      "quantity": 1,
+      "setup_notes": "cantidad sin confirmar"
+    },
+    {
+      "name": "Porta-barras (Z, hexagonal/trap, recta)",
+      "category": "accessory",
+      "load_unit": "none",
+      "quantity": 1,
+      "setup_notes": "cantidad sin confirmar"
+    },
+    {
+      "name": "Rack de discos olímpicos (árbol)",
+      "brand": "G-FITNESS",
+      "category": "accessory",
+      "load_unit": "none",
+      "quantity": 2
+    },
+    {
+      "name": "Rodillo móvil para búlgaras",
+      "category": "accessory",
+      "load_unit": "none",
+      "quantity": 1,
+      "location_note": "zona funcional, fondo del gimnasio, se puede mover"
+    },
+    {
+      "name": "Sandbags",
+      "brand": "Gamelan",
+      "category": "accessory",
+      "load_unit": "none",
+      "quantity": 1,
+      "setup_notes": "cantidad sin confirmar"
+    },
+    {
+      "name": "Slam balls",
+      "category": "accessory",
+      "load_unit": "none",
+      "quantity": 1,
+      "setup_notes": "cantidad sin confirmar"
+    },
+    {
+      "name": "Steps aeróbicos",
+      "brand": "TIPON",
+      "category": "accessory",
+      "load_unit": "none",
+      "quantity": 5
+    },
+    {
+      "name": "Wall balls",
+      "brand": "Gamelan",
+      "category": "accessory",
+      "load_unit": "none",
+      "quantity": 1,
+      "setup_notes": "cantidad sin confirmar"
+    }
+  ],
+  "exercises": [
+    {
+      "name": "Prensa de piernas",
+      "pattern": "squat",
+      "primaryMuscles": ["quads", "glutes"],
+      "secondaryMuscles": ["hamstrings"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "Espalda baja apoyada en el respaldo durante todo el recorrido. No trabes las rodillas arriba.",
+      "equipment": ["Prensa de piernas horizontal (Linear Leg Press)"]
+    },
+    {
+      "name": "Sentadilla hack",
+      "pattern": "squat",
+      "primaryMuscles": ["quads", "glutes"],
+      "secondaryMuscles": ["hamstrings"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "novice",
+      "cues": "Espalda pegada al respaldo, pies un poco adelantados. Bajás hasta que el muslo quede paralelo.",
+      "equipment": ["Sentadilla Hack con carro guía", "Sentadilla Hack sin carro guía"]
+    },
+    {
+      "name": "Sentadilla con cinturón",
+      "pattern": "squat",
+      "primaryMuscles": ["quads", "glutes"],
+      "secondaryMuscles": ["hamstrings"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "novice",
+      "cues": "La carga cuelga de la cadera, no de la espalda: sirve si la columna te molesta con la barra.",
+      "equipment": ["Belt Squat"]
+    },
+    {
+      "name": "Sentadilla en Smith",
+      "pattern": "squat",
+      "primaryMuscles": ["quads", "glutes"],
+      "secondaryMuscles": ["hamstrings", "lower_back"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "novice",
+      "cues": "La barra va guiada, así que podés concentrarte en la profundidad. Pies un paso adelante de la barra.",
+      "equipment": ["Máquina Smith", "Multipower"]
+    },
+    {
+      "name": "Sentadilla",
+      "pattern": "squat",
+      "primaryMuscles": ["quads", "glutes"],
+      "secondaryMuscles": ["lower_back", "hamstrings"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "intermediate",
+      "cues": "Pies al ancho de hombros, rodillas siguiendo la punta del pie, bajás hasta que el muslo quede paralelo al piso.",
+      "equipment": ["Rack de sentadilla libre", "Rack de sentadilla para armar"]
+    },
+    {
+      "name": "Sentadilla goblet con kettlebell",
+      "pattern": "squat",
+      "primaryMuscles": ["quads", "glutes"],
+      "secondaryMuscles": ["abs"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "La pesa contra el pecho hace de contrapeso: es la forma más fácil de aprender a sentarse derecho.",
+      "equipment": ["Kettlebells"]
+    },
+    {
+      "name": "Salto al cajón",
+      "pattern": "squat",
+      "primaryMuscles": ["quads", "glutes"],
+      "secondaryMuscles": ["calves"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_bodyweight",
+      "skillLevel": "intermediate",
+      "cues": "Subís saltando y bajás caminando, nunca saltando: la bajada es donde se lastiman las rodillas.",
+      "equipment": ["Cajones pliométricos"]
+    },
+    {
+      "name": "Wall ball",
+      "pattern": "squat",
+      "primaryMuscles": ["quads", "glutes", "front_delts"],
+      "secondaryMuscles": ["abs"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_bodyweight",
+      "skillLevel": "intermediate",
+      "cues": "Sentadilla completa y el lanzamiento sale de las piernas, no de los brazos.",
+      "equipment": ["Wall balls"]
+    },
+    {
+      "name": "Hip thrust en máquina",
+      "pattern": "hinge",
+      "primaryMuscles": ["glutes"],
+      "secondaryMuscles": ["hamstrings"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "Arriba apretás el glúteo un segundo y el mentón queda metido, sin arquear la lumbar.",
+      "equipment": ["Hip Thrust con asiento"]
+    },
+    {
+      "name": "Hip thrust con barra",
+      "pattern": "hinge",
+      "primaryMuscles": ["glutes"],
+      "secondaryMuscles": ["hamstrings"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "novice",
+      "cues": "Omóplatos apoyados en el banco, la barra sobre la cadera con la almohadilla. Subís hasta que el cuerpo quede recto.",
+      "equipment": ["Riel de Hip Thrust con barra (sled)"]
+    },
+    {
+      "name": "Peso muerto rumano",
+      "pattern": "hinge",
+      "primaryMuscles": ["hamstrings", "glutes"],
+      "secondaryMuscles": ["lower_back"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "novice",
+      "cues": "Rodillas casi rectas, llevás la cadera atrás y la espalda no se redondea. Bajás hasta sentir el isquiotibial.",
+      "equipment": [
+        "Mancuernas sueltas (set)",
+        "Rack de mancuernas hexagonales",
+        "Multifunción (búlgaras/peso muerto/remo unilateral)"
+      ]
+    },
+    {
+      "name": "Peso muerto",
+      "pattern": "hinge",
+      "primaryMuscles": ["hamstrings", "glutes", "lower_back"],
+      "secondaryMuscles": ["traps", "forearms"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "intermediate",
+      "cues": "La barra roza la pierna todo el recorrido. Empujás el piso, no tirás con la espalda.",
+      "equipment": [
+        "Multifunción (búlgaras/peso muerto/remo unilateral)",
+        "Porta-barras (Z, hexagonal/trap, recta)"
+      ]
+    },
+    {
+      "name": "Hiperextensiones",
+      "pattern": "hinge",
+      "primaryMuscles": ["lower_back", "glutes"],
+      "secondaryMuscles": ["hamstrings"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_bodyweight",
+      "skillLevel": "beginner",
+      "cues": "Subís hasta que el cuerpo quede recto y ahí parás: pasarte de largo carga la lumbar sin necesidad.",
+      "equipment": ["Banco de hiperextensión / GHD"]
+    },
+    {
+      "name": "Swing con kettlebell",
+      "pattern": "hinge",
+      "primaryMuscles": ["glutes", "hamstrings"],
+      "secondaryMuscles": ["lower_back", "abs"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "intermediate",
+      "cues": "La pesa la impulsa la cadera, no los hombros. Los brazos solo cuelgan.",
+      "equipment": ["Kettlebells"]
+    },
+    {
+      "name": "Slam ball",
+      "pattern": "hinge",
+      "primaryMuscles": ["abs", "glutes"],
+      "secondaryMuscles": ["lats", "full_body"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_bodyweight",
+      "skillLevel": "novice",
+      "cues": "La pelota baja con todo el cuerpo, no solo con los brazos. Acompañás el golpe flexionando la cadera.",
+      "equipment": ["Slam balls"]
+    },
+    {
+      "name": "Sentadilla búlgara",
+      "pattern": "lunge",
+      "primaryMuscles": ["quads", "glutes"],
+      "secondaryMuscles": ["hamstrings"],
+      "isCompound": true,
+      "isUnilateral": true,
+      "modality": "reps_weight",
+      "skillLevel": "intermediate",
+      "cues": "El pie de atrás solo hace equilibrio. Todo el peso va en la pierna de adelante.",
+      "equipment": [
+        "Multifunción (búlgaras/peso muerto/remo unilateral)",
+        "Rodillo móvil para búlgaras",
+        "Mancuernas sueltas (set)"
+      ]
+    },
+    {
+      "name": "Zancadas",
+      "pattern": "lunge",
+      "primaryMuscles": ["quads", "glutes"],
+      "secondaryMuscles": ["hamstrings"],
+      "isCompound": true,
+      "isUnilateral": true,
+      "modality": "reps_weight",
+      "skillLevel": "novice",
+      "cues": "Paso largo, torso derecho, la rodilla de atrás baja cerca del piso sin golpearlo.",
+      "equipment": ["Mancuernas sueltas (set)", "Rack de mancuernas hexagonales"]
+    },
+    {
+      "name": "Subida al cajón",
+      "pattern": "lunge",
+      "primaryMuscles": ["quads", "glutes"],
+      "secondaryMuscles": ["calves"],
+      "isCompound": true,
+      "isUnilateral": true,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "Empujás con la pierna de arriba, no te impulsás con la de abajo. Bajás controlando.",
+      "equipment": ["Steps aeróbicos", "Cajones pliométricos"]
+    },
+    {
+      "name": "Press de pecho en máquina",
+      "pattern": "horizontal_push",
+      "primaryMuscles": ["chest"],
+      "secondaryMuscles": ["triceps", "front_delts"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "Ajustá el asiento para que las manijas queden a la altura del pecho, no del cuello.",
+      "equipment": ["Chest Press vertical"]
+    },
+    {
+      "name": "Press de banca con mancuernas",
+      "pattern": "horizontal_push",
+      "primaryMuscles": ["chest"],
+      "secondaryMuscles": ["triceps", "front_delts"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "novice",
+      "cues": "Los codos a unos 45 grados del cuerpo, no abiertos del todo. Bajás hasta la altura del pecho.",
+      "equipment": [
+        "Banco de press plano con rack",
+        "Mancuernas sueltas (set)",
+        "Rack de mancuernas hexagonales"
+      ]
+    },
+    {
+      "name": "Press de banco",
+      "pattern": "horizontal_push",
+      "primaryMuscles": ["chest"],
+      "secondaryMuscles": ["triceps", "front_delts"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "intermediate",
+      "cues": "Omóplatos juntos y apoyados, pies firmes en el piso. La barra baja al pecho, no al cuello.",
+      "equipment": ["Banco de press plano con rack", "Máquina Smith", "Multipower"]
+    },
+    {
+      "name": "Press inclinado con mancuernas",
+      "pattern": "horizontal_push",
+      "primaryMuscles": ["chest", "front_delts"],
+      "secondaryMuscles": ["triceps"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "novice",
+      "cues": "Banco a 30-45 grados. Más inclinado que eso y trabaja el hombro en vez del pecho.",
+      "equipment": ["Banco de press inclinado con rack", "Mancuernas sueltas (set)"]
+    },
+    {
+      "name": "Flexiones de brazos",
+      "pattern": "horizontal_push",
+      "primaryMuscles": ["chest"],
+      "secondaryMuscles": ["triceps", "front_delts", "abs"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_bodyweight",
+      "skillLevel": "beginner",
+      "cues": "El cuerpo queda como una tabla: si la cadera se hunde, apoyá las rodillas.",
+      "equipment": ["Colchonetas plegables"]
+    },
+    {
+      "name": "Remo sentado",
+      "pattern": "horizontal_pull",
+      "primaryMuscles": ["back", "lats"],
+      "secondaryMuscles": ["biceps", "rear_delts"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "Tirás con los codos pegados al cuerpo y juntás los omóplatos. El torso no se balancea.",
+      "equipment": ["Remo sentado con polea", "Dual Lat Pulldown & Row", "Remo sentado con discos"]
+    },
+    {
+      "name": "Remo con mancuerna a una mano",
+      "pattern": "horizontal_pull",
+      "primaryMuscles": ["back", "lats"],
+      "secondaryMuscles": ["biceps", "rear_delts"],
+      "isCompound": true,
+      "isUnilateral": true,
+      "modality": "reps_weight",
+      "skillLevel": "novice",
+      "cues": "Una mano y una rodilla en el banco, espalda plana. Llevás la mancuerna a la cadera, no al hombro.",
+      "equipment": [
+        "Mancuernas sueltas (set)",
+        "Rack de mancuernas hexagonales",
+        "Banco de press plano con rack",
+        "Multifunción (búlgaras/peso muerto/remo unilateral)"
+      ]
+    },
+    {
+      "name": "Remo invertido en TRX",
+      "pattern": "horizontal_pull",
+      "primaryMuscles": ["back", "lats"],
+      "secondaryMuscles": ["biceps", "abs"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_bodyweight",
+      "skillLevel": "beginner",
+      "cues": "Cuanto más horizontal te ponés, más pesa. Caminá los pies adelante o atrás para regular.",
+      "equipment": ["Rig de pared (dominadas + bolsa de boxeo + soga + TRX)"]
+    },
+    {
+      "name": "Face pull en polea",
+      "pattern": "horizontal_pull",
+      "primaryMuscles": ["rear_delts", "traps"],
+      "secondaryMuscles": ["back"],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "La polea a la altura de la cara. Tirás hacia la frente separando las manos, codos altos.",
+      "equipment": ["Cross Over funcional doble (Dual Cable Cross)"]
+    },
+    {
+      "name": "Press de hombro en máquina",
+      "pattern": "vertical_push",
+      "primaryMuscles": ["front_delts"],
+      "secondaryMuscles": ["triceps", "side_delts"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "Espalda apoyada, no arquees la lumbar para sacar el último empuje.",
+      "equipment": ["Press Militar Inclinado en Pronación"]
+    },
+    {
+      "name": "Press de hombro con mancuernas",
+      "pattern": "vertical_push",
+      "primaryMuscles": ["front_delts"],
+      "secondaryMuscles": ["triceps", "side_delts"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "novice",
+      "cues": "Codos apenas adelante del cuerpo, no en línea con las orejas. Subís sin trabar el codo.",
+      "equipment": ["Mancuernas sueltas (set)", "Rack de mancuernas hexagonales"]
+    },
+    {
+      "name": "Press militar con barra",
+      "pattern": "vertical_push",
+      "primaryMuscles": ["front_delts"],
+      "secondaryMuscles": ["triceps", "abs"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "intermediate",
+      "cues": "La barra sube por delante de la cara, nunca por detrás de la nuca. Glúteo y abdomen firmes.",
+      "equipment": ["Máquina Smith", "Multipower", "Porta-barras (Z, hexagonal/trap, recta)"]
+    },
+    {
+      "name": "Dorsalera al pecho",
+      "pattern": "vertical_pull",
+      "primaryMuscles": ["lats", "back"],
+      "secondaryMuscles": ["biceps"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "Tirás la barra al pecho con el torso apenas inclinado atrás. Los codos van al bolsillo.",
+      "equipment": ["Lat Pulldown (jalón al pecho)", "Dual Lat Pulldown & Row"]
+    },
+    {
+      "name": "Dorsalera con agarre neutro",
+      "pattern": "vertical_pull",
+      "primaryMuscles": ["lats"],
+      "secondaryMuscles": ["biceps", "back"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "Palmas enfrentadas: es el agarre que menos molesta el hombro.",
+      "equipment": ["Lat Pulldown (jalón al pecho)", "Dual Lat Pulldown & Row"]
+    },
+    {
+      "name": "Dominadas",
+      "pattern": "vertical_pull",
+      "primaryMuscles": ["lats", "back"],
+      "secondaryMuscles": ["biceps", "forearms"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_bodyweight",
+      "skillLevel": "advanced",
+      "cues": "Arrancás con los omóplatos abajo, no colgado muerto. Subís hasta pasar el mentón.",
+      "equipment": ["Rig de pared (dominadas + bolsa de boxeo + soga + TRX)"]
+    },
+    {
+      "name": "Abdominales en máquina",
+      "pattern": "core",
+      "primaryMuscles": ["abs"],
+      "secondaryMuscles": ["obliques"],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "El movimiento es enrollar el tronco, no tirar con los brazos.",
+      "equipment": ["Abdominal Isolator (crunch)"]
+    },
+    {
+      "name": "Abdominales en camilla",
+      "pattern": "core",
+      "primaryMuscles": ["abs"],
+      "secondaryMuscles": ["obliques"],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_bodyweight",
+      "skillLevel": "novice",
+      "cues": "Subís despacio y bajás más despacio todavía. Sin tirones de cuello.",
+      "equipment": ["Banco abdominal declinado (con rodillos)"]
+    },
+    {
+      "name": "Plancha",
+      "pattern": "core",
+      "primaryMuscles": ["abs", "obliques"],
+      "secondaryMuscles": ["lower_back"],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "time",
+      "skillLevel": "beginner",
+      "cues": "Codos bajo los hombros, glúteo apretado. Si la cadera se cae, cortá la serie.",
+      "equipment": ["Colchonetas plegables", "Pelotas suizas"]
+    },
+    {
+      "name": "Rueda abdominal",
+      "pattern": "core",
+      "primaryMuscles": ["abs"],
+      "secondaryMuscles": ["obliques", "lats"],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_bodyweight",
+      "skillLevel": "advanced",
+      "cues": "La lumbar no se arquea en ningún momento: si se arquea, no estirás tan lejos.",
+      "equipment": ["Ab wheel"]
+    },
+    {
+      "name": "Extensión de cuádriceps",
+      "pattern": "isolation",
+      "primaryMuscles": ["quads"],
+      "secondaryMuscles": [],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "El respaldo ajustado para que la rodilla quede alineada con el eje de la máquina.",
+      "equipment": ["Leg Extension"]
+    },
+    {
+      "name": "Curl femoral acostado",
+      "pattern": "isolation",
+      "primaryMuscles": ["hamstrings"],
+      "secondaryMuscles": ["calves"],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "La cadera pegada a la camilla todo el tiempo: si se levanta, bajá la carga.",
+      "equipment": ["Prone Leg Curl (femoral acostado)"]
+    },
+    {
+      "name": "Gemelos sentado",
+      "pattern": "isolation",
+      "primaryMuscles": ["calves"],
+      "secondaryMuscles": [],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "Recorrido completo: bajás el talón hasta abajo del todo y subís hasta la punta del pie.",
+      "equipment": ["Gemelos sentado a discos"]
+    },
+    {
+      "name": "Aperturas en máquina",
+      "pattern": "isolation",
+      "primaryMuscles": ["chest"],
+      "secondaryMuscles": ["front_delts"],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "Codos apenas flexionados y fijos. El movimiento sale del hombro, no del codo.",
+      "equipment": ["Pec Deck / Fly / Mariposa"]
+    },
+    {
+      "name": "Cruce de poleas",
+      "pattern": "isolation",
+      "primaryMuscles": ["chest"],
+      "secondaryMuscles": ["front_delts"],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "novice",
+      "cues": "Un pie adelante para no irte de atrás. Juntás las manos adelante del pecho sin trabar los codos.",
+      "equipment": ["Cross Over funcional doble (Dual Cable Cross)"]
+    },
+    {
+      "name": "Extensión de tríceps en polea",
+      "pattern": "isolation",
+      "primaryMuscles": ["triceps"],
+      "secondaryMuscles": [],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "Los codos quedan pegados al cuerpo y no se mueven: solo se abre el antebrazo.",
+      "equipment": ["Fondos de tríceps con poleas", "Cross Over funcional doble (Dual Cable Cross)"]
+    },
+    {
+      "name": "Extensión de tríceps con mancuerna",
+      "pattern": "isolation",
+      "primaryMuscles": ["triceps"],
+      "secondaryMuscles": [],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "novice",
+      "cues": "La mancuerna baja detrás de la cabeza con los codos apuntando arriba, no abiertos.",
+      "equipment": ["Mancuernas sueltas (set)", "Rack en A de mancuernas livianas"]
+    },
+    {
+      "name": "Curl de bíceps",
+      "pattern": "isolation",
+      "primaryMuscles": ["biceps"],
+      "secondaryMuscles": ["forearms"],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "Los codos quedan al costado del cuerpo. Si tenés que balancearte para subir, pesa demasiado.",
+      "equipment": [
+        "Mancuernas sueltas (set)",
+        "Rack en A de mancuernas livianas",
+        "Cross Over funcional doble (Dual Cable Cross)"
+      ]
+    },
+    {
+      "name": "Curl con barra Z",
+      "pattern": "isolation",
+      "primaryMuscles": ["biceps"],
+      "secondaryMuscles": ["forearms"],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "novice",
+      "cues": "El agarre quebrado de la Z molesta menos la muñeca que la barra recta.",
+      "equipment": ["Porta-barras (Z, hexagonal/trap, recta)"]
+    },
+    {
+      "name": "Elevaciones laterales",
+      "pattern": "isolation",
+      "primaryMuscles": ["side_delts"],
+      "secondaryMuscles": ["traps"],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "Subís hasta la altura del hombro, no más. Con poco peso alcanza y sobra.",
+      "equipment": ["Mancuernas sueltas (set)", "Rack en A de mancuernas livianas"]
+    },
+    {
+      "name": "Encogimientos de hombros",
+      "pattern": "isolation",
+      "primaryMuscles": ["traps"],
+      "secondaryMuscles": ["forearms"],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "Subís los hombros hacia las orejas, sin girarlos. El cuello queda quieto.",
+      "equipment": ["Mancuernas sueltas (set)", "Rack de mancuernas hexagonales"]
+    },
+    {
+      "name": "Abductores en máquina",
+      "pattern": "isolation",
+      "primaryMuscles": ["glutes"],
+      "secondaryMuscles": [],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "Abrís las piernas contra la resistencia y volvés controlando, sin que la placa golpee.",
+      "equipment": ["Abductor/Aductor combinado, con asiento"]
+    },
+    {
+      "name": "Aductores en máquina",
+      "pattern": "isolation",
+      "primaryMuscles": ["glutes", "quads"],
+      "secondaryMuscles": [],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "Cerrás las piernas sin golpe y aguantás un segundo. Trabaja la cara interna del muslo.",
+      "equipment": ["Aductores, sentado en el aire", "Abductor/Aductor combinado, con asiento"]
+    },
+    {
+      "name": "Patada de glúteo en máquina",
+      "pattern": "isolation",
+      "primaryMuscles": ["glutes"],
+      "secondaryMuscles": ["hamstrings"],
+      "isCompound": false,
+      "isUnilateral": true,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "Empujás con el talón y la lumbar no se arquea. Es una pierna por vez.",
+      "equipment": ["Glute Isolator (patada de burro)"]
+    },
+    {
+      "name": "Extensión de glúteo sentado",
+      "pattern": "isolation",
+      "primaryMuscles": ["glutes"],
+      "secondaryMuscles": ["hamstrings"],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "El apoyo firme en la espalda y el empuje sale de la cadera, no de la cintura.",
+      "equipment": ["Extensión de glúteos, sentado"]
+    },
+    {
+      "name": "Rotación externa con banda",
+      "pattern": "isolation",
+      "primaryMuscles": ["rear_delts"],
+      "secondaryMuscles": ["traps"],
+      "isCompound": false,
+      "isUnilateral": true,
+      "modality": "reps_weight",
+      "skillLevel": "beginner",
+      "cues": "El codo pegado al costado, como una bisagra. Poco peso y movimiento lento: es trabajo de manguito.",
+      "equipment": ["Bandas elásticas con arnés"]
+    },
+    {
+      "name": "Caminata en cinta",
+      "pattern": "cardio",
+      "primaryMuscles": ["full_body"],
+      "secondaryMuscles": ["quads", "calves"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "time",
+      "skillLevel": "beginner",
+      "cues": "Podés hablar entrecortado: ese es el ritmo. Si no podés hablar, bajá la velocidad.",
+      "equipment": ["Cintas (treadmills)"]
+    },
+    {
+      "name": "Bicicleta fija",
+      "pattern": "cardio",
+      "primaryMuscles": ["quads", "full_body"],
+      "secondaryMuscles": ["glutes", "calves"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "time",
+      "skillLevel": "beginner",
+      "cues": "El asiento a la altura de la cadera: con la pierna casi estirada abajo, sin trabar la rodilla.",
+      "equipment": ["Bicis sentadas normales", "Bicis semi-acostadas (reclinadas)"]
+    },
+    {
+      "name": "Elíptico",
+      "pattern": "cardio",
+      "primaryMuscles": ["full_body"],
+      "secondaryMuscles": ["quads", "glutes"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "time",
+      "skillLevel": "beginner",
+      "cues": "Sin impacto en la rodilla: es la opción si te molestan al correr.",
+      "equipment": ["Caminador Elíptico"]
+    },
+    {
+      "name": "Escaladora",
+      "pattern": "cardio",
+      "primaryMuscles": ["glutes", "quads"],
+      "secondaryMuscles": ["calves", "full_body"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "time",
+      "skillLevel": "novice",
+      "cues": "No te cuelgues de los brazos en el pasamanos: ahí se va la mitad del trabajo.",
+      "equipment": ["Escaladora"]
+    },
+    {
+      "name": "Caminata del granjero",
+      "pattern": "carry",
+      "primaryMuscles": ["forearms", "traps"],
+      "secondaryMuscles": ["abs", "full_body"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "time",
+      "skillLevel": "novice",
+      "cues": "Hombros atrás y abajo, pasos cortos. Cuando el agarre se abre, terminó la serie.",
+      "equipment": ["Mancuernas sueltas (set)", "Kettlebells", "Sandbags"]
+    }
+  ]
+}

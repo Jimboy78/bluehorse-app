@@ -29,8 +29,40 @@ describe('engineContext', () => {
 });
 
 describe('activeRuleset / showsPlaceholderContent', () => {
-  it('el ruleset activo hoy es el placeholder', () => {
-    expect(activeRuleset.source).toBe('placeholder');
-    expect(showsPlaceholderContent).toBe(true);
+  it('el ruleset activo sale de la investigación, no del placeholder', () => {
+    expect(activeRuleset.source).toBe('research');
+    expect(showsPlaceholderContent).toBe(false);
+  });
+
+  it('trae el bloque de seguridad: sin él la app no puede hacer el cribado', () => {
+    expect(activeRuleset.safety?.screening.questions.length).toBeGreaterThan(0);
+    expect(activeRuleset.safety?.painRules.length).toBeGreaterThan(0);
+    expect(activeRuleset.safety?.disclaimer).toBeTruthy();
+  });
+
+  it('cubre los seis objetivos, cada uno con su nivel de confianza declarado', () => {
+    for (const goal of [
+      'strength',
+      'hypertrophy',
+      'power',
+      'cardio',
+      'endurance',
+      'recomposition',
+    ] as const) {
+      expect(activeRuleset.prescription[goal]?.confidence).toBeTruthy();
+    }
+  });
+
+  it('los bloques de evidencia floja explican por qué lo son', () => {
+    // Mostrar una fila de confianza BAJA con la misma cara que una ALTA sería
+    // mentir por omisión. Si es floja, tiene que decir en qué.
+    for (const block of Object.values(activeRuleset.prescription)) {
+      if (block?.confidence === 'low') expect(block.confidenceNote).toBeTruthy();
+    }
+  });
+
+  it('el cardio se prescribe por zonas, no forzado a series y repeticiones', () => {
+    expect(activeRuleset.cardio?.zones.length).toBeGreaterThan(0);
+    expect(activeRuleset.cardio?.sessions.length).toBeGreaterThan(0);
   });
 });

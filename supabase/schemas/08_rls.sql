@@ -15,6 +15,7 @@ alter table user_constraints enable row level security;
 alter table user_baselines enable row level security;
 alter table user_equipment_settings enable row level security;
 alter table rulesets enable row level security;
+alter table health_screenings enable row level security;
 alter table plans enable row level security;
 alter table plan_sessions enable row level security;
 alter table plan_session_items enable row level security;
@@ -84,6 +85,19 @@ create policy "baselines propios" on user_baselines
 
 create policy "ajustes de maquina propios" on user_equipment_settings
   for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+-- El cribado de salud es solo del socio: ni siquiera el staff del gimnasio lo ve.
+-- Son datos de salud, no datos de entrenamiento.
+--
+-- Select e insert, sin update ni delete a propósito: cada respuesta queda como
+-- fue. Si alguien pudiera editar un cribado viejo, se perdería el registro de
+-- que dijo que sí a una pregunta bloqueante. Responder de nuevo inserta una fila
+-- nueva; la vigente es la más reciente.
+create policy "cribado propio" on health_screenings
+  for select to authenticated using (user_id = auth.uid());
+
+create policy "responder el cribado propio" on health_screenings
+  for insert to authenticated with check (user_id = auth.uid());
 
 create policy "planes propios" on plans
   for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());

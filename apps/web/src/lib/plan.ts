@@ -125,6 +125,7 @@ export function useGeneratePlan() {
         user: userSnapshot,
         gym,
         ruleset: activeRuleset,
+        daysSinceLastSession: await daysSinceLastSession(client, user.id),
       });
 
       const primaryGoal = userSnapshot.goals[0];
@@ -178,6 +179,10 @@ export function useRequestNextPlan() {
 
       const previousId = await activePlanId(client, user.id);
       const carried = previousId ? await carriedLoads(client, previousId) : new Map();
+      // Rotar los ejercicios del bloque que terminó: el músculo trabaja en
+      // ángulos distintos y se evita la lesión por sobreuso. Rotar dentro del
+      // mismo bloque sería lo contrario — impediría medir si progresó.
+      const previousExerciseIds = previousId ? await planExerciseIds(client, previousId) : [];
 
       const userSnapshot = await fetchUserSnapshot(client, user.id);
       const gymId = userSnapshot.profile.gymId;
@@ -187,6 +192,8 @@ export function useRequestNextPlan() {
         user: userSnapshot,
         gym,
         ruleset: activeRuleset,
+        previousExerciseIds,
+        daysSinceLastSession: await daysSinceLastSession(client, user.id),
       });
 
       // Recién acá se archiva: si algo de lo de arriba fallaba, la persona se
@@ -213,6 +220,53 @@ export function useRequestNextPlan() {
       void queryClient.invalidateQueries({ queryKey: ['proposals', user?.id] });
     },
   });
+}
+
+/**
+ * Días desde la última serie registrada. El motor lo usa para arrancar más suave
+ * cuando alguien vuelve después de mucho: la fuerza se retiene bien, pero el
+ * tendón pierde tolerancia y es lo que se lastima al retomar con la carga vieja.
+ *
+ * Es best-effort: si la consulta falla, se devuelve `null` y el motor no ajusta
+ * nada. No vale la pena frenar la generación del plan por esto.
+ */
+async function daysSinceLastSession(
+  client: SupabaseClient,
+  userId: string,
+): Promise<number | null> {
+  const { data, error } = await client
+    .from('workout_logs')
+    .select('started_at')
+    .eq('user_id', userId)
+    .order('started_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data?.started_at) return null;
+
+  const last = Date.parse(data.started_at as string);
+  if (Number.isNaN(last)) return null;
+  return Math.floor((Date.now() - last) / 86_400_000);
+}
+
+/** Ejercicios que tenía el plan anterior, para rotarlos en el siguiente. */
+async function planExerciseIds(client: SupabaseClient, planId: string): Promise<string[]> {
+  const { data: sessions, error: sessionsError } = await client
+    .from('plan_sessions')
+    .select('id')
+    .eq('plan_id', planId);
+  if (sessionsError || !sessions?.length) return [];
+
+  const { data: items, error: itemsError } = await client
+    .from('plan_session_items')
+    .select('exercise_id')
+    .in(
+      'plan_session_id',
+      sessions.map((s) => s.id),
+    );
+  if (itemsError || !items) return [];
+
+  return [...new Set(items.map((i) => i.exercise_id as string))];
 }
 
 async function activePlanId(client: SupabaseClient, userId: string): Promise<string | null> {
@@ -324,6 +378,13 @@ export interface ActiveSessionItem {
   readonly restSeconds: number;
   readonly rationale: string;
   readonly isPlaceholder: boolean;
+  /**
+   * Cardio: duración del bloque (o del trabajo de cada vuelta) y zona de
+   * intensidad. Nulos en el trabajo de sala, que va por series y repeticiones.
+   */
+  readonly durationSeconds: number | null;
+  readonly intensityZone: number | null;
+  readonly intervalRestSeconds: number | null;
 }
 
 export interface ActiveSession {
@@ -376,7 +437,7 @@ export function useActivePlan() {
       const { data: items, error: itemsError } = await client
         .from('plan_session_items')
         .select(
-          'id, exercise_id, equipment_id, order_index, target_sets, target_reps_min, target_reps_max, target_rir, target_load, target_load_unit, rest_seconds, rationale, is_placeholder, exercises(name), equipment(location_note, load_unit, load_min, load_max, load_increment, stack_kg, base_weight_kg)',
+          'id, exercise_id, equipment_id, order_index, target_sets, target_reps_min, target_reps_max, target_rir, target_load, target_load_unit, rest_seconds, rationale, is_placeholder, target_duration_seconds, target_intensity_zone, target_interval_rest_seconds, exercises(name), equipment(location_note, load_unit, load_min, load_max, load_increment, stack_kg, base_weight_kg)',
         )
         .eq('plan_session_id', session.id)
         .order('order_index');
@@ -407,6 +468,9 @@ interface PlanSessionItemRow {
   readonly rest_seconds: number;
   readonly rationale: string;
   readonly is_placeholder: boolean;
+  readonly target_duration_seconds: number | null;
+  readonly target_intensity_zone: number | null;
+  readonly target_interval_rest_seconds: number | null;
   readonly exercises: { name: string } | null;
   readonly equipment: {
     location_note: string | null;
@@ -449,10 +513,29 @@ function toActiveSessionItem(raw: unknown): ActiveSessionItem {
     equipmentLoadSpec: toLoadSpec(row.equipment),
     sets: row.target_sets,
     repsTarget: row.target_reps_max,
-    reps: `${row.target_reps_min}-${row.target_reps_max}`,
+    reps: describeReps(row),
     targetRir: row.target_rir,
     restSeconds: row.rest_seconds,
     rationale: row.rationale,
     isPlaceholder: row.is_placeholder,
+    durationSeconds: row.target_duration_seconds,
+    intensityZone: row.target_intensity_zone,
+    intervalRestSeconds: row.target_interval_rest_seconds,
   };
+}
+
+/**
+ * Un bloque de cardio se lee en minutos, no en repeticiones: "40 min" o
+ * "4 × 4 min". Mostrar "1-1 reps" en una cinta no le dice nada a nadie.
+ */
+function describeReps(row: PlanSessionItemRow): string {
+  const duration = row.target_duration_seconds;
+  if (duration === null) return `${row.target_reps_min}-${row.target_reps_max}`;
+
+  const minutes = Math.round(duration / 60);
+  if (row.target_interval_rest_seconds !== null) {
+    const restMinutes = Math.round(row.target_interval_rest_seconds / 60);
+    return `${row.target_sets} × ${minutes} min · ${restMinutes} min suave`;
+  }
+  return `${minutes} min`;
 }

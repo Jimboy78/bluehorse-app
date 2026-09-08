@@ -31,7 +31,9 @@ Fotos, planilla de equipamiento y lista de ejercicios canónicos. Ver `05-releva
   hasta acá el panel era solo de alta: un nombre mal tipeado o una carga máxima equivocada solo se
   arreglaba por SQL. El borrado es de dos toques y dice qué se lleva puesto (los mapeos a
   ejercicios cascadean; los `set_logs` de quien ya la usó sobreviven)
-- [ ] Catálogo de Blue Horse cargado (bloqueado por Fase 0, no bloquea el resto del desarrollo)
+- [x] Catálogo de Blue Horse cargado: 58 estaciones reales del relevamiento y 58 ejercicios mapeados
+  a ellas, versionados en `supabase/catalog/blue-horse.json` y aplicables con `npm run db:catalog`.
+  Falta medir in situ el rango de carga de cada estación
 
 **Entregable**: el catálogo real, navegable desde la app.
 
@@ -75,14 +77,30 @@ Fotos, planilla de equipamiento y lista de ejercicios canónicos. Ver `05-releva
 
 **Entregable**: demo presentable a Blue Horse.
 
-## Fase 4 — Contenido real
+## Fase 4 — Contenido real · **completa**
 
-- [ ] Curación de la investigación al esquema de ruleset
-- [ ] Ruleset `source: "research"` activo
-- [ ] Regeneración de planes y comparación contra los provisorios
-- [ ] Las marcas de "provisorio" se apagan solas
+- [x] Curación de la investigación al esquema de ruleset. El esquema se extendió primero (cardio por
+  zonas e intervalos, volumen semanal, %1RM, desentrenamiento, rotación, seguridad, confianza por
+  bloque): forzar el contenido al esquema viejo hubiera sido al revés. Ver `docs/research/README.md`
+  para qué se decidió y por qué.
+- [x] Ruleset `source: "research"` activo (`v1-research`), con los seis objetivos cubiertos y cada
+  bloque marcado con su nivel de confianza
+- [x] Las marcas de "provisorio" se apagan solas, y en su lugar aparece el aviso de evidencia floja
+  cuando el objetivo elegido lo tiene (potencia, resistencia)
+- [x] Catálogo real de Blue Horse versionado (`supabase/catalog/blue-horse.json`, `npm run db:catalog`):
+  58 estaciones y 58 ejercicios mapeados. Antes las estaciones vivían solo en Postgres —un `db:reset`
+  las borraba— y ningún ejercicio apuntaba a ellas: el motor armaba planes con las 13 máquinas de
+  ejemplo del seed
+- [x] Motor adaptativo: nivel de experiencia, dolor por zona, edad, volumen semanal, vuelta tras
+  ausencia, rotación entre bloques, y progresión distinta por tren
+- [x] Cribado de salud (PAR-Q+) que frena el alta si hay respuesta de riesgo, y aviso legal aceptado
+  explícitamente
 
 **Entregable**: una app que se le puede cobrar a alguien.
+
+Lo que queda antes de dársela a un socio real: verificar a mano una muestra de los DOIs citados
+(los valores se tomaron tal como los reporta cada documento) y medir in situ el rango de carga de
+cada estación (`load_min`/`load_max`/`load_increment` siguen en `null` en las 58).
 
 ## Fuera de alcance del MVP
 

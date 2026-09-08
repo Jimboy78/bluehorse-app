@@ -1,0 +1,881 @@
+{
+  "version": "v1-research",
+  "source": "research",
+  "notes": [
+    "Curado desde docs/research/ el 8 de septiembre de 2026. Cada bloque lleva su nivel de confianza, que sale de la columna 'Confianza' de la investigación: presentar una fila de evidencia floja con la misma cara que una sólida sería mentir por omisión.",
+    "Fuerza, hipertrofia y potencia: 01-fuerza-hipertrofia-potencia.md. Cardio y zonas: 02-cardio-resistencia-recomposicion.md. Progresión, regresión, descarga, desentrenamiento y rotación: 03-progresion-descarga.md. Ajustes por nivel y edad: 04-individualizacion-seguridad.md. Seguridad: 04 parte D + 05-seguridad-reforzada.md.",
+    "Criterio para las filas en confianza BAJA (decisión del usuario, 8/9/2026): se usa el extremo conservador del rango y el bloque queda marcado, en vez de descartarlo o de tomarlo como si fuera sólido. Aplica sobre todo a potencia y a resistencia muscular en sala.",
+    "Cuando el volumen por sesión choca con el techo semanal, gana el techo: por eso el bloque de fuerza avanzada usa 4 series en el ejercicio principal (el valor documentado) y no 5 (el tope del rango). Con 5 y tres sesiones semanales, glúteos y dorsales pasaban las 15 series semanales que la misma investigación marca como límite útil.",
+    "Resistencia muscular en sala (objetivo 'endurance') es lo más flojo del conjunto: la investigación cubre resistencia aeróbica, no el trabajo de sala con repeticiones altas. Se usa el extremo liviano de hipertrofia y queda marcado como BAJA.",
+    "Esto no reemplaza la evaluación de un profesional de la salud. El bloque `safety` lleva el aviso que el socio acepta antes de entrenar."
+  ],
+  "planning": {
+    "sessionsAhead": 8,
+    "rotationWeeks": [4, 8]
+  },
+  "prescription": {
+    "strength": {
+      "confidence": "high",
+      "default": {
+        "primary": {
+          "sets": 4,
+          "repsMin": 1,
+          "repsMax": 5,
+          "rirTarget": 3,
+          "restSeconds": 180,
+          "intensityPct1RM": [85, 100]
+        },
+        "secondary": {
+          "sets": 3,
+          "repsMin": 3,
+          "repsMax": 8,
+          "rirTarget": 3,
+          "restSeconds": 120,
+          "intensityPct1RM": [75, 85]
+        },
+        "isolation": {
+          "sets": 2,
+          "repsMin": 6,
+          "repsMax": 10,
+          "rirTarget": 3,
+          "restSeconds": 90,
+          "intensityPct1RM": [60, 75]
+        },
+        "progression": {
+          "stepPctUpperBody": 1.25,
+          "stepPctLowerBody": 2.5,
+          "triggerRirAtLeast": 4,
+          "consecutiveSessions": 2
+        },
+        "regression": { "stepPct": 7.5, "missedRepsSessions": 2 },
+        "deload": {
+          "stallSessions": 3,
+          "absenceDays": 10,
+          "volumeMultiplier": 0.5,
+          "keepLoad": true,
+          "rirTarget": 3
+        },
+        "weeklyVolume": {
+          "minSetsPerMuscle": 4,
+          "optimalSetsPerMuscle": [6, 12],
+          "maxSetsPerMuscle": 15,
+          "sessionsPerMusclePerWeek": [2, 3]
+        },
+        "detraining": [
+          { "days": 10, "loadMultiplier": 1 },
+          { "days": 30, "loadMultiplier": 0.85 },
+          { "days": 90, "loadMultiplier": 0.7 }
+        ]
+      },
+      "byLevel": {
+        "beginner": {
+          "primary": {
+            "sets": 3,
+            "repsMin": 5,
+            "repsMax": 8,
+            "rirTarget": 3,
+            "restSeconds": 210,
+            "intensityPct1RM": [60, 70]
+          },
+          "secondary": {
+            "sets": 2,
+            "repsMin": 6,
+            "repsMax": 10,
+            "rirTarget": 3,
+            "restSeconds": 150,
+            "intensityPct1RM": [55, 70]
+          },
+          "isolation": {
+            "sets": 2,
+            "repsMin": 8,
+            "repsMax": 12,
+            "rirTarget": 3,
+            "restSeconds": 105,
+            "intensityPct1RM": [45, 60]
+          },
+          "progression": {
+            "stepPctUpperBody": 5,
+            "stepPctLowerBody": 5,
+            "triggerRirAtLeast": 4,
+            "consecutiveSessions": 2
+          }
+        },
+        "novice": {
+          "primary": {
+            "sets": 4,
+            "repsMin": 4,
+            "repsMax": 6,
+            "rirTarget": 3,
+            "restSeconds": 180,
+            "intensityPct1RM": [75, 85]
+          },
+          "progression": {
+            "stepPctUpperBody": 5,
+            "stepPctLowerBody": 5,
+            "triggerRirAtLeast": 4,
+            "consecutiveSessions": 2
+          }
+        },
+        "advanced": {
+          "primary": {
+            "sets": 4,
+            "repsMin": 1,
+            "repsMax": 5,
+            "rirTarget": 2,
+            "restSeconds": 240,
+            "intensityPct1RM": [85, 100]
+          },
+          "secondary": {
+            "sets": 3,
+            "repsMin": 3,
+            "repsMax": 8,
+            "rirTarget": 2,
+            "restSeconds": 156,
+            "intensityPct1RM": [75, 85]
+          }
+        }
+      }
+    },
+    "hypertrophy": {
+      "confidence": "high",
+      "default": {
+        "primary": {
+          "sets": 4,
+          "repsMin": 6,
+          "repsMax": 12,
+          "rirTarget": 1,
+          "restSeconds": 120,
+          "intensityPct1RM": [65, 80]
+        },
+        "secondary": {
+          "sets": 3,
+          "repsMin": 8,
+          "repsMax": 15,
+          "rirTarget": 2,
+          "restSeconds": 90,
+          "intensityPct1RM": [60, 75]
+        },
+        "isolation": {
+          "sets": 2,
+          "repsMin": 10,
+          "repsMax": 15,
+          "rirTarget": 2,
+          "restSeconds": 60,
+          "intensityPct1RM": [40, 60]
+        },
+        "progression": {
+          "stepPctUpperBody": 1.25,
+          "stepPctLowerBody": 2.5,
+          "triggerRirAtLeast": 2,
+          "consecutiveSessions": 2
+        },
+        "regression": { "stepPct": 10, "missedRepsSessions": 2 },
+        "deload": {
+          "stallSessions": 3,
+          "absenceDays": 10,
+          "volumeMultiplier": 0.5,
+          "keepLoad": true,
+          "rirTarget": 3
+        },
+        "weeklyVolume": {
+          "minSetsPerMuscle": 6,
+          "optimalSetsPerMuscle": [10, 20],
+          "maxSetsPerMuscle": 24,
+          "sessionsPerMusclePerWeek": [2, 3]
+        },
+        "detraining": [
+          { "days": 10, "loadMultiplier": 1 },
+          { "days": 30, "loadMultiplier": 0.85 },
+          { "days": 90, "loadMultiplier": 0.7 }
+        ]
+      },
+      "byLevel": {
+        "beginner": {
+          "primary": {
+            "sets": 3,
+            "repsMin": 8,
+            "repsMax": 12,
+            "rirTarget": 3,
+            "restSeconds": 150,
+            "intensityPct1RM": [50, 70]
+          },
+          "secondary": {
+            "sets": 2,
+            "repsMin": 10,
+            "repsMax": 15,
+            "rirTarget": 3,
+            "restSeconds": 105,
+            "intensityPct1RM": [45, 65]
+          },
+          "isolation": {
+            "sets": 2,
+            "repsMin": 10,
+            "repsMax": 15,
+            "rirTarget": 3,
+            "restSeconds": 75,
+            "intensityPct1RM": [35, 55]
+          },
+          "progression": {
+            "stepPctUpperBody": 5,
+            "stepPctLowerBody": 5,
+            "triggerRirAtLeast": 4,
+            "consecutiveSessions": 2
+          }
+        },
+        "novice": {
+          "primary": {
+            "sets": 3,
+            "repsMin": 8,
+            "repsMax": 12,
+            "rirTarget": 2,
+            "restSeconds": 120,
+            "intensityPct1RM": [60, 75]
+          },
+          "progression": {
+            "stepPctUpperBody": 5,
+            "stepPctLowerBody": 5,
+            "triggerRirAtLeast": 3,
+            "consecutiveSessions": 2
+          }
+        },
+        "advanced": {
+          "primary": {
+            "sets": 5,
+            "repsMin": 6,
+            "repsMax": 12,
+            "rirTarget": 1,
+            "restSeconds": 156,
+            "intensityPct1RM": [70, 85]
+          },
+          "secondary": {
+            "sets": 4,
+            "repsMin": 8,
+            "repsMax": 15,
+            "rirTarget": 1,
+            "restSeconds": 117,
+            "intensityPct1RM": [65, 80]
+          }
+        }
+      }
+    },
+    "power": {
+      "confidence": "low",
+      "confidenceNote": "La literatura de potencia tiene poco consenso sobre volumen y descanso: en la investigación varias filas quedaron en confianza BAJA. Se toma el extremo conservador (menos series, más descanso) y la app no propone subir carga sola en este objetivo, porque la potencia se regula por velocidad, no por repeticiones en reserva.",
+      "default": {
+        "primary": {
+          "sets": 3,
+          "repsMin": 1,
+          "repsMax": 3,
+          "rirTarget": null,
+          "restSeconds": 240,
+          "intensityPct1RM": [30, 60]
+        },
+        "secondary": {
+          "sets": 3,
+          "repsMin": 1,
+          "repsMax": 5,
+          "rirTarget": null,
+          "restSeconds": 180,
+          "intensityPct1RM": [30, 60]
+        },
+        "isolation": {
+          "sets": 2,
+          "repsMin": 1,
+          "repsMax": 3,
+          "rirTarget": null,
+          "restSeconds": 120,
+          "intensityPct1RM": [30, 60]
+        },
+        "progression": {
+          "stepPctUpperBody": 1.25,
+          "stepPctLowerBody": 2.5,
+          "triggerRirAtLeast": 2,
+          "consecutiveSessions": 2
+        },
+        "regression": { "stepPct": 7.5, "missedRepsSessions": 2 },
+        "deload": {
+          "stallSessions": 3,
+          "absenceDays": 10,
+          "volumeMultiplier": 0.5,
+          "keepLoad": true,
+          "rirTarget": null
+        },
+        "weeklyVolume": {
+          "minSetsPerMuscle": 3,
+          "optimalSetsPerMuscle": [6, 8],
+          "maxSetsPerMuscle": 10,
+          "sessionsPerMusclePerWeek": [2, 3]
+        },
+        "detraining": [
+          { "days": 10, "loadMultiplier": 1 },
+          { "days": 30, "loadMultiplier": 0.85 },
+          { "days": 90, "loadMultiplier": 0.7 }
+        ]
+      }
+    },
+    "recomposition": {
+      "confidence": "medium",
+      "confidenceNote": "La investigación indica que las reglas mecánicas de recomposición deben emular a las de hipertrofia: el estímulo de tensión es lo único que previene perder músculo durante un déficit calórico. Los números son los de hipertrofia; lo que cambia es la dieta, que esta app no maneja.",
+      "default": {
+        "primary": {
+          "sets": 4,
+          "repsMin": 6,
+          "repsMax": 12,
+          "rirTarget": 1,
+          "restSeconds": 120,
+          "intensityPct1RM": [65, 80]
+        },
+        "secondary": {
+          "sets": 3,
+          "repsMin": 8,
+          "repsMax": 15,
+          "rirTarget": 2,
+          "restSeconds": 90,
+          "intensityPct1RM": [60, 75]
+        },
+        "isolation": {
+          "sets": 2,
+          "repsMin": 10,
+          "repsMax": 15,
+          "rirTarget": 2,
+          "restSeconds": 60,
+          "intensityPct1RM": [40, 60]
+        },
+        "progression": {
+          "stepPctUpperBody": 1.25,
+          "stepPctLowerBody": 2.5,
+          "triggerRirAtLeast": 2,
+          "consecutiveSessions": 2
+        },
+        "regression": { "stepPct": 10, "missedRepsSessions": 2 },
+        "deload": {
+          "stallSessions": 3,
+          "absenceDays": 10,
+          "volumeMultiplier": 0.5,
+          "keepLoad": true,
+          "rirTarget": 3
+        },
+        "weeklyVolume": {
+          "minSetsPerMuscle": 6,
+          "optimalSetsPerMuscle": [10, 20],
+          "maxSetsPerMuscle": 24,
+          "sessionsPerMusclePerWeek": [2, 3]
+        },
+        "detraining": [
+          { "days": 10, "loadMultiplier": 1 },
+          { "days": 30, "loadMultiplier": 0.85 },
+          { "days": 90, "loadMultiplier": 0.7 }
+        ]
+      },
+      "byLevel": {
+        "beginner": {
+          "primary": {
+            "sets": 3,
+            "repsMin": 8,
+            "repsMax": 12,
+            "rirTarget": 3,
+            "restSeconds": 150,
+            "intensityPct1RM": [50, 70]
+          },
+          "progression": {
+            "stepPctUpperBody": 5,
+            "stepPctLowerBody": 5,
+            "triggerRirAtLeast": 4,
+            "consecutiveSessions": 2
+          }
+        },
+        "novice": {
+          "progression": {
+            "stepPctUpperBody": 5,
+            "stepPctLowerBody": 5,
+            "triggerRirAtLeast": 3,
+            "consecutiveSessions": 2
+          }
+        }
+      }
+    },
+    "endurance": {
+      "confidence": "low",
+      "confidenceNote": "La investigación cubre resistencia aeróbica, no resistencia muscular en sala con repeticiones altas. Estos números son el extremo liviano del bloque de hipertrofia, que es el anclaje con evidencia más cercano; no hay respaldo directo para series de 20 o 25 repeticiones. El trabajo aeróbico de este objetivo, que sí tiene respaldo, está en el bloque `cardio`.",
+      "default": {
+        "primary": {
+          "sets": 3,
+          "repsMin": 12,
+          "repsMax": 15,
+          "rirTarget": 2,
+          "restSeconds": 60,
+          "intensityPct1RM": [40, 60]
+        },
+        "secondary": {
+          "sets": 3,
+          "repsMin": 12,
+          "repsMax": 15,
+          "rirTarget": 2,
+          "restSeconds": 45,
+          "intensityPct1RM": [40, 60]
+        },
+        "isolation": {
+          "sets": 2,
+          "repsMin": 12,
+          "repsMax": 15,
+          "rirTarget": 2,
+          "restSeconds": 45,
+          "intensityPct1RM": [35, 55]
+        },
+        "progression": {
+          "stepPctUpperBody": 1.25,
+          "stepPctLowerBody": 2.5,
+          "triggerRirAtLeast": 3,
+          "consecutiveSessions": 2
+        },
+        "regression": { "stepPct": 10, "missedRepsSessions": 2 },
+        "deload": {
+          "stallSessions": 3,
+          "absenceDays": 10,
+          "volumeMultiplier": 0.5,
+          "keepLoad": true,
+          "rirTarget": 3
+        },
+        "weeklyVolume": {
+          "minSetsPerMuscle": 6,
+          "optimalSetsPerMuscle": [10, 16],
+          "maxSetsPerMuscle": 20,
+          "sessionsPerMusclePerWeek": [2, 3]
+        },
+        "detraining": [
+          { "days": 10, "loadMultiplier": 0.9 },
+          { "days": 30, "loadMultiplier": 0.8 },
+          { "days": 90, "loadMultiplier": 0.65 }
+        ]
+      }
+    },
+    "cardio": {
+      "confidence": "medium",
+      "confidenceNote": "El trabajo aeróbico está en el bloque `cardio` (zonas, duración e intervalos), que es donde la evidencia es más firme. Lo de sala es la dosis mínima de fuerza que la ACSM recomienda sostener en paralelo: dos sesiones por semana, con cargas moderadas. `minSetsPerMuscle` queda en 0 a propósito: la recomendación es de dos sesiones semanales de fuerza, no de una cantidad de series por músculo, y poner un número acá sería inventarlo.",
+      "default": {
+        "primary": {
+          "sets": 2,
+          "repsMin": 8,
+          "repsMax": 12,
+          "rirTarget": 3,
+          "restSeconds": 90,
+          "intensityPct1RM": [60, 75]
+        },
+        "secondary": {
+          "sets": 2,
+          "repsMin": 10,
+          "repsMax": 15,
+          "rirTarget": 3,
+          "restSeconds": 60,
+          "intensityPct1RM": [55, 70]
+        },
+        "isolation": {
+          "sets": 2,
+          "repsMin": 12,
+          "repsMax": 15,
+          "rirTarget": 3,
+          "restSeconds": 45,
+          "intensityPct1RM": [40, 60]
+        },
+        "progression": {
+          "stepPctUpperBody": 1.25,
+          "stepPctLowerBody": 2.5,
+          "triggerRirAtLeast": 4,
+          "consecutiveSessions": 2
+        },
+        "regression": { "stepPct": 10, "missedRepsSessions": 2 },
+        "deload": {
+          "stallSessions": 3,
+          "absenceDays": 10,
+          "volumeMultiplier": 0.5,
+          "keepLoad": true,
+          "rirTarget": 3
+        },
+        "weeklyVolume": {
+          "minSetsPerMuscle": 0,
+          "optimalSetsPerMuscle": [4, 10],
+          "maxSetsPerMuscle": 12,
+          "sessionsPerMusclePerWeek": [2, 3]
+        },
+        "detraining": [
+          { "days": 10, "loadMultiplier": 0.9 },
+          { "days": 30, "loadMultiplier": 0.8 },
+          { "days": 90, "loadMultiplier": 0.65 }
+        ]
+      }
+    }
+  },
+  "cardio": {
+    "zones": [
+      {
+        "zone": 1,
+        "label": "Muy suave",
+        "hrPercentMax": [55, 72],
+        "feels": "Podés mantener una conversación entera sin quedarte sin aire."
+      },
+      {
+        "zone": 2,
+        "label": "Cómodo",
+        "hrPercentMax": [67, 82],
+        "feels": "Hablás en frases cortas. Es el ritmo en el que se hace casi todo el volumen."
+      },
+      {
+        "zone": 3,
+        "label": "Incómodo",
+        "hrPercentMax": [82, 87],
+        "feels": "Contestás con pocas palabras y ya te cuesta."
+      },
+      {
+        "zone": 4,
+        "label": "Exigente",
+        "hrPercentMax": [87, 92],
+        "feels": "No podés hablar. Sostenerlo cuesta y se siente."
+      },
+      {
+        "zone": 5,
+        "label": "Máximo",
+        "hrPercentMax": [92, 100],
+        "feels": "A fondo. Solo se sostiene unos segundos."
+      }
+    ],
+    "sessions": [
+      {
+        "id": "continuo_z2",
+        "label": "Continuo cómodo",
+        "type": "steady",
+        "intensityZone": 2,
+        "durationMinutes": 40,
+        "interval": null,
+        "confidence": "high"
+      },
+      {
+        "id": "continuo_largo_z2",
+        "label": "Continuo largo",
+        "type": "steady",
+        "intensityZone": 2,
+        "durationMinutes": 60,
+        "interval": null,
+        "confidence": "medium"
+      },
+      {
+        "id": "intervalos_4x4",
+        "label": "Intervalos 4×4",
+        "type": "interval",
+        "intensityZone": 4,
+        "durationMinutes": null,
+        "interval": { "workMinutes": 4, "restMinutes": 3, "reps": 4 },
+        "confidence": "medium"
+      }
+    ],
+    "interference": {
+      "avoidIntervalsSameDayAsLowerBody": true,
+      "minHoursBetweenSessions": 6
+    }
+  },
+  "modifiers": {
+    "olderAdults": {
+      "fromAge": 60,
+      "repsMinDelta": 2,
+      "intensityMultiplier": 0.8,
+      "restMultiplier": 1.3,
+      "note": "Más repeticiones con menos carga y más descanso entre series. No es que a esta edad se progrese menos: se progresa bien, pero conviene dejar más margen.",
+      "confidence": "medium"
+    }
+  },
+  "safety": {
+    "disclaimer": "La información de esta aplicación es solo con fines informativos y educativos. No sustituye la evaluación ni el consejo de un profesional de la salud. Consultá con tu médico si tenés condiciones médicas previas, dudas o síntomas inusuales. Usás este programa bajo tu propia responsabilidad.",
+    "disclaimerRenewMonths": 6,
+    "screening": {
+      "intro": "Antes de arrancar necesitamos saber si podés entrenar sin autorización médica. Son siete preguntas y se responden una sola vez.",
+      "questions": [
+        {
+          "id": "heart_condition",
+          "text": "¿Algún médico te dijo alguna vez que tenés un problema del corazón o presión alta?",
+          "blocking": true
+        },
+        {
+          "id": "chest_pain_activity",
+          "text": "¿Sentís dolor en el pecho cuando hacés actividad física?",
+          "blocking": true
+        },
+        {
+          "id": "chest_pain_rest",
+          "text": "En el último mes, ¿tuviste dolor en el pecho estando en reposo?",
+          "blocking": true
+        },
+        {
+          "id": "balance_faint",
+          "text": "¿Perdés el equilibrio por mareos o alguna vez perdiste el conocimiento?",
+          "blocking": true
+        },
+        {
+          "id": "bone_joint",
+          "text": "¿Tenés algún problema de huesos o articulaciones que pueda empeorar al aumentar la actividad física?",
+          "blocking": false
+        },
+        {
+          "id": "medication",
+          "text": "¿Tomás actualmente medicación para la presión o para el corazón?",
+          "blocking": true
+        },
+        {
+          "id": "other_reason",
+          "text": "¿Sabés de alguna otra razón por la que no deberías hacer actividad física?",
+          "blocking": true
+        }
+      ],
+      "blockedMessage": "Con lo que marcaste, lo que corresponde es que un profesional de la salud te autorice antes de empezar. No es un no: es que esta app no puede evaluarte. Mostrale esto a tu médico y volvé cuando tengas el visto bueno.",
+      "clearedMessage": "Listo, podés arrancar. Si en algún momento aparece dolor en el pecho, mareo o falta de aire que no corresponde al esfuerzo, frená y consultá.",
+      "confidence": "high"
+    },
+    "redFlags": [
+      {
+        "id": "chest_pain",
+        "text": "Dolor u opresión en el pecho durante el ejercicio",
+        "action": "Frená la sesión ahora y consultá a un profesional antes de volver a entrenar."
+      },
+      {
+        "id": "dyspnea",
+        "text": "Falta de aire desproporcionada para el esfuerzo que estás haciendo",
+        "action": "Frená la sesión y consultá antes de volver."
+      },
+      {
+        "id": "syncope",
+        "text": "Mareo, desmayo o pérdida del equilibrio",
+        "action": "Frená la sesión, sentate, y consultá antes de volver a entrenar."
+      },
+      {
+        "id": "palpitations",
+        "text": "Palpitaciones o el corazón acelerado sin motivo",
+        "action": "Frená la sesión y consultá antes de volver."
+      },
+      {
+        "id": "persistent_pain",
+        "text": "Dolor de 7 o más sobre 10 que se repite en varias sesiones seguidas o empeora con cada entrenamiento",
+        "action": "Es señal de lesión por sobreuso: pará ese movimiento y hacete ver."
+      },
+      {
+        "id": "always_maximal",
+        "text": "Todas las sesiones se sienten al límite, sin margen, durante una semana entera",
+        "action": "El programa está exigiendo de más: bajá carga y volumen antes de seguir."
+      }
+    ],
+    "painRules": [
+      {
+        "bodyRegion": "lower_back",
+        "severityAtLeast": 3,
+        "avoidPatterns": ["hinge"],
+        "avoidMuscles": ["lower_back"],
+        "keepDoing": "Trabajo de core y glúteos en posición neutra, y caminar. Lo que no conviene es quedarse quieto del todo.",
+        "referIf": "El dolor pasa dos semanas sin mejorar, empeora tras 48 horas de reposo, o aparece hormigueo, debilidad en las piernas o fiebre.",
+        "confidence": "low"
+      },
+      {
+        "bodyRegion": "knee",
+        "severityAtLeast": 3,
+        "avoidPatterns": ["lunge"],
+        "avoidMuscles": [],
+        "keepDoing": "Bicicleta, elíptico y sentadillas parciales controladas. El movimiento de bajo impacto ayuda más que el reposo.",
+        "referIf": "Hubo un chasquido, la rodilla se traba o se hincha, o sentís que se va de lugar.",
+        "confidence": "low"
+      },
+      {
+        "bodyRegion": "knee",
+        "severityAtLeast": 4,
+        "avoidPatterns": ["lunge", "squat"],
+        "avoidMuscles": ["quads"],
+        "keepDoing": "Trabajo de tren superior y core, y cardio sin impacto si no duele.",
+        "referIf": "Hubo un chasquido, la rodilla se traba o se hincha, o sentís que se va de lugar.",
+        "confidence": "low"
+      },
+      {
+        "bodyRegion": "shoulder",
+        "severityAtLeast": 3,
+        "avoidPatterns": ["vertical_push"],
+        "avoidMuscles": ["front_delts"],
+        "keepDoing": "Trabajo de escápula y rotadores con poca carga, y remo suave. Nada por encima de la cabeza.",
+        "referIf": "El dolor baja por el brazo con hormigueo, hay debilidad marcada, o la articulación se hinchó después de un esfuerzo.",
+        "confidence": "low"
+      },
+      {
+        "bodyRegion": "wrist",
+        "severityAtLeast": 3,
+        "avoidPatterns": [],
+        "avoidMuscles": ["forearms"],
+        "keepDoing": "Todo lo que no cargue la muñeca en flexión o extensión forzada. Los agarres neutros suelen molestar menos.",
+        "referIf": "Hay hinchazón, la muñeca hace ruido al moverla, o hay hormigueo en el pulgar y el índice.",
+        "confidence": "low"
+      },
+      {
+        "bodyRegion": "neck",
+        "severityAtLeast": 3,
+        "avoidPatterns": ["vertical_push"],
+        "avoidMuscles": ["traps"],
+        "keepDoing": "Movilidad cervical suave y remo manteniendo el cuello alineado.",
+        "referIf": "Aparecen mareos, náuseas, visión borrosa u hormigueo en los brazos.",
+        "confidence": "low"
+      }
+    ],
+    "specialPopulations": [
+      {
+        "id": "pregnancy",
+        "label": "Embarazo",
+        "requiresClearance": true,
+        "note": "Con autorización médica se puede entrenar, con adaptaciones: nada de alto impacto ni riesgo de caída, y control de síntomas."
+      },
+      {
+        "id": "uncontrolled_hypertension",
+        "label": "Presión alta sin controlar",
+        "requiresClearance": true,
+        "note": "Con autorización, solo esfuerzo moderado. Se posponen los máximos y hay que evitar aguantar la respiración al empujar."
+      },
+      {
+        "id": "diabetes_complications",
+        "label": "Diabetes con complicaciones",
+        "requiresClearance": true,
+        "note": "Con autorización y control de glucemia antes y después. Atención al pie: calzado adecuado y nada de alto impacto si hay neuropatía."
+      },
+      {
+        "id": "older_adult_falls",
+        "label": "Adulto mayor con caídas previas",
+        "requiresClearance": true,
+        "note": "Con autorización, incluir trabajo de equilibrio y fuerza progresiva. Nada de superficies inestables sin supervisión."
+      }
+    ]
+  },
+  "templates": [
+    {
+      "id": "full_body_ab",
+      "label": "Cuerpo completo A/B",
+      "goals": ["hypertrophy", "strength", "power", "recomposition", "endurance"],
+      "sessionsPerWeek": [2, 3],
+      "sessions": [
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "estimatedMinutes": 55,
+          "slots": [
+            { "pattern": "squat", "role": "primary" },
+            { "pattern": "horizontal_push", "role": "primary" },
+            { "pattern": "horizontal_pull", "role": "secondary" },
+            { "pattern": "vertical_push", "role": "secondary" },
+            { "pattern": "core", "role": "isolation" }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "estimatedMinutes": 55,
+          "slots": [
+            { "pattern": "hinge", "role": "primary" },
+            { "pattern": "vertical_pull", "role": "primary" },
+            { "pattern": "lunge", "role": "secondary" },
+            { "pattern": "horizontal_pull", "role": "secondary" },
+            { "pattern": "isolation", "role": "isolation" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "upper_lower",
+      "label": "Torso / pierna",
+      "goals": ["hypertrophy", "strength", "recomposition"],
+      "sessionsPerWeek": [4, 6],
+      "sessions": [
+        {
+          "label": "Torso A",
+          "focus": "Torso · empuje",
+          "estimatedMinutes": 60,
+          "slots": [
+            { "pattern": "horizontal_push", "role": "primary" },
+            { "pattern": "vertical_pull", "role": "primary" },
+            { "pattern": "vertical_push", "role": "secondary" },
+            { "pattern": "horizontal_pull", "role": "secondary" },
+            { "pattern": "isolation", "role": "isolation" }
+          ]
+        },
+        {
+          "label": "Pierna A",
+          "focus": "Tren inferior",
+          "estimatedMinutes": 60,
+          "slots": [
+            { "pattern": "squat", "role": "primary" },
+            { "pattern": "hinge", "role": "primary" },
+            { "pattern": "lunge", "role": "secondary" },
+            { "pattern": "core", "role": "isolation" }
+          ]
+        },
+        {
+          "label": "Torso B",
+          "focus": "Torso · tracción",
+          "estimatedMinutes": 60,
+          "slots": [
+            { "pattern": "horizontal_pull", "role": "primary" },
+            { "pattern": "horizontal_push", "role": "primary" },
+            { "pattern": "vertical_pull", "role": "secondary" },
+            { "pattern": "isolation", "role": "isolation" }
+          ]
+        },
+        {
+          "label": "Pierna B",
+          "focus": "Tren inferior · cadena posterior",
+          "estimatedMinutes": 60,
+          "slots": [
+            { "pattern": "hinge", "role": "primary" },
+            { "pattern": "squat", "role": "secondary" },
+            { "pattern": "lunge", "role": "secondary" },
+            { "pattern": "core", "role": "isolation" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cardio_base",
+      "label": "Base aeróbica",
+      "goals": ["cardio", "endurance", "recomposition"],
+      "sessionsPerWeek": [3, 5],
+      "sessions": [
+        {
+          "label": "Continuo",
+          "focus": "Aeróbico continuo",
+          "estimatedMinutes": 50,
+          "slots": [
+            { "pattern": "cardio", "role": "primary", "cardioSessionId": "continuo_z2" },
+            { "pattern": "core", "role": "isolation" }
+          ]
+        },
+        {
+          "label": "Intervalos",
+          "focus": "Intervalos",
+          "estimatedMinutes": 40,
+          "slots": [
+            { "pattern": "cardio", "role": "primary", "cardioSessionId": "intervalos_4x4" },
+            { "pattern": "core", "role": "isolation" }
+          ]
+        },
+        {
+          "label": "Fuerza de sostén",
+          "focus": "Fuerza general",
+          "estimatedMinutes": 45,
+          "slots": [
+            { "pattern": "squat", "role": "secondary" },
+            { "pattern": "horizontal_pull", "role": "secondary" },
+            { "pattern": "horizontal_push", "role": "secondary" },
+            { "pattern": "core", "role": "isolation" }
+          ]
+        }
+      ]
+    }
+  ],
+  "substitution": {
+    "minEquivalence": 0.5,
+    "patternWeight": 0.4,
+    "muscleWeight": 0.6,
+    "maxOptions": 3
+  },
+  "rationale": {
+    "primary": "{exercise} va primero: es el ejercicio más demandante de la sesión y conviene hacerlo descansado.",
+    "secondary": "{exercise} suma volumen sobre el mismo patrón, con menos carga y más repeticiones.",
+    "isolation": "{exercise} cierra la sesión: aísla un grupo puntual y no compromete el resto."
+  }
+}

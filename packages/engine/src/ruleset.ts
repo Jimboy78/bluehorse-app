@@ -1,5 +1,12 @@
 import type { ExperienceLevel, Goal } from '@bh/domain';
-import { EXPERIENCE_LEVELS, GOALS, MOVEMENT_PATTERNS, RULESET_SOURCES } from '@bh/domain';
+import {
+  BODY_REGIONS,
+  EXPERIENCE_LEVELS,
+  GOALS,
+  MOVEMENT_PATTERNS,
+  MUSCLE_GROUPS,
+  RULESET_SOURCES,
+} from '@bh/domain';
 import { z } from 'zod';
 
 /**
@@ -9,14 +16,33 @@ import { z } from 'zod';
  * el research, se escribe un ruleset nuevo con `source: "research"`, se activa, y
  * se regeneran los planes. No cambia una línea de `apps/web` ni de este paquete.
  *
- * Investigaciones que llenan cada parte:
- *   prescription.{strength,hypertrophy,power}   → training_program_design_strength_hypertrophy_power
- *   prescription.{cardio,endurance,recomposition} → training_program_design_cardio_endurance_recomposition
- *   modifiers                                    → training_program_individual_variables_age_sex_experience_sport
+ * Investigaciones que llenan cada parte (ver `docs/research/`):
+ *   prescription.{strength,hypertrophy,power}     → 01-fuerza-hipertrofia-potencia
+ *   cardio (zonas, intervalos)                    → 02-cardio-resistencia-recomposicion
+ *   progression, regression, deload, detraining,
+ *   rotation                                      → 03-progresion-descarga
+ *   byLevel                                       → 04-individualizacion-seguridad
+ *   safety                                        → 04 parte D + 05-seguridad-reforzada
  */
 
 export const SLOT_ROLES = ['primary', 'secondary', 'isolation'] as const;
 export type SlotRole = (typeof SLOT_ROLES)[number];
+
+/**
+ * Qué tan firme es la evidencia detrás de un bloque. Sale de la columna
+ * "Confianza" del research y se muestra al usuario: presentar una fila BAJA con
+ * la misma cara que una ALTA sería mentir por omisión.
+ */
+export const CONFIDENCE_LEVELS = ['high', 'medium', 'low'] as const;
+export type ConfidenceLevel = (typeof CONFIDENCE_LEVELS)[number];
+
+const percentRange = z
+  .tuple([z.number().min(0).max(100), z.number().min(0).max(100)])
+  .refine(([min, max]) => min <= max, { message: 'El rango va de menor a mayor.' });
+
+const countRange = z
+  .tuple([z.number().int().min(0), z.number().int().min(0)])
+  .refine(([min, max]) => min <= max, { message: 'El rango va de menor a mayor.' });
 
 const roleParamsSchema = z.object({
   sets: z.number().int().min(1).max(10),
@@ -25,14 +51,24 @@ const roleParamsSchema = z.object({
   /** Reps en reserva objetivo. `null` para trabajo que no se mide así (cardio continuo). */
   rirTarget: z.number().int().min(0).max(10).nullable(),
   restSeconds: z.number().int().min(0).max(600),
+  /**
+   * Ventana de intensidad como % del 1RM. Con esto la app puede proponer una
+   * carga de arranque cuando estima el 1RM, en vez de dejar al socio adivinando.
+   */
+  intensityPct1RM: percentRange,
 });
 
 const progressionSchema = z.object({
-  /** Cuánto subir cuando corresponde. En estaciones de pin se ignora: sube un nivel. */
-  stepPct: z.number().min(0).max(50),
+  /**
+   * Cuánto subir cuando corresponde. Va separado por tren porque la adaptación no
+   * es simétrica: el torso progresa más lento que las piernas en términos
+   * absolutos. En estaciones de pin se ignora el porcentaje: sube un nivel.
+   */
+  stepPctUpperBody: z.number().min(0).max(50),
+  stepPctLowerBody: z.number().min(0).max(50),
   /** Se sube si el RIR de la serie tope fue mayor o igual a esto... */
   triggerRirAtLeast: z.number().int().min(0).max(10),
-  /** ...durante esta cantidad de sesiones seguidas. */
+  /** ...durante esta cantidad de sesiones seguidas. Filtra el "buen día". */
   consecutiveSessions: z.number().int().min(1).max(10),
 });
 
@@ -49,6 +85,31 @@ const deloadSchema = z.object({
   absenceDays: z.number().int().min(1).max(365),
   /** Multiplicador de volumen durante la descarga. */
   volumeMultiplier: z.number().min(0.1).max(1),
+  /**
+   * Si la descarga conserva la carga y recorta solo volumen. Bajar las dos cosas
+   * a la vez desentrena; el objetivo es disipar fatiga sin perder el estímulo.
+   */
+  keepLoad: z.boolean(),
+  /** RIR objetivo mientras dura la descarga: se para bastante antes del fallo. */
+  rirTarget: z.number().int().min(0).max(10).nullable(),
+});
+
+/**
+ * Cuánto bajar la carga al volver después de no entrenar. Los escalones se
+ * evalúan de mayor a menor: el primero cuyo `days` se haya superado, gana.
+ */
+const detrainingStepSchema = z.object({
+  days: z.number().int().min(1).max(3650),
+  loadMultiplier: z.number().min(0.1).max(1),
+});
+
+const weeklyVolumeSchema = z.object({
+  /** Series semanales por grupo muscular. Debajo del mínimo no hay estímulo; arriba del máximo no rinde. */
+  minSetsPerMuscle: z.number().int().min(0).max(60),
+  optimalSetsPerMuscle: countRange,
+  maxSetsPerMuscle: z.number().int().min(1).max(60),
+  /** Veces por semana que conviene tocar cada músculo. */
+  sessionsPerMusclePerWeek: countRange,
 });
 
 const goalParamsSchema = z.object({
@@ -58,6 +119,8 @@ const goalParamsSchema = z.object({
   progression: progressionSchema,
   regression: regressionSchema,
   deload: deloadSchema,
+  weeklyVolume: weeklyVolumeSchema,
+  detraining: z.array(detrainingStepSchema).min(1),
 });
 
 export type GoalParams = z.infer<typeof goalParamsSchema>;
@@ -78,12 +141,158 @@ const templateSchema = z.object({
             z.object({
               pattern: z.enum(MOVEMENT_PATTERNS),
               role: z.enum(SLOT_ROLES),
+              /** Referencia a `cardio.sessions[].id`. Solo para slots de patrón `cardio`. */
+              cardioSessionId: z.string().min(1).optional(),
             }),
           )
           .min(1),
       }),
     )
     .min(1),
+});
+
+/**
+ * El cardio no entra en series y repeticiones: se prescribe por duración, zona de
+ * intensidad e intervalos. Forzarlo al formato de sala era la deuda que dejaba el
+ * ruleset provisorio.
+ */
+const cardioSchema = z.object({
+  zones: z
+    .array(
+      z.object({
+        zone: z.number().int().min(1).max(5),
+        label: z.string().min(1),
+        hrPercentMax: percentRange,
+        /** Cómo se siente, para quien no usa pulsómetro. */
+        feels: z.string().min(1),
+      }),
+    )
+    .min(1),
+  sessions: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        label: z.string().min(1),
+        type: z.enum(['steady', 'interval']),
+        intensityZone: z.number().int().min(1).max(5),
+        /** Duración total del bloque continuo. `null` en intervalos. */
+        durationMinutes: z.number().int().min(1).max(240).nullable(),
+        /** Solo en intervalos. */
+        interval: z
+          .object({
+            workMinutes: z.number().min(0.25).max(60),
+            restMinutes: z.number().min(0.25).max(60),
+            reps: z.number().int().min(1).max(30),
+          })
+          .nullable(),
+        confidence: z.enum(CONFIDENCE_LEVELS),
+      }),
+    )
+    .min(1),
+  /**
+   * Cardio intenso el mismo día que fuerza de piernas recorta las ganancias de
+   * fuerza. El motor lo usa para no meter intervalos junto a una sesión pesada.
+   */
+  interference: z.object({
+    avoidIntervalsSameDayAsLowerBody: z.boolean(),
+    minHoursBetweenSessions: z.number().int().min(0).max(48),
+  }),
+});
+
+/**
+ * Reglas de seguridad. **Opcional a propósito**: un ruleset provisorio no debe
+ * inventar contenido de seguridad — es preferible que la app no ofrezca cribado a
+ * que ofrezca uno fabricado. Cuando el bloque está, la app lo activa sola.
+ */
+const safetySchema = z.object({
+  /** Texto que el socio acepta explícitamente antes de entrenar. */
+  disclaimer: z.string().min(1),
+  /** Cada cuántos meses se vuelve a pedir la aceptación. */
+  disclaimerRenewMonths: z.number().int().min(1).max(60),
+  screening: z.object({
+    intro: z.string().min(1),
+    questions: z
+      .array(
+        z.object({
+          id: z.string().min(1),
+          text: z.string().min(1),
+          /** Si responder que sí frena el alta hasta tener autorización médica. */
+          blocking: z.boolean(),
+        }),
+      )
+      .min(1),
+    /** Qué se le dice a quien queda frenado por el cribado. */
+    blockedMessage: z.string().min(1),
+    clearedMessage: z.string().min(1),
+    confidence: z.enum(CONFIDENCE_LEVELS),
+  }),
+  /** Síntomas que obligan a frenar y consultar, se reporten cuando se reporten. */
+  redFlags: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        text: z.string().min(1),
+        action: z.string().min(1),
+      }),
+    )
+    .min(1),
+  /**
+   * Qué hacer cuando duele una zona. La regla general del research es no parar
+   * del todo: se evita lo que irrita y se sigue con el resto.
+   */
+  painRules: z
+    .array(
+      z.object({
+        bodyRegion: z.enum(BODY_REGIONS),
+        /** Desde qué severidad (1..5) aplica esta regla. */
+        severityAtLeast: z.number().int().min(1).max(5),
+        /** Patrones que se sacan del plan mientras dure la molestia. */
+        avoidPatterns: z.array(z.enum(MOVEMENT_PATTERNS)),
+        /** Músculos cuyo trabajo directo se saca del plan. */
+        avoidMuscles: z.array(z.enum(MUSCLE_GROUPS)),
+        /** Qué sí se puede seguir haciendo, en castellano. */
+        keepDoing: z.string().min(1),
+        /** Cuándo hay que ir a un profesional en vez de seguir ajustando. */
+        referIf: z.string().min(1),
+        confidence: z.enum(CONFIDENCE_LEVELS),
+      }),
+    )
+    .min(1),
+  /** Situaciones que requieren autorización médica antes de entrenar. */
+  specialPopulations: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        label: z.string().min(1),
+        requiresClearance: z.boolean(),
+        note: z.string().min(1),
+      }),
+    )
+    .min(1),
+});
+
+export type Safety = z.infer<typeof safetySchema>;
+export type PainRule = Safety['painRules'][number];
+
+/**
+ * Ajustes que no dependen del objetivo ni del nivel. Opcionales: si el ruleset no
+ * los define, el motor no ajusta nada — no hay un default escondido en el código.
+ */
+const modifiersSchema = z.object({
+  /**
+   * A partir de cierta edad conviene menos carga, más repeticiones y más descanso.
+   * No es que se adapten peor: se adaptan bien, pero con más margen.
+   */
+  olderAdults: z
+    .object({
+      fromAge: z.number().int().min(40).max(100),
+      repsMinDelta: z.number().int().min(0).max(10),
+      intensityMultiplier: z.number().min(0.1).max(1),
+      restMultiplier: z.number().min(1).max(3),
+      note: z.string().min(1),
+      confidence: z.enum(CONFIDENCE_LEVELS),
+    })
+    .optional(),
 });
 
 export const rulesetSchema = z.object({
@@ -94,15 +303,27 @@ export const rulesetSchema = z.object({
   planning: z.object({
     /** Cuántas sesiones se generan por adelantado en la cola. */
     sessionsAhead: z.number().int().min(1).max(60),
+    /**
+     * Cada cuántas semanas conviene rotar los ejercicios. Rotar todas las semanas
+     * impide medir progreso; no rotar nunca deja partes del músculo sin trabajar.
+     */
+    rotationWeeks: countRange,
   }),
   prescription: z.record(
     z.enum(GOALS),
     z.object({
       default: goalParamsSchema,
       byLevel: z.partialRecord(z.enum(EXPERIENCE_LEVELS), goalParamsSchema.partial()).optional(),
+      /** Qué tan firme es la evidencia de este objetivo. */
+      confidence: z.enum(CONFIDENCE_LEVELS),
+      /** Por qué esa confianza, en castellano. Se muestra si es `low`. */
+      confidenceNote: z.string().min(1).optional(),
     }),
   ),
   templates: z.array(templateSchema).min(1),
+  cardio: cardioSchema.optional(),
+  safety: safetySchema.optional(),
+  modifiers: modifiersSchema.optional(),
   substitution: z.object({
     /** Debajo de esto no se ofrece el reemplazo. */
     minEquivalence: z.number().min(0).max(1),
@@ -152,10 +373,23 @@ export function resolveParams(ruleset: Ruleset, goal: Goal, level: ExperienceLev
     progression: override.progression ?? base.progression,
     regression: override.regression ?? base.regression,
     deload: override.deload ?? base.deload,
+    weeklyVolume: override.weeklyVolume ?? base.weeklyVolume,
+    detraining: override.detraining ?? base.detraining,
   };
 }
 
 /** `true` cuando lo generado no debe presentarse como consejo real. */
 export function isPlaceholder(ruleset: Ruleset): boolean {
   return ruleset.source === 'placeholder';
+}
+
+/**
+ * Cuánto ajustar la carga al volver tras `days` sin entrenar. Devuelve 1 (sin
+ * ajuste) si la ausencia no llega al primer escalón.
+ */
+export function detrainingMultiplier(params: GoalParams, days: number): number {
+  const applicable = params.detraining
+    .filter((step) => days >= step.days)
+    .sort((a, b) => b.days - a.days);
+  return applicable[0]?.loadMultiplier ?? 1;
 }

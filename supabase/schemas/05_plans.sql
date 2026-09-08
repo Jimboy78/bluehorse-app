@@ -15,6 +15,34 @@ create table rulesets (
 -- Solo puede haber un ruleset activo a la vez.
 create unique index rulesets_single_active_idx on rulesets ((true)) where is_active;
 
+-- Cribado previo a entrenar (PAR-Q+) y aceptación del aviso legal.
+--
+-- Vive acá y no en `04_user.sql` porque necesita la FK a `rulesets`, que se crea
+-- en este archivo: los schemas se aplican en orden alfabético.
+--
+-- Una fila por vez que se responde: no se pisa la anterior. Si alguien pasa de
+-- "sin problemas" a "el médico me dijo que tengo la presión alta", queda el
+-- registro de las dos respuestas y de cuándo cambió.
+--
+-- `cleared = false` significa frenar hasta tener autorización médica. La app lo
+-- respeta como un gate, igual que `onboarded_at`.
+create table health_screenings (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references profiles (id) on delete cascade,
+  /* Con qué ruleset se hizo: las preguntas salen de ahí y pueden cambiar. Sin
+     esto no se sabe qué se le preguntó exactamente a esta persona. */
+  ruleset_version text not null references rulesets (version),
+  /* { "chest_pain_activity": true, ... } — id de pregunta a respuesta. */
+  answers jsonb not null,
+  /* false = respondió que sí a algo bloqueante: necesita visto bueno médico. */
+  cleared boolean not null,
+  /* Cuándo aceptó el aviso legal. Se vuelve a pedir cada tantos meses. */
+  disclaimer_accepted_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create index health_screenings_user_idx on health_screenings (user_id, created_at desc);
+
 create table plans (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references profiles (id) on delete cascade,
@@ -67,5 +95,15 @@ create table plan_session_items (
   /* true mientras el ruleset que lo generó sea placeholder. */
   is_placeholder boolean not null default true,
   superset_group smallint,
+
+  /* Cardio: no entra en series y repeticiones. Un bloque continuo se prescribe
+     por duración y zona de intensidad; uno de intervalos, por trabajo/descanso
+     por vuelta. Nulos en todo lo que es trabajo de sala.
+     `target_duration_seconds` vale para los dos: en intervalos es la duración
+     del bloque de trabajo de cada vuelta. */
+  target_duration_seconds integer check (target_duration_seconds > 0),
+  target_intensity_zone smallint check (target_intensity_zone between 1 and 5),
+  target_interval_rest_seconds integer check (target_interval_rest_seconds > 0),
+
   unique (plan_session_id, order_index)
 );

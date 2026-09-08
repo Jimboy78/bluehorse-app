@@ -1,16 +1,20 @@
 import type { EngineContext, PrescriptionEngine, Ruleset } from '@bh/engine';
-import { createPlaceholderEngine, V0_PLACEHOLDER } from '@bh/engine';
+import { createPlaceholderEngine, V1_RESEARCH } from '@bh/engine';
 
 /**
  * Punto único donde la app se conecta con el motor.
  *
- * Hoy usa el ruleset provisorio que viene compilado. Cuando el contenido real
- * esté cargado en la base, esto pasa a leer el ruleset activo desde Supabase y
- * no cambia nada más de la app.
+ * El ruleset activo es `v1-research`, curado desde `docs/research/`. El
+ * provisorio (`V0_PLACEHOLDER`) sigue existiendo en el paquete para poder
+ * comparar contra los planes que se generaron con él — cada plan guarda su
+ * `rulesetVersion` — pero ya no es el que ve nadie.
+ *
+ * Cambiar de ruleset es cambiar esta línea y correr `npm run db:ruleset`. No
+ * cambia una línea del motor ni de las pantallas: para eso está la separación.
  */
 export const engine: PrescriptionEngine = createPlaceholderEngine();
 
-export const activeRuleset: Ruleset = V0_PLACEHOLDER;
+export const activeRuleset: Ruleset = V1_RESEARCH;
 
 /** `true` mientras los números que ve el usuario no salgan de la investigación. */
 export const showsPlaceholderContent = activeRuleset.source === 'placeholder';

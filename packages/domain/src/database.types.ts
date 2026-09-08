@@ -336,6 +336,51 @@ export type Database = {
         }
         Relationships: []
       }
+      health_screenings: {
+        Row: {
+          answers: Json
+          cleared: boolean
+          created_at: string
+          disclaimer_accepted_at: string | null
+          id: string
+          ruleset_version: string
+          user_id: string
+        }
+        Insert: {
+          answers: Json
+          cleared: boolean
+          created_at?: string
+          disclaimer_accepted_at?: string | null
+          id?: string
+          ruleset_version: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          cleared?: boolean
+          created_at?: string
+          disclaimer_accepted_at?: string | null
+          id?: string
+          ruleset_version?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "health_screenings_ruleset_version_fkey"
+            columns: ["ruleset_version"]
+            isOneToOne: false
+            referencedRelation: "rulesets"
+            referencedColumns: ["version"]
+          },
+          {
+            foreignKeyName: "health_screenings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pain_reports: {
         Row: {
           body_region: Database["public"]["Enums"]["body_region"]
@@ -454,6 +499,9 @@ export type Database = {
           rationale: string
           rest_seconds: number
           superset_group: number | null
+          target_duration_seconds: number | null
+          target_intensity_zone: number | null
+          target_interval_rest_seconds: number | null
           target_load: number | null
           target_load_unit: Database["public"]["Enums"]["load_unit"] | null
           target_reps_max: number
@@ -471,6 +519,9 @@ export type Database = {
           rationale: string
           rest_seconds: number
           superset_group?: number | null
+          target_duration_seconds?: number | null
+          target_intensity_zone?: number | null
+          target_interval_rest_seconds?: number | null
           target_load?: number | null
           target_load_unit?: Database["public"]["Enums"]["load_unit"] | null
           target_reps_max: number
@@ -488,6 +539,9 @@ export type Database = {
           rationale?: string
           rest_seconds?: number
           superset_group?: number | null
+          target_duration_seconds?: number | null
+          target_intensity_zone?: number | null
+          target_interval_rest_seconds?: number | null
           target_load?: number | null
           target_load_unit?: Database["public"]["Enums"]["load_unit"] | null
           target_reps_max?: number

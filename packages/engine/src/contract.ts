@@ -73,6 +73,14 @@ export interface SessionItemBlueprint {
   /** Por qué este ejercicio y por qué acá. Se muestra en la lista de la sesión. */
   readonly rationale: string;
   readonly isPlaceholder: boolean;
+  /**
+   * Cardio: duración del bloque (o del trabajo de cada vuelta, en intervalos) y
+   * zona de intensidad. Nulos en todo lo que es trabajo de sala, que se
+   * prescribe por series y repeticiones.
+   */
+  readonly targetDurationSeconds: number | null;
+  readonly targetIntensityZone: number | null;
+  readonly targetIntervalRestSeconds: number | null;
 }
 
 export interface SessionBlueprint {
@@ -126,6 +134,19 @@ export interface GeneratePlanInput {
   readonly user: UserSnapshot;
   readonly gym: GymSnapshot;
   readonly ruleset: Ruleset;
+  /**
+   * Ejercicios que ya viene haciendo, del plan anterior. El motor los evita al
+   * armar el siguiente: rotar cada tantas semanas hace que el músculo trabaje en
+   * ángulos distintos, y no rotar nunca deja partes sin estimular. Vacío en el
+   * primer plan.
+   */
+  readonly previousExerciseIds?: readonly Id[];
+  /**
+   * Días desde la última sesión registrada. Con esto el motor arranca más suave
+   * cuando alguien vuelve después de mucho, en vez de proponerle la carga con la
+   * que dejó. `null` si nunca entrenó.
+   */
+  readonly daysSinceLastSession?: number | null;
 }
 
 export interface ReviewProgressInput {

@@ -1,15 +1,18 @@
 import type {
+  BodyRegion,
   Equipment,
   Exercise,
+  ExperienceLevel,
   Id,
   LoadReading,
   MovementPattern,
   MuscleGroup,
+  Profile,
   SetLog,
   UserConstraint,
   UserGoal,
 } from '@bh/domain';
-import { nextLoad, snapToEquipment } from '@bh/domain';
+import { EXPERIENCE_LEVELS, nextLoad, snapToEquipment } from '@bh/domain';
 import type {
   FindSubstitutesInput,
   GeneratePlanInput,
@@ -23,22 +26,22 @@ import type {
   SubstituteOption,
 } from './contract.ts';
 import { createRng, pickDeterministic } from './rng.ts';
-import type { GoalParams, Ruleset, SlotRole } from './ruleset.ts';
-import { isPlaceholder, resolveParams } from './ruleset.ts';
+import type { GoalParams, PainRule, Ruleset, SlotRole } from './ruleset.ts';
+import { detrainingMultiplier, isPlaceholder, resolveParams } from './ruleset.ts';
 
 /**
- * MOTOR PLACEHOLDER — la mecánica es real, el contenido no.
+ * EL MOTOR — la mecánica. El contenido vive en el ruleset.
  *
  * Arma planes, propone progresiones y busca reemplazos usando el equipamiento
- * real de Blue Horse, pero todos los números salen de `rulesets/v0-placeholder.json`
- * y no son una prescripción válida. Cuando llegue el research se escribe un
- * ruleset nuevo y este archivo no se toca.
+ * real de Blue Horse. Ningún número de entrenamiento sale de este archivo:
+ * series, repeticiones, RIR, descansos, umbrales y reglas de dolor salen todos
+ * del `Ruleset` que se le pasa.
  *
  * Es puro: no lee la hora, no usa Math.random, no toca la red.
  */
 export function createPlaceholderEngine(): PrescriptionEngine {
   return {
-    id: 'placeholder-v0',
+    id: 'bh-engine-v1',
     generatePlan,
     reviewProgress,
     findSubstitutes,
@@ -53,14 +56,41 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
   const warnings: string[] = [];
 
   const goal = primaryGoal(user.goals);
-  const params = resolveParams(ruleset, goal.goal, user.profile.experienceLevel);
+  const basePar = resolveParams(ruleset, goal.goal, user.profile.experienceLevel);
+  const params = applyAgeModifier(basePar, ruleset, user.profile, context.now, warnings);
   const template = pickTemplate(ruleset, goal, warnings);
   const placeholder = isPlaceholder(ruleset);
 
+  // Volver después de mucho con la carga con la que dejaste es la forma más
+  // rápida de lesionarse: la fuerza aguanta, el tendón no.
+  const comeback = comebackMultiplier(params, input.daysSinceLastSession ?? null, warnings);
+
+  const painRules = activePainRules(ruleset, user.constraints);
   const equipmentById = new Map(gym.equipment.map((e) => [e.id, e]));
   const usableExercises = gym.exercises.filter(
-    (ex) => !isBlocked(ex, user.constraints) && hasUsableEquipment(ex, gym, []),
+    (ex) =>
+      !isBlocked(ex, user.constraints) &&
+      !isBlockedByPain(ex, painRules) &&
+      isWithinSkillLevel(ex, user.profile.experienceLevel) &&
+      hasUsableEquipment(ex, gym, []),
   );
+
+  if (painRules.length > 0) {
+    for (const rule of painRules) {
+      warnings.push(`Por la molestia en ${regionLabel(rule.bodyRegion)}: ${rule.keepDoing}`);
+    }
+  }
+
+  // Rotar los ejercicios del plan anterior hace que el músculo trabaje en
+  // ángulos distintos. Es preferencia, no requisito: si rotar dejaría un patrón
+  // vacío, se repite el ejercicio antes que saltear el slot.
+  const rotateAway = new Set(input.previousExerciseIds ?? []);
+
+  // Series acumuladas por músculo en toda la plantilla. El slot de aislamiento
+  // la usa para elegir lo que falta en vez de recargar lo que ya se trabajó:
+  // sin esto, un plan de pierna podía terminar con glúteos por encima del techo
+  // semanal y tríceps sin tocar.
+  const setsByMuscle = new Map<MuscleGroup, number>();
 
   // Se elige una vez por sesión de la plantilla y se reutiliza en cada repetición
   // de la cola: si el ejercicio cambia cada vez, no hay progresión que medir.
@@ -69,32 +99,43 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
     const items: SessionItemBlueprint[] = [];
 
     for (const slot of tplSession.slots) {
-      const exercise = chooseExercise(slot.pattern, usableExercises, used, rng);
+      const exercise = chooseExercise(
+        slot.pattern,
+        slot.role,
+        usableExercises,
+        used,
+        rotateAway,
+        setsByMuscle,
+        rng,
+      );
       if (!exercise) {
         warnings.push(
-          `No hay ningún ejercicio disponible para el patrón "${slot.pattern}" en ${tplSession.label}. Falta equipamiento en el catálogo o está todo bloqueado por restricciones.`,
+          `No hay ningún ejercicio disponible para el patrón "${slot.pattern}" en ${tplSession.label}. Falta equipamiento en el catálogo, está todo bloqueado por restricciones, o no hay nada de tu nivel para ese patrón.`,
         );
         continue;
       }
       used.add(exercise.id);
 
-      const equipment = firstAvailableEquipment(exercise, equipmentById);
       const roleParams = params[slot.role];
-      const baseline = user.baselines.find((b) => b.exerciseId === exercise.id);
+      for (const muscle of exercise.primaryMuscles) {
+        setsByMuscle.set(muscle, (setsByMuscle.get(muscle) ?? 0) + roleParams.sets);
+      }
 
-      items.push({
-        exerciseId: exercise.id,
-        equipmentId: equipment?.id ?? null,
-        orderIndex: items.length,
-        targetSets: roleParams.sets,
-        targetRepsMin: roleParams.repsMin,
-        targetRepsMax: roleParams.repsMax,
-        targetLoad: baselineToTarget(baseline?.load ?? null, equipment),
-        targetRir: roleParams.rirTarget,
-        restSeconds: roleParams.restSeconds,
-        rationale: renderRationale(ruleset, slot.role, exercise.name),
-        isPlaceholder: placeholder,
-      });
+      items.push(
+        buildItem({
+          exercise,
+          role: slot.role,
+          cardioSessionId: slot.cardioSessionId,
+          orderIndex: items.length,
+          equipment: firstAvailableEquipment(exercise, equipmentById),
+          roleParams,
+          baselineLoad: user.baselines.find((b) => b.exerciseId === exercise.id)?.load ?? null,
+          comeback,
+          ruleset,
+          placeholder,
+          warnings,
+        }),
+      );
     }
 
     return { tplSession, items };
@@ -113,6 +154,8 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
     });
   }
 
+  warnings.push(...weeklyVolumeWarnings(sessions, template, gym, params, goal));
+
   if (placeholder) {
     warnings.push(
       'Plan generado con contenido provisorio: los números no salen todavía de la investigación.',
@@ -126,6 +169,281 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
     sessions,
     warnings,
   };
+}
+
+interface BuildItemInput {
+  readonly exercise: Exercise;
+  readonly role: SlotRole;
+  readonly cardioSessionId: string | undefined;
+  readonly orderIndex: number;
+  readonly equipment: Equipment | undefined;
+  readonly roleParams: GoalParams['primary'];
+  readonly baselineLoad: LoadReading | null;
+  readonly comeback: number;
+  readonly ruleset: Ruleset;
+  readonly placeholder: boolean;
+  readonly warnings: string[];
+}
+
+/**
+ * Un ítem de la sesión. El cardio pisa la prescripción de sala entera: donde
+ * hay duración y zona no hay series, repeticiones ni RIR.
+ */
+function buildItem(input: BuildItemInput): SessionItemBlueprint {
+  const { exercise, roleParams, equipment, ruleset } = input;
+  const cardio = cardioPrescription(ruleset, input.cardioSessionId, exercise, input.warnings);
+
+  return {
+    exerciseId: exercise.id,
+    equipmentId: equipment?.id ?? null,
+    orderIndex: input.orderIndex,
+    targetSets: cardio?.sets ?? roleParams.sets,
+    targetRepsMin: cardio?.reps ?? roleParams.repsMin,
+    targetRepsMax: cardio?.reps ?? roleParams.repsMax,
+    targetLoad: baselineToTarget(input.baselineLoad, equipment, input.comeback),
+    targetRir: cardio ? null : roleParams.rirTarget,
+    restSeconds: cardio?.restSeconds ?? roleParams.restSeconds,
+    rationale: cardio?.rationale ?? renderRationale(ruleset, input.role, exercise.name),
+    isPlaceholder: input.placeholder,
+    targetDurationSeconds: cardio?.durationSeconds ?? null,
+    targetIntensityZone: cardio?.intensityZone ?? null,
+    targetIntervalRestSeconds: cardio?.intervalRestSeconds ?? null,
+  };
+}
+
+/**
+ * Cuánto ajustar la carga al volver tras una ausencia larga. El multiplicador se
+ * aplica al punto de partida; no cambia series ni repeticiones.
+ */
+function comebackMultiplier(
+  params: GoalParams,
+  daysSinceLastSession: number | null,
+  warnings: string[],
+): number {
+  if (daysSinceLastSession === null) return 1;
+  const multiplier = detrainingMultiplier(params, daysSinceLastSession);
+  if (multiplier >= 1) return 1;
+
+  warnings.push(
+    `Pasaron ${daysSinceLastSession} días desde tu última sesión, así que arrancamos con un ${Math.round((1 - multiplier) * 100)}% menos de carga. La fuerza vuelve rápido; el tendón tarda más, y es lo que se lastima al retomar de golpe.`,
+  );
+  return multiplier;
+}
+
+/**
+ * Ajuste por edad: menos carga, más repeticiones y más descanso. No es que a
+ * cierta edad se progrese menos — se progresa bien —, es dejar más margen.
+ */
+function applyAgeModifier(
+  params: GoalParams,
+  ruleset: Ruleset,
+  profile: Profile,
+  now: string,
+  warnings: string[],
+): GoalParams {
+  const rule = ruleset.modifiers?.olderAdults;
+  if (!rule || !profile.birthDate) return params;
+
+  const age = ageAt(profile.birthDate, now);
+  if (age === null || age < rule.fromAge) return params;
+
+  warnings.push(rule.note);
+  const adjust = (role: GoalParams['primary']): GoalParams['primary'] => ({
+    ...role,
+    repsMin: role.repsMin + rule.repsMinDelta,
+    repsMax: Math.max(role.repsMax, role.repsMin + rule.repsMinDelta),
+    restSeconds: Math.round(role.restSeconds * rule.restMultiplier),
+    intensityPct1RM: [
+      role.intensityPct1RM[0] * rule.intensityMultiplier,
+      role.intensityPct1RM[1] * rule.intensityMultiplier,
+    ],
+  });
+
+  return {
+    ...params,
+    primary: adjust(params.primary),
+    secondary: adjust(params.secondary),
+    isolation: adjust(params.isolation),
+  };
+}
+
+/** Reglas de dolor que aplican hoy, según lo que el socio reportó. */
+function activePainRules(
+  ruleset: Ruleset,
+  constraints: readonly UserConstraint[],
+): readonly PainRule[] {
+  const rules = ruleset.safety?.painRules;
+  if (!rules) return [];
+
+  return rules.filter((rule) =>
+    constraints.some(
+      (c) =>
+        (c.type === 'pain' || c.type === 'injury') &&
+        c.bodyRegion === rule.bodyRegion &&
+        c.severity >= rule.severityAtLeast,
+    ),
+  );
+}
+
+/**
+ * Un ejercicio queda fuera si irrita una zona que duele. La regla del research
+ * es no parar del todo: se saca lo que molesta y se sigue con el resto.
+ */
+function isBlockedByPain(exercise: Exercise, rules: readonly PainRule[]): boolean {
+  return rules.some(
+    (rule) =>
+      rule.avoidPatterns.includes(exercise.pattern) ||
+      exercise.primaryMuscles.some((m) => rule.avoidMuscles.includes(m)),
+  );
+}
+
+/**
+ * No se le propone a alguien un ejercicio que exige más técnica de la que tiene.
+ * Mandar a un principiante a hacer peso muerto con barra sin que nadie lo mire es
+ * la forma más directa de que se lastime.
+ */
+function isWithinSkillLevel(exercise: Exercise, level: ExperienceLevel): boolean {
+  return EXPERIENCE_LEVELS.indexOf(exercise.skillLevel) <= EXPERIENCE_LEVELS.indexOf(level);
+}
+
+interface CardioPrescription {
+  readonly sets: number;
+  readonly reps: number;
+  readonly restSeconds: number;
+  readonly durationSeconds: number;
+  readonly intensityZone: number;
+  readonly intervalRestSeconds: number | null;
+  readonly rationale: string;
+}
+
+/**
+ * El cardio no se prescribe en series y repeticiones: es duración y zona de
+ * intensidad, o vueltas de trabajo y descanso. `sets`/`reps` se completan igual
+ * porque la tabla los exige, pero lo que se le muestra al socio es la duración.
+ */
+function cardioPrescription(
+  ruleset: Ruleset,
+  cardioSessionId: string | undefined,
+  exercise: Exercise,
+  warnings: string[],
+): CardioPrescription | null {
+  if (exercise.pattern !== 'cardio') return null;
+
+  const block = ruleset.cardio;
+  if (!block) return null;
+
+  const session = cardioSessionId
+    ? block.sessions.find((s) => s.id === cardioSessionId)
+    : block.sessions[0];
+
+  if (!session) {
+    warnings.push(
+      `El ruleset no define la sesión de cardio "${cardioSessionId}". Se usa el trabajo de sala por defecto.`,
+    );
+    return null;
+  }
+
+  const zone = block.zones.find((z) => z.zone === session.intensityZone);
+  const feels = zone ? ` ${zone.feels}` : '';
+
+  if (session.type === 'interval' && session.interval) {
+    const { workMinutes, restMinutes, reps } = session.interval;
+    return {
+      sets: reps,
+      reps: 1,
+      restSeconds: Math.round(restMinutes * 60),
+      durationSeconds: Math.round(workMinutes * 60),
+      intensityZone: session.intensityZone,
+      intervalRestSeconds: Math.round(restMinutes * 60),
+      rationale: `${exercise.name}: ${reps} vueltas de ${workMinutes} min fuerte con ${restMinutes} min suave en el medio.${feels}`,
+    };
+  }
+
+  const minutes = session.durationMinutes ?? 0;
+  return {
+    sets: 1,
+    reps: 1,
+    restSeconds: 0,
+    durationSeconds: minutes * 60,
+    intensityZone: session.intensityZone,
+    intervalRestSeconds: null,
+    rationale: `${exercise.name}: ${minutes} minutos continuos en zona ${session.intensityZone}.${feels}`,
+  };
+}
+
+/**
+ * Chequeo de volumen semanal: series por músculo contra la ventana del research.
+ * No corrige el plan, avisa. Cambiar la plantilla sola por esto sería reescribir
+ * el contenido desde el código, que es justo lo que el ruleset evita.
+ */
+function weeklyVolumeWarnings(
+  sessions: readonly SessionBlueprint[],
+  template: Ruleset['templates'][number],
+  gym: GymSnapshot,
+  params: GoalParams,
+  goal: UserGoal,
+): string[] {
+  const { minSetsPerMuscle, maxSetsPerMuscle } = params.weeklyVolume;
+  const exerciseById = new Map(gym.exercises.map((e) => [e.id, e]));
+
+  // La cola no tiene fechas: se estima la semana con las sesiones que la persona
+  // dijo que puede hacer, acotadas a lo que la plantilla soporta.
+  const perWeek = Math.min(
+    Math.max(goal.sessionsPerWeekTarget, template.sessionsPerWeek[0]),
+    template.sessionsPerWeek[1],
+  );
+
+  const week = sessions.slice(0, perWeek);
+  const setsByMuscle = new Map<MuscleGroup, number>();
+  // El piso se mide solo sobre los músculos que el plan trabaja con algún
+  // compuesto: son los que el programa apunta de verdad. Un bíceps que recibe
+  // dos series de un curl no está "sub-dosificado" — es trabajo incidental, y
+  // avisar por eso en cada plan convierte los avisos en ruido que nadie lee.
+  const targeted = new Set<MuscleGroup>();
+
+  for (const item of week.flatMap((s) => s.items)) {
+    const exercise = exerciseById.get(item.exerciseId);
+    if (!exercise) continue;
+    for (const muscle of exercise.primaryMuscles) {
+      setsByMuscle.set(muscle, (setsByMuscle.get(muscle) ?? 0) + item.targetSets);
+      if (exercise.isCompound) targeted.add(muscle);
+    }
+  }
+
+  const list = (entries: [MuscleGroup, number][]) =>
+    entries.map(([muscle, sets]) => `${muscleLabel(muscle)} (${sets})`).join(', ');
+
+  const counted = [...setsByMuscle.entries()];
+  const over = counted.filter(([, sets]) => sets > maxSetsPerMuscle);
+  const under = counted.filter(
+    ([muscle, sets]) => targeted.has(muscle) && sets > 0 && sets < minSetsPerMuscle,
+  );
+
+  const warnings: string[] = [];
+  if (over.length > 0) {
+    warnings.push(
+      `Con ${perWeek} sesiones por semana, estos músculos pasan las ${maxSetsPerMuscle} series semanales que la evidencia marca como techo útil: ${list(over)}. Más volumen ahí no rinde más.`,
+    );
+  }
+  if (under.length > 0) {
+    warnings.push(
+      `Con ${perWeek} sesiones por semana, estos músculos quedan abajo de las ${minSetsPerMuscle} series semanales mínimas: ${list(under)}. Sumar una sesión más por semana los cubre.`,
+    );
+  }
+
+  return warnings;
+}
+
+/** Edad en años a la fecha dada. `null` si la fecha no se puede leer. */
+function ageAt(birthDate: string, now: string): number | null {
+  const born = new Date(birthDate);
+  const at = new Date(now);
+  if (Number.isNaN(born.getTime()) || Number.isNaN(at.getTime())) return null;
+
+  let age = at.getUTCFullYear() - born.getUTCFullYear();
+  const monthDiff = at.getUTCMonth() - born.getUTCMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && at.getUTCDate() < born.getUTCDate())) age -= 1;
+  return age;
 }
 
 // ------------------------------------------------------------------ adaptación
@@ -225,7 +543,27 @@ function isReadyToIncrease(ctx: RuleContext): boolean {
   );
 }
 
+/** Músculos que la investigación agrupa como tren inferior. */
+const LOWER_BODY_MUSCLES: readonly MuscleGroup[] = ['quads', 'hamstrings', 'glutes', 'calves'];
+
+/**
+ * El paso de progresión no es el mismo arriba que abajo: el tren inferior mueve
+ * más carga absoluta, así que un mismo porcentaje representa un salto más chico
+ * en proporción a lo que la persona ya levanta. Subirle al press de banca lo
+ * mismo que a la sentadilla lo manda al fallo antes de tiempo.
+ */
+function progressionStep(ctx: RuleContext): number {
+  const isLowerBody = ctx.exercise.primaryMuscles.some((m) => LOWER_BODY_MUSCLES.includes(m));
+  return isLowerBody
+    ? ctx.params.progression.stepPctLowerBody
+    : ctx.params.progression.stepPctUpperBody;
+}
+
 function proposeIncrease(ctx: RuleContext): ProposalBlueprint | null {
+  // La potencia se regula por velocidad de ejecución, no por repeticiones en
+  // reserva: el ruleset deja `rirTarget` nulo ahí a propósito, y sin RIR no hay
+  // señal para decidir subir. Proponerlo igual sería inventar el criterio.
+  if (ctx.params.primary.rirTarget === null) return null;
   if (!isReadyToIncrease(ctx)) return null;
 
   const { progression } = ctx.params;
@@ -236,7 +574,7 @@ function proposeIncrease(ctx: RuleContext): ProposalBlueprint | null {
   // Sin carga anotada no hay desde dónde subir: proponer un número sería
   // inventarle un punto de partida que nunca usó.
   if (!top.load) return null;
-  const proposed = nextLoad(top.load, equipment.load, progression.stepPct);
+  const proposed = nextLoad(top.load, equipment.load, progressionStep(ctx));
   if (proposed === null || proposed === top.load.value) return null;
   if (alreadyAccepted(ctx, proposed)) return null;
 
@@ -424,8 +762,11 @@ function firstAvailableEquipment(
 
 function chooseExercise(
   pattern: MovementPattern,
+  role: SlotRole,
   pool: readonly Exercise[],
   used: ReadonlySet<Id>,
+  rotateAway: ReadonlySet<Id>,
+  setsByMuscle: ReadonlyMap<MuscleGroup, number>,
   rng: () => number,
 ): Exercise | undefined {
   const candidates = pool
@@ -433,18 +774,106 @@ function chooseExercise(
     .sort((a, b) => a.name.localeCompare(b.name, 'es'));
   if (candidates.length === 0) return undefined;
 
-  // Los compuestos primero: si hay, se elige entre ellos.
-  const compounds = candidates.filter((e) => e.isCompound);
-  return pickDeterministic(compounds.length > 0 ? compounds : candidates, rng);
+  // Cada preferencia se aplica solo si deja algo: es mejor un ejercicio menos
+  // ideal que un patrón sin cubrir.
+  const prefer = (list: readonly Exercise[], keep: (e: Exercise) => boolean) => {
+    const kept = list.filter(keep);
+    return kept.length > 0 ? kept : list;
+  };
+
+  // 1. Rotar respecto del plan anterior.
+  let eligible = prefer(candidates, (e) => !rotateAway.has(e.id));
+
+  // 2. Fuera del cardio, uno que se mida en repeticiones. El ruleset prescribe
+  //    series, repeticiones y RIR: nada de eso aplica a una plancha, que se
+  //    sostiene por tiempo. Decirle a alguien "2×6-10 de plancha" no significa
+  //    nada.
+  if (pattern !== 'cardio') {
+    eligible = prefer(eligible, (e) => e.modality !== 'time');
+  }
+
+  // 3. En el ejercicio principal, uno al que se le pueda subir la carga. Toda la
+  //    progresión se mide en kilos: si el ejercicio más importante de la sesión
+  //    es de peso corporal, no hay nada que progresar ahí.
+  if (role === 'primary') {
+    eligible = prefer(eligible, (e) => e.modality === 'reps_weight');
+  }
+
+  // 4. Los compuestos antes que los aislados.
+  eligible = prefer(eligible, (e) => e.isCompound);
+
+  // 5. La variante más exigente que la persona puede hacer. Mandar a alguien
+  //    avanzado a hacer sentadilla goblet con kettlebell a 1-5 repeticiones es
+  //    absurdo: no hay kettlebell que aguante esa carga. La versión más
+  //    demandante del patrón es también la que se puede cargar de verdad.
+  if (role !== 'isolation') {
+    const topLevel = Math.max(...eligible.map((e) => EXPERIENCE_LEVELS.indexOf(e.skillLevel)));
+    eligible = prefer(eligible, (e) => EXPERIENCE_LEVELS.indexOf(e.skillLevel) === topLevel);
+  } else {
+    // 6. En el aislado, el músculo que menos trabajo lleva. Es el único slot
+    //    libre para equilibrar: sin esto el plan podía cerrar con más glúteo
+    //    —que ya viene de sentadilla, bisagra y zancada— y dejar el tríceps sin
+    //    tocar en toda la semana.
+    const volumeOf = (e: Exercise) =>
+      Math.min(...e.primaryMuscles.map((m) => setsByMuscle.get(m) ?? 0));
+    const leastWorked = Math.min(...eligible.map(volumeOf));
+    eligible = prefer(eligible, (e) => volumeOf(e) === leastWorked);
+  }
+
+  return pickDeterministic(eligible, rng);
+}
+
+const MUSCLE_LABELS: Readonly<Record<MuscleGroup, string>> = {
+  quads: 'cuádriceps',
+  hamstrings: 'isquiotibiales',
+  glutes: 'glúteos',
+  calves: 'gemelos',
+  chest: 'pecho',
+  back: 'espalda',
+  lats: 'dorsales',
+  traps: 'trapecios',
+  front_delts: 'hombro anterior',
+  side_delts: 'hombro lateral',
+  rear_delts: 'hombro posterior',
+  biceps: 'bíceps',
+  triceps: 'tríceps',
+  forearms: 'antebrazos',
+  abs: 'abdominales',
+  obliques: 'oblicuos',
+  lower_back: 'lumbares',
+  full_body: 'cuerpo completo',
+};
+
+function muscleLabel(muscle: MuscleGroup): string {
+  return MUSCLE_LABELS[muscle] ?? muscle;
+}
+
+const REGION_LABELS: Readonly<Record<BodyRegion, string>> = {
+  neck: 'el cuello',
+  shoulder: 'el hombro',
+  elbow: 'el codo',
+  wrist: 'la muñeca',
+  upper_back: 'la espalda alta',
+  lower_back: 'la zona lumbar',
+  hip: 'la cadera',
+  knee: 'la rodilla',
+  ankle: 'el tobillo',
+  other: 'la zona que marcaste',
+};
+
+function regionLabel(region: BodyRegion): string {
+  return REGION_LABELS[region] ?? 'la zona que marcaste';
 }
 
 function baselineToTarget(
   load: LoadReading | null,
   equipment: Equipment | undefined,
+  multiplier = 1,
 ): LoadReading | null {
   if (!load || load.value === null) return null;
-  if (!equipment) return load;
-  return { value: snapToEquipment(load.value, equipment.load), unit: equipment.load.unit };
+  const adjusted = load.value * multiplier;
+  if (!equipment) return multiplier === 1 ? load : { value: adjusted, unit: load.unit };
+  return { value: snapToEquipment(adjusted, equipment.load), unit: equipment.load.unit };
 }
 
 function renderRationale(ruleset: Ruleset, role: SlotRole, exerciseName: string): string {
