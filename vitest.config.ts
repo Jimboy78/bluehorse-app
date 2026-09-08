@@ -37,6 +37,9 @@ export default defineConfig({
           root: './apps/web',
           environment: 'happy-dom',
           include: ['src/**/*.test.{ts,tsx}'],
+          // happy-dom no trae IndexedDB: la cola offline (Dexie) lo necesita
+          // para poder correr sus tests sin un navegador real.
+          setupFiles: ['fake-indexeddb/auto'],
         },
       },
     ],

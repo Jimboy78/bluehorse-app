@@ -6,6 +6,7 @@ import { AppShell } from './components/AppShell.tsx';
 import { Hoy } from './components/Hoy.tsx';
 import { Proposals } from './components/Proposals.tsx';
 import { Button, Card, Notice, SectionLabel } from './components/ui/index.ts';
+import { useAuth } from './lib/auth/AuthProvider.tsx';
 import { activeRuleset, showsPlaceholderContent } from './lib/engine.ts';
 import { envError, isConfigured } from './lib/env.ts';
 import { useActiveGoal } from './lib/goal.ts';
@@ -27,6 +28,7 @@ import { useTodaySession } from './lib/use-today-session.ts';
  * configurado.
  */
 export function App() {
+  const { user } = useAuth();
   const todaySession = useTodaySession();
   const activeGoal = useActiveGoal();
   const showsPlaceholderCatalog = todaySession?.isPlaceholder ?? true;
@@ -40,9 +42,11 @@ export function App() {
   });
 
   const outbox = useQuery({
-    queryKey: ['health', 'outbox'],
-    queryFn: outboxHealth,
-    enabled: import.meta.env.DEV,
+    queryKey: ['health', 'outbox', user?.id],
+    // Sin usuario no hay de quién mirar la cola: sería contar lo de nadie, o
+    // peor, lo de la cuenta anterior si alguien cerró sesión hace un segundo.
+    queryFn: () => outboxHealth(user?.id as string),
+    enabled: import.meta.env.DEV && !!user,
     retry: false,
     // La cola cambia mientras se entrena, no al montar la pantalla. Sin esto
     // el contador era una foto del arranque: quedándose en 0 justo cuando se

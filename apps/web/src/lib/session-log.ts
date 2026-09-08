@@ -68,9 +68,14 @@ export async function sendOutboxItem(item: OutboxItem): Promise<void> {
   // lo que sí sabemos mandar.
 }
 
-/** Arranca el reintento automático al recuperar señal. Se llama una sola vez, en la raíz de la app. */
-export function startSessionOutbox(): () => void {
-  return startAutoFlush(sendOutboxItem);
+/**
+ * Arranca el reintento automático al recuperar señal. Se llama una sola vez,
+ * en la raíz de la app — `getOwnerId` se evalúa recién cuando vuelve la
+ * conexión, así que siempre manda la cola con la sesión que esté activa en
+ * ESE momento, no con la que había al arrancar.
+ */
+export function startSessionOutbox(getOwnerId: () => string | null): () => void {
+  return startAutoFlush(sendOutboxItem, getOwnerId);
 }
 
 /**
@@ -140,8 +145,9 @@ async function celebrateIfRecord(
     await enqueue(
       'personal_record',
       toPersonalRecordInsert(userId, exerciseId, loadKg, setLogId, achievedAt),
+      userId,
     );
-    void flush(sendOutboxItem);
+    void flush(sendOutboxItem, userId);
   } catch {
     // la celebración es un nice-to-have: nunca bloquea ni rompe marcar la serie.
   }
@@ -196,6 +202,7 @@ export function useSessionLog(
           newClientId(),
           new Date().toISOString(),
         ),
+        userId,
       );
       workoutLogIdRef.current = { sessionId: planSessionId, workoutLogId };
     }
@@ -210,7 +217,7 @@ export function useSessionLog(
     actual: SetActual,
   ): Promise<void> {
     const workoutLogId = await ensureWorkoutLog();
-    if (!workoutLogId) return;
+    if (!workoutLogId || !userId) return;
 
     const setLogId = crypto.randomUUID();
     const completedAt = new Date().toISOString();
@@ -224,7 +231,7 @@ export function useSessionLog(
     // Sin `await`: marcar la serie no espera una consulta de red. La serie en
     // curso se excluye por id dentro de `celebrateIfRecord`, así que no
     // importa si la cola ya la subió para cuando esa consulta llega.
-    if (userId) void celebrateIfRecord(userId, item.exerciseId, setLogId, loadKg, completedAt);
+    void celebrateIfRecord(userId, item.exerciseId, setLogId, loadKg, completedAt);
 
     const clientId = await enqueue(
       'set_log',
@@ -246,10 +253,11 @@ export function useSessionLog(
         completedAt,
         actual,
       ),
+      userId,
     );
     writtenSetsRef.current.set(`${item.id}:${setIndex}`, { setLogId, clientId });
 
-    void flush(sendOutboxItem);
+    void flush(sendOutboxItem, userId);
   }
 
   /**
@@ -262,6 +270,7 @@ export function useSessionLog(
    * la falta de señal igual que el resto.
    */
   async function undoSetDone(item: ActiveSessionItem, setIndex: number): Promise<void> {
+    if (!userId) return;
     const key = `${item.id}:${setIndex}`;
     const written = writtenSetsRef.current.get(key);
     if (!written) return; // nunca se llegó a registrar (se deshizo durante el descanso)
@@ -271,8 +280,8 @@ export function useSessionLog(
     const stillQueued = await dequeue(written.clientId);
     if (stillQueued) return;
 
-    await enqueue('set_log_delete', { id: written.setLogId });
-    void flush(sendOutboxItem);
+    await enqueue('set_log_delete', { id: written.setLogId }, userId);
+    void flush(sendOutboxItem, userId);
   }
 
   /** Registra que se cambió de estación por estar ocupada. No pisa `plan_session_items`. */
@@ -284,7 +293,7 @@ export function useSessionLog(
     toEquipmentId: string | null,
   ): Promise<void> {
     const workoutLogId = await ensureWorkoutLog();
-    if (!workoutLogId) return;
+    if (!workoutLogId || !userId) return;
 
     await enqueue(
       'session_event',
@@ -298,9 +307,10 @@ export function useSessionLog(
         toEquipmentId,
         new Date().toISOString(),
       ),
+      userId,
     );
 
-    void flush(sendOutboxItem);
+    void flush(sendOutboxItem, userId);
   }
 
   const current = workoutLogIdRef.current;
@@ -344,7 +354,7 @@ export function useCloseSession() {
       const client = requireSupabase();
       const now = new Date().toISOString();
 
-      await flush(sendOutboxItem);
+      await flush(sendOutboxItem, user.id);
 
       if (input.workoutLogId) {
         const { error: workoutError } = await client

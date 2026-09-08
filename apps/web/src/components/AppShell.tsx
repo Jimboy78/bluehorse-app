@@ -31,6 +31,23 @@ export function AppShell({ children }: { children: ReactNode }) {
   const role = useProfileRole();
   const isStaff = role.data?.role === 'staff' || role.data?.role === 'admin';
 
+  /**
+   * Si quedan series sin mandar al servidor, `signOut` frena en vez de
+   * cerrar la sesión igual: esa cola se queda atada a una cuenta que ya no
+   * tiene sesión, y `flush()` nunca la reintenta. Se le pregunta antes de
+   * perderla en silencio; si confirma, se cierra sesión igual con `force`.
+   */
+  async function handleSignOut() {
+    const result = await signOut();
+    if (!result.blocked) return;
+
+    const plural = result.pendingCount === 1 ? '' : 's';
+    const confirmed = window.confirm(
+      `Tenés ${result.pendingCount} serie${plural} sin sincronizar todavía. Si salís ahora, quedan pendientes hasta que vuelvas a entrar con esta cuenta desde este mismo teléfono. ¿Salir igual?`,
+    );
+    if (confirmed) await signOut({ force: true });
+  }
+
   return (
     <div className="min-h-dvh">
       {/* `backdrop-blur` y no un fondo opaco: al hacer scroll, las tarjetas se
@@ -43,7 +60,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <motion.button
             type="button"
             {...tappable}
-            onClick={() => void signOut()}
+            onClick={() => void handleSignOut()}
             aria-label="Cerrar sesión"
             className="ml-auto grid size-10 place-items-center rounded-full border border-line text-slate transition-colors hover:border-orange/50 hover:text-orange"
           >

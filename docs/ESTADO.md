@@ -1,5 +1,118 @@
 # Estado del trabajo
 
+## Última actualización: 8 de septiembre de 2026 (cuarta sesión: cloud, aislamiento, multi-plan)
+
+### En producción, por fin
+
+**`https://bluehorse-app.vercel.app` ya sirve la app real**, no la vista de ejemplo. Faltaban tres
+cosas y las hizo esta sesión (con tu OK explícito, porque tocaba infraestructura compartida por
+primera vez):
+
+1. `npm run db:sync` / `supabase db push` al proyecto Supabase Cloud (`oxmrstldgzkqnufubulx`): traía
+   el esquema vacío desde que se creó.
+2. `npm run db:catalog` y `npm run db:ruleset` al mismo proyecto: 58 estaciones, 58 ejercicios,
+   `v1-research` activo. También `scripts/seed-cloud-base.mjs` (nuevo) para el bucket de Storage y
+   la fila del gimnasio, que `db push` no trae porque `seed.sql` no corre en el cloud.
+3. `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` cargadas en Vercel (los tres entornos) — estaban
+   vacías, por eso decía "Supabase no está configurado" en el celular. Site URL de Supabase Auth
+   apuntado a `https://bluehorse-app.vercel.app` (antes `localhost:3000`, el default de la CLI).
+
+El deploy autodesplegaba desde GitHub, pero con las variables vacías: cada `git push` construía un
+build que no podía leer nada. Un "Redeploy" desde el dashboard de Vercel (misma build, variables
+nuevas) lo resolvió. **Contraseña de la base cloud reseteada y guardada en `.env`** (la anterior se
+había perdido sin copiar, sesión pasada).
+
+### El motivo original: si se mezclaban datos entre cuentas
+
+El usuario reportó que al volver a entrar con Google seguía viendo el mismo plan, sin que apareciera
+el cuestionario de onboarding de nuevo. **No era una fuga**: solo hay una cuenta de Google real
+(la del usuario) y el plan/cribado ya estaban hechos de pruebas de esta misma sesión — comportamiento
+correcto, no bug. Aun así, se auditó el aislamiento en serio, porque el pedido era legítimo aunque la
+causa puntual no lo fuera.
+
+**Auditoría de aislamiento** (`scripts/audit-isolation.mjs`, nuevo): crea dos socios reales, inicia
+sesión con el JWT de cada uno (no la service key), y verifica que ninguno pueda leer ni escribir lo
+del otro — en las 8 tablas de datos personales, con y sin filtro, con y sin sesión, incluyendo
+`set_logs` (que no tiene `user_id` propio, cuelga de `workout_logs`) y el caso nuevo de activar un
+plan ajeno. **28 pruebas, todas en verde.** RLS ya estaba bien escrito; lo que faltaba era esta
+prueba, no el esquema.
+
+Tres bugs reales sí aparecieron, ninguno de fuga de datos — de "algo se pierde en silencio":
+
+1. **La cola offline no tenía dueño.** Un `set_log` encolado quedaba sin saber de quién era. RLS lo
+   protegía (rechaza el `user_id` que no coincide con `auth.uid()`), pero eso significa: en un
+   teléfono compartido de gimnasio, si alguien cierra sesión con series sin sincronizar y otro socio
+   entra antes de que la cola termine de vaciarse, esas series quedan **reintentando para siempre
+   bajo la cuenta equivocada**, fallando en silencio, sin que el dueño original se entere de que
+   nunca llegaron. Ahora cada ítem lleva `ownerId`; `flush()`, `pendingCount()` y `outboxHealth()`
+   filtran por dueño.
+2. **`signOut` no avisaba si quedaba algo sin mandar.** Ahora frena (`{ blocked: true, pendingCount
+   }`) antes de cerrar sesión si hay series pendientes; `AppShell` pregunta y solo cierra con
+   `force: true` si el socio confirma que quiere salir igual.
+3. **La caché de TanStack Query sobrevivía a `signOut`.** Sin `queryClient.clear()`, si dos personas
+   se turnaban el mismo teléfono había una ventana — aunque fuera un instante — donde la cuenta
+   nueva podía ver en pantalla datos cacheados de la anterior mientras las queries se volvían a
+   pedir. Se agregó `queryClient.clear()` al cerrar sesión.
+
+También: `signOut` pasa a `scope: 'local'` explícito (antes usaba el default de supabase-js, que es
+`'global'` — cerrar sesión en el teléfono prestado del gimnasio hubiera desconectado a la persona de
+su propio celular en su casa).
+
+### Más de un plan, guardados y retomables
+
+Pedido nuevo: poder tener un plan guardado sin activar, y volver a él. La base ya lo permitía sin
+saberlo — `useRequestNextPlan` archivaba el plan viejo al pedir uno nuevo desde hace varias
+sesiones, pero esos archivados nunca se mostraban ni se podían reactivar. Se agregó:
+
+- `usePlans()`: todos los planes del socio (activo primero), con sesiones totales/completadas.
+- `useActivatePlan(planId)`: archiva el activo actual y activa el elegido, con el mismo orden
+  defensivo que el resto de `plan.ts` — si falla activar el nuevo, se reactiva el que estaba antes.
+  Sigue habiendo un solo `active` a la vez: es el índice único de la base
+  (`plans_one_active_per_user_idx`), una decisión de diseño (la cola es "hoy toca la primera
+  pendiente", no un calendario con varias colas en paralelo), no una limitación a sacar.
+- `MisPlanes` (componente nuevo, en `/progreso`): lista los planes solo si hay más de uno — con uno
+  solo, elegir entre planes no tiene sentido y sería ruido. Verificado en el navegador: creado un
+  segundo plan de prueba, "Retomar" lo activa, "Hoy" lo refleja al instante, sin errores de consola.
+  Revertido después: la cuenta de prueba quedó con un solo plan activo, como estaba.
+
+### Cobertura de ejercicios (revisado, no tocado — pedido explícito del usuario)
+
+El usuario preguntó si el plan contempla ejercicios de mancuernas/barra libre y no solo máquinas, y
+si hay forma de explorar variantes de un ejercicio fuera del flujo de "máquina ocupada". Análisis:
+
+- **El motor no prioriza máquinas.** Elige por patrón de movimiento sin preferencia de equipamiento:
+  12 ejercicios del catálogo usan mancuernas, 8 usan barra libre, sobre 58 totales.
+- **`engine.findSubstitutes()` ya busca en TODO el catálogo**, no solo dentro del mismo tipo de
+  equipamiento — puntúa por patrón + músculos compartidos. Es el mecanismo correcto para "mostrame
+  otra forma de hacer esto".
+- **Lo que falta es contenido, no mecanismo:** con ~1 ejercicio por estación en promedio, hay poca
+  variedad en aislamiento (bíceps, tríceps, hombro lateral: 1-2 variantes cada uno). Faltan
+  variantes reales que el equipamiento ya relevado permite (tríceps francés, press Arnold, curl
+  martillo, remo Pendlay) pero que no se cargaron como ejercicios propios.
+- **Falta la pantalla:** `findSubstitutes` solo se dispara desde "Máquina ocupada" en Hoy. No hay
+  forma de abrirlo por curiosidad, sin estar entrenando.
+- No se tocó nada de esto por pedido explícito ("no quiero que lo agregues de una ahora"). Queda
+  para cuando el usuario lo pida: ampliar catálogo + pantalla de "explorar ejercicio".
+
+### Verificado
+
+`npm run check`: 189 tests (5 nuevos sobre aislamiento de la cola offline, con `fake-indexeddb` —
+happy-dom no trae IndexedDB, hacía falta el paquete). Auditoría de aislamiento contra Postgres real:
+28/28. Cambio de plan verificado en el navegador de punta a punta. Producción verificada: la app
+carga en `bluehorse-app.vercel.app`, el flujo de Google OAuth arma la URL correcta contra el
+proyecto cloud (no se pudo completar el login en sí por permisos de la extensión sobre
+`accounts.google.com`, no por un problema de la app).
+
+### Pendiente para la próxima sesión
+
+- Confirmar login con Google de punta a punta en producción (bloqueado esta sesión solo por permisos
+  de la extensión de Chrome sobre el dominio de Google, no por la app).
+- Si se agrega contenido de ejercicios nuevo, correr `npm run db:catalog` también contra el proyecto
+  cloud (`SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY` de `oxmrstldgzkqnufubulx`), no solo local.
+
+---
+
+
 Este archivo reemplaza al resumen automático de sesión: vive en disco, sobrevive a `/clear` y se
 puede leer desde cualquier sesión nueva. **Actualizalo al terminar una sesión larga.**
 

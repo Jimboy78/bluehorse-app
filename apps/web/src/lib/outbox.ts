@@ -26,6 +26,18 @@ export interface OutboxItem {
   createdAt: number;
   attempts: number;
   lastError: string | null;
+  /**
+   * A quién pertenece esta escritura. En un teléfono compartido de gimnasio
+   * (o simplemente si alguien inicia sesión con otra cuenta antes de que la
+   * cola termine de vaciarse), sin esto un `flush()` intentaría enviar la
+   * serie de la cuenta anterior con la sesión de la nueva.
+   *
+   * RLS lo rechazaría igual (el `user_id` del payload no coincide con
+   * `auth.uid()`), así que no es una fuga de datos — pero sin este campo el
+   * ítem queda reintentando para siempre bajo la cuenta equivocada, sin que
+   * nadie se entere de que nunca se sincronizó de verdad.
+   */
+  ownerId: string;
 }
 
 class OutboxDb extends Dexie {
@@ -34,17 +46,31 @@ class OutboxDb extends Dexie {
   constructor() {
     super('bluehorse-outbox');
     this.version(1).stores({ pending: 'clientId, kind, createdAt' });
+    // v2 agrega `ownerId`: los ítems que ya estaban en cola (de antes de este
+    // cambio) no tienen forma de saber de quién eran. Se marcan huérfanos en
+    // vez de asignárselos a quien sea que abra la app primero.
+    this.version(2)
+      .stores({ pending: 'clientId, kind, createdAt, ownerId' })
+      .upgrade((tx) => tx.table('pending').toCollection().modify({ ownerId: ORPHANED_OWNER }));
   }
 }
 
 export const db = new OutboxDb();
 
+/** Marca los ítems que quedaron en cola de una versión anterior sin dueño conocido. */
+export const ORPHANED_OWNER = '__orphaned__';
+
 export function newClientId(): string {
   return crypto.randomUUID();
 }
 
-/** Encola una escritura. Devuelve el clientId para poder referenciarla. */
-export async function enqueue(kind: OutboxKind, payload: unknown, clientId = newClientId()) {
+/** Encola una escritura, atada a quién la generó. Devuelve el clientId para poder referenciarla. */
+export async function enqueue(
+  kind: OutboxKind,
+  payload: unknown,
+  ownerId: string,
+  clientId = newClientId(),
+) {
   await db.pending.put({
     clientId,
     kind,
@@ -52,12 +78,14 @@ export async function enqueue(kind: OutboxKind, payload: unknown, clientId = new
     createdAt: Date.now(),
     attempts: 0,
     lastError: null,
+    ownerId,
   });
   return clientId;
 }
 
-export function pendingCount(): Promise<number> {
-  return db.pending.count();
+/** Cuántas escrituras de ESTE socio siguen sin confirmar. */
+export function pendingCount(ownerId: string): Promise<number> {
+  return db.pending.where('ownerId').equals(ownerId).count();
 }
 
 export interface OutboxHealth {
@@ -76,8 +104,8 @@ export interface OutboxHealth {
  * `flush()` ni lo intenta, así que queda en 0. Con esto, una cola trabada por
  * un error real deja de parecerse a un backlog normal de gimnasio.
  */
-export async function outboxHealth(): Promise<OutboxHealth> {
-  const items = await db.pending.toArray();
+export async function outboxHealth(ownerId: string): Promise<OutboxHealth> {
+  const items = await db.pending.where('ownerId').equals(ownerId).toArray();
   const failing = items.filter((i) => i.attempts > 0);
   const worst = failing.reduce<OutboxItem | null>(
     (peor, i) => (peor === null || i.attempts > peor.attempts ? i : peor),
@@ -136,10 +164,18 @@ export function describeOutboxError(error: unknown): string {
  * vuelve a fallar (FK inexistente) y queda en cola para el próximo intento —
  * pero el resto de la cola, de otras sesiones, no se ve arrastrado.
  */
-export async function flush(send: Sender): Promise<{ sent: number; failed: number }> {
+export async function flush(
+  send: Sender,
+  ownerId: string,
+): Promise<{ sent: number; failed: number }> {
   if (!navigator.onLine) return { sent: 0, failed: 0 };
 
-  const items = await db.pending.orderBy('createdAt').toArray();
+  // Solo lo de este socio. Un ítem de otra cuenta que quedó en el mismo
+  // teléfono (dispositivo compartido, o alguien que cambió de cuenta antes de
+  // que la cola terminara) no se toca: RLS lo rechazaría igual, pero
+  // intentarlo bajo la sesión equivocada solo gasta reintentos y ensucia
+  // `lastError` con un 403 que no tiene explicación a simple vista.
+  const items = await db.pending.where('ownerId').equals(ownerId).sortBy('createdAt');
   let sent = 0;
   let failed = 0;
 
@@ -160,10 +196,15 @@ export async function flush(send: Sender): Promise<{ sent: number; failed: numbe
   return { sent, failed };
 }
 
-/** Reintenta al recuperar la conexión. Se llama una vez, en el arranque. */
-export function startAutoFlush(send: Sender): () => void {
+/**
+ * Reintenta al recuperar la conexión. Se llama una vez, en el arranque —
+ * antes de saber quién va a iniciar sesión, así que `getOwnerId` se evalúa en
+ * cada evento, no una sola vez al registrar el listener.
+ */
+export function startAutoFlush(send: Sender, getOwnerId: () => string | null): () => void {
   const handler = () => {
-    void flush(send);
+    const ownerId = getOwnerId();
+    if (ownerId) void flush(send, ownerId);
   };
   window.addEventListener('online', handler);
   return () => window.removeEventListener('online', handler);

@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { AppShell } from '../components/AppShell.tsx';
+import { MisPlanes } from '../components/MisPlanes.tsx';
 import { Progreso as ProgresoBody } from '../components/Progreso.tsx';
 import { fadeUp } from '../lib/motion.ts';
 
@@ -27,6 +28,7 @@ export function Progreso() {
         </h1>
       </motion.header>
 
+      <MisPlanes />
       <ProgresoBody />
     </AppShell>
   );

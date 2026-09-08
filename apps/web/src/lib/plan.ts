@@ -333,6 +333,117 @@ async function planExerciseIds(client: SupabaseClient, planId: string): Promise<
   return [...new Set(items.map((i) => i.exercise_id as string))];
 }
 
+export interface PlanSummary {
+  readonly id: string;
+  readonly templateId: string;
+  readonly status: 'active' | 'archived';
+  readonly generatedAt: string;
+  readonly rulesetVersion: string;
+  /** Sesiones totales y cuántas ya se completaron, para mostrar el avance. */
+  readonly totalSessions: number;
+  readonly completedSessions: number;
+}
+
+/**
+ * Todos los planes del socio, el activo primero. La regla dura sigue siendo
+ * un plan `active` a la vez (la base tiene un índice único que lo garantiza:
+ * `plans_one_active_per_user_idx`) — lo que esto habilita es guardar los que
+ * ya no están activos en vez de perderlos, y poder volver a cualquiera.
+ *
+ * Es lo mismo que ya hacía `useRequestNextPlan` al archivar el plan viejo al
+ * pedir el siguiente: esos archivados nunca se borraron, solo no había forma
+ * de verlos ni de reactivarlos.
+ */
+export function usePlans() {
+  const { user, status } = useAuth();
+
+  return useQuery<PlanSummary[]>({
+    queryKey: ['plans', user?.id],
+    enabled: status === 'signed-in' && !!user,
+    queryFn: async () => {
+      const client = requireSupabase();
+      const { data: plans, error } = await client
+        .from('plans')
+        .select('id, template_id, status, generated_at, ruleset_version')
+        .eq('user_id', user?.id as string)
+        .order('generated_at', { ascending: false });
+      if (error) throw error;
+      if (!plans || plans.length === 0) return [];
+
+      const { data: sessions, error: sessionsError } = await client
+        .from('plan_sessions')
+        .select('plan_id, status')
+        .in(
+          'plan_id',
+          plans.map((p) => p.id),
+        );
+      if (sessionsError) throw sessionsError;
+
+      const counts = new Map<string, { total: number; completed: number }>();
+      for (const row of sessions ?? []) {
+        const planId = row.plan_id as string;
+        const bucket = counts.get(planId) ?? { total: 0, completed: 0 };
+        bucket.total += 1;
+        if (row.status === 'completed') bucket.completed += 1;
+        counts.set(planId, bucket);
+      }
+
+      return plans.map((p) => {
+        const bucket = counts.get(p.id as string) ?? { total: 0, completed: 0 };
+        return {
+          id: p.id as string,
+          templateId: p.template_id as string,
+          status: p.status as 'active' | 'archived',
+          generatedAt: p.generated_at as string,
+          rulesetVersion: p.ruleset_version as string,
+          totalSessions: bucket.total,
+          completedSessions: bucket.completed,
+        };
+      });
+    },
+  });
+}
+
+/**
+ * ACTIVAR UN PLAN GUARDADO
+ *
+ * "Guardado" y "deshabilitado" son el mismo estado (`archived`): un plan que
+ * no es el de hoy pero que la persona quiere retomar. Esto lo vuelve a poner
+ * activo, archivando el que estaba activo antes — nunca puede haber dos
+ * activos, es el mismo índice único que usa `useRequestNextPlan`.
+ *
+ * Orden defensivo, mismo criterio que el resto de `plan.ts`: se archiva el
+ * viejo primero y recién después se activa el elegido. Si el segundo paso
+ * falla, se reactiva el que estaba antes — quedarse sin ningún plan activo es
+ * peor que no haber cambiado nada.
+ */
+export function useActivatePlan() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (planId: string) => {
+      if (!user) throw new Error('No hay sesión activa.');
+      const client = requireSupabase();
+
+      const currentActiveId = await activePlanId(client, user.id);
+      if (currentActiveId === planId) return; // ya es el activo, no hay nada que hacer
+
+      await setPlanStatus(client, currentActiveId, 'archived');
+      try {
+        await setPlanStatus(client, planId, 'active');
+      } catch (error) {
+        await setPlanStatus(client, currentActiveId, 'active');
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['plans', user?.id] });
+      void queryClient.invalidateQueries({ queryKey: ['active-plan', user?.id] });
+    },
+  });
+}
+
 async function activePlanId(client: SupabaseClient, userId: string): Promise<string | null> {
   const { data, error } = await client
     .from('plans')
