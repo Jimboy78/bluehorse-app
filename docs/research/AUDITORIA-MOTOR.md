@@ -21,8 +21,8 @@ Medido contando usos reales en `packages/engine/src/`, no leyendo la documentaci
 | día de partido | sí | auditado en `07`; falta el marcador de énfasis excéntrico |
 | `constraints` (dolor / lesión) | sí | ✅ **auditado** — `09-dolor-y-lesiones.md` |
 | `sessionsPerWeekTarget` | sí | ✅ **auditado** — `11-frecuencia-semanal.md` |
-| `baselines` | sí | pendiente |
-| `daysSinceLastSession` | sí | pendiente |
+| `baselines` | sí | pendiente — **prioridad alta**, `04` advierte que el autorreporte subestima |
+| `daysSinceLastSession` | sí | ✅ **auditado** — `14-historial-y-desentrenamiento.md` |
 | `sex` | **no (0 usos)** | pendiente — decidir si se saca del formulario |
 | `weightKg` | **no (0 usos)** | pendiente |
 | `heightCm` | **no (0 usos)** | pendiente |
@@ -201,10 +201,40 @@ evidencia.
 escribí para el aviso —mirar si caían en la misma sesión— estaba mal: condicionarlo a que
 coincidan es aplicar justo la regla que se cayó. 6 tests nuevos, 319 en verde.
 
-### Próxima: historial (`daysSinceLastSession` y `baselines`)
+### 7 · Historial y desentrenamiento — cerrada el 2026-09-09
 
-Son las dos entradas grandes que quedan. `daysSinceLastSession` alimenta `comebackMultiplier` y el
-bloque `detraining`, cuyos escalones (10 días → ×1, 30 → ×0,85, 90 → ×0,7) no tienen fuente
-verificada. `baselines` define con cuánta carga arranca cada ejercicio, y `04` ya advierte que el
-autorreporte de cargas subestima. Después quedan los cuatro campos con cero usos (`sex`,
-`weightKg`, `heightCm`, `sessionMinutesTarget`) y las tres señales de sesión que no alimentan nada.
+`docs/research/14-historial-y-desentrenamiento.md`.
+
+A diferencia de casi todo lo auditado, **este bloque sí tenía fuente**: `03` cita a Mujika y Padilla
+con PMIDs. El problema es el salto: la fuente describe **la cinética de lo que se pierde**, y de ahí
+alguien derivó **multiplicadores de carga**. La cinética no da multiplicadores.
+
+- **El mensaje al socio tenía el mecanismo dado vuelta.** Decía "la fuerza vuelve rápido; el tendón
+  tarda más". Kubo 2010 (J Strength Cond Res 24(2):322-331) mide, durante 3 meses de
+  desentrenamiento: **fuerza y activación neural sin cambios**, área muscular a nivel pre al mes,
+  **rigidez del tendón a nivel pre a los 2 meses**. La fuerza no vuelve: **nunca se fue**. El riesgo
+  real es que la persona vuelve pudiendo levantar lo mismo con un tendón que ya no lo tolera — un
+  argumento *mejor* que el que estaba escrito. Limitación grande: **n = 8**, isométrico monoarticular.
+- **El texto vivía en el código**, no en el ruleset. Si los números no viven en el código, el texto
+  que los explica tampoco: es contenido y cambia con la investigación. Se movió a
+  `modifiers.detraining.note`.
+- **El escalón de 90 días llega tarde.** El tendón ya está en nivel pre a los **60**. Y el
+  metaanálisis de cese en mayores (DOI 10.3390/ijerph192114048) muestra que a **12-24 semanas no hay
+  pérdida significativa de tamaño muscular** (d = −0,60; IC −1,21 a 0,01), o sea que si el argumento
+  del recorte fuera la atrofia, a los 90 días no se sostendría. Como es el tendón, sí — pero el
+  umbral relevante es 60.
+- **No se tocó ningún multiplicador ni ningún umbral.** Mover 90 a 60 haría el sistema más
+  conservador apoyándose en un n = 8, y agregar un escalón obligaría a inventar un multiplicador.
+  Declarado como decisión de producto, igual que el 85-100 % 1RM de la iteración 5.
+- Ningún test cubría el mensaje de retorno: cambiarlo entero no rompió nada. 5 tests nuevos, 324 en
+  verde.
+- **Hueco anotado:** `detraining` solo ajusta la carga de sala. `03` dice que el VO2max cae 4-14 % en
+  **menos de 10 días** — mucho más rápido que la fuerza — y el motor no ajusta nada del bloque
+  `cardio` por ausencia.
+
+### Próxima: `baselines`
+
+Define con cuánta carga arranca cada ejercicio, y es lo único grande que queda del motor. `04` ya
+advierte que **el autorreporte de cargas subestima**: la gente elige 38-58 % del 1RM cuando se le
+recomienda 60-70 %. Hay que ver qué hace el motor cuando no hay baseline, y si la estimación por
+fórmula (Epley/Brzycki, que `04` cita) está implementada o es otro bloque escrito y muerto.

@@ -78,7 +78,12 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
 
   // Volver después de mucho con la carga con la que dejaste es la forma más
   // rápida de lesionarse: la fuerza aguanta, el tendón no.
-  const comeback = comebackMultiplier(params, input.daysSinceLastSession ?? null, warnings);
+  const comeback = comebackMultiplier(
+    params,
+    ruleset,
+    input.daysSinceLastSession ?? null,
+    warnings,
+  );
 
   // Dos tramos, no uno: con dolor moderado el ejercicio se mantiene y se muestra
   // la regla de monitoreo; recién con dolor alto se saca. Sacar de más ataca la
@@ -250,6 +255,7 @@ function buildItem(input: BuildItemInput): SessionItemBlueprint {
  */
 function comebackMultiplier(
   params: GoalParams,
+  ruleset: Ruleset,
   daysSinceLastSession: number | null,
   warnings: string[],
 ): number {
@@ -257,9 +263,14 @@ function comebackMultiplier(
   const multiplier = detrainingMultiplier(params, daysSinceLastSession);
   if (multiplier >= 1) return 1;
 
-  warnings.push(
-    `Pasaron ${daysSinceLastSession} días desde tu última sesión, así que arrancamos con un ${Math.round((1 - multiplier) * 100)}% menos de carga. La fuerza vuelve rápido; el tendón tarda más, y es lo que se lastima al retomar de golpe.`,
-  );
+  const rule = ruleset.modifiers?.detraining;
+  if (rule) {
+    warnings.push(
+      rule.note
+        .replace('{dias}', String(daysSinceLastSession))
+        .replace('{recorte}', String(Math.round((1 - multiplier) * 100))),
+    );
+  }
   return multiplier;
 }
 

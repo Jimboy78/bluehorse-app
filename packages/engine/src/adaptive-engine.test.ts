@@ -11,6 +11,7 @@ import { describe, expect, it } from 'vitest';
 import type { EngineContext, GymSnapshot, UserSnapshot } from './contract.ts';
 import { V1_RESEARCH } from './index.ts';
 import { createPlaceholderEngine } from './placeholder-engine.ts';
+import type { Ruleset } from './ruleset.ts';
 
 /**
  * Las reglas que deciden qué le llega a una persona real.
@@ -904,5 +905,69 @@ describe('cardio junto a pierna', () => {
   // que dejó la evidencia, porque correr interfiere y pedalear no.
   it('nombra la máquina que molesta menos, que es lo único accionable', () => {
     expect(nota ?? '').toMatch(/bici|bicicleta/i);
+  });
+});
+
+// ---------------------------------------------------------------- volver
+
+describe('volver después de una pausa', () => {
+  const nota = V1_RESEARCH.modifiers?.detraining?.note;
+
+  const planTras = (daysSinceLastSession: number) =>
+    engine.generatePlan({
+      context,
+      user: buildUser(),
+      gym: buildGym(),
+      ruleset: V1_RESEARCH,
+      daysSinceLastSession,
+    });
+
+  // El usuario de prueba no tiene baselines, así que los items no traen carga:
+  // lo observable es el recorte que el propio aviso anuncia.
+  const recorteDe = (dias: number) => {
+    const aviso = planTras(dias).warnings.find((w) => w.includes('% menos de carga'));
+    return Number(aviso?.match(/(\d+)% menos/)?.[1] ?? 0);
+  };
+
+  it('una pausa corta no recorta nada ni dice nada', () => {
+    const plan = planTras(3);
+    expect(plan.warnings.some((w) => w.includes('días desde tu última sesión'))).toBe(false);
+  });
+
+  it('una pausa larga recorta y lo explica', () => {
+    if (!nota) throw new Error('El ruleset no tiene la nota de desentrenamiento.');
+    const avisos = planTras(45).warnings.join(' ');
+    expect(avisos).toContain('45');
+    expect(avisos).toContain(nota.slice(nota.indexOf('No es que')));
+  });
+
+  // El texto decía que la fuerza vuelve rápido. No vuelve: nunca se fue. Kubo
+  // 2010 mide fuerza y activación neural sin cambios a los 3 meses, mientras la
+  // rigidez del tendón cae a nivel pre a los 2. Ver `docs/research/14`.
+  it('explica el mecanismo correcto: lo que se ablanda es el tendón', () => {
+    expect(nota ?? '').toMatch(/tend[oó]n/i);
+    expect(nota ?? '').not.toMatch(/la fuerza vuelve r[aá]pido/i);
+  });
+
+  it('cuanto más larga la pausa, más grande el recorte', () => {
+    expect(recorteDe(35)).toBeGreaterThan(0);
+    expect(recorteDe(120)).toBeGreaterThan(recorteDe(35));
+  });
+
+  // El texto visible al socio es contenido, no código: tiene que poder cambiar
+  // con la investigación sin tocar el motor.
+  it('el aviso sale del ruleset, no del código', () => {
+    const sinNota: Ruleset = {
+      ...V1_RESEARCH,
+      modifiers: { ...V1_RESEARCH.modifiers, detraining: undefined },
+    };
+    const plan = engine.generatePlan({
+      context,
+      user: buildUser(),
+      gym: buildGym(),
+      ruleset: sinNota,
+      daysSinceLastSession: 45,
+    });
+    expect(plan.warnings.some((w) => w.includes('45 días'))).toBe(false);
   });
 });

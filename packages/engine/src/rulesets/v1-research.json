@@ -1124,6 +1124,10 @@
         "hypertrophy": "Para ganar músculo lo que manda es el total de series de la semana, no en cuántos días las hagas. Si podés sostener el volumen, venir menos veces te cuesta poco."
       },
       "confidence": "medium"
+    },
+    "detraining": {
+      "note": "Pasaron {dias} días desde tu última sesión, así que arrancamos con un {recorte}% menos de carga. No es que hayas perdido fuerza: la fuerza se conserva bastante más de lo que la gente cree. Lo que se ablanda en una pausa son los tendones, y por eso hoy podés levantar más de lo que tu tendón está en condiciones de aguantar. Un par de semanas y volvés a donde estabas.",
+      "confidence": "low"
     }
   },
   "safety": {

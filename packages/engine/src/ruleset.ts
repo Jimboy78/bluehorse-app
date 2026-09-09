@@ -356,6 +356,20 @@ const modifiersSchema = z.object({
     })
     .optional(),
   /**
+   * Qué decirle a quien vuelve después de una pausa larga.
+   *
+   * El texto vivía en `placeholder-engine.ts`. Si los números de entrenamiento
+   * no viven en el código, el texto que los explica tampoco: es contenido, y
+   * cambia cuando cambia la investigación. Usa `{dias}` y `{recorte}` como
+   * marcadores. Ver `docs/research/14`.
+   */
+  detraining: z
+    .object({
+      note: z.string().min(1),
+      confidence: z.enum(CONFIDENCE_LEVELS),
+    })
+    .optional(),
+  /**
    * Qué decir cuando el socio declara menos sesiones de las que la plantilla
    * necesita. La frecuencia no pesa igual en todos lados: a igual volumen, su
    * pendiente sobre la fuerza es diez veces la que tiene sobre la hipertrofia,
