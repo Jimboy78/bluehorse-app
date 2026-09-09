@@ -387,6 +387,18 @@ export function useCloseSession() {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['active-plan', user?.id] });
+      // Sin esto, terminar una sesión y pasar a "Progreso" mostraba la racha,
+      // el volumen semanal y los récords de hasta 5 minutos atrás
+      // (`staleTime` en `query-client.ts`, y `refetchOnWindowFocus: false` no
+      // lo corrige solo): la cola avanzaba de verdad, pero las tres pantallas
+      // que resumen ese avance no se enteraban hasta que la caché expiraba
+      // sola. `['plan-sessions']` sin el resto de la clave invalida CUALQUIER
+      // plan abierto, no solo el de esta sesión — es al revés de peligroso: la
+      // otra opción (una consulta de más) sale gratis comparada con mostrar
+      // "3/8 sesiones" cuando ya son 4.
+      void queryClient.invalidateQueries({ queryKey: ['plans', user?.id] });
+      void queryClient.invalidateQueries({ queryKey: ['plan-sessions'] });
+      void queryClient.invalidateQueries({ queryKey: ['progress', user?.id] });
     },
   });
 }
