@@ -12,6 +12,7 @@ function set(overrides: Partial<SetRecord> = {}): SetRecord {
     id: 's-1',
     exerciseId: 'ex-1',
     exerciseName: 'Press de banca',
+    primaryMuscles: ['chest'],
     load: { value: 40, unit: 'kg' },
     loadKgNormalized: 40,
     reps: 8,
@@ -34,7 +35,7 @@ describe('toSetRecord', () => {
       rir: 2,
       is_warmup: false,
       completed_at: '2026-08-10T12:00:00Z',
-      exercises: { name: 'Press de banca' },
+      exercises: { name: 'Press de banca', primary_muscles: ['chest'] },
     });
     expect(record.load).toEqual({ value: 40, unit: 'kg' });
     expect(record.exerciseName).toBe('Press de banca');

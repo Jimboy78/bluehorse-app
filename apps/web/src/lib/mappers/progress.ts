@@ -1,5 +1,5 @@
-import type { LoadReading } from '@bh/domain';
-import { loadUnitSchema } from '@bh/domain';
+import type { LoadReading, MuscleGroup } from '@bh/domain';
+import { loadUnitSchema, muscleGroupSchema } from '@bh/domain';
 import { z } from 'zod';
 
 /**
@@ -30,7 +30,12 @@ export const setLogRowSchema = z.object({
   rir: z.number().int().nullable(),
   is_warmup: z.boolean(),
   completed_at: z.string(),
-  exercises: z.object({ name: z.string() }).nullable(),
+  // `primary_muscles` viaja para poder agrupar los récords por región del
+  // cuerpo. Sin esto la lista era una sola columna alfabética de N ejercicios,
+  // que crece con el catálogo y no se puede recorrer con el pulgar.
+  exercises: z
+    .object({ name: z.string(), primary_muscles: z.array(muscleGroupSchema).nullable() })
+    .nullable(),
 });
 export type SetLogRow = z.infer<typeof setLogRowSchema>;
 
@@ -44,6 +49,8 @@ export interface SetRecord {
   readonly id: string;
   readonly exerciseId: string;
   readonly exerciseName: string;
+  /** Para agrupar en pantalla. Vacío si el ejercicio no los declara. */
+  readonly primaryMuscles: readonly MuscleGroup[];
   /** `null` cuando no se registró ninguna unidad: no hay lectura que mostrar. */
   readonly load: LoadReading | null;
   readonly loadKgNormalized: number | null;
@@ -58,6 +65,7 @@ export function toSetRecord(row: SetLogRow): SetRecord {
     id: row.id,
     exerciseId: row.exercise_id,
     exerciseName: row.exercises?.name ?? 'Ejercicio',
+    primaryMuscles: row.exercises?.primary_muscles ?? [],
     load: row.load_unit === null ? null : { value: row.load_value, unit: row.load_unit },
     loadKgNormalized: row.load_kg_normalized,
     reps: row.reps,
@@ -141,6 +149,7 @@ export interface PersonalRecord {
   readonly load: LoadReading | null;
   readonly reps: number | null;
   readonly achievedAt: string;
+  readonly primaryMuscles: readonly MuscleGroup[];
   /** `false` cuando no hubo forma de comparar entre series (sin kg normalizado): es la última serie registrada, no necesariamente la mejor. */
   readonly isRanked: boolean;
 }
@@ -174,6 +183,7 @@ export function computeRecords(sets: readonly SetRecord[]): PersonalRecord[] {
       load: best.load,
       reps: best.reps,
       achievedAt: best.completedAt,
+      primaryMuscles: best.primaryMuscles,
       isRanked: rankable.length > 0,
     });
   }

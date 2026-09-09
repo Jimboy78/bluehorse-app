@@ -1,14 +1,12 @@
-import type { LoadReading } from '@bh/domain';
-import { formatLoad } from '@bh/domain';
-import { AlertCircle, CalendarDays, Flame, TrendingUp, Trophy } from 'lucide-react';
+import { AlertCircle, CalendarDays, Flame, TrendingUp } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { ReactNode } from 'react';
-import { useMemo, useState } from 'react';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
-import type { PersonalRecord, SetRecord, WeeklyVolumePoint } from '../lib/mappers/progress.ts';
-import { listContainer, listItem } from '../lib/motion.ts';
+import type { WeeklyVolumePoint } from '../lib/mappers/progress.ts';
 import { useProgress } from '../lib/progress.ts';
-import { Card, Chip, EmptyState, Notice, Skeleton } from './ui/index.ts';
+import { ExerciseEvolution } from './ExerciseEvolution.tsx';
+import { RecordsList } from './RecordsList.tsx';
+import { Card, EmptyState, Notice, Skeleton } from './ui/index.ts';
 
 const GYM_TZ = 'America/Argentina/Buenos_Aires';
 
@@ -147,6 +145,14 @@ function Stat({
  * Las barras van con degradé hacia arriba y no en un azul plano: en un gráfico
  * de ocho columnas sobre negro, el color sólido hace que la más alta y la más
  * baja se lean casi igual de "llenas". El degradé le da dirección a la altura.
+ *
+ * **Las barras y las fechas van en dos filas, no una columna por semana.**
+ * Antes cada semana era un `flex-col` con su barra y su fecha adentro de un
+ * padre con `items-end` — y ese `items-end` apaga el `stretch`, así que la
+ * columna medía lo que medía la fecha y el `height: 100%` de la barra se
+ * calculaba contra una altura indefinida. Medido en el navegador: contenedor
+ * de 128 px, barra renderizada en 0 px. El gráfico no dibujaba **ninguna**
+ * barra, en ninguna semana, desde que existe.
  */
 function WeeklyVolumeChart({ points }: { points: readonly WeeklyVolumePoint[] }) {
   const recent = points.slice(-8);
@@ -170,162 +176,32 @@ function WeeklyVolumeChart({ points }: { points: readonly WeeklyVolumePoint[] })
           entran en esta cuenta).
         </p>
       ) : (
-        <div className="flex h-32 items-end gap-1.5">
-          {recent.map((point, i) => (
-            <div key={point.weekStart} className="flex flex-1 flex-col items-center gap-2">
-              <motion.div
-                initial={{ height: 0 }}
-                animate={{ height: `${Math.max(3, (point.volumeKg / maxKg) * 100)}%` }}
-                transition={{ delay: 0.04 * i, type: 'spring', stiffness: 180, damping: 24 }}
-                className="w-full rounded-t-md bg-gradient-to-t from-brand-deep/40 to-brand"
-                title={`${point.volumeKg} kg`}
-              />
-              <span className="font-mono text-[0.55rem] leading-none text-slate-dim">
+        <div className="flex flex-col gap-2">
+          <div className="flex h-32 items-end gap-1.5">
+            {recent.map((point, i) => (
+              <div key={point.weekStart} className="flex h-full flex-1 items-end">
+                <motion.div
+                  initial={{ height: 0 }}
+                  animate={{ height: `${Math.max(3, (point.volumeKg / maxKg) * 100)}%` }}
+                  transition={{ delay: 0.04 * i, type: 'spring', stiffness: 180, damping: 24 }}
+                  className="w-full rounded-t-md bg-gradient-to-t from-brand-deep/40 to-brand"
+                  title={`${Math.round(point.volumeKg).toLocaleString('es-AR')} kg`}
+                />
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-1.5">
+            {recent.map((point) => (
+              <span
+                key={point.weekStart}
+                className="flex-1 text-center font-mono text-[0.55rem] leading-none text-slate-dim"
+              >
                 {formatDate(point.weekStart)}
               </span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
     </Card>
   );
-}
-
-function RecordsList({ records }: { records: readonly PersonalRecord[] }) {
-  return (
-    <Card className="flex flex-col gap-3 p-4">
-      <h3 className="flex items-center gap-2 font-display text-sm font-medium uppercase tracking-[0.16em]">
-        <Trophy size={15} className="text-amber" aria-hidden="true" />
-        Récords
-      </h3>
-      {records.length === 0 ? (
-        <p className="text-xs text-slate">Todavía no hay series suficientes para marcar récords.</p>
-      ) : (
-        <motion.ul
-          variants={listContainer}
-          initial="hidden"
-          animate="visible"
-          className="flex flex-col gap-1.5"
-        >
-          {records.map((record) => (
-            <motion.li
-              key={record.exerciseId}
-              variants={listItem}
-              className="flex items-center justify-between gap-3 rounded-xl border border-line/70 bg-navy px-3.5 py-3"
-            >
-              <span className="flex min-w-0 flex-col gap-0.5">
-                <span className="truncate text-sm font-semibold">{record.exerciseName}</span>
-                <span className="text-[0.65rem] text-slate-dim">
-                  {formatDate(record.achievedAt)}
-                  {!record.isRanked && ' · sin comparar entre estaciones'}
-                </span>
-              </span>
-              <span className="shrink-0 font-display text-base font-semibold tabular-nums text-brand">
-                {formatLoadOrDash(record.load)}
-                {record.reps !== null && (
-                  <span className="text-sm font-normal text-slate"> × {record.reps}</span>
-                )}
-              </span>
-            </motion.li>
-          ))}
-        </motion.ul>
-      )}
-    </Card>
-  );
-}
-
-function ExerciseEvolution({
-  setsByExercise,
-}: {
-  setsByExercise: ReadonlyMap<string, readonly SetRecord[]>;
-}) {
-  const exercises = useMemo(
-    () =>
-      [...setsByExercise.entries()]
-        .map(([id, sets]) => ({ id, name: sets[0]?.exerciseName ?? 'Ejercicio' }))
-        .sort((a, b) => a.name.localeCompare(b.name)),
-    [setsByExercise],
-  );
-  const [selectedId, setSelectedId] = useState<string | null>(exercises[0]?.id ?? null);
-  const sets = (selectedId ? setsByExercise.get(selectedId) : undefined) ?? [];
-  const recentSets = sets
-    .filter((s) => !s.isWarmup)
-    .slice(-8)
-    .reverse();
-
-  if (exercises.length === 0) return null;
-
-  return (
-    <Card className="flex flex-col gap-3.5 p-4">
-      <h3 className="font-display text-sm font-medium uppercase tracking-[0.16em]">
-        Evolución por ejercicio
-      </h3>
-      <div className="flex flex-wrap gap-1.5">
-        {exercises.map((exercise) => (
-          <Chip
-            key={exercise.id}
-            selected={selectedId === exercise.id}
-            onClick={() => setSelectedId(exercise.id)}
-          >
-            {exercise.name}
-          </Chip>
-        ))}
-      </div>
-      {recentSets.length === 0 ? (
-        <p className="text-xs text-slate">Sin series registradas todavía para este ejercicio.</p>
-      ) : (
-        <ul className="flex flex-col divide-y divide-line/70">
-          {recentSets.map((set) => (
-            <li key={set.id} className="flex items-center justify-between gap-3 py-2.5">
-              <span className="text-xs text-slate">{formatDate(set.completedAt)}</span>
-              <span className="flex items-baseline gap-2">
-                <span className="font-display text-base font-semibold tabular-nums text-ink">
-                  {formatLoadOrDash(set.load)}
-                  {set.reps !== null && (
-                    <span className="text-sm font-normal text-slate"> × {set.reps}</span>
-                  )}
-                </span>
-                {/* RIR: cuánto le quedaba en reserva. Es el mismo dato que ya
-                    usa el motor para proponer subir o bajar carga — hasta acá
-                    nunca se le mostraba al socio su propia tendencia. */}
-                {set.rir !== null && <RirBadge value={set.rir} />}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </Card>
-  );
-}
-
-/**
- * RIR: cuántas repeticiones más podría haber hecho, declaradas al cerrar la
- * serie. 0-1 se resalta en naranja (el mismo semántico de "esfuerzo" que usa
- * el resto de la app, `styles.css`): es la zona que el motor mira para
- * proponer una suba de carga, y a la persona le sirve verla venir antes de
- * que llegue la propuesta.
- */
-function RirBadge({ value }: { value: number }) {
-  const alto = value <= 1;
-  return (
-    <span
-      className={`font-mono text-[0.65rem] font-medium ${alto ? 'text-orange' : 'text-slate-dim'}`}
-      title="Repeticiones en reserva declaradas"
-    >
-      RIR {value}
-    </span>
-  );
-}
-
-/**
- * Una serie puede no tener carga registrada: la primera sesión de alguien que
- * pidió que la app le calcule los pesos, en una estación que todavía no está
- * en el catálogo. Ahí no hay unidad ni valor que mostrar, y decir "0 kg"
- * sería inventar un dato que la persona nunca vio en la máquina.
- *
- * Dice "sin registrar", no "sin carga": esa última frase ya significa otra
- * cosa en `formatLoad` (la estación no lleva peso, como una colchoneta).
- */
-function formatLoadOrDash(load: LoadReading | null): string {
-  return load === null ? 'sin registrar' : formatLoad(load);
 }

@@ -58,7 +58,7 @@ export function useProgress() {
       const { data: setRows, error: setError } = await client
         .from('set_logs')
         .select(
-          'id, exercise_id, load_value, load_unit, load_kg_normalized, reps, rir, is_warmup, completed_at, exercises(name)',
+          'id, exercise_id, load_value, load_unit, load_kg_normalized, reps, rir, is_warmup, completed_at, exercises(name, primary_muscles)',
         )
         .in('workout_log_id', workoutLogIds)
         .order('completed_at');
