@@ -1091,8 +1091,8 @@
       }
     ],
     "interference": {
-      "avoidIntervalsSameDayAsLowerBody": true,
-      "minHoursBetweenSessions": 6
+      "note": "Si hacés cardio el mismo día que pierna, no te preocupes de más: el efecto medido es chico y a nivel de músculo entero no aparece. Da igual el orden y da igual si lo hacés el mismo día o en días separados. Lo único que sí cambia algo es la máquina: correr en cinta castiga más la pierna que la bici o el elíptico, porque frenar en cada paso es lo que deja el músculo golpeado. Si ese día entrenás pierna fuerte, elegí bici.",
+      "confidence": "medium"
     }
   },
   "modifiers": {

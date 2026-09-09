@@ -867,3 +867,42 @@ describe('frecuencia semanal', () => {
     expect(avisos.some((w) => w.includes('quedan abajo'))).toBe(true);
   });
 });
+
+// ---------------------------------------------------------------- interferencia
+
+describe('cardio junto a pierna', () => {
+  const nota = V1_RESEARCH.cardio?.interference.note;
+
+  const avisosCon = (goal: UserGoal['goal']) =>
+    engine.generatePlan({
+      context,
+      user: buildUser({ goals: [goalOf(goal)] }),
+      gym: buildGym(),
+      ruleset: V1_RESEARCH,
+    }).warnings;
+
+  // El bloque declaraba `avoidIntervalsSameDayAsLowerBody` y
+  // `minHoursBetweenSessions: 6`, dos reglas que nadie aplicaba y que además
+  // prescribían justo lo que el metaanálisis no encontró. Lo único que
+  // discriminó fue la modalidad. Ver `docs/research/13`.
+  it('avisa cuando el plan tiene cardio y trabajo de pierna', () => {
+    if (!nota) throw new Error('El ruleset no tiene la nota de interferencia.');
+    expect(avisosCon('cardio')).toContain(nota);
+  });
+
+  it('no avisa cuando el plan no tiene cardio', () => {
+    if (!nota) throw new Error('El ruleset no tiene la nota de interferencia.');
+    expect(avisosCon('strength')).not.toContain(nota);
+  });
+
+  it('el aviso sale una sola vez por plan, no una por sesión', () => {
+    if (!nota) throw new Error('El ruleset no tiene la nota de interferencia.');
+    expect(avisosCon('cardio').filter((w) => w === nota)).toHaveLength(1);
+  });
+
+  // La nota tiene que nombrar la alternativa concreta: es lo único accionable
+  // que dejó la evidencia, porque correr interfiere y pedalear no.
+  it('nombra la máquina que molesta menos, que es lo único accionable', () => {
+    expect(nota ?? '').toMatch(/bici|bicicleta/i);
+  });
+});

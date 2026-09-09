@@ -187,6 +187,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
   }
 
   warnings.push(...weeklyVolumeWarnings(sessions, template, gym, params, goal));
+  warnings.push(...interferenceWarnings(sessions, gym, ruleset));
 
   if (placeholder) {
     warnings.push(
@@ -647,6 +648,38 @@ function adjustItem(
   // plan. El recorte del partido baja volumen, no saca ejercicios.
   const targetSets = Math.max(1, Math.round(item.targetSets * multiplier));
   return targetSets === item.targetSets ? item : { ...item, targetSets };
+}
+
+/**
+ * Qué decirle a quien tiene cardio y pierna en el mismo plan.
+ *
+ * **No se mira si caen en la misma sesión**, y es a propósito: el subgrupo de
+ * misma sesión contra días separados no mostró ninguna diferencia, así que
+ * condicionar el aviso a que coincidan sería aplicar la regla que justamente se
+ * cayó. Lo que discriminó fue la modalidad, y eso vale igual en cualquier día.
+ *
+ * Sale una sola vez por plan: el efecto medido es chico y a nivel de músculo
+ * entero no aparece, así que repetirlo por sesión lo convertiría en ruido.
+ */
+function interferenceWarnings(
+  sessions: readonly SessionBlueprint[],
+  gym: GymSnapshot,
+  ruleset: Ruleset,
+): string[] {
+  const rule = ruleset.cardio?.interference;
+  if (!rule) return [];
+
+  const exerciseById = new Map(gym.exercises.map((e) => [e.id, e]));
+  let cardio = false;
+  let pierna = false;
+  for (const item of sessions.flatMap((s) => s.items)) {
+    const exercise = exerciseById.get(item.exerciseId);
+    if (!exercise) continue;
+    if (exercise.pattern === 'cardio') cardio = true;
+    else if (isLowerBody(exercise)) pierna = true;
+  }
+
+  return cardio && pierna ? [rule.note] : [];
 }
 
 function isLowerBody(exercise: Exercise): boolean {

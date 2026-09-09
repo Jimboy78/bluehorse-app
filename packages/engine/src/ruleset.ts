@@ -195,12 +195,18 @@ const cardioSchema = z.object({
     )
     .min(1),
   /**
-   * Cardio intenso el mismo día que fuerza de piernas recorta las ganancias de
-   * fuerza. El motor lo usa para no meter intervalos junto a una sesión pesada.
+   * Qué decirle a quien mezcla cardio con trabajo de pierna.
+   *
+   * Antes esto eran dos reglas — no meter intervalos el mismo día que tren
+   * inferior, y separar las sesiones 6 horas — que además de no aplicarse nunca,
+   * prescribían justo lo que el metaanálisis **no** encontró: ni el orden dentro
+   * de la sesión ni entrenar el mismo día contra días separados mostraron
+   * diferencia. Lo único que discriminó fue la modalidad: correr interfiere
+   * (SMD −0,81 en fibras tipo I), pedalear no. Ver `docs/research/13`.
    */
   interference: z.object({
-    avoidIntervalsSameDayAsLowerBody: z.boolean(),
-    minHoursBetweenSessions: z.number().int().min(0).max(48),
+    note: z.string().min(1),
+    confidence: z.enum(CONFIDENCE_LEVELS),
   }),
 });
 

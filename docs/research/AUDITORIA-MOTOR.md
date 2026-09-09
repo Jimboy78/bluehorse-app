@@ -30,8 +30,8 @@ Medido contando usos reales en `packages/engine/src/`, no leyendo la documentaci
 | `preSleep` / `preEnergy` | **no (0 usos)** | pendiente — se registran y no alimentan nada |
 | `sessionFeel` | **no (0 usos)** | pendiente |
 | `priority` | sí, pero **nunca discrimina** | el onboarding deja elegir un solo objetivo — ver `12` |
-| `cardio.interference` | **está en el ruleset, no lo lee nadie** | pendiente — iteración de cardio |
-| `redFlags` (señales de alarma) | **están en el ruleset, no se muestran** | pendiente — es plomería, no evidencia |
+| `cardio.interference` | sí | ✅ **auditado** — `13-cardio-e-interferencia.md` |
+| `redFlags` (señales de alarma) | **no se muestran** | pendiente — en la lista de deuda de `ruleset-consumo.test.ts` |
 | `specialPopulations` (embarazo, hipertensión…) | **están en el ruleset, sin ninguna consecuencia** | pendiente — iteración propia |
 | lesión **aguda** vs dolor crónico | **no se distinguen** | pendiente — brecha abierta en `09` |
 | fragilidad | **no existe el campo** | abierto — ver `08-edad.md` |
@@ -166,10 +166,45 @@ principal: alcanzó con medir el ruleset contra sí mismo.
 - `EvidenceNotice` se movió a su propio archivo para poder testearlo — importar `App.tsx` arrastra
   el service worker. 8 tests nuevos, 313 en verde.
 
-### Próxima: cardio y la interferencia
+### 6 · Cardio, interferencia y el barrido de bloques muertos — cerrada el 2026-09-09
 
-`cardio.interference` (`avoidIntervalsSameDayAsLowerBody`, `minHoursBetweenSessions: 6`) está
-declarado, validado por zod y **no lo lee nadie** — tercer caso del mismo patrón después de
-`referIf` y `redFlags`. El efecto de interferencia entre cardio y fuerza tiene metaanálisis propios,
-así que hay con qué decidir si implementarlo o sacarlo. También quedan por auditar `baselines`,
-`daysSinceLastSession` y los cuatro campos con cero usos.
+`docs/research/13-cardio-e-interferencia.md`.
+
+**El barrido, que era lo que el patrón repetido ameritaba.** Se recorrieron las 114 claves de
+contenido del ruleset activo buscando cada una en `packages/engine/src` y `apps/web/src`:
+**doce bloques declarados y muertos**. Uno de ellos, `severityScale`, **lo agregué yo en la
+iteración 2**, en el mismo documento donde denuncié este patrón. El problema no es descuido: es que
+escribir en el ruleset es más barato que conectarlo y nada avisaba.
+
+Ahora sí avisa: `packages/engine/src/ruleset-consumo.test.ts` escanea el código, lee el **JSON
+crudo** (zod descarta en silencio lo que no está en el esquema, y eso es aún más invisible) y falla
+si aparece una clave nueva sin consumir. La deuda existente queda listada ahí, explícita.
+
+**La interferencia.** El bloque declaraba `avoidIntervalsSameDayAsLowerBody: true` y
+`minHoursBetweenSessions: 6`, sin fuente y sin uso. El metaanálisis (15 estudios,
+DOI 10.1007/s40279-022-01688-x) dice:
+
+- Efecto global sobre fibra: SMD **−0,23** (IC −0,46 a −0,00; p = 0,050) — roza el cero. Tipo I
+  −0,34 (p = 0,078) y tipo II −0,13 (p = 0,315), ninguno significativo. **A nivel de músculo entero
+  no aparece.**
+- **Correr, fibras tipo I: SMD −0,81** (IC −1,26 a −0,36). Pedalear: sin efecto. Tercera vez que el
+  mecanismo excéntrico explica un hallazgo en esta investigación.
+- **Ni el orden dentro de la sesión, ni la frecuencia, ni misma sesión contra días separados
+  mostraron diferencia.** Las dos reglas del ruleset prescribían exactamente lo que no se encontró.
+
+Se reemplazaron por una nota que el motor sí emite: el efecto es chico, da igual el día, y si ese
+día entrenás pierna fuerte conviene la bici antes que la cinta. Es lo único accionable que dejó la
+evidencia.
+
+**De paso:** la plantilla de cardio ya separa el cardio del trabajo de pierna por diseño, o sea que
+`avoidIntervalsSameDayAsLowerBody` era redundante además de infundado. Y el primer criterio que
+escribí para el aviso —mirar si caían en la misma sesión— estaba mal: condicionarlo a que
+coincidan es aplicar justo la regla que se cayó. 6 tests nuevos, 319 en verde.
+
+### Próxima: historial (`daysSinceLastSession` y `baselines`)
+
+Son las dos entradas grandes que quedan. `daysSinceLastSession` alimenta `comebackMultiplier` y el
+bloque `detraining`, cuyos escalones (10 días → ×1, 30 → ×0,85, 90 → ×0,7) no tienen fuente
+verificada. `baselines` define con cuánta carga arranca cada ejercicio, y `04` ya advierte que el
+autorreporte de cargas subestima. Después quedan los cuatro campos con cero usos (`sex`,
+`weightKg`, `heightCm`, `sessionMinutesTarget`) y las tres señales de sesión que no alimentan nada.
