@@ -12,6 +12,7 @@ repeticiones), esta es la que se puede curar al ruleset.
 | `04-individualizacion-seguridad.md` | `byLevel`, modificadores, calibración, contraindicaciones | **Curable con huecos marcados** — la Parte D (seguridad) es la más floja: hay que reforzarla antes de un socio real |
 | `05-seguridad-reforzada.md` | refuerza la Parte D de `04` (cribado, señales de alarma, dolor por zona, poblaciones especiales) | **Curable** — tapa el hueco que señalaba la fila de arriba |
 | `06-deporte-y-temporada.md` | `sports` (sesgo de selección por deporte) y el multiplicador de volumen por fase de temporada | **Curable con la mitad marcada BAJA** — hecha con búsqueda directa de metaanálisis, no con `PROMPTS.md` |
+| `07-dias-pre-y-post-partido.md` | ajuste de la sesión según los días desde el último partido | **Curable la parte posterior, la previa no** — el curso temporal post-partido es ALTA; el tapering previo no aplica a partidos semanales |
 
 **Curado el 8 de septiembre de 2026 a `packages/engine/src/rulesets/v1-research.json`**, que es el
 ruleset activo. Cada bloque de `prescription` lleva su `confidence` (la columna "Confianza" de estas
