@@ -1262,40 +1262,100 @@ function SubstitutionSection({ gymId }: { gymId: string | null }) {
           </p>
         )}
         {substitutionList.data?.map((sub) => (
-          <Card
+          <SubstitutionRow
             key={`${sub.exerciseId}-${sub.substituteId}`}
-            className="flex items-center gap-3 px-4 py-3"
-          >
-            <div className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate text-sm">
-                <strong className="font-semibold">
-                  {exerciseById.get(sub.exerciseId)?.name ?? 'Ejercicio borrado'}
-                </strong>{' '}
-                ↔{' '}
-                <strong className="font-semibold">
-                  {exerciseById.get(sub.substituteId)?.name ?? 'Ejercicio borrado'}
-                </strong>
-              </span>
-              {sub.note && <span className="truncate text-xs text-slate">{sub.note}</span>}
-            </div>
-            <span className="shrink-0 font-display text-xs font-semibold tabular-nums text-brand">
-              {Math.round(sub.equivalence * 100)}%
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() =>
-                deleteSubstitution.mutateAsync({
-                  exerciseId: sub.exerciseId,
-                  substituteId: sub.substituteId,
-                })
-              }
-            >
-              <Trash2 size={12} aria-hidden="true" />
-            </Button>
-          </Card>
+            exerciseName={exerciseById.get(sub.exerciseId)?.name ?? 'Ejercicio borrado'}
+            substituteName={exerciseById.get(sub.substituteId)?.name ?? 'Ejercicio borrado'}
+            note={sub.note}
+            equivalence={sub.equivalence}
+            onDelete={() =>
+              deleteSubstitution.mutateAsync({
+                exerciseId: sub.exerciseId,
+                substituteId: sub.substituteId,
+              })
+            }
+          />
         ))}
       </div>
     </motion.section>
+  );
+}
+
+/**
+ * Una equivalencia curada, con borrado de dos toques como el de equipamiento
+ * y ejercicios (`EquipmentRow`, `ExerciseRow`) — antes borraba directo al
+ * primer clic, la única fila del panel sin ese resguardo, y el botón era un
+ * ícono solo con `aria-hidden`, sin nombre accesible para lector de pantalla.
+ */
+function SubstitutionRow({
+  exerciseName,
+  substituteName,
+  note,
+  equivalence,
+  onDelete,
+}: {
+  exerciseName: string;
+  substituteName: string;
+  note: string | null;
+  equivalence: number;
+  onDelete: () => Promise<unknown>;
+}) {
+  const [confirming, setConfirming] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDelete() {
+    setDeleting(true);
+    try {
+      await onDelete();
+    } catch {
+      setDeleting(false);
+      setConfirming(false);
+    }
+  }
+
+  return (
+    <Card className="flex flex-col gap-2 px-4 py-3">
+      <div className="flex items-center gap-3">
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="truncate text-sm">
+            <strong className="font-semibold">{exerciseName}</strong> ↔{' '}
+            <strong className="font-semibold">{substituteName}</strong>
+          </span>
+          {note && <span className="truncate text-xs text-slate">{note}</span>}
+        </div>
+        <span className="shrink-0 font-display text-xs font-semibold tabular-nums text-brand">
+          {Math.round(equivalence * 100)}%
+        </span>
+      </div>
+
+      {confirming ? (
+        <div className="flex gap-2">
+          <Button variant="ghost" size="sm" onClick={() => setConfirming(false)} className="flex-1">
+            No, dejala
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            disabled={deleting}
+            onClick={handleDelete}
+            className="flex-1"
+          >
+            {deleting && <Loader2 size={13} className="animate-spin" aria-hidden="true" />}
+            Sí, borrala
+          </Button>
+        </div>
+      ) : (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setConfirming(true)}
+          aria-label={`Borrar equivalencia entre ${exerciseName} y ${substituteName}`}
+          className="self-start"
+        >
+          <Trash2 size={12} aria-hidden="true" />
+          Borrar
+        </Button>
+      )}
+    </Card>
   );
 }
