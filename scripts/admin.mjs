@@ -729,6 +729,145 @@ async function avisos() {
   }
 }
 
+/**
+ * ¿SE SOBRECARGA UNA MÁQUINA SI ENTRAN N SOCIOS?
+ *
+ * Corre el motor real contra el catálogo real para N socios simulados, con una
+ * mezcla de objetivos, niveles y frecuencias, y cuenta cuánta demanda cae sobre
+ * cada estación. No escribe nada ni crea usuarios: es el motor, que es puro,
+ * corriendo N veces.
+ *
+ * Sirve para contestar con datos —y no de memoria— si hace falta balancear la
+ * distribución de ejercicios entre planes, y cuánto. Medir antes de construir:
+ * si veinte socios ya se reparten solos, un optimizador de distribución es
+ * complejidad que se paga sin comprar nada.
+ *
+ * Los atributos de los socios simulados son ENTRADAS de la simulación, no
+ * prescripción: los números del plan los sigue poniendo el ruleset.
+ */
+const MEZCLA_OBJETIVOS = ['hypertrophy', 'strength', 'recomposition', 'power', 'endurance'];
+const MEZCLA_NIVELES = ['beginner', 'intermediate', 'advanced'];
+const MEZCLA_FRECUENCIA = [3, 4, 5];
+
+/**
+ * Suma un plan a la demanda por estación.
+ *
+ * Una estación cuenta UNA vez por plan, no una por repetición de la cola: la
+ * pregunta es cuánta gente la necesita, no cuántas veces la usa cada una.
+ */
+function acumularDemanda(demanda, plan) {
+  const enEstePlan = new Map();
+  for (const s of plan.sessions) {
+    for (const item of s.items) {
+      if (!item.equipmentId) continue;
+      enEstePlan.set(item.equipmentId, (enEstePlan.get(item.equipmentId) ?? 0) + item.targetSets);
+    }
+  }
+  for (const [eqId, series] of enEstePlan) {
+    const acc = demanda.get(eqId) ?? { planes: 0, series: 0 };
+    acc.planes += 1;
+    acc.series += series;
+    demanda.set(eqId, acc);
+  }
+}
+
+async function simular(cuantos = '20') {
+  const n = Number(cuantos);
+  if (!Number.isInteger(n) || n < 1) throw new Error('Pasá cuántos socios simular. Ej: simular 30');
+
+  const [perfil] = await pick('profiles', 'gym_id');
+  if (!perfil) throw new Error('No hay ningún perfil cargado: no se sabe qué gimnasio simular.');
+
+  const { createPlaceholderEngine, V1_RESEARCH } = await import('../packages/engine/src/index.ts');
+  const base = await snapshotDe(
+    (await pick('profiles', 'id', { gym_id: perfil.gym_id }))[0].id,
+  ).catch(() => null);
+  if (!base) throw new Error('No se pudo armar el snapshot del gimnasio.');
+
+  const equipos = await pick('equipment', 'id, name, category, quantity', {
+    gym_id: perfil.gym_id,
+    is_active: true,
+  });
+  const nombreEquipo = new Map(equipos.map((e) => [e.id, e.name]));
+  const cantidad = new Map(equipos.map((e) => [e.id, e.quantity]));
+
+  const motorReal = createPlaceholderEngine();
+  const demanda = new Map(); // equipmentId -> { planes, series }
+  const porObjetivo = new Map();
+
+  for (let i = 0; i < n; i += 1) {
+    const goal = MEZCLA_OBJETIVOS[i % MEZCLA_OBJETIVOS.length];
+    const nivel = MEZCLA_NIVELES[i % MEZCLA_NIVELES.length];
+    const frecuencia = MEZCLA_FRECUENCIA[i % MEZCLA_FRECUENCIA.length];
+
+    const user = {
+      ...base.user,
+      profile: { ...base.user.profile, id: `sim-${i}`, experienceLevel: nivel },
+      goals: [
+        {
+          goal,
+          sport: null,
+          priority: 1,
+          sessionsPerWeekTarget: frecuencia,
+          sessionMinutesTarget: 60,
+        },
+      ],
+      // Sin restricciones ni baselines: se simula el caso base, no el de nadie.
+      constraints: [],
+      baselines: [],
+    };
+
+    let plan;
+    try {
+      // Semilla distinta por socio, como en la app real (`engineContext` la
+      // deriva del id): es lo que hoy reparte entre opciones equivalentes.
+      plan = motorReal.generatePlan({
+        context: { now: new Date().toISOString(), seed: 1000 + i * 7919 },
+        user,
+        gym: base.gym,
+        ruleset: V1_RESEARCH,
+      });
+    } catch {
+      continue; // un objetivo sin plantilla no rompe la simulación entera
+    }
+
+    porObjetivo.set(goal, (porObjetivo.get(goal) ?? 0) + 1);
+    acumularDemanda(demanda, plan);
+  }
+
+  const filas = [...demanda.entries()]
+    .sort((a, b) => b[1].planes - a[1].planes)
+    .map(([eqId, a]) => ({
+      estación: nombreEquipo.get(eqId) ?? eqId,
+      unidades: cantidad.get(eqId) ?? 1,
+      'en planes': a.planes,
+      'de los socios': `${Math.round((a.planes / n) * 100)}%`,
+      'socios por unidad': (a.planes / (cantidad.get(eqId) || 1) || 0).toFixed(1),
+    }));
+
+  out(`DEMANDA SIMULADA · ${n} socios · ${equipos.length} estaciones activas`, filas);
+
+  if (!asJson) {
+    const usadas = demanda.size;
+    const top = filas[0];
+    console.log(
+      `\n  Estaciones con demanda: ${usadas} de ${equipos.length}` +
+        ` (${Math.round((usadas / equipos.length) * 100)}%)` +
+        `\n  Sin ningún plan: ${equipos.length - usadas}`,
+    );
+    if (top) {
+      console.log(
+        `  La más pedida: ${top.estación} — ${top['en planes']} de ${n} socios (${top['de los socios']}).`,
+      );
+    }
+    console.log(
+      '\n  Cómo leerlo: "socios por unidad" es la señal de cuello de botella. Que una\n' +
+        '  estación aparezca en muchos planes no molesta si la gente entrena en horarios\n' +
+        '  distintos — la congestión real es por hora, no por plan.',
+    );
+  }
+}
+
 // ------------------------------------------------------- herramientas del agente
 
 /**
@@ -1063,6 +1202,7 @@ const comandos = {
   recetas,
   receta: () => receta(rest[0] ?? ''),
   avisos,
+  simular: () => simular(rest[0] ?? '20'),
   sql: () => sql(...rest),
   motor: () => motor(rest[0] ?? ''),
   sembrar: () => sembrar(rest.join(' ') || undefined),
@@ -1083,6 +1223,7 @@ Analizar el motor (anónimo: sin nombres, sin salud):
   recetas                     de qué entrada salió cada plan, agrupado
   receta <#>                  qué prescribió una ruta: ejercicios, volumen, avisos
   avisos                      qué le viene avisando el motor a los planes
+  simular [n]                 si entran n socios, cuánta demanda cae en cada estación
 
 Solo contra la base LOCAL (escriben o corren SQL suelto):
   sql "<select ...>"          consulta libre de solo lectura
