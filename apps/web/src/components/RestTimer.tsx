@@ -1,10 +1,11 @@
 import type { EquipmentLoadSpec, LoadReading } from '@bh/domain';
-import { formatLoad, loadUnitLabel, snapToEquipment, stepLoad } from '@bh/domain';
+import { formatLoad } from '@bh/domain';
 import { Minus, Plus } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import type { SetActual } from '../lib/mappers/session-log.ts';
 import { duration, ease, haptic, hapticPattern, spring, tappable } from '../lib/motion.ts';
+import { carriesLoad, LoadInput } from './LoadInput.tsx';
 import { Button, Chip } from './ui/index.ts';
 
 /**
@@ -326,20 +327,9 @@ function SetOutcome({
   targetRir: number | null;
   onRir: (n: number) => void;
 }) {
-  // Escalonar necesita saber de cuánto es el escalón de esta estación. Sin
-  // catálogo cargado no se puede, y no se inventa un paso.
-  const canStep = loadSpec !== null && stepLoad(load?.value ?? null, loadSpec, 1) !== null;
-
-  function step(direction: 1 | -1) {
-    if (!loadSpec) return;
-    const value = stepLoad(load?.value ?? null, loadSpec, direction);
-    if (value === null) return;
-    onLoad({ value, unit: loadSpec.unit });
-  }
-
   return (
     <div className="flex w-full max-w-[22rem] flex-col divide-y divide-line/70 rounded-card border border-line bg-navy">
-      {canStep && (
+      {carriesLoad(loadSpec) && (
         <div className="flex items-center justify-between gap-3 px-4 py-3">
           <OutcomeLabel
             label="Carga"
@@ -349,40 +339,7 @@ function SetOutcome({
                 : null
             }
           />
-          <div className="flex items-center gap-1.5">
-            <Stepper label="Bajar un escalón" onClick={() => step(-1)}>
-              <Minus size={15} aria-hidden="true" />
-            </Stepper>
-            {/* Editable, no solo escalonable: en la primera sesión no hay
-                baseline y llegar a 60 kg de a 2,5 son veinticuatro toques. */}
-            <input
-              type="number"
-              inputMode="decimal"
-              aria-label="Carga usada"
-              value={load?.value ?? ''}
-              step={loadSpec?.increment ?? undefined}
-              onChange={(e) => {
-                const raw = e.target.value;
-                if (raw === '') return onLoad(null);
-                const value = Number(raw);
-                if (Number.isNaN(value) || !loadSpec) return;
-                onLoad({ value, unit: loadSpec.unit });
-              }}
-              onBlur={() => {
-                // Recién al salir se ajusta al escalón real: mientras tipea,
-                // corregirle el número debajo del dedo es peor que dejarlo.
-                if (load?.value == null || !loadSpec) return;
-                onLoad({ value: snapToEquipment(load.value, loadSpec), unit: loadSpec.unit });
-              }}
-              className="w-16 rounded-lg border border-line bg-surface-2 py-1.5 text-center font-display text-lg font-semibold tabular-nums outline-none transition-colors focus:border-brand"
-            />
-            <span className="min-w-7 font-mono text-xs text-slate-dim">
-              {loadSpec ? loadUnitLabel(loadSpec.unit) : ''}
-            </span>
-            <Stepper label="Subir un escalón" onClick={() => step(1)}>
-              <Plus size={15} aria-hidden="true" />
-            </Stepper>
-          </div>
+          <LoadInput load={load} loadSpec={loadSpec} onLoad={onLoad} ariaLabel="Carga usada" />
         </div>
       )}
 

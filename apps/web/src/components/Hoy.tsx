@@ -1,3 +1,5 @@
+import type { LoadReading } from '@bh/domain';
+import { formatLoad } from '@bh/domain';
 import type { SubstituteOption } from '@bh/engine';
 import {
   AlertCircle,
@@ -22,6 +24,7 @@ import type { ActiveSessionItem } from '../lib/plan.ts';
 import { useActivePlan, useGeneratePlan, useRequestNextPlan } from '../lib/plan.ts';
 import { useSessionLog } from '../lib/session-log.ts';
 import { useRestoredSession } from '../lib/session-restore.ts';
+import { carriesLoad, LoadInput } from './LoadInput.tsx';
 import { RestTimer } from './RestTimer.tsx';
 import { SessionClose } from './SessionClose.tsx';
 import { SetRow } from './SetRow.tsx';
@@ -66,6 +69,11 @@ export function Hoy() {
   // el tiempo (a ver qué máquina está libre) y las series que ya hiciste no se
   // pueden borrar por salir de la pantalla.
   const [hechasPorItem, setHechasPorItem] = useState<Record<string, number[]>>({});
+  // La carga con la que se está trabajando hoy, por ejercicio. Arranca en lo
+  // que propuso el motor (`targetLoad`) y se puede anotar ANTES de la primera
+  // serie: en la primera sesión de cualquier estación no hay baseline, así que
+  // el plan llega sin número y no había dónde escribirlo hasta el descanso.
+  const [cargaPorItem, setCargaPorItem] = useState<Record<string, LoadReading | null>>({});
   const [restingIndex, setRestingIndex] = useState<number | null>(null);
   const [closing, setClosing] = useState(false);
   const [showingSubstitutes, setShowingSubstitutes] = useState(false);
@@ -203,6 +211,8 @@ export function Hoy() {
             showingSubstitutes={showingSubstitutes}
             restingIndex={restingIndex}
             seriesHechas={seriesHechas}
+            carga={cargaPorItem[item.id] ?? item.targetLoad}
+            onCarga={(load) => setCargaPorItem((mapa) => ({ ...mapa, [item.id]: load }))}
             onBack={() => {
               setActiveItemId(null);
               setRestingIndex(null);
@@ -495,6 +505,24 @@ function SetDots({ total, done }: { total: number; done: number }) {
 }
 
 /**
+ * Qué carga mostrar en cada serie.
+ *
+ * "Sin carga previa" (el texto que traía `item.load` desde el plan) decía dos
+ * cosas distintas con las mismas palabras: en una prensa significaba "todavía
+ * no sé con cuánto trabajás", y en una dominada o una colchoneta significaba
+ * "acá no hay peso que anotar". La primera es algo que la persona puede
+ * resolver ahora mismo; la segunda no, y pedirle un número sería inventarlo.
+ */
+function textoDeCarga(item: ActiveSessionItem, carga: LoadReading | null): string {
+  if (carga) return formatLoad(carga);
+  const spec = item.equipmentLoadSpec;
+  // Peso corporal / sin carga: `formatLoad` ya sabe nombrarlos, y no hay nada
+  // que anotar ahí.
+  if (spec && !carriesLoad(spec)) return formatLoad({ value: null, unit: spec.unit });
+  return 'anotá la carga';
+}
+
+/**
  * Vista de detalle de un ejercicio: series, cronómetro de descanso, o el
  * selector de sustitución — según qué esté pasando en ese momento. Aparte de
  * `Hoy` para no acumular ramas en un solo componente.
@@ -507,6 +535,8 @@ function ExerciseDetail({
   showingSubstitutes,
   restingIndex,
   seriesHechas,
+  carga,
+  onCarga,
   onBack,
   onShowSubstitutes,
   onPickSubstitute,
@@ -521,6 +551,9 @@ function ExerciseDetail({
   showingSubstitutes: boolean;
   restingIndex: number | null;
   seriesHechas: number[];
+  /** Con cuánto se está trabajando hoy: lo del plan, o lo que la persona anotó. */
+  carga: LoadReading | null;
+  onCarga: (load: LoadReading | null) => void;
   onBack: () => void;
   onShowSubstitutes: () => void;
   onPickSubstitute: (option: SubstituteOption, name: string, sector: string | null) => void;
@@ -600,7 +633,7 @@ function ExerciseDetail({
               prescribedSeconds={item.restSeconds}
               repsTarget={item.repsTarget}
               targetRir={item.targetRir}
-              targetLoad={item.targetLoad}
+              targetLoad={carga}
               loadSpec={item.equipmentLoadSpec}
               onFinish={onRestFinish}
             />
@@ -613,11 +646,35 @@ function ExerciseDetail({
           animate="visible"
           className="flex flex-col gap-2.5"
         >
+          {/* Anotar la carga ANTES de la primera serie. En la primera sesión
+              de cualquier estación el plan llega sin número (no hay con qué
+              calcularlo sin inventarlo), y hasta acá el único lugar donde se
+              podía escribir era el descanso — o sea, después de haber hecho
+              la serie. */}
+          {carriesLoad(item.equipmentLoadSpec) && (
+            <div className="flex items-center justify-between gap-3 rounded-card border border-line bg-navy px-4 py-3">
+              <span className="flex flex-col gap-0.5">
+                <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate">
+                  Carga de hoy
+                </span>
+                <span className="text-[0.65rem] text-slate-dim">
+                  {carga ? 'Se usa en todas las series' : 'Anotá con cuánto vas a trabajar'}
+                </span>
+              </span>
+              <LoadInput
+                load={carga}
+                loadSpec={item.equipmentLoadSpec}
+                onLoad={onCarga}
+                ariaLabel="Carga de hoy"
+              />
+            </div>
+          )}
+
           {seriesDe(item).map(({ id, numero: i }) => (
             <motion.div key={id} variants={listItem}>
               <SetRow
                 index={i}
-                targetLoad={item.load}
+                targetLoad={textoDeCarga(item, carga)}
                 targetReps={item.reps}
                 done={seriesHechas.includes(i)}
                 onToggle={() => onToggleSet(i)}
