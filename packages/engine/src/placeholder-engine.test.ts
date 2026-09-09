@@ -532,6 +532,31 @@ describe('findSubstitutes', () => {
     ).toBe(true);
   });
 
+  it('una equivalencia curada por debajo de minEquivalence igual se ofrece: el piso es del cálculo automático', () => {
+    const gym = buildGym();
+    // v0-placeholder.substitution.minEquivalence es 0.5: 0.3 automático nunca
+    // pasaría el filtro, pero acá es una decisión explícita del staff.
+    const gymConEquivalenciaBaja = {
+      ...gym,
+      substitutions: [
+        { exerciseId: 'ex-press', substituteId: 'ex-press-maquina', equivalence: 0.3, note: null },
+      ],
+    };
+
+    const options = engine.findSubstitutes({
+      context,
+      item: { exerciseId: 'ex-press', equipmentId: 'eq-press' },
+      gym: gymConEquivalenciaBaja,
+      constraints: [],
+      unavailableEquipmentIds: ['eq-press'],
+      ruleset: V0_PLACEHOLDER,
+    });
+
+    const curada = options.find((o) => o.exerciseId === 'ex-press-maquina');
+    expect(curada?.curated).toBe(true);
+    expect(curada?.equivalence).toBe(0.3);
+  });
+
   it('usa la nota del staff como motivo cuando existe, en vez del texto genérico', () => {
     const gym = buildGym();
     const gymConNota = {

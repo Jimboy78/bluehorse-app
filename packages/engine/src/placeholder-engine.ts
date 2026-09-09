@@ -687,7 +687,13 @@ function findSubstitutes(input: FindSubstitutesInput): readonly SubstituteOption
 
     const curatedEdge = explicit.get(candidate.id);
     const equivalence = curatedEdge?.equivalence ?? scoreEquivalence(original, candidate, cfg);
-    if (equivalence < cfg.minEquivalence) continue;
+    // El piso de confianza es del cálculo automático, no de una equivalencia
+    // cargada a mano: si el staff la escribió, ya decidió que es un reemplazo
+    // válido, y aplicarle el mismo `minEquivalence` filtraba en silencio
+    // cualquier curación por debajo del piso — se guardaba en /panel, se veía
+    // en la lista de "equivalencias cargadas", y nunca le llegaba a nadie, sin
+    // ningún error que lo avisara.
+    if (!curatedEdge && equivalence < cfg.minEquivalence) continue;
 
     const equipment = firstAvailableEquipment(candidate, equipmentById, blocked);
     options.push({
