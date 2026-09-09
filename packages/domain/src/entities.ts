@@ -229,6 +229,9 @@ export interface AdaptationProposal {
   readonly reasonText: string;
   readonly rulesetVersion: string;
   readonly status: ProposalStatus;
+  readonly createdAt: string;
+  /** `null` mientras esté `pending`: recién se completa al aceptar o rechazar. */
+  readonly resolvedAt: string | null;
 }
 
 // ---------------------------------------------------------------- utilidades

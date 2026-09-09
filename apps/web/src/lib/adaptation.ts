@@ -48,7 +48,7 @@ export function usePendingProposals() {
       const { data: pendingRows, error: pendingError } = await client
         .from('adaptation_proposals')
         .select(
-          'id, user_id, plan_id, type, target_ref, from_value, to_value, load_unit, reason_code, reason_text, ruleset_version, status',
+          'id, user_id, plan_id, type, target_ref, from_value, to_value, load_unit, reason_code, reason_text, ruleset_version, status, created_at, resolved_at',
         )
         .eq('plan_id', planRow.id)
         .eq('status', 'pending');
@@ -72,7 +72,7 @@ async function generateProposals(
   const { data: resolvedRows, error: resolvedError } = await client
     .from('adaptation_proposals')
     .select(
-      'id, user_id, plan_id, type, target_ref, from_value, to_value, load_unit, reason_code, reason_text, ruleset_version, status',
+      'id, user_id, plan_id, type, target_ref, from_value, to_value, load_unit, reason_code, reason_text, ruleset_version, status, created_at, resolved_at',
     )
     .eq('plan_id', planId)
     .neq('status', 'pending');
@@ -133,7 +133,7 @@ async function generateProposals(
     .from('adaptation_proposals')
     .insert(blueprints.map((b) => toProposalInsert(userId, planId, b)))
     .select(
-      'id, user_id, plan_id, type, target_ref, from_value, to_value, load_unit, reason_code, reason_text, ruleset_version, status',
+      'id, user_id, plan_id, type, target_ref, from_value, to_value, load_unit, reason_code, reason_text, ruleset_version, status, created_at, resolved_at',
     );
   if (insertError) throw insertError;
 
@@ -230,6 +230,43 @@ export function useResolveProposal() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['proposals', user?.id] });
       void queryClient.invalidateQueries({ queryKey: ['active-plan', user?.id] });
+      void queryClient.invalidateQueries({ queryKey: ['proposal-history', user?.id] });
+    },
+  });
+}
+
+const PROPOSAL_HISTORY_LIMIT = 30;
+
+/**
+ * Lo que el motor propuso y la persona ya aceptó o rechazó. `generateProposals`
+ * ya leía esto (como `resolvedProposals`, para no repetir la misma propuesta),
+ * pero nada lo mostraba: el comentario de `07_adaptation.sql` dice que esta
+ * tabla sirve para "que vos puedas medir si el motor acierta antes de
+ * venderlo" — sin una pantalla que la muestre, esa medición era manual, por
+ * SQL. `reasonText` ya viene en castellano y con el nombre del ejercicio
+ * incluido (regla dura 4), así que no hace falta resolver `target_ref` contra
+ * el catálogo para mostrar algo con sentido.
+ */
+export function useProposalHistory() {
+  const { user, status } = useAuth();
+
+  return useQuery<readonly AdaptationProposal[]>({
+    queryKey: ['proposal-history', user?.id],
+    enabled: status === 'signed-in' && !!user,
+    queryFn: async () => {
+      const client = requireSupabase();
+      const { data, error } = await client
+        .from('adaptation_proposals')
+        .select(
+          'id, user_id, plan_id, type, target_ref, from_value, to_value, load_unit, reason_code, reason_text, ruleset_version, status, created_at, resolved_at',
+        )
+        .eq('user_id', user?.id as string)
+        .neq('status', 'pending')
+        .order('resolved_at', { ascending: false })
+        .limit(PROPOSAL_HISTORY_LIMIT);
+      if (error) throw error;
+
+      return (data ?? []).map((raw) => toAdaptationProposal(proposalRowSchema.parse(raw)));
     },
   });
 }

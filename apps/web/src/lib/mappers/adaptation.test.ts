@@ -46,6 +46,8 @@ describe('toAdaptationProposal', () => {
       ruleset_version: 'v0-placeholder',
       load_unit: 'kg' as const,
       status: 'pending',
+      created_at: '2026-09-01T12:00:00Z',
+      resolved_at: null,
     });
     expect(proposal).toEqual({
       id: 'p-1',
@@ -60,6 +62,8 @@ describe('toAdaptationProposal', () => {
       reasonText: 'Te sobraron repeticiones.',
       rulesetVersion: 'v0-placeholder',
       status: 'pending',
+      createdAt: '2026-09-01T12:00:00Z',
+      resolvedAt: null,
     });
   });
 });

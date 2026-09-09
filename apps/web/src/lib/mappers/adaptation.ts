@@ -74,6 +74,8 @@ export const proposalRowSchema = z.object({
   ruleset_version: z.string(),
   status: proposalStatusSchema,
   load_unit: loadUnitSchema.nullable(),
+  created_at: z.string(),
+  resolved_at: z.string().nullable(),
 });
 export type ProposalRow = z.infer<typeof proposalRowSchema>;
 
@@ -91,6 +93,8 @@ export function toAdaptationProposal(row: ProposalRow): AdaptationProposal {
     reasonText: row.reason_text,
     rulesetVersion: row.ruleset_version,
     status: row.status,
+    createdAt: row.created_at,
+    resolvedAt: row.resolved_at,
   };
 }
 
