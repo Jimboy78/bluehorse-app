@@ -343,6 +343,13 @@ export function useUpdateExercise(gymId: string | null) {
  * — es la misma frontera entre lo planificado y lo real de la regla dura 7).
  * Ese error de Postgres (`23503`, foreign key violation) se traduce acá:
  * sin esto, el staff vería el código crudo en vez de un motivo.
+ *
+ * `exercise_substitutions` sí cascadea con el borrado (a diferencia de
+ * `plan_session_items`/`set_logs`): si el ejercicio tenía una equivalencia
+ * curada, esa fila se va sola. Sin invalidar `substitution-list` acá, la
+ * pantalla de sustituciones seguía mostrando la pareja borrada hasta que
+ * algo más disparara un refetch — la fila ya no existía en la base, pero
+ * el staff la seguía viendo.
  */
 export function useDeleteExercise(gymId: string | null) {
   const queryClient = useQueryClient();
@@ -363,6 +370,7 @@ export function useDeleteExercise(gymId: string | null) {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['exercise-list', gymId] });
       void queryClient.invalidateQueries({ queryKey: ['gym-catalog', gymId] });
+      void queryClient.invalidateQueries({ queryKey: ['substitution-list', gymId] });
     },
   });
 }
