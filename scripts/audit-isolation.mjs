@@ -76,8 +76,12 @@ const { data: gyms } = await admin.from('gyms').select('id').limit(1);
 const gymId = gyms[0].id;
 
 const { data: rs } = await admin.from('rulesets').select('version').eq('is_active', true).single();
-const { data: ex } = await admin.from('exercises').select('id').eq('is_active', true).limit(1);
+const { data: ex } = await admin.from('exercises').select('id').eq('is_active', true).limit(2);
 const exerciseId = ex[0].id;
+// Para el intento de sustitución curada de más abajo: hace falta un segundo
+// ejercicio distinto (exercise_id <> substitute_id es una constraint de la
+// tabla), no cualquier id sirve.
+const substituteExerciseId = ex[1]?.id ?? exerciseId;
 
 // Datos de A, escritos con la service key para no depender de la app.
 const { data: planA } = await admin
@@ -352,6 +356,24 @@ console.log('\nCatálogo (es del gimnasio, no de un socio)');
     .from('equipment')
     .insert({ gym_id: gymId, name: 'Máquina falsa', category: 'accessory', load_unit: 'none' });
   check('equipment: un socio NO puede agregar máquinas', !!error, error?.code);
+}
+
+// exercise_substitutions es la primera tabla del catálogo con formulario de
+// alta desde /panel (antes solo se cargaba a mano por SQL): nunca se había
+// probado con un JWT real que un socio no pueda escribir ahí. Mismo criterio
+// que equipment arriba — la tabla se lee entre todos, se edita solo con
+// is_gym_admin().
+{
+  const { error } = await clientB.from('exercise_substitutions').select('*').limit(5);
+  check('exercise_substitutions: un socio puede leer las equivalencias', !error, error?.message);
+}
+{
+  const { error } = await clientB.from('exercise_substitutions').insert({
+    exercise_id: exerciseId,
+    substitute_id: substituteExerciseId,
+    equivalence: 0.5,
+  });
+  check('exercise_substitutions: un socio NO puede cargar equivalencias', !!error, error?.code);
 }
 
 // ------------------------------------------------- limpieza
