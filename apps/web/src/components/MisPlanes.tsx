@@ -1,5 +1,6 @@
 import { ChevronRight, Layers } from 'lucide-react';
 import { Link } from 'react-router';
+import { useAuth } from '../lib/auth/AuthProvider.tsx';
 import { GOAL_LABELS } from '../lib/labels.ts';
 import { usePlans } from '../lib/plan.ts';
 import { Card, Skeleton } from './ui/index.ts';
@@ -23,7 +24,15 @@ const TEMPLATE_LABELS: Record<string, string> = {
  * llamado a la acción de "Hoy" ya cubre ese caso.
  */
 export function MisPlanes() {
+  const { status } = useAuth();
   const plans = usePlans();
+
+  // `status` antes que `isPending`: `usePlans()` está deshabilitada sin
+  // sesión (`enabled: status === 'signed-in'`), y una query deshabilitada se
+  // queda en `isPending: true` para siempre — sin este chequeo, con Supabase
+  // sin configurar esto mostraba un esqueleto de carga que nunca resolvía
+  // (CLAUDE.md, trampas conocidas).
+  if (status !== 'signed-in') return null;
 
   if (plans.isPending) {
     return (
