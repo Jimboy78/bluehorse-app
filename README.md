@@ -51,9 +51,30 @@ npm run admin socios                        # quiénes hay y qué actividad tien
 npm run admin socio ana@ejemplo.com         # todo de una persona
 npm run admin planes                        # todos los planes generados
 npm run admin resumen                       # números del gimnasio
-npm run admin tabla set_logs reps=10        # consulta cruda de cualquier tabla
+npm run admin tabla set_logs reps=10        # filas de cualquier tabla
+npm run admin motor ana@ejemplo.com         # qué plan le armaría el motor, sin guardarlo
 npm run admin socio ana@ejemplo.com -- --json
 ```
+
+Y contra la base **local** únicamente, para trabajar sobre el proyecto:
+
+```bash
+npm run admin sql "select ..."   # consulta libre de solo lectura (joins, agregados)
+npm run admin sembrar "Juan"     # socio de prueba listo para entrar a la app
+npm run admin limpiar            # borra los socios de prueba y todo lo suyo
+```
+
+Tres candados, porque la misma clave y el mismo comando pueden apuntar a
+producción con cambiar una variable de entorno: `sql`/`sembrar`/`limpiar` se
+niegan a correr si `SUPABASE_URL` no es `127.0.0.1`; `sql` exige que la
+consulta empiece con `select` o `with` y rechaza el `;` (sin eso,
+`select 1; delete from plans` pasaría); y `limpiar` borra por patrón de email
+de prueba, nunca "todo lo que no reconozco".
+
+`motor` corre el mismo `generatePlan` que la PWA contra el catálogo y el
+ruleset reales, sin escribir nada. Sirve para ver una prescripción completa de
+una persona concreta sin pasar por la interfaz. Necesita el Node 24 portátil
+(importa `.ts` directo).
 
 `socio` muestra lo que respondió en el onboarding (objetivo, frecuencia,
 nivel), peso y altura, cribado de salud, restricciones, planes con su avance,

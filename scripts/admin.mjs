@@ -36,11 +36,33 @@
  * imprime `npx supabase status -o env`; para la nube salen del panel de
  * Supabase. Nunca van en un archivo versionado.
  */
+import { execFileSync } from 'node:child_process';
 import { argv, env, exit } from 'node:process';
 import { createClient } from '@supabase/supabase-js';
 
 const url = env.SUPABASE_URL;
 const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
+
+/**
+ * Si esto apunta a la base LOCAL.
+ *
+ * Los comandos que escriben, borran o corren SQL suelto solo funcionan acá.
+ * La misma clave y el mismo script pueden apuntar a la base de producción con
+ * cambiar una variable de entorno, y "sembrar datos de prueba" contra la base
+ * donde entrenan socios reales es la clase de error que no se deshace. La
+ * puerta la abre la URL, no una bandera que uno se puede olvidar de sacar.
+ */
+const isLocal = /^https?:\/\/(127\.0\.0\.1|localhost)(:|\/|$)/.test(url ?? '');
+
+function requireLocal(comando) {
+  if (isLocal) return;
+  console.error(
+    `"${comando}" solo corre contra la base local (127.0.0.1).\n` +
+      `SUPABASE_URL apunta a ${url}.\n` +
+      'Escribir o borrar en producción se hace por migración o por el panel, a mano y a la vista.',
+  );
+  exit(1);
+}
 
 if (!url || !serviceKey) {
   console.error('Faltan SUPABASE_URL y/o SUPABASE_SERVICE_ROLE_KEY.');
@@ -444,6 +466,329 @@ async function consulta(tabla, ...filtros) {
   out(`${tabla.toUpperCase()} (${filas.length})`, filas);
 }
 
+// ------------------------------------------------------- herramientas del agente
+
+/**
+ * SQL de solo lectura contra la base local.
+ *
+ * `tabla` alcanza para mirar filas, pero no para un join ni un `group by`, y
+ * la mitad de las preguntas que valen la pena son eso. PostgREST no ejecuta
+ * SQL suelto, así que esto va por `psql` adentro del contenedor.
+ *
+ * Dos candados: solo local (ver `requireLocal`) y solo lectura. Se exige que
+ * empiece con `select` o `with`, y se rechaza el `;` — sin eso, un
+ * `select 1; drop table plans` pasaría como si nada.
+ */
+function sql(...partes) {
+  requireLocal('sql');
+  const consulta = partes.join(' ').trim();
+  if (!consulta) throw new Error('Falta la consulta.');
+
+  const empieza = consulta.toLowerCase();
+  if (!empieza.startsWith('select') && !empieza.startsWith('with')) {
+    throw new Error('Solo `select` o `with`: este comando no escribe.');
+  }
+  if (consulta.includes(';')) {
+    throw new Error('Sin `;`: encadenar consultas es la forma de colar una escritura.');
+  }
+
+  const salida = execFileSync(
+    'docker',
+    [
+      'exec',
+      'supabase_db_bluehorse-app',
+      'psql',
+      '-U',
+      'postgres',
+      '-d',
+      'postgres',
+      '-c',
+      consulta,
+    ],
+    { encoding: 'utf8' },
+  );
+  console.log(salida);
+}
+
+/**
+ * Un socio de prueba completo, listo para usar la app.
+ *
+ * Reproducir un bug a mano son seis INSERT con todas sus columnas NOT NULL, y
+ * cada vez que falta una hay que descubrirlo por el error de Postgres. Esto
+ * arma perfil, objetivo, cribado y medidas de una, y devuelve el email para
+ * entrar. El plan lo genera la app (o `motor`), que es como se genera de
+ * verdad.
+ *
+ * El email lleva el prefijo de prueba a propósito: es lo que después reconoce
+ * `limpiar` para poder borrarlos sin tocar a nadie real.
+ */
+const PREFIJO_PRUEBA = 'prueba-';
+const DOMINIO_PRUEBA = '@bluehorse.test';
+
+async function sembrar(nombre = 'Socio de prueba') {
+  requireLocal('sembrar');
+
+  const email = `${PREFIJO_PRUEBA}${Date.now()}${DOMINIO_PRUEBA}`;
+  const password = 'prueba-1234';
+
+  const { data: creado, error: authError } = await db.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+  });
+  if (authError) throw new Error(`auth: ${authError.message}`);
+  const id = creado.user.id;
+
+  // El trigger de la base ya creó el `profiles`: acá se completa lo que el
+  // onboarding completaría.
+  const [gym] = await pick('gyms', 'id');
+  if (!gym) throw new Error('No hay ningún gimnasio cargado.');
+
+  const { error: perfilError } = await db
+    .from('profiles')
+    .update({
+      display_name: nombre,
+      birth_date: '1995-06-15',
+      sex: 'male',
+      experience_level: 'intermediate',
+      onboarded_at: new Date().toISOString(),
+    })
+    .eq('id', id);
+  if (perfilError) throw new Error(`profiles: ${perfilError.message}`);
+
+  const { error: goalError } = await db.from('user_goals').insert({
+    user_id: id,
+    goal: 'hypertrophy',
+    sessions_per_week_target: 3,
+    session_minutes_target: 60,
+  });
+  if (goalError) throw new Error(`user_goals: ${goalError.message}`);
+
+  const { error: metricError } = await db.from('body_metrics').insert({
+    user_id: id,
+    gym_id: gym.id,
+    weight_kg: 78,
+    height_cm: 176,
+  });
+  if (metricError) throw new Error(`body_metrics: ${metricError.message}`);
+
+  console.log(`\nSocio de prueba listo:
+  email: ${email}
+  clave: ${password}
+  uuid:  ${id}
+
+Ya tiene objetivo, peso y altura, y el onboarding marcado. El plan lo genera
+la app al entrar, o \`npm run admin motor ${email}\`.`);
+}
+
+/**
+ * Borra los socios de prueba y todo lo que cuelga de ellos.
+ *
+ * Hoy la base local tiene usuarios `audit-*` de una corrida vieja de
+ * `audit-isolation.mjs` cuya limpieza no llegó a correr. Sin una forma de
+ * barrerlos, cada consulta de socios los muestra mezclados con los reales.
+ *
+ * Borra por patrón de email, nunca por "todo lo que no reconozco": el criterio
+ * está a la vista y no puede llevarse puesto a alguien real por descuido.
+ */
+async function limpiar() {
+  requireLocal('limpiar');
+
+  const { data, error } = await db.auth.admin.listUsers({ perPage: 1000 });
+  if (error) throw new Error(`auth: ${error.message}`);
+
+  const dePrueba = data.users.filter(
+    (u) =>
+      u.email?.endsWith(DOMINIO_PRUEBA) &&
+      (u.email.startsWith(PREFIJO_PRUEBA) || u.email.startsWith('audit-')),
+  );
+
+  if (dePrueba.length === 0) {
+    console.log('No hay socios de prueba para borrar.');
+    return;
+  }
+
+  for (const u of dePrueba) {
+    // `profiles` cascadea desde `auth.users`, y de ahí cascadean planes,
+    // sesiones y series. Borrar el usuario alcanza.
+    const { error: delError } = await db.auth.admin.deleteUser(u.id);
+    if (delError) throw new Error(`no se pudo borrar ${u.email}: ${delError.message}`);
+    console.log(`  borrado ${u.email}`);
+  }
+  console.log(`\n${dePrueba.length} socio(s) de prueba borrados.`);
+}
+
+/**
+ * Qué le arma el motor REAL a un socio, sin pasar por la app.
+ *
+ * Es la forma de ver una prescripción completa (ejercicios, series, cargas,
+ * descansos, avisos) para una persona concreta con el catálogo real, sin
+ * generar nada ni tocar la base. Corre el mismo `generatePlan` que usa la PWA:
+ * el motor es puro, así que darle el mismo snapshot da el mismo plan.
+ *
+ * Necesita Node ≥22.6 para importar `.ts` directo (el portátil del proyecto es
+ * 24, ver README).
+ */
+async function motor(needle) {
+  const id = await findMember(needle);
+
+  const [{ createPlaceholderEngine, V1_RESEARCH }, snapshot] = await Promise.all([
+    import('../packages/engine/src/index.ts'),
+    snapshotDe(id),
+  ]);
+
+  const plan = createPlaceholderEngine().generatePlan({
+    context: { now: new Date().toISOString(), seed: 1 },
+    user: snapshot.user,
+    gym: snapshot.gym,
+    ruleset: V1_RESEARCH,
+  });
+
+  if (asJson) {
+    console.log(JSON.stringify(plan, null, 2));
+    return;
+  }
+
+  console.log(`\nPLAN QUE ARMARÍA EL MOTOR para ${needle}`);
+  console.log(`  template: ${plan.templateId} · ruleset: ${plan.rulesetVersion}`);
+  if (plan.warnings.length > 0) {
+    console.log('\n  AVISOS:');
+    for (const w of plan.warnings) console.log(`   · ${w}`);
+  }
+
+  for (const sesion of plan.sessions) {
+    console.log(`\n  ${sesion.label} — ${sesion.focus}`);
+    console.table(
+      sesion.items.map((i) => ({
+        ejercicio: snapshot.nombre.get(i.exerciseId) ?? i.exerciseId,
+        series: i.targetSets,
+        reps: `${i.targetRepsMin}-${i.targetRepsMax}`,
+        rir: i.targetRir ?? '—',
+        carga: i.targetLoad ? `${i.targetLoad.value} ${i.targetLoad.unit}` : 'sin baseline',
+        descanso: `${i.restSeconds}s`,
+      })),
+    );
+  }
+}
+
+/** El mismo snapshot que arma la app para el motor: socio + gimnasio. */
+async function snapshotDe(id) {
+  const [perfil] = await pick(
+    'profiles',
+    'id, gym_id, display_name, birth_date, sex, experience_level',
+    { id },
+  );
+  if (!perfil) throw new Error(`No hay perfil para ${id}.`);
+
+  const [goals, constraints, baselines, equipment, exercises, mapeos] = await Promise.all([
+    pick('user_goals', 'goal, sport, priority, sessions_per_week_target, session_minutes_target', {
+      user_id: id,
+      is_active: true,
+    }),
+    pick('user_constraints', 'type, body_region, exercise_id, equipment_id, severity', {
+      user_id: id,
+    }),
+    pick('user_baselines', 'exercise_id, source, load_value, load_unit, reps, recorded_at', {
+      user_id: id,
+    }),
+    pick(
+      'equipment',
+      'id, gym_id, name, category, brand, model, photo_url, location_note, setup_notes, load_unit, load_min, load_max, load_increment, stack_kg, base_weight_kg, quantity, is_active',
+      { gym_id: perfil.gym_id, is_active: true },
+    ),
+    pick(
+      'exercises',
+      'id, gym_id, name, pattern, primary_muscles, secondary_muscles, modality, is_compound, is_unilateral, skill_level, cues, is_active',
+      { is_active: true },
+    ),
+    pick('exercise_equipment', 'exercise_id, equipment_id'),
+  ]);
+
+  if (goals.length === 0)
+    throw new Error('El socio no tiene objetivo cargado (falta el onboarding).');
+
+  const propias = new Set(equipment.map((e) => e.id));
+  const porEjercicio = new Map();
+  for (const m of mapeos) {
+    if (!propias.has(m.equipment_id)) continue;
+    porEjercicio.set(m.exercise_id, [...(porEjercicio.get(m.exercise_id) ?? []), m.equipment_id]);
+  }
+
+  return {
+    nombre: new Map(exercises.map((e) => [e.id, e.name])),
+    user: {
+      profile: {
+        id: perfil.id,
+        gymId: perfil.gym_id,
+        displayName: perfil.display_name,
+        birthDate: perfil.birth_date,
+        sex: perfil.sex,
+        experienceLevel: perfil.experience_level,
+      },
+      goals: goals.map((g) => ({
+        goal: g.goal,
+        sport: g.sport,
+        priority: g.priority,
+        sessionsPerWeekTarget: g.sessions_per_week_target,
+        sessionMinutesTarget: g.session_minutes_target,
+      })),
+      constraints: constraints.map((c) => ({
+        type: c.type,
+        bodyRegion: c.body_region,
+        exerciseId: c.exercise_id,
+        equipmentId: c.equipment_id,
+        severity: c.severity,
+      })),
+      baselines: baselines.map((b) => ({
+        exerciseId: b.exercise_id,
+        source: b.source,
+        load: { value: b.load_value, unit: b.load_unit },
+        reps: b.reps ?? 0,
+        recordedAt: b.recorded_at,
+      })),
+    },
+    gym: {
+      gymId: perfil.gym_id,
+      equipment: equipment.map((e) => ({
+        id: e.id,
+        gymId: e.gym_id,
+        name: e.name,
+        category: e.category,
+        brand: e.brand,
+        model: e.model,
+        photoUrl: e.photo_url,
+        locationNote: e.location_note,
+        setupNotes: e.setup_notes,
+        load: {
+          unit: e.load_unit,
+          ...(e.load_min !== null && { min: Number(e.load_min) }),
+          ...(e.load_max !== null && { max: Number(e.load_max) }),
+          ...(e.load_increment !== null && { increment: Number(e.load_increment) }),
+          ...(e.stack_kg?.length && { stackKg: e.stack_kg.map(Number) }),
+          ...(e.base_weight_kg !== null && { baseWeightKg: Number(e.base_weight_kg) }),
+        },
+        quantity: e.quantity,
+        isActive: e.is_active,
+      })),
+      exercises: exercises.map((e) => ({
+        id: e.id,
+        gymId: e.gym_id,
+        name: e.name,
+        pattern: e.pattern,
+        primaryMuscles: e.primary_muscles,
+        secondaryMuscles: e.secondary_muscles,
+        modality: e.modality,
+        isCompound: e.is_compound,
+        isUnilateral: e.is_unilateral,
+        skillLevel: e.skill_level,
+        cues: e.cues,
+        equipmentIds: porEjercicio.get(e.id) ?? [],
+      })),
+      substitutions: [],
+    },
+  };
+}
+
 // ---------------------------------------------------------------- despacho
 
 const comandos = {
@@ -452,16 +797,26 @@ const comandos = {
   planes,
   resumen,
   tabla: () => consulta(...rest),
+  sql: () => sql(...rest),
+  motor: () => motor(rest[0] ?? ''),
+  sembrar: () => sembrar(rest.join(' ') || undefined),
+  limpiar,
 };
 
 const run = comandos[command ?? ''];
 if (!run) {
-  console.log(`Comandos:
+  console.log(`Consultar (local o nube):
   socios                      lista de socios con su actividad
   socio <email|uuid>          todo lo de un socio: onboarding, planes, entrenos, molestias
   planes                      todos los planes generados
   resumen                     números del gimnasio
-  tabla <tabla> [col=valor]   consulta cruda de cualquier tabla
+  tabla <tabla> [col=valor]   filas de cualquier tabla
+  motor <email|uuid>          qué plan le armaría el motor real, sin guardarlo
+
+Solo contra la base LOCAL (escriben o corren SQL suelto):
+  sql "<select ...>"          consulta libre de solo lectura
+  sembrar [nombre]            crea un socio de prueba listo para entrar
+  limpiar                     borra los socios de prueba y todo lo suyo
 
 Cualquiera acepta --json.`);
   exit(command ? 1 : 0);
