@@ -59,10 +59,29 @@ describe('toPlanInsert', () => {
       gym_id: 'gym-1',
       ruleset_version: 'v0-placeholder',
       template_id: 'full_body_ab',
+      name: null,
       goal_snapshot: { goal: 'hypertrophy' },
       status: 'active',
       warnings: [],
     });
+  });
+
+  it('guarda el nombre que le puso el socio, recortado', () => {
+    const row = toPlanInsert('user-1', 'gym-1', blueprint, {}, '  Potencia en piernas  ');
+    expect(row.name).toBe('Potencia en piernas');
+  });
+
+  it('sin nombre, o con uno en blanco, queda en null y la pantalla cae al template', () => {
+    // Un nombre de espacios pasaría el `check` de la tabla por poco y dejaría
+    // una tarjeta con el título vacío.
+    expect(toPlanInsert('user-1', 'gym-1', blueprint, {}).name).toBeNull();
+    expect(toPlanInsert('user-1', 'gym-1', blueprint, {}, '   ').name).toBeNull();
+    expect(toPlanInsert('user-1', 'gym-1', blueprint, {}, null).name).toBeNull();
+  });
+
+  it('recorta a los 60 del `check` de la tabla en vez de que lo rechace Postgres', () => {
+    const row = toPlanInsert('user-1', 'gym-1', blueprint, {}, 'a'.repeat(120));
+    expect(row.name).toHaveLength(60);
   });
 
   it('persiste los avisos del motor: antes se perdían apenas se guardaba el plan', () => {

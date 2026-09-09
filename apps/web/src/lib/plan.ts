@@ -184,10 +184,11 @@ export async function persistBlueprint(
   gymId: string,
   blueprint: PlanBlueprint,
   primaryGoal: UserSnapshot['goals'][number] | undefined,
+  name?: string | null,
 ): Promise<string> {
   const { data: plan, error: planError } = await client
     .from('plans')
-    .insert(toPlanInsert(userId, gymId, blueprint, { ...primaryGoal }))
+    .insert(toPlanInsert(userId, gymId, blueprint, { ...primaryGoal }, name))
     .select('id')
     .single();
   if (planError) throw planError;
@@ -213,7 +214,7 @@ export function useGeneratePlan() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (name?: string | null) => {
       if (!user) throw new Error('No hay sesión activa.');
       const client = requireSupabase();
 
@@ -229,7 +230,7 @@ export function useGeneratePlan() {
         daysSinceLastSession: await daysSinceLastSession(client, user.id),
       });
 
-      return persistBlueprint(client, user.id, gymId, blueprint, userSnapshot.goals[0]);
+      return persistBlueprint(client, user.id, gymId, blueprint, userSnapshot.goals[0], name);
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['active-plan', user?.id] });
@@ -260,7 +261,7 @@ export function useRequestNextPlan() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (name?: string | null) => {
       if (!user) throw new Error('No hay sesión activa.');
       const client = requireSupabase();
 
@@ -294,6 +295,7 @@ export function useRequestNextPlan() {
           gymId,
           blueprint,
           userSnapshot.goals[0],
+          name,
         );
         try {
           await applyCarriedLoads(client, planId, carried);
@@ -365,6 +367,8 @@ async function planExerciseIds(client: SupabaseClient, planId: string): Promise<
 export interface PlanSummary {
   readonly id: string;
   readonly templateId: string;
+  /** El nombre que le puso el socio. `null` si no eligió ninguno: la pantalla cae al del template. */
+  readonly name: string | null;
   readonly status: 'active' | 'archived';
   readonly generatedAt: string;
   readonly rulesetVersion: string;
@@ -403,7 +407,9 @@ export function usePlans() {
       const client = requireSupabase();
       const { data: plans, error } = await client
         .from('plans')
-        .select('id, template_id, status, generated_at, ruleset_version, goal_snapshot, warnings')
+        .select(
+          'id, template_id, name, status, generated_at, ruleset_version, goal_snapshot, warnings',
+        )
         .eq('user_id', user?.id as string)
         .order('generated_at', { ascending: false });
       if (error) throw error;
@@ -426,6 +432,7 @@ export function usePlans() {
         return {
           id: p.id as string,
           templateId: p.template_id as string,
+          name: (p.name as string | null) ?? null,
           status: p.status as 'active' | 'archived',
           generatedAt: p.generated_at as string,
           rulesetVersion: p.ruleset_version as string,
@@ -585,6 +592,68 @@ export function useActivatePlan() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['plans', user?.id] });
       void queryClient.invalidateQueries({ queryKey: ['active-plan', user?.id] });
+    },
+  });
+}
+
+/**
+ * Dejar al socio sin ningún plan activo.
+ *
+ * "Ninguno" es un estado válido, no un accidente: alguien que se va de viaje,
+ * o que quiere parar sin perder lo que armó, no debería tener que activar
+ * otro plan para dejar de tener este. El plan pasa a `archived`, que es el
+ * mismo estado de "guardado" — no se borra nada.
+ */
+export function useDeactivatePlan() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (planId: string) => {
+      if (!user) throw new Error('No hay sesión activa.');
+      await setPlanStatus(requireSupabase(), planId, 'archived');
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['plans', user?.id] });
+      void queryClient.invalidateQueries({ queryKey: ['active-plan', user?.id] });
+    },
+  });
+}
+
+/**
+ * Borrar un plan de verdad.
+ *
+ * Se lleva puestas sus sesiones, sus ítems y las propuestas que colgaban de
+ * él (`on delete cascade`). Lo que NO se pierde es el entrenamiento: los
+ * `set_logs` y `workout_logs` sobreviven porque sus FK son `on delete set
+ * null`. Pero al quedar sin ítem, esas series dejan de poder compararse
+ * contra lo que el plan había prescripto — que es exactamente la señal de la
+ * regla dura 7. Por eso la pantalla que llama a esto tiene que decirlo antes,
+ * y pedir el nombre escrito: no es una acción para resolver de un toque.
+ */
+export function useDeletePlan() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (planId: string) => {
+      if (!user) throw new Error('No hay sesión activa.');
+      const client = requireSupabase();
+      // El `user_id` va en el filtro aunque la RLS ya lo garantice: si algún
+      // día esa política cambia, este borrado no se convierte en un borrado
+      // de planes ajenos por omisión.
+      const { error } = await client.from('plans').delete().eq('id', planId).eq('user_id', user.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['plans', user?.id] });
+      void queryClient.invalidateQueries({ queryKey: ['active-plan', user?.id] });
+      void queryClient.invalidateQueries({ queryKey: ['plan-sessions'] });
+      // El historial sigue existiendo pero cambia de forma: las series que
+      // colgaban de este plan quedan sin ítem.
+      void queryClient.invalidateQueries({ queryKey: ['progress', user?.id] });
+      void queryClient.invalidateQueries({ queryKey: ['proposals', user?.id] });
+      void queryClient.invalidateQueries({ queryKey: ['proposal-history', user?.id] });
     },
   });
 }

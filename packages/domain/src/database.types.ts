@@ -662,6 +662,7 @@ export type Database = {
           goal_snapshot: Json
           gym_id: string
           id: string
+          name: string | null
           ruleset_version: string
           status: string
           template_id: string
@@ -673,6 +674,7 @@ export type Database = {
           goal_snapshot: Json
           gym_id: string
           id?: string
+          name?: string | null
           ruleset_version: string
           status?: string
           template_id: string
@@ -684,6 +686,7 @@ export type Database = {
           goal_snapshot?: Json
           gym_id?: string
           id?: string
+          name?: string | null
           ruleset_version?: string
           status?: string
           template_id?: string

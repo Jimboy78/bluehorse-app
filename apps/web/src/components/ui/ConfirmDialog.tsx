@@ -32,6 +32,11 @@ export interface ConfirmDialogProps {
   readonly icon?: ReactNode;
   /** Deshabilita los dos botones y muestra el anillo en el de confirmar. */
   readonly busy?: boolean;
+  /**
+   * Bloquea SOLO confirmar, dejando cancelar disponible. Para cuando falta
+   * algo del propio diálogo — hoy, escribir el nombre del plan que se borra.
+   */
+  readonly confirmDisabled?: boolean;
   readonly onConfirm: () => void;
   readonly onCancel: () => void;
 }
@@ -45,6 +50,7 @@ export function ConfirmDialog({
   confirmVariant = 'primary',
   icon,
   busy = false,
+  confirmDisabled = false,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
@@ -136,7 +142,7 @@ export function ConfirmDialog({
                 variant={confirmVariant}
                 size="lg"
                 className="flex-1"
-                disabled={busy}
+                disabled={busy || confirmDisabled}
                 onClick={onConfirm}
               >
                 {busy && <Spinner size={15} />}

@@ -8,8 +8,11 @@ import {
   Info,
   Layers,
   Loader2,
+  PauseCircle,
   PlayCircle,
+  Plus,
   Sparkles,
+  Trash2,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
@@ -19,6 +22,7 @@ import {
   Card,
   ConfirmDialog,
   EmptyState,
+  fieldClass,
   Notice,
   SectionLabel,
   Skeleton,
@@ -28,7 +32,14 @@ import { GOAL_LABELS } from '../lib/labels.ts';
 import { fadeUp, listContainer, listItem, spring, tappable } from '../lib/motion.ts';
 import { onboardingUnavailable } from '../lib/onboarding.ts';
 import type { PlanSessionSummary, PlanSummary } from '../lib/plan.ts';
-import { useActivatePlan, useGeneratePlan, usePlanSessions, usePlans } from '../lib/plan.ts';
+import {
+  useActivatePlan,
+  useDeactivatePlan,
+  useDeletePlan,
+  useGeneratePlan,
+  usePlanSessions,
+  usePlans,
+} from '../lib/plan.ts';
 
 /**
  * TUS PLANES
@@ -64,20 +75,57 @@ function templateLabel(plan: PlanSummary): string {
   return TEMPLATE_LABELS[plan.templateId] ?? plan.templateId;
 }
 
+/**
+ * Cómo se llama este plan en pantalla: el nombre que le puso el socio, o el
+ * del template si no le puso ninguno (los planes generados antes de que se
+ * pudiera nombrarlos, y el de quien no quiso escribir nada).
+ */
+function planLabel(plan: PlanSummary): string {
+  return plan.name ?? templateLabel(plan);
+}
+
 export function Planes() {
   const { status } = useAuth();
   const plans = usePlans();
   const activate = useActivatePlan();
 
+  const deactivate = useDeactivatePlan();
+  const remove = useDeletePlan();
+
   const [openId, setOpenId] = useState<string | null>(null);
   const [asking, setAsking] = useState<PlanSummary | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [pausing, setPausing] = useState<PlanSummary | null>(null);
+  const [deleting, setDeleting] = useState<PlanSummary | null>(null);
+  /** Lo que escribió para confirmar el borrado. Tiene que coincidir con el nombre. */
+  const [typed, setTyped] = useState('');
 
   async function handleActivate(planId: string) {
     setAsking(null);
     setPendingId(planId);
     try {
       await activate.mutateAsync(planId);
+    } finally {
+      setPendingId(null);
+    }
+  }
+
+  async function handleDeactivate(planId: string) {
+    setPausing(null);
+    setPendingId(planId);
+    try {
+      await deactivate.mutateAsync(planId);
+    } finally {
+      setPendingId(null);
+    }
+  }
+
+  async function handleDelete(planId: string) {
+    setPendingId(planId);
+    try {
+      await remove.mutateAsync(planId);
+      setDeleting(null);
+      setTyped('');
     } finally {
       setPendingId(null);
     }
@@ -111,6 +159,11 @@ export function Planes() {
         pendingId={pendingId}
         onToggle={(id) => setOpenId(openId === id ? null : id)}
         onAsk={setAsking}
+        onPause={setPausing}
+        onDelete={(plan) => {
+          setTyped('');
+          setDeleting(plan);
+        }}
       />
 
       {activate.isError && (
@@ -143,6 +196,81 @@ export function Planes() {
           </>
         )}
       </ConfirmDialog>
+
+      <ConfirmDialog
+        open={pausing !== null}
+        icon={<PauseCircle size={18} aria-hidden="true" />}
+        title="¿Pausar este plan?"
+        confirmLabel="Pausarlo"
+        cancelLabel="Seguir con él"
+        busy={pendingId !== null}
+        onCancel={() => setPausing(null)}
+        onConfirm={() => pausing && void handleDeactivate(pausing.id)}
+      >
+        {pausing && (
+          <>
+            <strong className="text-ink">{planLabel(pausing)}</strong> pasa a guardados y te quedás
+            sin plan activo: "Hoy" no te va a proponer nada hasta que retomes este o armes otro. No
+            se pierde nada — sigue donde lo dejaste ({pausing.completedSessions}/
+            {pausing.totalSessions} sesiones).
+          </>
+        )}
+      </ConfirmDialog>
+
+      {/* Borrar pide escribir el nombre. No es fricción por fricción: es la
+          única acción de la app que destruye algo que no se puede rehacer, y
+          escribir el nombre obliga a mirar CUÁL se está borrando — que es
+          justo lo que falla cuando hay tres planes parecidos en la lista. */}
+      <ConfirmDialog
+        open={deleting !== null}
+        icon={<Trash2 size={18} aria-hidden="true" />}
+        title="¿Borrar este plan?"
+        confirmLabel="Borrarlo"
+        confirmVariant="danger"
+        cancelLabel="No, dejalo"
+        busy={pendingId !== null}
+        confirmDisabled={deleting === null || typed.trim() !== planLabel(deleting)}
+        onCancel={() => {
+          setDeleting(null);
+          setTyped('');
+        }}
+        onConfirm={() => deleting && void handleDelete(deleting.id)}
+      >
+        {deleting && (
+          <span className="flex flex-col gap-3 text-left">
+            <span>
+              Se borra el plan con sus sesiones. Lo que entrenaste no se pierde: las series siguen
+              en tu historial.
+              {deleting.completedSessions > 0 && (
+                <>
+                  {' '}
+                  Pero dejan de poder compararse contra lo que este plan proponía, y esa comparación
+                  es de donde el motor saca los ajustes de carga.
+                </>
+              )}
+            </span>
+            <label className="flex flex-col gap-1.5">
+              <span className="text-xs text-slate">
+                Escribí <strong className="text-ink">{planLabel(deleting)}</strong> para confirmar
+              </span>
+              <input
+                type="text"
+                value={typed}
+                onChange={(e) => setTyped(e.target.value)}
+                autoComplete="off"
+                placeholder={planLabel(deleting)}
+                className={fieldClass}
+              />
+            </label>
+          </span>
+        )}
+      </ConfirmDialog>
+
+      {(deactivate.isError || remove.isError) && (
+        <Notice tone="error" role="alert" icon={<AlertCircle size={15} aria-hidden="true" />}>
+          No se pudo completar la acción sobre el plan. Probá de nuevo.
+        </Notice>
+      )}
     </AppShell>
   );
 }
@@ -161,6 +289,8 @@ function PlanesBody({
   pendingId,
   onToggle,
   onAsk,
+  onPause,
+  onDelete,
 }: {
   readonly authStatus: ReturnType<typeof useAuth>['status'];
   readonly plans: ReturnType<typeof usePlans>;
@@ -170,6 +300,8 @@ function PlanesBody({
   readonly pendingId: string | null;
   readonly onToggle: (id: string) => void;
   readonly onAsk: (plan: PlanSummary) => void;
+  readonly onPause: (plan: PlanSummary) => void;
+  readonly onDelete: (plan: PlanSummary) => void;
 }) {
   if (authStatus !== 'signed-in') {
     return (
@@ -215,6 +347,8 @@ function PlanesBody({
             busy={false}
             onToggle={() => onToggle(activo.id)}
             onActivate={null}
+            onPause={() => onPause(activo)}
+            onDelete={() => onDelete(activo)}
           />
         </section>
       )}
@@ -242,6 +376,8 @@ function PlanesBody({
                   busy={pendingId === plan.id}
                   onToggle={() => onToggle(plan.id)}
                   onActivate={() => onAsk(plan)}
+                  onPause={() => onPause(plan)}
+                  onDelete={() => onDelete(plan)}
                 />
               </motion.li>
             ))}
@@ -254,26 +390,89 @@ function PlanesBody({
 
 /** Todavía no generó ninguno. Mismo llamado a la acción que "Hoy". */
 function SinPlanes() {
-  const generate = useGeneratePlan();
-
   return (
     <EmptyState
       icon={<Layers size={24} aria-hidden="true" />}
       title="Todavía no tenés ningún plan"
-      action={
-        <Button
-          variant="primary"
-          size="lg"
-          disabled={generate.isPending || onboardingUnavailable}
-          onClick={() => generate.mutate()}
-        >
-          {generate.isPending && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
-          Generar mi plan
-        </Button>
-      }
+      action={<NuevoPlan />}
     >
       Se arma con lo que cargaste en el onboarding y con el equipamiento real del gimnasio.
     </EmptyState>
+  );
+}
+
+/**
+ * Armar un plan nuevo, con nombre.
+ *
+ * El nombre es opcional a propósito: quien solo quiere entrenar toca el botón
+ * y listo. Sirve cuando hay varios guardados — "cuerpo completo A/B" tres
+ * veces en la lista no distingue nada, y encima es el nombre que hay que
+ * escribir para borrar uno.
+ *
+ * Lo que el plan contiene no se elige acá: sale del motor, del objetivo del
+ * onboarding y del equipamiento real. Poner un nombre no cambia ni un número
+ * del entrenamiento.
+ */
+function NuevoPlan() {
+  const generate = useGeneratePlan();
+  const [abierto, setAbierto] = useState(false);
+  const [nombre, setNombre] = useState('');
+
+  if (!abierto) {
+    return (
+      <Button
+        variant="primary"
+        size="lg"
+        disabled={generate.isPending || onboardingUnavailable}
+        onClick={() => setAbierto(true)}
+      >
+        <Plus size={16} aria-hidden="true" />
+        Armar un plan
+      </Button>
+    );
+  }
+
+  return (
+    <div className="flex w-full max-w-sm flex-col gap-2.5">
+      <label className="flex flex-col gap-1.5 text-left">
+        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate">
+          Nombre (opcional)
+        </span>
+        <input
+          type="text"
+          value={nombre}
+          maxLength={60}
+          onChange={(e) => setNombre(e.target.value)}
+          placeholder="Potencia en piernas"
+          className={fieldClass}
+        />
+      </label>
+      <div className="flex gap-2">
+        <Button
+          variant="quiet"
+          size="md"
+          disabled={generate.isPending}
+          onClick={() => setAbierto(false)}
+        >
+          Cancelar
+        </Button>
+        <Button
+          variant="primary"
+          size="md"
+          className="flex-1"
+          disabled={generate.isPending || onboardingUnavailable}
+          onClick={() => generate.mutate(nombre.trim() || null)}
+        >
+          {generate.isPending && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
+          Armarlo
+        </Button>
+      </div>
+      {generate.isError && (
+        <Notice tone="error" role="alert">
+          No se pudo armar el plan. Probá de nuevo.
+        </Notice>
+      )}
+    </div>
   );
 }
 
@@ -287,6 +486,8 @@ function PlanCard({
   busy,
   onToggle,
   onActivate,
+  onPause,
+  onDelete,
 }: {
   readonly plan: PlanSummary;
   readonly open: boolean;
@@ -294,6 +495,8 @@ function PlanCard({
   readonly onToggle: () => void;
   /** `null` en el plan activo: no hay nada que activar. */
   readonly onActivate: (() => void) | null;
+  readonly onPause: () => void;
+  readonly onDelete: () => void;
 }) {
   const activo = plan.status === 'active';
   const porcentaje =
@@ -306,10 +509,13 @@ function PlanCard({
         <div className="flex items-start gap-3">
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <p className="truncate font-display text-lg font-semibold uppercase leading-tight tracking-tight">
-              {templateLabel(plan)}
+              {planLabel(plan)}
             </p>
             <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate">
               {plan.goal && <span className="text-brand">{GOAL_LABELS[plan.goal]}</span>}
+              {/* Con nombre propio, el template pasa a ser el subtítulo: dos
+                  planes que se llaman distinto pueden ser el mismo armado. */}
+              {plan.name && <span className="text-slate-dim">{templateLabel(plan)}</span>}
               <span>desde {formatDate(plan.generatedAt)}</span>
             </p>
           </div>
@@ -362,6 +568,21 @@ function PlanCard({
             <span>{plan.warnings.join(' ')}</span>
           </p>
         )}
+
+        {/* Pausar y borrar juntos y en gris: son las dos salidas del plan, y
+            ninguna de las dos es lo que la persona vino a hacer acá. */}
+        <div className="flex flex-wrap items-center gap-2">
+          {activo && (
+            <Button variant="ghost" size="sm" disabled={busy} onClick={onPause}>
+              <PauseCircle size={14} aria-hidden="true" />
+              Pausar
+            </Button>
+          )}
+          <Button variant="ghost" size="sm" disabled={busy} onClick={onDelete}>
+            <Trash2 size={13} aria-hidden="true" />
+            Borrar
+          </Button>
+        </div>
 
         <motion.button
           type="button"

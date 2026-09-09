@@ -51,6 +51,12 @@ create table plans (
      comparar contra el que se genere con el contenido real. */
   ruleset_version text not null references rulesets (version),
   template_id text not null,
+  /* Cómo le dice el socio a este plan. Lo elige al generarlo y sirve para
+     distinguir dos planes del mismo template en la lista — y para que borrar
+     uno pueda pedir que escriba SU nombre, no un id que nadie reconoce.
+     Nulo en los planes generados antes de que esto existiera: la pantalla cae
+     al nombre del template. */
+  name text check (name is null or char_length(btrim(name)) between 1 and 60),
   goal_snapshot jsonb not null,
   status text not null default 'active' check (status in ('active', 'archived')),
   generated_at timestamptz not null default now(),

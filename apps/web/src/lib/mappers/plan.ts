@@ -15,6 +15,11 @@ export interface PlanInsertRow {
   readonly gym_id: string;
   readonly ruleset_version: string;
   readonly template_id: string;
+  /**
+   * Cómo le dice el socio a este plan. `null` cuando no eligió ninguno: la
+   * pantalla cae al nombre del template en vez de inventarle uno.
+   */
+  readonly name: string | null;
   /** El objetivo con el que se generó, para poder mirarlo después sin releer `user_goals`. */
   readonly goal_snapshot: Record<string, unknown>;
   readonly status: 'active';
@@ -62,12 +67,18 @@ export function toPlanInsert(
   gymId: string,
   blueprint: PlanBlueprint,
   goalSnapshot: Record<string, unknown>,
+  name?: string | null,
 ): PlanInsertRow {
+  // Se guarda recortado o nulo, nunca en blanco: un nombre de espacios pasaría
+  // el `check` de la tabla por poco y después habría que mostrar una tarjeta
+  // con el título vacío.
+  const limpio = name?.trim();
   return {
     user_id: userId,
     gym_id: gymId,
     ruleset_version: blueprint.rulesetVersion,
     template_id: blueprint.templateId,
+    name: limpio ? limpio.slice(0, 60) : null,
     goal_snapshot: goalSnapshot,
     status: 'active',
     warnings: blueprint.warnings,
