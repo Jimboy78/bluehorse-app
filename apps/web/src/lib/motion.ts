@@ -1,4 +1,4 @@
-import type { Transition, Variants } from 'motion/react';
+import type { TargetAndTransition, Transition, Variants } from 'motion/react';
 
 /**
  * SISTEMA DE MOVIMIENTO
@@ -86,6 +86,23 @@ export const screen = {
 export const checkPop: Variants = {
   hidden: { scale: 0.4, opacity: 0 },
   visible: { scale: 1, opacity: 1, transition: spring.pop },
+};
+
+/**
+ * Latido lento para un control que quiere que lo encuentren sin gritar (hoy:
+ * el botón de instalar la app en el encabezado del perfil).
+ *
+ * Es la excepción a la regla 2 de acá arriba, y por eso es una sola y es
+ * lenta: 2,6 s por ciclo y 6% de escala. Más rápido o más grande deja de
+ * leerse como "estoy acá" y pasa a ser algo parpadeando en la cara de alguien
+ * que está tratando de leer otra cosa.
+ *
+ * Quien pidió menos movimiento no ve ninguno: el componente que la usa
+ * chequea `useReducedMotion()` antes de aplicarla.
+ */
+export const breathing: TargetAndTransition = {
+  scale: [1, 1.06, 1],
+  transition: { duration: 2.6, repeat: Number.POSITIVE_INFINITY, ease: [...ease.inOut] },
 };
 
 // ---------------------------------------------------------------- táctil

@@ -7,12 +7,14 @@ import {
   TrendingUp,
   User,
 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { type ReactNode, useState } from 'react';
 import { NavLink, useLocation } from 'react-router';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
-import { screen, tappable } from '../lib/motion.ts';
+import { useInstallInvite } from '../lib/install-invite.ts';
+import { duration, ease, screen, tappable } from '../lib/motion.ts';
 import { useProfileRole } from '../lib/panel.ts';
+import { InstallSheet } from './InstallSheet.tsx';
 import { BrandMark, ConfirmDialog, Wordmark } from './ui/index.ts';
 
 /**
@@ -51,6 +53,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const [prompt, setPrompt] = useState<SignOutPrompt | null>(null);
   const [leaving, setLeaving] = useState(false);
+  const invite = useInstallInvite();
 
   /**
    * Salir pasa por dos preguntas posibles, no por ninguna.
@@ -146,6 +149,30 @@ export function AppShell({ children }: { children: ReactNode }) {
         )}
       </ConfirmDialog>
 
+      <AnimatePresence>
+        {invite.phase === 'sheet' && <InstallSheet key="sheet" onDismiss={invite.dismiss} />}
+      </AnimatePresence>
+
+      {/* La pista queda justo arriba de la barra, apuntando a la pestaña que
+          se enciende: el mensaje y el destino se leen de una sola mirada. */}
+      <AnimatePresence>
+        {invite.phase === 'hint' && (
+          <motion.p
+            key="hint"
+            role="status"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
+            transition={{ duration: duration.quick, ease: ease.out }}
+            className="fixed inset-x-0 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-40 mx-auto max-w-md px-5"
+          >
+            <span className="block rounded-card border border-brand/30 bg-navy/95 px-4 py-3 text-center text-sm leading-snug text-slate shadow-brand backdrop-blur-xl">
+              Cuando quieras instalarla, la tenés en <strong className="text-brand">Perfil</strong>.
+            </span>
+          </motion.p>
+        )}
+      </AnimatePresence>
+
       <nav
         aria-label="Secciones"
         className="fixed inset-x-0 bottom-0 z-30 border-t border-line/70 bg-navy/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl"
@@ -158,7 +185,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             icon={<TrendingUp size={18} aria-hidden="true" />}
             label="Progreso"
           />
-          <NavItem to="/perfil" icon={<User size={18} aria-hidden="true" />} label="Perfil" />
+          <NavItem
+            to="/perfil"
+            icon={<User size={18} aria-hidden="true" />}
+            label="Perfil"
+            highlight={invite.phase === 'hint'}
+          />
           {isStaff && (
             <NavItem
               to="/panel"
@@ -176,8 +208,23 @@ export function AppShell({ children }: { children: ReactNode }) {
  * Un destino de la barra. El activo no solo cambia de color: se enciende con
  * el fondo de la marca. Mirando la pantalla de reojo entre series, un ícono
  * azul y uno gris a 18 px son el mismo ícono.
+ *
+ * `highlight` es aparte de `isActive`: señala un destino al que todavía no
+ * fuiste (hoy, "acá quedó lo de instalar la app" al cerrar la invitación).
+ * Por eso pinta el borde y no el fondo — el fondo encendido significa "estás
+ * acá", y usar la misma señal para dos cosas distintas las rompe a las dos.
  */
-function NavItem({ to, icon, label }: { to: string; icon: ReactNode; label: string }) {
+function NavItem({
+  to,
+  icon,
+  label,
+  highlight = false,
+}: {
+  to: string;
+  icon: ReactNode;
+  label: string;
+  highlight?: boolean;
+}) {
   return (
     <NavLink
       to={to}
@@ -186,7 +233,9 @@ function NavItem({ to, icon, label }: { to: string; icon: ReactNode; label: stri
         `${NAV_BASE} ${
           isActive
             ? 'bg-brand/10 text-brand shadow-[inset_0_1px_0_0_rgb(111_180_239_/_0.2)]'
-            : 'text-slate hover:text-ink'
+            : highlight
+              ? 'text-brand ring-1 ring-brand/60'
+              : 'text-slate hover:text-ink'
         }`
       }
     >
