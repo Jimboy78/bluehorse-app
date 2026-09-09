@@ -360,12 +360,17 @@ const modifiersSchema = z.object({
    *
    * El texto vivía en `placeholder-engine.ts`. Si los números de entrenamiento
    * no viven en el código, el texto que los explica tampoco: es contenido, y
-   * cambia cuando cambia la investigación. Usa `{dias}` y `{recorte}` como
-   * marcadores. Ver `docs/research/14`.
+   * cambia cuando cambia la investigación. Ver `docs/research/14`.
+   *
+   * Dos formas porque el plan no siempre trae carga: sin baseline cargado,
+   * `targetLoad` es `null` en todos los items, y anunciar "un 15 % menos" es
+   * prometer un ajuste sobre un número que el socio no va a ver en ningún lado.
+   * `withLoad` usa `{dias}` y `{recorte}`; `withoutLoad`, solo `{dias}`.
    */
   detraining: z
     .object({
-      note: z.string().min(1),
+      withLoad: z.string().min(1),
+      withoutLoad: z.string().min(1),
       confidence: z.enum(CONFIDENCE_LEVELS),
     })
     .optional(),

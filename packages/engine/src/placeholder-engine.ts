@@ -77,13 +77,14 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
   const placeholder = isPlaceholder(ruleset);
 
   // Volver después de mucho con la carga con la que dejaste es la forma más
-  // rápida de lesionarse: la fuerza aguanta, el tendón no.
-  const comeback = comebackMultiplier(
-    params,
-    ruleset,
-    input.daysSinceLastSession ?? null,
-    warnings,
-  );
+  // rápida de lesionarse: la fuerza no se fue, el tendón sí se ablandó.
+  //
+  // El multiplicador se calcula acá porque los items lo necesitan, pero el aviso
+  // se emite recién abajo: hasta que no están armados no se sabe si el plan trae
+  // carga, y sin carga no se le puede anunciar al socio un porcentaje de recorte
+  // que no va a ver en ninguna parte.
+  const daysAway = input.daysSinceLastSession ?? null;
+  const comeback = daysAway === null ? 1 : detrainingMultiplier(params, daysAway);
 
   // Dos tramos, no uno: con dolor moderado el ejercicio se mantiene y se muestra
   // la regla de monitoreo; recién con dolor alto se saca. Sacar de más ataca la
@@ -191,6 +192,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
     });
   }
 
+  warnings.push(...comebackWarnings(sessions, ruleset, daysAway, comeback));
   warnings.push(...weeklyVolumeWarnings(sessions, template, gym, params, goal));
   warnings.push(...interferenceWarnings(sessions, gym, ruleset));
 
@@ -250,28 +252,30 @@ function buildItem(input: BuildItemInput): SessionItemBlueprint {
 }
 
 /**
- * Cuánto ajustar la carga al volver tras una ausencia larga. El multiplicador se
- * aplica al punto de partida; no cambia series ni repeticiones.
+ * Qué decirle a quien vuelve tras una ausencia larga.
+ *
+ * El aviso tiene dos formas porque el plan no siempre trae carga: mientras
+ * `user_baselines` esté vacío —que hoy es siempre, ver `docs/research/15`—
+ * `targetLoad` es `null` en todos los items, y anunciar "un 15 % menos de carga"
+ * es prometer un ajuste sobre un número que el socio no va a ver en ningún lado.
+ * Sin carga se le dice qué hacer; con carga, cuánto se le bajó.
  */
-function comebackMultiplier(
-  params: GoalParams,
+function comebackWarnings(
+  sessions: readonly SessionBlueprint[],
   ruleset: Ruleset,
   daysSinceLastSession: number | null,
-  warnings: string[],
-): number {
-  if (daysSinceLastSession === null) return 1;
-  const multiplier = detrainingMultiplier(params, daysSinceLastSession);
-  if (multiplier >= 1) return 1;
-
+  multiplier: number,
+): string[] {
   const rule = ruleset.modifiers?.detraining;
-  if (rule) {
-    warnings.push(
-      rule.note
-        .replace('{dias}', String(daysSinceLastSession))
-        .replace('{recorte}', String(Math.round((1 - multiplier) * 100))),
-    );
-  }
-  return multiplier;
+  if (!rule || daysSinceLastSession === null || multiplier >= 1) return [];
+
+  const conCarga = sessions.some((s) => s.items.some((i) => i.targetLoad !== null));
+  const texto = conCarga ? rule.withLoad : rule.withoutLoad;
+  return [
+    texto
+      .replace('{dias}', String(daysSinceLastSession))
+      .replace('{recorte}', String(Math.round((1 - multiplier) * 100))),
+  ];
 }
 
 /**

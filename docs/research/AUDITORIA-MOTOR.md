@@ -21,7 +21,7 @@ Medido contando usos reales en `packages/engine/src/`, no leyendo la documentaci
 | día de partido | sí | auditado en `07`; falta el marcador de énfasis excéntrico |
 | `constraints` (dolor / lesión) | sí | ✅ **auditado** — `09-dolor-y-lesiones.md` |
 | `sessionsPerWeekTarget` | sí | ✅ **auditado** — `11-frecuencia-semanal.md` |
-| `baselines` | sí | pendiente — **prioridad alta**, `04` advierte que el autorreporte subestima |
+| `baselines` | **se lee, nunca se escribe** | ✅ **auditado** — `15-baselines.md` |
 | `daysSinceLastSession` | sí | ✅ **auditado** — `14-historial-y-desentrenamiento.md` |
 | `sex` | **no (0 usos)** | pendiente — decidir si se saca del formulario |
 | `weightKg` | **no (0 usos)** | pendiente |
@@ -232,9 +232,44 @@ alguien derivó **multiplicadores de carga**. La cinética no da multiplicadores
   **menos de 10 días** — mucho más rápido que la fuerza — y el motor no ajusta nada del bloque
   `cardio` por ausencia.
 
-### Próxima: `baselines`
+### 8 · Baselines — cerrada el 2026-09-09
 
-Define con cuánta carga arranca cada ejercicio, y es lo único grande que queda del motor. `04` ya
-advierte que **el autorreporte de cargas subestima**: la gente elige 38-58 % del 1RM cuando se le
-recomienda 60-70 %. Hay que ver qué hace el motor cuando no hay baseline, y si la estimación por
-fórmula (Epley/Brzycki, que `04` cita) está implementada o es otro bloque escrito y muerto.
+`docs/research/15-baselines.md`. Con esta cierran **todas las entradas grandes del motor**.
+
+- **`user_baselines` se lee y nunca se escribe.** No hay un solo `insert` en toda la app. La cadena
+  completa: `user.baselines` siempre `[]` → `baselineLoad` siempre `null` → **`targetLoad` de cada
+  item del plan es siempre `null`**. Ningún plan prescribe carga.
+- **Pero el sistema funciona igual**, y hay que ser justo: la progresión no sale de los baselines
+  sino de `set_logs`. `reviewProgress` propone contra lo que la persona realmente hizo. El diseño de
+  "arrancá con lo que puedas y la app ajusta" está implementado y anda.
+- **Lo que estaba mal es lo que se decía alrededor.** El aviso de desentrenamiento prometía
+  "arrancamos con un 15 % menos de carga" sobre un plan sin carga. **Esto lo dejé pasar en la
+  iteración 7**, cuando toqué justo ese texto. Ahora tiene dos formas: con carga dice cuánto se
+  bajó; sin carga le dice al socio que arranque más liviano, sin anunciar un porcentaje invisible.
+- **El paso `baselineMode` del onboarding no cambia nada** — el propio código lo declara "solo
+  informativo en el MVP". Es la quinta pregunta que no afecta el plan.
+- **La gente elige el 53 % de su 1RM** cuando se la deja elegir (18 estudios, 359 participantes;
+  IC creíble 49-58 %; DOI 10.1007/s40279-022-01717-9), y **la experiencia no modera**: los entrenados
+  también se quedan cortos. Cruzado con Lopez 2021 de la iteración 5: alcanza para hipertrofia,
+  **queda corto para fuerza**, que necesita ≥70 %.
+- **Las fórmulas de 1RM (Epley/Brzycki) que `04` propone no están implementadas en ningún lado.**
+  Otro bloque de investigación escrito y nunca construido.
+- 8 tests, 327 en verde.
+
+### El motor, auditado de punta a punta
+
+Las trece entradas grandes están cerradas. Lo que queda es de otra clase:
+
+1. **Decisiones de producto declaradas**, que esta auditoría no toma sola: el 85-100 % 1RM de
+   `strength` (iteración 5), el escalón de 90 días que llega tarde (7), conectar o sacar
+   `user_baselines` y el paso de calibración (8).
+2. **Once bloques del ruleset en deuda**, congelados en `ruleset-consumo.test.ts`.
+3. **Cinco preguntas al socio que no cambian el plan**: `sex`, `weightKg`, `heightCm`,
+   `sessionMinutesTarget`, `baselineMode` — más `preSleep`, `preEnergy` y `sessionFeel`, que se
+   registran y no alimentan nada.
+4. **Huecos concretos**: el cardio no se ajusta por ausencia (VO2max cae 4-14 % en menos de 10 días);
+   no hay marcador de énfasis excéntrico en el catálogo; no se distingue lesión aguda de dolor
+   crónico; no se prescribe tiempo bajo tensión, que es predictor fuerte (p < 0,01).
+
+Nada de eso es investigación pendiente: es trabajo de producto o de catálogo, con la evidencia ya
+puesta al lado de cada uno.

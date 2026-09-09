@@ -911,47 +911,84 @@ describe('cardio junto a pierna', () => {
 // ---------------------------------------------------------------- volver
 
 describe('volver después de una pausa', () => {
-  const nota = V1_RESEARCH.modifiers?.detraining?.note;
+  const regla = V1_RESEARCH.modifiers?.detraining;
 
-  const planTras = (daysSinceLastSession: number) =>
+  const planTras = (daysSinceLastSession: number, user = buildUser()) =>
     engine.generatePlan({
       context,
-      user: buildUser(),
+      user,
       gym: buildGym(),
       ruleset: V1_RESEARCH,
       daysSinceLastSession,
     });
 
-  // El usuario de prueba no tiene baselines, así que los items no traen carga:
-  // lo observable es el recorte que el propio aviso anuncia.
-  const recorteDe = (dias: number) => {
-    const aviso = planTras(dias).warnings.find((w) => w.includes('% menos de carga'));
-    return Number(aviso?.match(/(\d+)% menos/)?.[1] ?? 0);
-  };
+  /** Un socio con carga declarada en la prensa, que es lo que hoy nadie escribe. */
+  const conBaseline = () =>
+    buildUser({
+      baselines: [
+        {
+          exerciseId: 'ex-prensa',
+          source: 'declared',
+          load: { value: 100, unit: 'kg' },
+          reps: 8,
+          recordedAt: '2026-08-01T10:00:00.000Z',
+        },
+      ],
+    });
+
+  const avisoDe = (dias: number, user = buildUser()) =>
+    planTras(dias, user).warnings.find((w) => w.includes('desde tu última sesión')) ?? '';
 
   it('una pausa corta no recorta nada ni dice nada', () => {
-    const plan = planTras(3);
-    expect(plan.warnings.some((w) => w.includes('días desde tu última sesión'))).toBe(false);
+    expect(avisoDe(3)).toBe('');
   });
 
-  it('una pausa larga recorta y lo explica', () => {
-    if (!nota) throw new Error('El ruleset no tiene la nota de desentrenamiento.');
-    const avisos = planTras(45).warnings.join(' ');
-    expect(avisos).toContain('45');
-    expect(avisos).toContain(nota.slice(nota.indexOf('No es que')));
+  it('una pausa larga avisa', () => {
+    expect(avisoDe(45)).toContain('45');
   });
 
   // El texto decía que la fuerza vuelve rápido. No vuelve: nunca se fue. Kubo
   // 2010 mide fuerza y activación neural sin cambios a los 3 meses, mientras la
   // rigidez del tendón cae a nivel pre a los 2. Ver `docs/research/14`.
   it('explica el mecanismo correcto: lo que se ablanda es el tendón', () => {
-    expect(nota ?? '').toMatch(/tend[oó]n/i);
-    expect(nota ?? '').not.toMatch(/la fuerza vuelve r[aá]pido/i);
+    for (const texto of [regla?.withLoad ?? '', regla?.withoutLoad ?? '']) {
+      expect(texto).toMatch(/tend[oó]n/i);
+      expect(texto).not.toMatch(/la fuerza vuelve r[aá]pido/i);
+    }
+  });
+
+  // `user_baselines` se lee y nunca se escribe, así que `targetLoad` es null en
+  // todos los items. Anunciar "un 15 % menos de carga" sobre un plan que no trae
+  // carga es prometer un ajuste que el socio no ve. Ver `docs/research/15`.
+  it('sin carga en el plan, no anuncia un porcentaje que nadie va a ver', () => {
+    const aviso = avisoDe(45);
+    expect(aviso).not.toMatch(/% menos/);
+    expect(aviso).toMatch(/liviano/i);
+  });
+
+  it('con carga declarada sí dice cuánto se recortó', () => {
+    expect(avisoDe(45, conBaseline())).toMatch(/% menos/);
+  });
+
+  it('y esa carga baja de verdad en el item', () => {
+    const cargaTras = (dias: number) =>
+      planTras(dias, conBaseline())
+        .sessions.flatMap((s) => s.items)
+        .find((i) => i.exerciseId === 'ex-prensa')?.targetLoad?.value ?? null;
+
+    const sinPausa = cargaTras(3);
+    const conPausa = cargaTras(45);
+    if (sinPausa === null || conPausa === null) {
+      throw new Error('El plan de prueba no prescribió carga en la prensa.');
+    }
+    expect(conPausa).toBeLessThan(sinPausa);
   });
 
   it('cuanto más larga la pausa, más grande el recorte', () => {
-    expect(recorteDe(35)).toBeGreaterThan(0);
-    expect(recorteDe(120)).toBeGreaterThan(recorteDe(35));
+    const recorte = (dias: number) =>
+      Number(avisoDe(dias, conBaseline()).match(/(\d+)% menos/)?.[1] ?? 0);
+    expect(recorte(35)).toBeGreaterThan(0);
+    expect(recorte(120)).toBeGreaterThan(recorte(35));
   });
 
   // El texto visible al socio es contenido, no código: tiene que poder cambiar
