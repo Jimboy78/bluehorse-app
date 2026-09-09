@@ -21,6 +21,7 @@ import {
   Notice,
   SectionLabel,
 } from '../components/ui/index.ts';
+import { activeRuleset } from '../lib/engine.ts';
 import { fadeUp } from '../lib/motion.ts';
 import { onboardingUnavailable } from '../lib/onboarding.ts';
 import {
@@ -1195,7 +1196,11 @@ function SubstitutionSection({ gymId }: { gymId: string | null }) {
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label="Equivalencia (0 a 1)" htmlFor="sub-equivalence">
+          <Field
+            label="Equivalencia (0 a 1)"
+            htmlFor="sub-equivalence"
+            hint={`El cálculo automático usa un piso de ${Math.round(activeRuleset.substitution.minEquivalence * 100)}%: por debajo, un ejercicio no aparece como reemplazo salvo que lo cargues acá vos.`}
+          >
             <input
               id="sub-equivalence"
               type="number"
