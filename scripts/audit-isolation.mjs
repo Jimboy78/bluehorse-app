@@ -129,6 +129,21 @@ await admin.from('set_logs').insert({
   client_id: crypto.randomUUID(),
 });
 
+// Mismo riesgo que set_logs (cuelga de workout_logs, sin user_id propio) y
+// nunca se había probado con JWT real — solo se auditaba por lectura del SQL.
+await admin.from('session_events').insert({
+  workout_log_id: logA.id,
+  type: 'substituted',
+  payload: { from_exercise_id: exerciseId, to_exercise_id: exerciseId },
+});
+
+await admin.from('pain_reports').insert({
+  user_id: idA,
+  workout_log_id: logA.id,
+  body_region: 'knee',
+  severity: 3,
+});
+
 const clientA = await signIn(emailA);
 const clientB = await signIn(emailB);
 
@@ -145,6 +160,7 @@ const readTargets = [
   ['health_screenings', 'user_id', idA],
   ['adaptation_proposals', 'user_id', idA],
   ['personal_records', 'user_id', idA],
+  ['pain_reports', 'user_id', idA],
 ];
 
 for (const [table, column, value] of readTargets) {
@@ -156,8 +172,8 @@ for (const [table, column, value] of readTargets) {
   );
 }
 
-// set_logs no tiene user_id: cuelga de workout_logs. Es la que más fácil se
-// escapa de una auditoría hecha "por columna".
+// set_logs y session_events no tienen user_id: cuelgan de workout_logs. Son
+// las que más fácil se escapan de una auditoría hecha "por columna".
 {
   const { data, error } = await clientB.from('set_logs').select('*').eq('workout_log_id', logA.id);
   check(
@@ -167,13 +183,43 @@ for (const [table, column, value] of readTargets) {
   );
 }
 
+{
+  const { data, error } = await clientB
+    .from('session_events')
+    .select('*')
+    .eq('workout_log_id', logA.id);
+  check(
+    'session_events: B no ve los eventos de A (cuelgan de workout_logs, no tienen user_id)',
+    !error && (data?.length ?? 0) === 0,
+    error ? error.message : `devolvió ${data?.length} filas`,
+  );
+}
+
 // Y la prueba más importante: un select SIN filtro no debe traer nada ajeno.
 console.log('\nB pide TODO, sin filtrar (lo que haría alguien curioso)');
-for (const table of ['plans', 'workout_logs', 'health_screenings', 'user_constraints']) {
+for (const table of [
+  'plans',
+  'workout_logs',
+  'health_screenings',
+  'user_constraints',
+  'pain_reports',
+]) {
   const { data, error } = await clientB.from(table).select('user_id');
   const ajenas = (data ?? []).filter((r) => r.user_id !== idB);
   check(
     `${table}: sin filtro, B solo ve lo suyo`,
+    !error && ajenas.length === 0,
+    error ? error.message : `${ajenas.length} filas ajenas`,
+  );
+}
+
+// session_events no tiene user_id para filtrar por columna: sin filtro
+// alguno, ni siquiera debería devolver el workout_log_id de A.
+{
+  const { data, error } = await clientB.from('session_events').select('workout_log_id');
+  const ajenas = (data ?? []).filter((r) => r.workout_log_id === logA.id);
+  check(
+    'session_events: sin filtro, B no ve el workout_log_id de A',
     !error && ajenas.length === 0,
     error ? error.message : `${ajenas.length} filas ajenas`,
   );
@@ -189,6 +235,21 @@ console.log('\nB intenta ESCRIBIR como si fuera A');
     client_id: crypto.randomUUID(),
   });
   check('workout_logs: B no puede insertar con el user_id de A', !!error, error?.code);
+}
+
+{
+  // Colgar un evento falso de la sesión de A: si esto pasara, B podría
+  // inventar que A "sustituyó" un ejercicio que nunca tocó.
+  const { error } = await clientB.from('session_events').insert({
+    workout_log_id: logA.id,
+    type: 'skipped_exercise',
+    payload: {},
+  });
+  check(
+    'session_events: B no puede colgar un evento falso de la sesión de A',
+    !!error,
+    error?.code,
+  );
 }
 
 {
@@ -258,7 +319,15 @@ console.log('\nB intenta ESCRIBIR como si fuera A');
 // ------------------------------------------------- sin sesión
 
 console.log('\nSin sesión (clave anon suelta, que viaja en el bundle)');
-for (const table of ['plans', 'workout_logs', 'set_logs', 'health_screenings', 'profiles']) {
+for (const table of [
+  'plans',
+  'workout_logs',
+  'set_logs',
+  'session_events',
+  'pain_reports',
+  'health_screenings',
+  'profiles',
+]) {
   const { data, error } = await anon.from(table).select('*').limit(5);
   check(
     `${table}: sin sesión no devuelve nada`,
