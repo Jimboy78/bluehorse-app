@@ -3,6 +3,7 @@ import type {
   Equipment,
   Exercise,
   ExperienceLevel,
+  Goal,
   Id,
   LoadReading,
   MatchDayState,
@@ -62,7 +63,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
 
   const goal = primaryGoal(user.goals);
   const basePar = resolveParams(ruleset, goal.goal, user.profile.experienceLevel);
-  const byAge = applyAgeModifier(basePar, ruleset, user.profile, context.now, warnings);
+  const byAge = applyAgeModifier(basePar, ruleset, user.profile, goal.goal, context.now, warnings);
   const sport = resolveSport(ruleset, goal, warnings);
   const params = applySportVolume(byAge, sport, warnings);
   const template = pickTemplate(ruleset, goal, warnings);
@@ -254,25 +255,28 @@ function applyAgeModifier(
   params: GoalParams,
   ruleset: Ruleset,
   profile: Profile,
+  goal: Goal,
   now: string,
   warnings: string[],
 ): GoalParams {
   const rule = ruleset.modifiers?.olderAdults;
   if (!rule || !profile.birthDate) return params;
+  // Borde midió fuerza y morfología. Fuera de esos objetivos no hay ventana que
+  // aplicar, y extrapolarla sería inventar un número.
+  if (!rule.appliesToGoals.includes(goal)) return params;
 
   const age = ageAt(profile.birthDate, now);
   if (age === null || age < rule.fromAge) return params;
 
   warnings.push(rule.note);
+  // Se reemplaza, no se multiplica: la ventana es la que se midió en esta edad,
+  // no una rebaja sobre la del adulto joven. El descanso no se toca porque
+  // ninguna fuente respalda alargarlo por edad.
   const adjust = (role: GoalParams['primary']): GoalParams['primary'] => ({
     ...role,
-    repsMin: role.repsMin + rule.repsMinDelta,
-    repsMax: Math.max(role.repsMax, role.repsMin + rule.repsMinDelta),
-    restSeconds: Math.round(role.restSeconds * rule.restMultiplier),
-    intensityPct1RM: [
-      role.intensityPct1RM[0] * rule.intensityMultiplier,
-      role.intensityPct1RM[1] * rule.intensityMultiplier,
-    ],
+    repsMin: rule.repsWindow[0],
+    repsMax: rule.repsWindow[1],
+    intensityPct1RM: [rule.intensityWindowPct1RM[0], rule.intensityWindowPct1RM[1]],
   });
 
   return {

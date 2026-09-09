@@ -1098,10 +1098,19 @@
   "modifiers": {
     "olderAdults": {
       "fromAge": 60,
-      "repsMinDelta": 2,
-      "intensityMultiplier": 0.8,
-      "restMultiplier": 1.3,
-      "note": "Más repeticiones con menos carga y más descanso entre series. No es que a esta edad se progrese menos: se progresa bien, pero conviene dejar más margen.",
+      "intensityWindowPct1RM": [
+        70,
+        79
+      ],
+      "repsWindow": [
+        7,
+        9
+      ],
+      "appliesToGoals": [
+        "strength",
+        "hypertrophy"
+      ],
+      "note": "A partir de los 60 la ventana medida es 70-79% del 1RM en series de 7 a 9 repeticiones. No es menos carga que a los 40: es la carga que se midió en esta edad, y bajarla no da más seguridad ni menos caídas. Si hay fragilidad, dolor o una lesión declarada, eso manda por encima de la edad.",
       "confidence": "medium"
     }
   },

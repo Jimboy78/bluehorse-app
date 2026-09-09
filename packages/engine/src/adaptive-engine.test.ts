@@ -559,7 +559,29 @@ describe('cardio', () => {
 // ---------------------------------------------------------------- edad
 
 describe('edad', () => {
-  it('a partir de cierta edad sube las repeticiones y da más descanso', () => {
+  // El modificador viejo bajaba la carga un 20% y sumaba repeticiones. Los dos
+  // metaanálisis de `docs/research/08-edad.md` dicen lo contrario: la ventana
+  // medida en 60-90 años es 70-79% del 1RM en series de 7 a 9, y rebajar la
+  // carga no reduce ni caídas ni eventos adversos.
+  it('a partir de cierta edad prescribe la ventana medida, no una rebaja', () => {
+    const mayor = engine.generatePlan({
+      context,
+      user: buildUser({ profile: { ...baseProfile, birthDate: '1950-01-01' } }),
+      gym: buildGym(),
+      ruleset: V1_RESEARCH,
+    });
+
+    const rule = V1_RESEARCH.modifiers?.olderAdults;
+    if (!rule) throw new Error('El ruleset de prueba no tiene el modificador de edad.');
+
+    for (const item of mayor.sessions.flatMap((s) => s.items)) {
+      if (item.targetDurationSeconds !== null) continue;
+      expect(item.targetRepsMin).toBe(rule.repsWindow[0]);
+      expect(item.targetRepsMax).toBe(rule.repsWindow[1]);
+    }
+  });
+
+  it('no alarga el descanso: ninguna fuente respalda hacerlo por edad', () => {
     const joven = engine.generatePlan({
       context,
       user: buildUser(),
@@ -573,10 +595,47 @@ describe('edad', () => {
       ruleset: V1_RESEARCH,
     });
 
-    const itemJoven = joven.sessions[0]?.items[0];
-    const itemMayor = mayor.sessions[0]?.items[0];
-    expect(itemMayor?.targetRepsMin).toBeGreaterThan(itemJoven?.targetRepsMin as number);
-    expect(itemMayor?.restSeconds).toBeGreaterThan(itemJoven?.restSeconds as number);
+    expect(mayor.sessions[0]?.items[0]?.restSeconds).toBe(joven.sessions[0]?.items[0]?.restSeconds);
+  });
+
+  // Borde midió fuerza y morfología. En potencia la evidencia dice otra cosa
+  // (baja intensidad rinde igual), así que la ventana no se extrapola.
+  it('en un objetivo que la evidencia no cubre, la edad no cambia nada', () => {
+    const conPotencia = (birthDate: string | null) =>
+      engine.generatePlan({
+        context,
+        user: buildUser({ goals: [goalOf('power')], profile: { ...baseProfile, birthDate } }),
+        gym: buildGym(),
+        ruleset: V1_RESEARCH,
+      });
+
+    const firma = (birthDate: string | null) =>
+      conPotencia(birthDate)
+        .sessions.flatMap((s) => s.items)
+        .map((i) => `${i.targetRepsMin}-${i.targetRepsMax}/${i.restSeconds}`)
+        .join(',');
+
+    expect(firma('1950-01-01')).toBe(firma('1995-01-01'));
+  });
+
+  // Un rango de una sola repetición no es una prescripción, es un error
+  // aritmético: el `Math.max` del modificador viejo colapsaba 4-6 en 6-6.
+  it('nunca deja un rango de repeticiones colapsado en un punto', () => {
+    for (const goal of ['strength', 'hypertrophy', 'power', 'endurance'] as const) {
+      const plan = engine.generatePlan({
+        context,
+        user: buildUser({
+          goals: [goalOf(goal)],
+          profile: { ...baseProfile, birthDate: '1950-01-01' },
+        }),
+        gym: buildGym(),
+        ruleset: V1_RESEARCH,
+      });
+      for (const item of plan.sessions.flatMap((s) => s.items)) {
+        if (item.targetDurationSeconds !== null) continue;
+        expect(item.targetRepsMax).toBeGreaterThan(item.targetRepsMin);
+      }
+    }
   });
 
   it('sin fecha de nacimiento no ajusta nada, en vez de asumir una edad', () => {

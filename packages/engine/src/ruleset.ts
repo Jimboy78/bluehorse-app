@@ -288,12 +288,28 @@ const modifiersSchema = z.object({
    * A partir de cierta edad conviene menos carga, más repeticiones y más descanso.
    * No es que se adapten peor: se adaptan bien, pero con más margen.
    */
+  /**
+   * Ajuste por edad. **No es un multiplicador**: son las ventanas de intensidad
+   * y repeticiones medidas directamente en 60-90 años (Borde 2015, 25 ECAs),
+   * que reemplazan a las del adulto joven en los objetivos donde hay evidencia.
+   *
+   * Rebajar la carga por edad —lo que hacía la versión anterior— empuja fuera
+   * de la ventana óptima justo donde la intensidad es el predictor más fuerte
+   * (p < 0,01), y no compra seguridad: la alta intensidad no muestra más
+   * eventos adversos ni más caídas. Ver `docs/research/08-edad.md`.
+   */
   olderAdults: z
     .object({
       fromAge: z.number().int().min(40).max(100),
-      repsMinDelta: z.number().int().min(0).max(10),
-      intensityMultiplier: z.number().min(0.1).max(1),
-      restMultiplier: z.number().min(1).max(3),
+      /** `[min, max]` de %1RM a prescribir a partir de `fromAge`. */
+      intensityWindowPct1RM: z.tuple([z.number().min(1).max(100), z.number().min(1).max(100)]),
+      /** `[min, max]` de repeticiones por serie a partir de `fromAge`. */
+      repsWindow: z.tuple([z.number().int().min(1).max(30), z.number().int().min(1).max(30)]),
+      /**
+       * Objetivos donde la ventana aplica. Borde midió fuerza y morfología; en
+       * resistencia y potencia no hay dato, y extrapolar sería inventar.
+       */
+      appliesToGoals: z.array(z.enum(GOALS)).min(1),
       note: z.string().min(1),
       confidence: z.enum(CONFIDENCE_LEVELS),
     })
