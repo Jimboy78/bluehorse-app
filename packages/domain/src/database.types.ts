@@ -666,6 +666,7 @@ export type Database = {
           status: string
           template_id: string
           user_id: string
+          warnings: string[]
         }
         Insert: {
           generated_at?: string
@@ -676,6 +677,7 @@ export type Database = {
           status?: string
           template_id: string
           user_id: string
+          warnings?: string[]
         }
         Update: {
           generated_at?: string
@@ -686,6 +688,7 @@ export type Database = {
           status?: string
           template_id?: string
           user_id?: string
+          warnings?: string[]
         }
         Relationships: [
           {

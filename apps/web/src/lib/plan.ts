@@ -379,6 +379,8 @@ export interface PlanSummary {
   readonly goal: Goal | null;
   /** La sesión que toca si se retoma este plan. `null` si ya se completó entero. */
   readonly nextSessionLabel: string | null;
+  /** Lo que el motor avisó al armarlo. Vacío casi siempre: solo se llena cuando hay algo real que decir. */
+  readonly warnings: readonly string[];
 }
 
 /**
@@ -401,7 +403,7 @@ export function usePlans() {
       const client = requireSupabase();
       const { data: plans, error } = await client
         .from('plans')
-        .select('id, template_id, status, generated_at, ruleset_version, goal_snapshot')
+        .select('id, template_id, status, generated_at, ruleset_version, goal_snapshot, warnings')
         .eq('user_id', user?.id as string)
         .order('generated_at', { ascending: false });
       if (error) throw error;
@@ -431,6 +433,7 @@ export function usePlans() {
           completedSessions: bucket.completed,
           goal: goalOf(p.goal_snapshot),
           nextSessionLabel: bucket.next,
+          warnings: (p.warnings as string[] | null) ?? [],
         };
       });
     },
@@ -708,7 +711,12 @@ export interface ActiveSession {
 export type ActivePlanState =
   | { readonly kind: 'no-plan' }
   | { readonly kind: 'queue-empty' }
-  | { readonly kind: 'active'; readonly session: ActiveSession };
+  | {
+      readonly kind: 'active';
+      readonly session: ActiveSession;
+      /** Lo que el motor avisó al armar ESTE plan, no esta sesión — vale mientras el plan siga activo. */
+      readonly planWarnings: readonly string[];
+    };
 
 export function useActivePlan() {
   const { user, status } = useAuth();
@@ -721,7 +729,7 @@ export function useActivePlan() {
 
       const { data: plan, error: planError } = await client
         .from('plans')
-        .select('id')
+        .select('id, warnings')
         .eq('user_id', user?.id as string)
         .eq('status', 'active')
         .maybeSingle();
@@ -755,7 +763,11 @@ export function useActivePlan() {
         items: (items ?? []).map(toActiveSessionItem),
       };
 
-      return { kind: 'active', session: activeSession };
+      return {
+        kind: 'active',
+        session: activeSession,
+        planWarnings: (plan.warnings as string[] | null) ?? [],
+      };
     },
   });
 }

@@ -61,7 +61,19 @@ describe('toPlanInsert', () => {
       template_id: 'full_body_ab',
       goal_snapshot: { goal: 'hypertrophy' },
       status: 'active',
+      warnings: [],
     });
+  });
+
+  it('persiste los avisos del motor: antes se perdían apenas se guardaba el plan', () => {
+    const conAvisos: PlanBlueprint = {
+      ...blueprint,
+      warnings: ['Isquiotibiales quedan debajo del volumen semanal mínimo con 3 sesiones.'],
+    };
+    const row = toPlanInsert('user-1', 'gym-1', conAvisos, { goal: 'hypertrophy' });
+    expect(row.warnings).toEqual([
+      'Isquiotibiales quedan debajo del volumen semanal mínimo con 3 sesiones.',
+    ]);
   });
 });
 

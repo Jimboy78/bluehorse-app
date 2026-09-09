@@ -18,6 +18,14 @@ export interface PlanInsertRow {
   /** El objetivo con el que se generó, para poder mirarlo después sin releer `user_goals`. */
   readonly goal_snapshot: Record<string, unknown>;
   readonly status: 'active';
+  /**
+   * Lo que el motor avisó al armarlo (patrones sin cubrir, volumen semanal
+   * corto). Antes vivía solo en memoria y se perdía apenas se guardaba el
+   * plan — la vista previa lo mostraba una vez y no se podía volver a ver
+   * mientras el socio entrenaba bajo ese plan. Regla dura 4: la evidencia se
+   * muestra como es, y un hueco de volumen no dicho es mentir por omisión.
+   */
+  readonly warnings: readonly string[];
 }
 
 export interface PlanSessionInsertRow {
@@ -62,6 +70,7 @@ export function toPlanInsert(
     template_id: blueprint.templateId,
     goal_snapshot: goalSnapshot,
     status: 'active',
+    warnings: blueprint.warnings,
   };
 }
 

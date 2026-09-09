@@ -53,7 +53,15 @@ create table plans (
   template_id text not null,
   goal_snapshot jsonb not null,
   status text not null default 'active' check (status in ('active', 'archived')),
-  generated_at timestamptz not null default now()
+  generated_at timestamptz not null default now(),
+  /* Lo que el motor avisó al armar este plan: patrones sin cubrir, volumen
+     semanal por debajo del mínimo con la frecuencia elegida. Antes vivía solo
+     en memoria — se veía una vez en la vista previa y se perdía para
+     siempre. Guardarlo es lo que permite mostrarlo de nuevo mientras el socio
+     entrena bajo este plan, no solo en el momento de armarlo (regla dura 4:
+     la evidencia se muestra como es, y un hueco de volumen no dicho es
+     mentir por omisión igual que un ruleset placeholder sin marcar). */
+  warnings text[] not null default '{}'
 );
 
 create unique index plans_one_active_per_user_idx on plans (user_id) where status = 'active';

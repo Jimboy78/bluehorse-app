@@ -12,6 +12,7 @@ import { envError, isConfigured } from './lib/env.ts';
 import { useActiveGoal } from './lib/goal.ts';
 import { fadeUp } from './lib/motion.ts';
 import { type OutboxHealth, outboxHealth } from './lib/outbox.ts';
+import { useActivePlan } from './lib/plan.ts';
 import { checkConnection } from './lib/supabase.ts';
 import { useServiceWorkerUpdate } from './lib/use-sw-update.ts';
 import { useTodaySession } from './lib/use-today-session.ts';
@@ -60,6 +61,8 @@ export function App() {
       <PlaceholderNotice />
 
       <EvidenceNotice goal={activeGoal.data ?? null} />
+
+      <PlanWarningsNotice />
 
       <Proposals />
 
@@ -193,6 +196,32 @@ function EvidenceNotice({ goal }: { readonly goal: Goal | null }) {
   return (
     <Notice tone="warn" icon={<Info size={16} aria-hidden="true" />}>
       <strong className="font-semibold">Sobre este objetivo:</strong> {block.confidenceNote}
+    </Notice>
+  );
+}
+
+/**
+ * Lo que el motor avisó al armar el plan que estás entrenando ahora — patrones
+ * sin cubrir, volumen semanal corto con la frecuencia elegida.
+ *
+ * Hasta acá esto se veía una sola vez, en la vista previa del onboarding, y
+ * después se perdía: nadie iba a recordar semanas después que su plan tenía
+ * un hueco conocido en isquiotibiales. Ahora queda guardado con el plan
+ * (`plans.warnings`) y se muestra acá, en la pantalla donde de verdad se
+ * entrena — mismo criterio que `EvidenceNotice`: la evidencia se muestra como
+ * es, no solo en el momento de armarla.
+ */
+function PlanWarningsNotice() {
+  const plan = useActivePlan();
+  if (plan.data?.kind !== 'active' || plan.data.planWarnings.length === 0) return null;
+
+  return (
+    <Notice tone="warn" icon={<Info size={16} aria-hidden="true" />}>
+      <span className="flex flex-col gap-1">
+        {plan.data.planWarnings.map((warning) => (
+          <span key={warning}>{warning}</span>
+        ))}
+      </span>
     </Notice>
   );
 }
