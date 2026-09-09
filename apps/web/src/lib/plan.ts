@@ -1,6 +1,7 @@
 import type {
   EquipmentLoadSpec,
   ExperienceLevel,
+  Goal,
   LoadReading,
   MovementPattern,
   MuscleGroup,
@@ -370,6 +371,14 @@ export interface PlanSummary {
   /** Sesiones totales y cuántas ya se completaron, para mostrar el avance. */
   readonly totalSessions: number;
   readonly completedSessions: number;
+  /**
+   * Con qué objetivo se generó, congelado al momento de generarlo. Es lo que
+   * distingue dos planes guardados que si no se leerían igual: "cuerpo
+   * completo A/B" armado para fuerza no es el mismo que armado para hipertrofia.
+   */
+  readonly goal: Goal | null;
+  /** La sesión que toca si se retoma este plan. `null` si ya se completó entero. */
+  readonly nextSessionLabel: string | null;
 }
 
 /**
@@ -392,7 +401,7 @@ export function usePlans() {
       const client = requireSupabase();
       const { data: plans, error } = await client
         .from('plans')
-        .select('id, template_id, status, generated_at, ruleset_version')
+        .select('id, template_id, status, generated_at, ruleset_version, goal_snapshot')
         .eq('user_id', user?.id as string)
         .order('generated_at', { ascending: false });
       if (error) throw error;
@@ -400,24 +409,18 @@ export function usePlans() {
 
       const { data: sessions, error: sessionsError } = await client
         .from('plan_sessions')
-        .select('plan_id, status')
+        .select('plan_id, status, label, sequence_index')
         .in(
           'plan_id',
           plans.map((p) => p.id),
-        );
+        )
+        .order('sequence_index');
       if (sessionsError) throw sessionsError;
 
-      const counts = new Map<string, { total: number; completed: number }>();
-      for (const row of sessions ?? []) {
-        const planId = row.plan_id as string;
-        const bucket = counts.get(planId) ?? { total: 0, completed: 0 };
-        bucket.total += 1;
-        if (row.status === 'completed') bucket.completed += 1;
-        counts.set(planId, bucket);
-      }
+      const counts = countSessionsByPlan(sessions ?? []);
 
       return plans.map((p) => {
-        const bucket = counts.get(p.id as string) ?? { total: 0, completed: 0 };
+        const bucket = counts.get(p.id as string) ?? { total: 0, completed: 0, next: null };
         return {
           id: p.id as string,
           templateId: p.template_id as string,
@@ -426,8 +429,119 @@ export function usePlans() {
           rulesetVersion: p.ruleset_version as string,
           totalSessions: bucket.total,
           completedSessions: bucket.completed,
+          goal: goalOf(p.goal_snapshot),
+          nextSessionLabel: bucket.next,
         };
       });
+    },
+  });
+}
+
+interface SessionBucket {
+  readonly total: number;
+  readonly completed: number;
+  /** Etiqueta de la primera sesión pendiente, o `null` si ya se completó entera. */
+  readonly next: string | null;
+}
+
+/**
+ * Cuántas sesiones tiene cada plan, cuántas ya se completaron, y cuál es la
+ * próxima. Aparte de `usePlans` porque el bajo nivel de agregar filas de a una
+ * (en vez de un `reduce` con el objeto entero) es lo que empujaba la
+ * complejidad del hook por encima del límite del linter.
+ */
+function countSessionsByPlan(
+  sessions: readonly { plan_id: unknown; status: unknown; label: unknown }[],
+): Map<string, SessionBucket> {
+  const counts = new Map<string, SessionBucket>();
+
+  for (const row of sessions) {
+    const planId = row.plan_id as string;
+    const bucket = counts.get(planId) ?? { total: 0, completed: 0, next: null };
+    // Las filas vienen ordenadas por `sequence_index`: la primera pendiente
+    // que aparece es la que tocaría si se retoma este plan.
+    const isNextPending = row.status === 'pending' && bucket.next === null;
+    counts.set(planId, {
+      total: bucket.total + 1,
+      completed: bucket.completed + (row.status === 'completed' ? 1 : 0),
+      next: isNextPending ? (row.label as string) : bucket.next,
+    });
+  }
+
+  return counts;
+}
+
+/**
+ * El objetivo con el que se generó el plan. `goal_snapshot` es jsonb: puede
+ * venir de un plan viejo con otra forma, así que se lee defensivamente en vez
+ * de confiar en el tipo.
+ */
+function goalOf(snapshot: unknown): Goal | null {
+  if (typeof snapshot !== 'object' || snapshot === null) return null;
+  const value = (snapshot as Record<string, unknown>).goal;
+  return typeof value === 'string' ? (value as Goal) : null;
+}
+
+export interface PlanSessionSummary {
+  readonly id: string;
+  readonly sequenceIndex: number;
+  readonly label: string;
+  readonly focus: string;
+  readonly estimatedMinutes: number;
+  readonly status: 'pending' | 'in_progress' | 'completed' | 'skipped';
+  readonly completedAt: string | null;
+  readonly exercises: readonly string[];
+}
+
+/**
+ * Las sesiones de un plan, con los ejercicios de cada una. Se pide solo cuando
+ * se abre un plan en la pantalla de planes: son dos consultas más y no tiene
+ * sentido pagarlas por los planes que quedaron plegados.
+ */
+export function usePlanSessions(planId: string | null) {
+  const { user, status } = useAuth();
+
+  return useQuery<readonly PlanSessionSummary[]>({
+    queryKey: ['plan-sessions', user?.id, planId],
+    enabled: status === 'signed-in' && !!user && !!planId,
+    queryFn: async () => {
+      const client = requireSupabase();
+      const { data: sessions, error } = await client
+        .from('plan_sessions')
+        .select('id, sequence_index, label, focus, estimated_minutes, status, completed_at')
+        .eq('plan_id', planId as string)
+        .order('sequence_index');
+      if (error) throw error;
+      if (!sessions || sessions.length === 0) return [];
+
+      const { data: items, error: itemsError } = await client
+        .from('plan_session_items')
+        .select('plan_session_id, order_index, exercises(name)')
+        .in(
+          'plan_session_id',
+          sessions.map((s) => s.id),
+        )
+        .order('order_index');
+      if (itemsError) throw itemsError;
+
+      const bySession = new Map<string, string[]>();
+      for (const raw of (items ?? []) as unknown[]) {
+        const row = raw as { plan_session_id: string; exercises: { name: string } | null };
+        const list = bySession.get(row.plan_session_id) ?? [];
+        list.push(row.exercises?.name ?? 'Ejercicio');
+        bySession.set(row.plan_session_id, list);
+      }
+
+      return sessions.map((s) => ({
+        id: s.id as string,
+        sequenceIndex: s.sequence_index as number,
+        label: s.label as string,
+        focus: s.focus as string,
+        estimatedMinutes: s.estimated_minutes as number,
+        status: s.status as PlanSessionSummary['status'],
+        completedAt: s.completed_at as string | null,
+        exercises: bySession.get(s.id as string) ?? [],
+      }));
     },
   });
 }

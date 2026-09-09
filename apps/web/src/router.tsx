@@ -29,6 +29,8 @@ const Onboarding = lazy(() =>
   import('./routes/Onboarding.tsx').then((m) => ({ default: m.Onboarding })),
 );
 const Panel = lazy(() => import('./routes/Panel.tsx').then((m) => ({ default: m.Panel })));
+const Perfil = lazy(() => import('./routes/Perfil.tsx').then((m) => ({ default: m.Perfil })));
+const Planes = lazy(() => import('./routes/Planes.tsx').then((m) => ({ default: m.Planes })));
 const Progreso = lazy(() => import('./routes/Progreso.tsx').then((m) => ({ default: m.Progreso })));
 const Salud = lazy(() => import('./routes/Salud.tsx').then((m) => ({ default: m.Salud })));
 const SignIn = lazy(() => import('./routes/SignIn.tsx').then((m) => ({ default: m.SignIn })));
@@ -92,6 +94,32 @@ export const router = createBrowserRouter([
         <RequireScreening>
           <RequireOnboarding>
             <Progreso />
+          </RequireOnboarding>
+        </RequireScreening>
+      </RequireAuth>,
+    ),
+    errorElement: <RouteError />,
+  },
+  {
+    path: '/planes',
+    element: lazyPage(
+      <RequireAuth>
+        <RequireScreening>
+          <RequireOnboarding>
+            <Planes />
+          </RequireOnboarding>
+        </RequireScreening>
+      </RequireAuth>,
+    ),
+    errorElement: <RouteError />,
+  },
+  {
+    path: '/perfil',
+    element: lazyPage(
+      <RequireAuth>
+        <RequireScreening>
+          <RequireOnboarding>
+            <Perfil />
           </RequireOnboarding>
         </RequireScreening>
       </RequireAuth>,

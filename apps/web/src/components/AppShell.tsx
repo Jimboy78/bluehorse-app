@@ -1,4 +1,12 @@
-import { CloudOff, Dumbbell, LogOut, SlidersHorizontal, TrendingUp } from 'lucide-react';
+import {
+  CloudOff,
+  Dumbbell,
+  Layers,
+  LogOut,
+  SlidersHorizontal,
+  TrendingUp,
+  User,
+} from 'lucide-react';
 import { motion } from 'motion/react';
 import { type ReactNode, useState } from 'react';
 import { NavLink, useLocation } from 'react-router';
@@ -23,8 +31,12 @@ import { BrandMark, ConfirmDialog, Wordmark } from './ui/index.ts';
  * abajo del borde.
  */
 
+// Con cinco destinos (Hoy, Planes, Progreso, Perfil, y Panel para staff) el
+// tracking ancho de antes hacía que "Progreso" partiera en dos líneas en un
+// iPhone SE. `whitespace-nowrap` fuerza una sola línea y el tracking bajó de
+// 0.14em a 0.06em para que entre.
 const NAV_BASE =
-  'flex flex-1 flex-col items-center justify-center gap-1 rounded-xl py-2 text-[0.65rem] font-semibold uppercase tracking-[0.14em] transition-colors duration-150';
+  'flex flex-1 flex-col items-center justify-center gap-1 rounded-xl py-2 text-[0.6rem] font-semibold uppercase tracking-[0.06em] whitespace-nowrap transition-colors duration-150';
 
 /** Qué está preguntando el cuadro de salida, o `null` si no hay ninguno abierto. */
 type SignOutPrompt =
@@ -138,13 +150,15 @@ export function AppShell({ children }: { children: ReactNode }) {
         aria-label="Secciones"
         className="fixed inset-x-0 bottom-0 z-30 border-t border-line/70 bg-navy/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl"
       >
-        <div className="mx-auto flex max-w-md gap-1 px-4 py-2">
+        <div className="mx-auto flex max-w-md gap-1 px-3 py-2">
           <NavItem to="/" icon={<Dumbbell size={18} aria-hidden="true" />} label="Hoy" />
+          <NavItem to="/planes" icon={<Layers size={18} aria-hidden="true" />} label="Planes" />
           <NavItem
             to="/progreso"
             icon={<TrendingUp size={18} aria-hidden="true" />}
             label="Progreso"
           />
+          <NavItem to="/perfil" icon={<User size={18} aria-hidden="true" />} label="Perfil" />
           {isStaff && (
             <NavItem
               to="/panel"

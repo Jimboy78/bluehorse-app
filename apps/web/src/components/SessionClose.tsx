@@ -2,6 +2,7 @@ import type { BodyRegion } from '@bh/domain';
 import { AlertCircle, Check, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { type FormEvent, useState } from 'react';
+import { BODY_REGION_LABELS } from '../lib/labels.ts';
 import type { SessionFeel } from '../lib/mappers/session-close.ts';
 import { fadeUp } from '../lib/motion.ts';
 import { useCloseSession } from '../lib/session-log.ts';
@@ -17,19 +18,6 @@ const FEEL_LABELS: Record<SessionFeel, string> = {
   easy: 'Fácil',
   right: 'Justo',
   hard: 'Durísima',
-};
-
-const REGION_LABELS: Record<BodyRegion, string> = {
-  neck: 'Cuello',
-  shoulder: 'Hombro',
-  elbow: 'Codo',
-  wrist: 'Muñeca',
-  upper_back: 'Espalda alta',
-  lower_back: 'Zona lumbar',
-  hip: 'Cadera',
-  knee: 'Rodilla',
-  ankle: 'Tobillo',
-  other: 'Otra',
 };
 
 export function SessionClose({
@@ -120,14 +108,14 @@ export function SessionClose({
           ¿Alguna molestia? (opcional)
         </span>
         <div className="flex flex-wrap gap-1.5">
-          {(Object.keys(REGION_LABELS) as BodyRegion[]).map((region) => (
+          {(Object.keys(BODY_REGION_LABELS) as BodyRegion[]).map((region) => (
             <Chip
               key={region}
               tone="orange"
               selected={painRegion === region}
               onClick={() => setPainRegion((prev) => (prev === region ? null : region))}
             >
-              {REGION_LABELS[region]}
+              {BODY_REGION_LABELS[region]}
             </Chip>
           ))}
         </div>

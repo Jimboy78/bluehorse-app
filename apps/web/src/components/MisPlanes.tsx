@@ -1,9 +1,8 @@
-import { CheckCircle2, ChevronRight, Loader2, PlayCircle } from 'lucide-react';
-import { motion } from 'motion/react';
-import { useState } from 'react';
-import { listContainer, listItem } from '../lib/motion.ts';
-import { type PlanSummary, useActivatePlan, usePlans } from '../lib/plan.ts';
-import { Button, Card, ConfirmDialog, Notice, SectionLabel, Skeleton } from './ui/index.ts';
+import { ChevronRight, Layers } from 'lucide-react';
+import { Link } from 'react-router';
+import { GOAL_LABELS } from '../lib/labels.ts';
+import { usePlans } from '../lib/plan.ts';
+import { Card, Skeleton } from './ui/index.ts';
 
 const TEMPLATE_LABELS: Record<string, string> = {
   full_body_ab: 'Cuerpo completo A/B',
@@ -11,151 +10,61 @@ const TEMPLATE_LABELS: Record<string, string> = {
   cardio_base: 'Base aeróbica',
 };
 
-const GYM_TZ = 'America/Argentina/Buenos_Aires';
-
-function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat('es-AR', {
-    timeZone: GYM_TZ,
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date(iso));
-}
-
 /**
- * MIS PLANES
+ * Entrada a la pantalla de planes desde Progreso.
  *
- * Un plan `active` a la vez (regla dura: hay un índice único en la base que
- * lo garantiza), pero los que dejaron de estarlo no se pierden: quedan
- * `archived`, listos para retomar. Esto los muestra y deja volver a
- * cualquiera de un toque.
+ * Antes esto ERA la pantalla de planes: la lista entera, con activar y
+ * confirmar, vivía acá adentro. Ahora que `/planes` existe como pantalla
+ * propia (accesible también desde la barra de navegación), tener la misma
+ * interacción en dos lugares es tener dos lugares para romperla — acá solo
+ * queda el resumen de una línea con el plan activo, y un toque lleva al resto.
  *
- * No aparece si hay uno solo: cambiar entre planes no tiene sentido cuando
- * no hay entre qué elegir, y mostrar la sección vacía sería ruido.
+ * No aparece si nunca generó ningún plan: no hay nada que resumir, y el
+ * llamado a la acción de "Hoy" ya cubre ese caso.
  */
 export function MisPlanes() {
   const plans = usePlans();
-  const activate = useActivatePlan();
-  const [pendingId, setPendingId] = useState<string | null>(null);
-  // Cambiar de plan cambia lo que toca hoy: se pregunta antes de hacerlo.
-  const [asking, setAsking] = useState<PlanSummary | null>(null);
 
   if (plans.isPending) {
     return (
       <div className="flex flex-col gap-2">
-        <Skeleton className="h-5 w-24" />
+        <Skeleton className="h-4 w-20" />
         <Skeleton className="h-16" />
       </div>
     );
   }
 
-  if (plans.isError || !plans.data || plans.data.length < 2) return null;
-
-  async function handleActivate(planId: string) {
-    setAsking(null);
-    setPendingId(planId);
-    try {
-      await activate.mutateAsync(planId);
-    } finally {
-      setPendingId(null);
-    }
-  }
+  if (plans.isError || !plans.data || plans.data.length === 0) return null;
 
   const activo = plans.data.find((p) => p.status === 'active');
+  const guardados = plans.data.length - (activo ? 1 : 0);
 
   return (
-    <section className="flex flex-col gap-3">
-      <SectionLabel>Mis planes</SectionLabel>
-
-      {activate.isError && (
-        <Notice tone="error" role="alert">
-          No se pudo cambiar de plan. Probá de nuevo.
-        </Notice>
-      )}
-
-      <motion.ul
-        variants={listContainer}
-        initial="hidden"
-        animate="visible"
-        className="flex flex-col gap-2"
+    <Link to="/planes" className="block">
+      <Card
+        className="flex items-center gap-3 transition-colors hover:border-brand/40"
+        animate={false}
       >
-        {plans.data.map((plan) => (
-          <motion.li key={plan.id} variants={listItem}>
-            <PlanRow plan={plan} busy={pendingId === plan.id} onActivate={() => setAsking(plan)} />
-          </motion.li>
-        ))}
-      </motion.ul>
-
-      <ConfirmDialog
-        open={asking !== null}
-        icon={<PlayCircle size={18} aria-hidden="true" />}
-        title="¿Cambiar el plan de hoy?"
-        confirmLabel="Retomar este"
-        cancelLabel="Dejarlo así"
-        busy={pendingId !== null}
-        onCancel={() => setAsking(null)}
-        onConfirm={() => asking && void handleActivate(asking.id)}
-      >
-        {asking && (
-          <>
-            Vas a retomar <strong className="text-ink">{labelOf(asking)}</strong> donde lo dejaste (
-            {asking.completedSessions}/{asking.totalSessions} sesiones).
-            {activo && (
-              <>
-                {' '}
-                <strong className="text-ink">{labelOf(activo)}</strong> queda guardado: podés volver
-                cuando quieras, no se pierde nada.
-              </>
-            )}
-          </>
-        )}
-      </ConfirmDialog>
-    </section>
-  );
-}
-
-function labelOf(plan: PlanSummary): string {
-  return TEMPLATE_LABELS[plan.templateId] ?? plan.templateId;
-}
-
-function PlanRow({
-  plan,
-  busy,
-  onActivate,
-}: {
-  readonly plan: PlanSummary;
-  readonly busy: boolean;
-  readonly onActivate: () => void;
-}) {
-  const label = TEMPLATE_LABELS[plan.templateId] ?? plan.templateId;
-  const isActive = plan.status === 'active';
-
-  return (
-    <Card tone={isActive ? 'brand' : 'default'} className="flex items-center gap-3">
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <p className="truncate text-sm font-semibold text-ice">{label}</p>
-        <p className="text-xs text-slate">
-          {isActive ? 'Activo' : 'Guardado'} · desde {formatDate(plan.generatedAt)} ·{' '}
-          {plan.completedSessions}/{plan.totalSessions} sesiones
-        </p>
-      </div>
-
-      {isActive ? (
-        <span className="flex shrink-0 items-center gap-1 text-xs font-semibold text-brand">
-          <CheckCircle2 size={16} aria-hidden="true" />
-          Es el de hoy
+        <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-brand/25 bg-brand/10 text-brand">
+          <Layers size={18} aria-hidden="true" />
         </span>
-      ) : (
-        <Button variant="ghost" size="sm" disabled={busy} onClick={onActivate}>
-          {busy ? (
-            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-          ) : (
-            <PlayCircle size={16} aria-hidden="true" />
-          )}
-          Retomar
-          <ChevronRight size={14} aria-hidden="true" />
-        </Button>
-      )}
-    </Card>
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <p className="truncate text-sm font-semibold text-ink">
+            {activo ? templateLabel(activo.templateId) : 'Tus planes'}
+          </p>
+          <p className="truncate text-xs text-slate">
+            {activo?.goal && `${GOAL_LABELS[activo.goal]} · `}
+            {guardados > 0
+              ? `${guardados} guardado${guardados === 1 ? '' : 's'} más`
+              : 'Ver todos tus planes'}
+          </p>
+        </div>
+        <ChevronRight size={16} className="shrink-0 text-slate-dim" aria-hidden="true" />
+      </Card>
+    </Link>
   );
+}
+
+function templateLabel(templateId: string): string {
+  return TEMPLATE_LABELS[templateId] ?? templateId;
 }

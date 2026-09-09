@@ -29,6 +29,7 @@ import {
   Wordmark,
 } from '../components/ui/index.ts';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
+import { EXPERIENCE_LABELS, GOAL_LABELS, SEX_LABELS } from '../lib/labels.ts';
 import { fadeUp, screen, spring } from '../lib/motion.ts';
 import {
   onboardingUnavailable,
@@ -63,15 +64,6 @@ import {
  * lo guarda cuando la persona lo confirma. Ver `components/PlanPreview.tsx`.
  */
 
-const GOAL_LABELS: Record<Goal, string> = {
-  strength: 'Fuerza',
-  hypertrophy: 'Hipertrofia',
-  power: 'Potencia / explosividad',
-  cardio: 'Cardio',
-  endurance: 'Resistencia',
-  recomposition: 'Recomposición corporal',
-};
-
 /**
  * Un ícono por objetivo. No es adorno: son seis opciones apiladas y todas
  * empiezan igual de grises. El ícono es lo que deja encontrar la propia sin
@@ -95,13 +87,6 @@ const GOAL_HINTS: Record<Goal, string> = {
   recomposition: 'Bajar grasa y ganar músculo a la vez.',
 };
 
-const EXPERIENCE_LABELS: Record<ExperienceLevel, string> = {
-  beginner: 'Principiante',
-  novice: 'Novato',
-  intermediate: 'Intermedio',
-  advanced: 'Avanzado',
-};
-
 /**
  * Sin esto, las cuatro opciones eran cuatro palabras sueltas y nadie sabía si
  * era "novato" o "intermedio" — y ese dato decide qué ejercicios entran al
@@ -113,13 +98,6 @@ const EXPERIENCE_HINTS: Record<ExperienceLevel, string> = {
   novice: 'Ya entrenaste algunas veces, pero todavía estás aprendiendo la técnica.',
   intermediate: 'Entrenás seguido desde hace tiempo y la técnica ya te sale sola.',
   advanced: 'Llevás años entrenando, conocés tus cargas y cómo recuperás.',
-};
-
-const SEX_LABELS: Record<Sex, string> = {
-  female: 'Femenino',
-  male: 'Masculino',
-  other: 'Otro',
-  undisclosed: 'Prefiero no decir',
 };
 
 type Draft = Partial<OnboardingInput>;
