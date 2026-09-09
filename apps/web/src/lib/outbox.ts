@@ -200,12 +200,37 @@ export async function flush(
  * Reintenta al recuperar la conexión. Se llama una vez, en el arranque —
  * antes de saber quién va a iniciar sesión, así que `getOwnerId` se evalúa en
  * cada evento, no una sola vez al registrar el listener.
+ *
+ * Dos disparadores, no uno:
+ *
+ * - `online`: la señal vuelve MIENTRAS la app sigue abierta. El caso de
+ *   siempre.
+ * - `visibilitychange` → `visible`: la app SE REABRE ya con señal. Si el
+ *   teléfono se quedó sin batería entrenando en el subsuelo, o el sistema
+ *   mató la pestaña por memoria mientras estaba en segundo plano, el evento
+ *   `online` nunca se dispara — la conexión no "vuelve" en ningún momento
+ *   dentro de esta carga de página, ya estaba conectada antes de que este
+ *   listener existiera. Sin esto, esas series quedaban en cola para siempre,
+ *   hasta que alguna otra acción (marcar otra serie, cerrar sesión) las
+ *   arrastrara de pasada.
+ *
+ * `flush()` ya es barato cuando la cola está vacía (una consulta a IndexedDB
+ * que no manda nada), así que no hace falta ser más selectivo: reintentar de
+ * más nunca rompe nada, quedarse corto sí.
  */
 export function startAutoFlush(send: Sender, getOwnerId: () => string | null): () => void {
   const handler = () => {
     const ownerId = getOwnerId();
     if (ownerId) void flush(send, ownerId);
   };
+  const visibilityHandler = () => {
+    if (document.visibilityState === 'visible') handler();
+  };
+
   window.addEventListener('online', handler);
-  return () => window.removeEventListener('online', handler);
+  document.addEventListener('visibilitychange', visibilityHandler);
+  return () => {
+    window.removeEventListener('online', handler);
+    document.removeEventListener('visibilitychange', visibilityHandler);
+  };
 }
