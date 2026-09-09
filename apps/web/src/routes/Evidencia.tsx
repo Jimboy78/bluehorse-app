@@ -131,15 +131,20 @@ export function Evidencia() {
           />
         </label>
 
-        <div className="flex flex-wrap gap-1.5">
-          <Chip selected={tema === null} onClick={() => setTema(null)}>
-            Todo
-          </Chip>
-          {temas.map((t) => (
-            <Chip key={t} selected={tema === t} onClick={() => setTema(tema === t ? null : t)}>
-              {t}
+        {/* Una fila que corre en horizontal, no una grilla que se derrama.
+            Son 18 temas: envueltos ocupaban seis renglones y empujaban las
+            fuentes —que es lo que la gente vino a ver— abajo del pliegue. */}
+        <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex w-max gap-1.5 pb-1">
+            <Chip selected={tema === null} onClick={() => setTema(null)}>
+              Todo
             </Chip>
-          ))}
+            {temas.map((t) => (
+              <Chip key={t} selected={tema === t} onClick={() => setTema(tema === t ? null : t)}>
+                {t}
+              </Chip>
+            ))}
+          </div>
         </div>
 
         {visibles.length === 0 ? (
