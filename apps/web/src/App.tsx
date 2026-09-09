@@ -1,11 +1,11 @@
 import type { Goal } from '@bh/domain';
 import { useQuery } from '@tanstack/react-query';
-import { Info, RefreshCw, Sparkles } from 'lucide-react';
+import { Info, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AppShell } from './components/AppShell.tsx';
 import { Hoy } from './components/Hoy.tsx';
 import { Proposals } from './components/Proposals.tsx';
-import { Button, Card, Notice, SectionLabel } from './components/ui/index.ts';
+import { Card, Notice, SectionLabel } from './components/ui/index.ts';
 import { useAuth } from './lib/auth/AuthProvider.tsx';
 import { activeRuleset, showsPlaceholderContent } from './lib/engine.ts';
 import { envError, isConfigured } from './lib/env.ts';
@@ -14,7 +14,6 @@ import { fadeUp } from './lib/motion.ts';
 import { type OutboxHealth, outboxHealth } from './lib/outbox.ts';
 import { useActivePlan } from './lib/plan.ts';
 import { checkConnection } from './lib/supabase.ts';
-import { useServiceWorkerUpdate } from './lib/use-sw-update.ts';
 import { useTodaySession } from './lib/use-today-session.ts';
 
 /**
@@ -56,8 +55,6 @@ export function App() {
 
   return (
     <AppShell>
-      <ServiceWorkerUpdate />
-
       <PlaceholderNotice />
 
       <EvidenceNotice goal={activeGoal.data ?? null} />
@@ -221,27 +218,6 @@ function PlanWarningsNotice() {
         {plan.data.planWarnings.map((warning) => (
           <span key={warning}>{warning}</span>
         ))}
-      </span>
-    </Notice>
-  );
-}
-
-function ServiceWorkerUpdate() {
-  const { needsRefresh, applyUpdate } = useServiceWorkerUpdate();
-  if (!needsRefresh) return null;
-
-  return (
-    <Notice
-      tone="info"
-      role="status"
-      icon={<RefreshCw size={16} aria-hidden="true" />}
-      className="items-center"
-    >
-      <span className="flex flex-wrap items-center justify-between gap-3">
-        Hay una versión nueva de la app.
-        <Button variant="primary" size="sm" onClick={() => void applyUpdate()}>
-          Actualizar
-        </Button>
       </span>
     </Notice>
   );

@@ -3,6 +3,7 @@ import {
   Dumbbell,
   Layers,
   LogOut,
+  RefreshCw,
   SlidersHorizontal,
   TrendingUp,
   User,
@@ -14,8 +15,9 @@ import { useAuth } from '../lib/auth/AuthProvider.tsx';
 import { useInstallInvite } from '../lib/install-invite.ts';
 import { duration, ease, screen, tappable } from '../lib/motion.ts';
 import { useProfileRole } from '../lib/panel.ts';
+import { useServiceWorkerUpdate } from '../lib/use-sw-update.ts';
 import { InstallSheet } from './InstallSheet.tsx';
-import { BrandMark, ConfirmDialog, Wordmark } from './ui/index.ts';
+import { BrandMark, Button, ConfirmDialog, Notice, Wordmark } from './ui/index.ts';
 
 /**
  * El marco de las pantallas de socio: barra de marca arriba, contenido en el
@@ -109,6 +111,12 @@ export function AppShell({ children }: { children: ReactNode }) {
           un corte seco: sin eso, "Hoy" y "Progreso" se reemplazaban en el
           mismo frame y no quedaba ninguna señal de que la pantalla cambió. */}
       <main className="mx-auto flex max-w-md flex-col gap-6 px-5 pt-6 pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
+        {/* El aviso de versión nueva vive acá y no en "Hoy": el service worker
+            se instala cuando se instala, y hasta ahora el aviso solo existía
+            en una de las cinco pantallas — quien estaba en Perfil o en Planes
+            no se enteraba de que había una versión lista. */}
+        <ServiceWorkerUpdate />
+
         <motion.div key={location.pathname} {...screen} className="flex flex-col gap-6">
           {children}
         </motion.div>
@@ -201,6 +209,32 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </nav>
     </div>
+  );
+}
+
+/**
+ * Aviso de versión nueva. Discreto y arriba de todo, pero sin recargar solo:
+ * hacerlo en medio de una serie borraría lo que la persona estaba cargando
+ * (por eso el service worker está en `prompt` y no en `autoUpdate`).
+ */
+function ServiceWorkerUpdate() {
+  const { needsRefresh, applyUpdate } = useServiceWorkerUpdate();
+  if (!needsRefresh) return null;
+
+  return (
+    <Notice
+      tone="info"
+      role="status"
+      icon={<RefreshCw size={16} aria-hidden="true" />}
+      className="items-center"
+    >
+      <span className="flex flex-wrap items-center justify-between gap-3">
+        Hay una versión nueva de la app.
+        <Button variant="primary" size="sm" onClick={() => void applyUpdate()}>
+          Actualizar
+        </Button>
+      </span>
+    </Notice>
   );
 }
 

@@ -480,6 +480,50 @@ function NuevoPlan() {
  * Un plan. Cerrado muestra lo que se necesita para elegir entre dos; abierto,
  * la cola completa con los ejercicios de cada sesión.
  */
+/** Nombre, objetivo y el botón de retomar (o el sello de activo). */
+function PlanCardHeader({
+  plan,
+  busy,
+  onActivate,
+}: {
+  readonly plan: PlanSummary;
+  readonly busy: boolean;
+  readonly onActivate: (() => void) | null;
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <p className="truncate font-display text-lg font-semibold uppercase leading-tight tracking-tight">
+          {planLabel(plan)}
+        </p>
+        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate">
+          {plan.goal && <span className="text-brand">{GOAL_LABELS[plan.goal]}</span>}
+          {/* Con nombre propio, el template pasa a ser el subtítulo: dos
+              planes que se llaman distinto pueden ser el mismo armado. */}
+          {plan.name && <span className="text-slate-dim">{templateLabel(plan)}</span>}
+          <span>desde {formatDate(plan.generatedAt)}</span>
+        </p>
+      </div>
+
+      {plan.status === 'active' ? (
+        <span className="flex shrink-0 items-center gap-1 rounded-full bg-brand/15 px-2.5 py-1 font-display text-[0.6rem] font-medium uppercase tracking-[0.14em] text-brand">
+          <CheckCircle2 size={12} aria-hidden="true" />
+          Activo
+        </span>
+      ) : (
+        <Button variant="ghost" size="sm" disabled={busy} onClick={onActivate ?? undefined}>
+          {busy ? (
+            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+          ) : (
+            <PlayCircle size={15} aria-hidden="true" />
+          )}
+          Retomar
+        </Button>
+      )}
+    </div>
+  );
+}
+
 function PlanCard({
   plan,
   open,
@@ -506,36 +550,7 @@ function PlanCard({
   return (
     <Card tone={activo ? 'brand' : 'default'} animate={false} className="overflow-hidden">
       <div className="flex flex-col gap-3 p-4">
-        <div className="flex items-start gap-3">
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <p className="truncate font-display text-lg font-semibold uppercase leading-tight tracking-tight">
-              {planLabel(plan)}
-            </p>
-            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate">
-              {plan.goal && <span className="text-brand">{GOAL_LABELS[plan.goal]}</span>}
-              {/* Con nombre propio, el template pasa a ser el subtítulo: dos
-                  planes que se llaman distinto pueden ser el mismo armado. */}
-              {plan.name && <span className="text-slate-dim">{templateLabel(plan)}</span>}
-              <span>desde {formatDate(plan.generatedAt)}</span>
-            </p>
-          </div>
-
-          {activo ? (
-            <span className="flex shrink-0 items-center gap-1 rounded-full bg-brand/15 px-2.5 py-1 font-display text-[0.6rem] font-medium uppercase tracking-[0.14em] text-brand">
-              <CheckCircle2 size={12} aria-hidden="true" />
-              Activo
-            </span>
-          ) : (
-            <Button variant="ghost" size="sm" disabled={busy} onClick={onActivate ?? undefined}>
-              {busy ? (
-                <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-              ) : (
-                <PlayCircle size={15} aria-hidden="true" />
-              )}
-              Retomar
-            </Button>
-          )}
-        </div>
+        <PlanCardHeader plan={plan} busy={busy} onActivate={onActivate} />
 
         {/* Por sesiones y no por series: acá la pregunta es cuánto falta del
             plan, no cuánto falta de hoy. */}
