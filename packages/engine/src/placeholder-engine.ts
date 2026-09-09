@@ -5,6 +5,7 @@ import type {
   ExperienceLevel,
   Id,
   LoadReading,
+  MatchDayState,
   MovementPattern,
   MuscleGroup,
   Profile,
@@ -563,45 +564,57 @@ function adjustForMatchDay(input: AdjustSessionInput): SessionAdjustment {
 
   const exerciseById = new Map(input.gym.exercises.map((e) => [e.id, e]));
   const dropped: string[] = [];
-  let scaled = 0;
   const items: SessionItemBlueprint[] = [];
+  let scaled = 0;
 
   for (const item of input.items) {
     const exercise = exerciseById.get(item.exerciseId);
-    // El cardio no se prescribe en series: escalarlo por un multiplicador de
-    // volumen de sala no significa nada. Se deja como está.
-    if (!exercise || item.targetDurationSeconds !== null) {
-      items.push(item);
+    const adjusted = adjustItem(item, exercise, rule);
+
+    if (adjusted === null) {
+      dropped.push(exercise?.name ?? item.exerciseId);
       continue;
     }
-
-    if (rule.avoidExplosive && exercise.isExplosive) {
-      dropped.push(exercise.name);
-      continue;
-    }
-
-    const multiplier = isLowerBody(exercise)
-      ? rule.lowerBodyVolumeMultiplier
-      : rule.upperBodyVolumeMultiplier;
-
-    // Cero es "hoy esto no se hace": se saca en vez de mostrarlo vacío. Es lo
-    // que pasa con la pierna el mismo día del partido.
-    if (multiplier === 0) {
-      dropped.push(exercise.name);
-      continue;
-    }
-
-    // Redondeo, no truncamiento: con el volumen ya bajado por la temporada un
-    // ejercicio queda en 2 series, y truncar 2 × 0,5 hacia abajo lo borraba del
-    // plan. El recorte del partido baja volumen, no saca ejercicios.
-    const targetSets = Math.max(1, Math.round(item.targetSets * multiplier));
-    if (targetSets !== item.targetSets) scaled += 1;
-    items.push(targetSets === item.targetSets ? item : { ...item, targetSets });
+    if (adjusted !== item) scaled += 1;
+    items.push(adjusted);
   }
 
   const changed = dropped.length > 0 || scaled > 0;
   const detail = dropped.length > 0 ? ` Hoy se sacan: ${dropped.join(', ')}.` : '';
   return { items, note: changed ? `${rule.note}${detail}` : null, changed };
+}
+
+type MatchDayRule = NonNullable<NonNullable<Ruleset['sports']>['matchDay']>[MatchDayState];
+
+/**
+ * El ítem con el volumen de hoy, el mismo ítem si no cambia, o `null` si hoy no
+ * se hace. Devolver la misma referencia cuando no cambia es lo que deja saber
+ * si la sesión se tocó de verdad: crear un objeto nuevo siempre hacía que un
+ * día normal reportara un ajuste que no existía.
+ */
+function adjustItem(
+  item: SessionItemBlueprint,
+  exercise: Exercise | undefined,
+  rule: MatchDayRule,
+): SessionItemBlueprint | null {
+  // El cardio no se prescribe en series: escalarlo por un multiplicador de
+  // volumen de sala no significa nada. Se deja como está.
+  if (!exercise || item.targetDurationSeconds !== null) return item;
+  if (rule.avoidExplosive && exercise.isExplosive) return null;
+
+  const multiplier = isLowerBody(exercise)
+    ? rule.lowerBodyVolumeMultiplier
+    : rule.upperBodyVolumeMultiplier;
+
+  // Cero es "hoy esto no se hace": se saca en vez de mostrarlo vacío. Es lo que
+  // pasa con la pierna el mismo día del partido.
+  if (multiplier === 0) return null;
+
+  // Redondeo, no truncamiento: con el volumen ya bajado por la temporada un
+  // ejercicio queda en 2 series, y truncar 2 × 0,5 hacia abajo lo borraba del
+  // plan. El recorte del partido baja volumen, no saca ejercicios.
+  const targetSets = Math.max(1, Math.round(item.targetSets * multiplier));
+  return targetSets === item.targetSets ? item : { ...item, targetSets };
 }
 
 function isLowerBody(exercise: Exercise): boolean {
