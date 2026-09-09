@@ -266,10 +266,12 @@ export function useCreateExercise(gymId: string | null) {
       if (mappings.length > 0) {
         const { error: mappingError } = await client.from('exercise_equipment').insert(mappings);
         if (mappingError) {
-          // El panel todavía no tiene edición: un ejercicio sin su mapeo de
-          // equipamiento quedaría atascado ahí para siempre (invisible para
-          // el motor, pero ocupando el nombre en el listado). Mejor que no
-          // exista a medias — se borra y el staff reintenta desde cero.
+          // Un ejercicio recién creado sin su mapeo de equipamiento quedaría
+          // atascado ahí para siempre (invisible para el motor, pero
+          // ocupando el nombre en el listado). Mejor que no exista a medias —
+          // se borra y el staff reintenta desde cero. Seguro de hacer acá
+          // (a diferencia de `useDeleteExercise`) porque todavía no pasó por
+          // ningún plan ni ninguna serie: se está creando en este mismo instante.
           try {
             await client.from('exercises').delete().eq('id', data.id);
           } catch {
@@ -277,6 +279,80 @@ export function useCreateExercise(gymId: string | null) {
           }
           throw mappingError;
         }
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['exercise-list', gymId] });
+      void queryClient.invalidateQueries({ queryKey: ['gym-catalog', gymId] });
+    },
+  });
+}
+
+/**
+ * Corregir un ejercicio ya cargado: nombre mal tipeado, patrón equivocado, un
+ * músculo que faltaba. El mapeo de equipamiento se reemplaza entero (borrar
+ * todo lo viejo, insertar lo nuevo) en vez de calcular el diff — la tabla es
+ * chica y así no hay forma de dejar una fila vieja colgada si el orden de
+ * altas y bajas se complica.
+ */
+export function useUpdateExercise(gymId: string | null) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, input }: { id: string; input: ExerciseFormInput }) => {
+      if (!gymId) throw new Error('No se pudo determinar el gimnasio.');
+      const client = requireSupabase();
+
+      const { error } = await client
+        .from('exercises')
+        .update(toExerciseInsert(gymId, input))
+        .eq('id', id);
+      if (error) throw error;
+
+      const { error: deleteError } = await client
+        .from('exercise_equipment')
+        .delete()
+        .eq('exercise_id', id);
+      if (deleteError) throw deleteError;
+
+      const mappings = toExerciseEquipmentInserts(id, input.equipmentIds);
+      if (mappings.length > 0) {
+        const { error: mappingError } = await client.from('exercise_equipment').insert(mappings);
+        if (mappingError) throw mappingError;
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['exercise-list', gymId] });
+      void queryClient.invalidateQueries({ queryKey: ['gym-catalog', gymId] });
+    },
+  });
+}
+
+/**
+ * Borrar un ejercicio cargado por error o duplicado.
+ *
+ * A diferencia de `equipment` (que no tiene ninguna referencia con
+ * `on delete restrict`), `exercises` sí: `plan_session_items.exercise_id` y
+ * `set_logs.exercise_id` bloquean el borrado en cuanto el ejercicio entró en
+ * algún plan o alguien registró una serie con él (05_plans.sql, 06_logs.sql
+ * — es la misma frontera entre lo planificado y lo real de la regla dura 7).
+ * Ese error de Postgres (`23503`, foreign key violation) se traduce acá:
+ * sin esto, el staff vería el código crudo en vez de un motivo.
+ */
+export function useDeleteExercise(gymId: string | null) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const client = requireSupabase();
+      const { error } = await client.from('exercises').delete().eq('id', id);
+      if (error) {
+        if (error.code === '23503') {
+          throw new Error(
+            'Ya se usó en un plan o tiene series registradas: no se puede borrar sin perder ese historial.',
+          );
+        }
+        throw error;
       }
     },
     onSuccess: () => {

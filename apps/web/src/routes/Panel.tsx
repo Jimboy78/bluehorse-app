@@ -1,6 +1,7 @@
 import type {
   Equipment,
   EquipmentCategory,
+  Exercise,
   ExperienceLevel,
   LoadUnit,
   Modality,
@@ -26,22 +27,27 @@ import {
   useCreateEquipment,
   useCreateExercise,
   useDeleteEquipment,
+  useDeleteExercise,
   useEquipmentList,
   useEquipmentUsage,
   useExerciseList,
   useProfileRole,
   useUpdateEquipment,
+  useUpdateExercise,
 } from '../lib/panel.ts';
 import { type ExerciseFormInput, exerciseFormSchema } from './panel/exercise-schemas.ts';
 import { type EquipmentFormInput, equipmentFormSchema } from './panel/schemas.ts';
 
 /**
- * Alta de catálogo: equipamiento y ejercicios, con el mapeo entre ambos. Es
- * también la demo de venta del proyecto — acá se ve el catálogo real de Blue
- * Horse tomando forma, foto por foto.
+ * Alta y corrección de catálogo: equipamiento y ejercicios, con el mapeo
+ * entre ambos. Es también la demo de venta del proyecto — acá se ve el
+ * catálogo real de Blue Horse tomando forma, foto por foto.
  *
- * Todavía no tiene edición ni baja — solo alta y listado. Alcanza para
- * cargar el relevamiento cuando llegue; edición se suma si hace falta.
+ * Equipamiento y ejercicios tienen la misma paridad (alta, edición, baja),
+ * pero borrar un ejercicio es más restrictivo: en cuanto entró en algún plan
+ * o alguien registró una serie con él, Postgres rechaza el borrado
+ * (`on delete restrict`, ver `useDeleteExercise`) — equipamiento no tiene esa
+ * traba, así que ahí sí se puede borrar siempre.
  */
 export function Panel() {
   const role = useProfileRole();
@@ -667,14 +673,49 @@ const emptyExerciseForm = {
   equipmentIds: [] as string[],
 };
 
+/** Domain -> formulario, para poder corregir un ejercicio ya cargado. */
+function exerciseToForm(ex: Exercise): typeof emptyExerciseForm {
+  return {
+    name: ex.name,
+    pattern: ex.pattern,
+    primaryMuscles: [...ex.primaryMuscles],
+    secondaryMuscles: [...ex.secondaryMuscles],
+    modality: ex.modality,
+    isCompound: ex.isCompound,
+    isUnilateral: ex.isUnilateral,
+    skillLevel: ex.skillLevel,
+    cues: ex.cues ?? '',
+    equipmentIds: [...ex.equipmentIds],
+  };
+}
+
 function ExerciseSection({ gymId }: { gymId: string | null }) {
   const equipmentList = useEquipmentList(gymId);
   const exerciseList = useExerciseList(gymId);
   const createExercise = useCreateExercise(gymId);
+  const updateExercise = useUpdateExercise(gymId);
+  const deleteExercise = useDeleteExercise(gymId);
 
   const [form, setForm] = useState(emptyExerciseForm);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState<{ name: string; updated: boolean } | null>(null);
+  /** Ejercicio que se está corrigiendo, o `null` si el formulario es un alta. */
+  const [editing, setEditing] = useState<Exercise | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  function resetForm(ex: Exercise | null) {
+    setEditing(ex);
+    setForm(ex ? exerciseToForm(ex) : emptyExerciseForm);
+    setError(null);
+  }
+
+  function startEditing(ex: Exercise) {
+    resetForm(ex);
+    setSaved(null);
+    // El formulario está arriba de la lista: sin esto, tocar "Editar" en el
+    // ejercicio número 40 no muestra ningún cambio en pantalla.
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   function toggle<K extends 'primaryMuscles' | 'secondaryMuscles' | 'equipmentIds'>(
     key: K,
@@ -699,9 +740,17 @@ function ExerciseSection({ gymId }: { gymId: string | null }) {
     }
 
     try {
-      await createExercise.mutateAsync(parsed.data as ExerciseFormInput);
-      setSaved({ name: parsed.data.name, updated: false });
-      setForm(emptyExerciseForm);
+      const wasEditing = editing !== null;
+      if (editing) {
+        await updateExercise.mutateAsync({
+          id: editing.id,
+          input: parsed.data as ExerciseFormInput,
+        });
+      } else {
+        await createExercise.mutateAsync(parsed.data as ExerciseFormInput);
+      }
+      setSaved({ name: parsed.data.name, updated: wasEditing });
+      resetForm(null);
     } catch {
       setError('No se pudo guardar. Revisá tu conexión y probá de nuevo.');
     }
@@ -716,8 +765,14 @@ function ExerciseSection({ gymId }: { gymId: string | null }) {
     >
       <SectionLabel>Ejercicios</SectionLabel>
 
-      <form onSubmit={handleSubmit} className={cardClass('default', 'flex flex-col gap-4 p-5')}>
-        <SectionLabel>Agregar ejercicio</SectionLabel>
+      <form
+        ref={formRef}
+        onSubmit={handleSubmit}
+        className={cardClass(editing ? 'brand' : 'default', 'flex flex-col gap-4 p-5')}
+      >
+        <SectionLabel className={editing ? 'text-brand' : ''}>
+          {editing ? `Corrigiendo: ${editing.name}` : 'Agregar ejercicio'}
+        </SectionLabel>
 
         <Field label="Nombre" htmlFor="ex-name">
           <input
@@ -845,18 +900,11 @@ function ExerciseSection({ gymId }: { gymId: string | null }) {
 
         <SavedNotice saved={saved} />
 
-        <Button
-          type="submit"
-          variant="primary"
-          disabled={createExercise.isPending || onboardingUnavailable}
-        >
-          {createExercise.isPending ? (
-            <Loader2 size={16} className="animate-spin" aria-hidden="true" />
-          ) : (
-            <Plus size={16} aria-hidden="true" />
-          )}
-          Agregar ejercicio
-        </Button>
+        <EquipmentFormActions
+          isEditing={editing !== null}
+          busy={createExercise.isPending || updateExercise.isPending}
+          onCancel={() => resetForm(null)}
+        />
       </form>
 
       <SectionLabel>
@@ -869,21 +917,114 @@ function ExerciseSection({ gymId }: { gymId: string | null }) {
 
       <div className="flex flex-col gap-2">
         {exerciseList.data?.map((ex) => (
-          <Card key={ex.id} className="flex items-center gap-3 px-4 py-3">
-            <div className="flex min-w-0 flex-1 flex-col">
-              <span className="font-semibold">{ex.name}</span>
-              <ExerciseMappingNote
-                stations={ex.equipmentIds.length}
-                bodyweight={ex.modality === 'reps_bodyweight'}
-              />
-            </div>
-            <span className="text-xs uppercase tracking-wide text-slate">
-              {PATTERN_LABELS[ex.pattern]}
-            </span>
-          </Card>
+          <ExerciseRow
+            key={ex.id}
+            exercise={ex}
+            isEditing={editing?.id === ex.id}
+            onEdit={() => startEditing(ex)}
+            onDelete={() => deleteExercise.mutateAsync(ex.id)}
+          />
         ))}
       </div>
     </motion.section>
+  );
+}
+
+/**
+ * Un ejercicio del catálogo, con corregir y borrar. El borrado es de dos
+ * toques como el de equipamiento, pero acá puede fallar de verdad: si ya
+ * entró en algún plan o alguien registró una serie con él, Postgres lo
+ * rechaza (`useDeleteExercise`) — el motivo real se muestra en vez de un
+ * genérico "probá de nuevo", porque acá el reintento no va a cambiar nada.
+ */
+function ExerciseRow({
+  exercise: ex,
+  isEditing,
+  onEdit,
+  onDelete,
+}: {
+  exercise: Exercise;
+  isEditing: boolean;
+  onEdit: () => void;
+  onDelete: () => Promise<unknown>;
+}) {
+  const [confirming, setConfirming] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [failMessage, setFailMessage] = useState<string | null>(null);
+
+  async function handleDelete() {
+    setDeleting(true);
+    setFailMessage(null);
+    try {
+      await onDelete();
+    } catch (err) {
+      setFailMessage(err instanceof Error ? err.message : 'No se pudo borrar. Probá de nuevo.');
+      setDeleting(false);
+      setConfirming(false);
+    }
+  }
+
+  return (
+    <Card tone={isEditing ? 'brand' : 'default'} className="flex flex-col gap-2 px-4 py-3">
+      <div className="flex items-center gap-3">
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="font-semibold">{ex.name}</span>
+          <ExerciseMappingNote
+            stations={ex.equipmentIds.length}
+            bodyweight={ex.modality === 'reps_bodyweight'}
+          />
+        </div>
+        <span className="shrink-0 text-xs uppercase tracking-wide text-slate">
+          {PATTERN_LABELS[ex.pattern]}
+        </span>
+      </div>
+
+      {confirming ? (
+        <div className="flex flex-col gap-2 rounded-lg bg-navy px-3 py-2.5">
+          <p className="text-xs text-slate">
+            Borrar <strong className="font-semibold text-ink">{ex.name}</strong>. Si ya se usó en
+            algún plan o tiene series registradas, Postgres va a rechazar el borrado en vez de
+            perder ese historial.
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setConfirming(false)}
+              className="flex-1"
+            >
+              No, dejalo
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              disabled={deleting}
+              onClick={handleDelete}
+              className="flex-1"
+            >
+              {deleting && <Loader2 size={13} className="animate-spin" aria-hidden="true" />}
+              Sí, borralo
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="ghost" size="sm" onClick={onEdit}>
+            <Pencil size={12} aria-hidden="true" />
+            Editar
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setConfirming(true)}>
+            <Trash2 size={12} aria-hidden="true" />
+            Borrar
+          </Button>
+          {failMessage && (
+            <span role="alert" className="text-xs text-orange">
+              {failMessage}
+            </span>
+          )}
+        </div>
+      )}
+    </Card>
   );
 }
 
