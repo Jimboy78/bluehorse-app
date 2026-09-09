@@ -73,4 +73,24 @@ describe('rebuild', () => {
     const out = rebuild([fila({ load_value: 7, load_unit: 'stack_level' })]);
     expect(out.loadByItem['item-1']).toEqual({ value: 7, unit: 'stack_level' });
   });
+
+  it('cada serie conserva SU carga, no la de la última', () => {
+    // Desde que cada serie lleva la suya, guardar solo la del ejercicio hacía
+    // que al volver a la sesión una serie de 60 y otra de 70 se vieran las dos
+    // con 70.
+    const out = rebuild([
+      fila({ set_index: 0, id: 'a', load_value: 60, load_unit: 'kg' }),
+      fila({ set_index: 1, id: 'b', load_value: 70, load_unit: 'kg' }),
+    ]);
+    expect(out.loadBySet['item-1:0']).toEqual({ value: 60, unit: 'kg' });
+    expect(out.loadBySet['item-1:1']).toEqual({ value: 70, unit: 'kg' });
+    // Y la del ejercicio sigue siendo la de la última, que es con la que
+    // arranca la próxima.
+    expect(out.loadByItem['item-1']).toEqual({ value: 70, unit: 'kg' });
+  });
+
+  it('una serie sin carga no deja entrada propia', () => {
+    const out = rebuild([fila({ set_index: 0, id: 'a' })]);
+    expect(out.loadBySet['item-1:0']).toBeUndefined();
+  });
 });

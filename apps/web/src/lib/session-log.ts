@@ -303,9 +303,13 @@ export function useSessionLog(
           [item.id]: hechas.includes(setIndex) ? hechas : [...hechas, setIndex],
         },
         setLogIds,
-        // La carga se guarda tal como se registró, no la del plan: es la que
-        // tiene que aparecer al volver a este ejercicio.
+        // La carga se guarda tal como se registró, no la del plan. Por serie
+        // Y por ejercicio: la primera es lo que se hizo en cada una, la
+        // segunda es con qué arranca la próxima.
         loadByItem: actual.load ? { ...prev.loadByItem, [item.id]: actual.load } : prev.loadByItem,
+        loadBySet: actual.load
+          ? { ...prev.loadBySet, [`${item.id}:${setIndex}`]: actual.load }
+          : prev.loadBySet,
       };
     });
 

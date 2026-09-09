@@ -110,6 +110,9 @@ export function Hoy() {
     // del plan (nulo en la primera sesión de cualquier estación) y la serie
     // siguiente se registraba sin carga, con el dato sentado en la base.
     setCargaPorItem(restored.data.loadByItem);
+    // Y la de cada serie: sin esto, dos series hechas con pesos distintos
+    // volvían las dos con el de la última.
+    setCargaPorSerie(restored.data.loadBySet);
   }
 
   if (status !== 'signed-in' || plan.isPending || plan.isError || plan.data?.kind !== 'active') {

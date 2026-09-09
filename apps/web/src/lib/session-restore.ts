@@ -35,6 +35,15 @@ export interface RestoredSession {
    * faltaba era traerlo.
    */
   readonly loadByItem: Readonly<Record<string, LoadReading>>;
+  /**
+   * La carga de CADA serie registrada, por `itemId:setIndex`.
+   *
+   * `loadByItem` sola no alcanza desde que cada serie lleva la suya: guarda la
+   * de la última, así que al volver a la sesión una serie hecha con 60 y otra
+   * con 70 se mostraban las dos con 70. Lo que se registró es lo que tiene que
+   * verse, sin promediar ni arrastrar.
+   */
+  readonly loadBySet: Readonly<Record<string, LoadReading>>;
 }
 
 export const EMPTY_RESTORED: RestoredSession = {
@@ -42,6 +51,7 @@ export const EMPTY_RESTORED: RestoredSession = {
   doneByItem: {},
   setLogIds: new Map(),
   loadByItem: {},
+  loadBySet: {},
 };
 
 interface SetLogRow {
@@ -57,6 +67,7 @@ export function rebuild(rows: readonly unknown[]): Omit<RestoredSession, 'workou
   const doneByItem: Record<string, number[]> = {};
   const setLogIds = new Map<string, string>();
   const loadByItem: Record<string, LoadReading> = {};
+  const loadBySet: Record<string, LoadReading> = {};
   // De qué serie salió la carga de cada ejercicio, para quedarse con la más
   // avanzada y no con la que llegó primero en el JSON.
   const loadFromIndex: Record<string, number> = {};
@@ -71,17 +82,22 @@ export function rebuild(rows: readonly unknown[]): Omit<RestoredSession, 'workou
     doneByItem[itemId] = previas;
     setLogIds.set(`${itemId}:${row.set_index}`, row.id);
 
-    // La última serie manda: si subió la carga en la tercera, volver a la
-    // sesión tiene que traer esa, no la de la primera.
+    if (row.load_value === null || row.load_unit === null) continue;
+    const load: LoadReading = { value: row.load_value, unit: row.load_unit };
+
+    // Cada serie con la suya, tal como se registró.
+    loadBySet[`${itemId}:${row.set_index}`] = load;
+
+    // Y la del ejercicio: la de la última serie, que es con la que sigue la
+    // próxima si no se anota otra cosa.
     const desde = loadFromIndex[itemId];
-    const esMasNueva = desde === undefined || row.set_index >= desde;
-    if (row.load_value !== null && row.load_unit !== null && esMasNueva) {
-      loadByItem[itemId] = { value: row.load_value, unit: row.load_unit };
+    if (desde === undefined || row.set_index >= desde) {
+      loadByItem[itemId] = load;
       loadFromIndex[itemId] = row.set_index;
     }
   }
 
-  return { doneByItem, setLogIds, loadByItem };
+  return { doneByItem, setLogIds, loadByItem, loadBySet };
 }
 
 export function useRestoredSession(userId: string | undefined, planSessionId: string) {
