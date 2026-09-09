@@ -102,17 +102,36 @@ export function useProfileDetail() {
   });
 }
 
-/** Años cumplidos. `null` si no cargó la fecha o si es ilegible. */
+/**
+ * Años cumplidos. `null` si no cargó la fecha o si es ilegible.
+ *
+ * `birth_date` es un `date` de Postgres — un día de calendario, sin huso
+ * horario — pero `new Date('1996-09-10')` lo parsea como medianoche UTC.
+ * Leerlo después con `.getMonth()`/`.getDate()` (hora LOCAL) lo corre un día
+ * para atrás en cualquier huso al oeste de UTC. Arroyo Seco es uno de esos
+ * husos (UTC-3): con la fecha de nacimiento parseada así, alguien que nació
+ * el 10 aparecía habiendo nacido el 9, y el día ANTES de su cumpleaños real
+ * la cuenta ya lo daba un año más grande. Se detectó con un test que
+ * cubría justo ese caso (el cumpleaños de mañana, no el de hoy).
+ *
+ * El arreglo: sacar el año/mes/día de la fecha de nacimiento directo del
+ * texto, sin pasar nunca por `Date` — así no hay ningún huso horario que
+ * pueda correr el número.
+ */
 export function yearsSince(isoDate: string | null): number | null {
   if (!isoDate) return null;
-  const born = new Date(isoDate);
-  if (Number.isNaN(born.getTime())) return null;
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(isoDate);
+  if (!match) return null;
+  const bornYear = Number(match[1]);
+  const bornMonth = Number(match[2]);
+  const bornDay = Number(match[3]);
 
   const now = new Date();
-  let years = now.getFullYear() - born.getFullYear();
-  const beforeBirthday =
-    now.getMonth() < born.getMonth() ||
-    (now.getMonth() === born.getMonth() && now.getDate() < born.getDate());
+  const nowMonth = now.getMonth() + 1;
+  const nowDay = now.getDate();
+
+  let years = now.getFullYear() - bornYear;
+  const beforeBirthday = nowMonth < bornMonth || (nowMonth === bornMonth && nowDay < bornDay);
   if (beforeBirthday) years -= 1;
   return years >= 0 && years < 130 ? years : null;
 }
