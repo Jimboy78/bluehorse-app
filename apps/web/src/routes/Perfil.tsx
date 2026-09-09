@@ -4,6 +4,8 @@ import {
   Ban,
   Cake,
   Calendar,
+  ChevronRight,
+  Download,
   Dumbbell,
   HeartPulse,
   Mail,
@@ -45,6 +47,7 @@ import { fadeUp, listContainer, listItem } from '../lib/motion.ts';
 import { countByRegion, usePainHistory } from '../lib/pain-history.ts';
 import type { ConstraintDetail } from '../lib/profile.ts';
 import { useClearConstraint, useConstraints, useProfileDetail } from '../lib/profile.ts';
+import { isStandaloneDisplay } from '../lib/use-install-prompt.ts';
 
 /**
  * TU PERFIL
@@ -123,12 +126,52 @@ function PerfilBody({
   return (
     <div className="flex flex-col gap-6">
       <IdentityCard profile={profile.data} />
+      <InstallAppCard />
       <GoalCard profile={profile.data} />
       <PersonalDataCard profile={profile.data} />
       <HealthCard />
       <ConstraintsSection />
       <PainHistorySection />
     </div>
+  );
+}
+
+/**
+ * Invitación a instalar la PWA. `/instalar` es pública y estaba pensada como
+ * destino del cartel/QR del gimnasio — alguien que entró por cualquier otro
+ * lado (un link compartido, escribir la URL directo) nunca se enteraba de
+ * que existe una versión instalable, porque `useInstallPrompt` no se usaba
+ * en ningún otro lado. No se repite el detalle de plataforma acá (eso ya lo
+ * resuelve `/instalar`): esto es solo la puerta de entrada, para quien ya
+ * tiene la cuenta armada y todavía usa la pestaña del navegador.
+ *
+ * `isStandaloneDisplay()` sin el resto de `useInstallPrompt()` a propósito:
+ * acá no hace falta escuchar `beforeinstallprompt` ni ofrecer el prompt
+ * nativo, solo saber si ya está instalada para no insistir con algo que ya
+ * se hizo.
+ */
+function InstallAppCard() {
+  if (isStandaloneDisplay()) return null;
+
+  return (
+    <Link to="/instalar" className="block">
+      <Card
+        tone="brand"
+        className="flex items-center gap-3 transition-colors hover:border-brand/40"
+        animate={false}
+      >
+        <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-brand/25 bg-brand/10 text-brand">
+          <Download size={18} aria-hidden="true" />
+        </span>
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <p className="truncate text-sm font-semibold text-ink">Instalá la app</p>
+          <p className="truncate text-xs text-slate">
+            Arrancá desde el ícono, sin la barra del navegador
+          </p>
+        </div>
+        <ChevronRight size={16} className="shrink-0 text-slate-dim" aria-hidden="true" />
+      </Card>
+    </Link>
   );
 }
 
