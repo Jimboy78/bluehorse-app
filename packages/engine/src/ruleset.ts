@@ -305,6 +305,26 @@ const safetySchema = z.object({
     text: z.string().min(1),
     confidence: z.enum(CONFIDENCE_LEVELS),
   }),
+  /**
+   * Qué hacer cuando lo que el socio declaró es una **lesión**, no un dolor que
+   * viene de arrastre.
+   *
+   * Toda la evidencia que sostiene `painMonitoring` y los dos umbrales de
+   * `painRules` es de dolor **crónico**: que cargar la zona es seguro, que el
+   * dolor durante el ejercicio no es barrera, y que lo que decide el resultado
+   * es la exposición. Ninguna de esas fuentes estudió tejido que se lesionó
+   * hace poco. Extrapolarla es lo que hacía el motor hasta acá, y el resultado
+   * era decirle a alguien recién lesionado que podía cargar hasta 5 sobre 10.
+   *
+   * No hay acá ninguna ventana en días: la evidencia verificada no da un corte
+   * limpio, y ponerlo sería inventarlo. La distinción es la que el socio ya
+   * declara al cargar la restricción. Ver `docs/research/17`.
+   */
+  acuteInjury: z.object({
+    /** Reemplaza a `painMonitoring` cuando hay una lesión declarada. */
+    note: z.string().min(1),
+    confidence: z.enum(CONFIDENCE_LEVELS),
+  }),
   /** Situaciones que requieren autorización médica antes de entrenar. */
   specialPopulations: z
     .array(

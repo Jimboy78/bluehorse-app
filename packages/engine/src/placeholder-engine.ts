@@ -100,15 +100,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
       hasUsableEquipment(ex, gym, []),
   );
 
-  for (const rule of painRules) {
-    const region = regionLabel(rule.bodyRegion);
-    warnings.push(`Por la molestia en ${region}: ${rule.keepDoing}`);
-    // `referIf` es la frase que distingue una molestia de gimnasio de algo que
-    // hay que hacer ver. Estaba escrita en el ruleset y no se emitía nunca.
-    warnings.push(`Consultá si ${lowerFirst(rule.referIf)}`);
-  }
-  const monitoring = ruleset.safety?.painMonitoring;
-  if (painRules.length > 0 && monitoring) warnings.push(monitoring.text);
+  warnings.push(...safetyWarnings(ruleset, user.constraints, painRules));
 
   // Rotar los ejercicios del plan anterior hace que el músculo trabaje en
   // ángulos distintos. Es preferencia, no requisito: si rotar dejaría un patrón
@@ -419,13 +411,67 @@ function activePainRules(
 
   return rules.filter((rule) => {
     const floor = level === 'avoid' ? rule.avoidFrom : rule.monitorFrom;
-    return constraints.some(
-      (c) =>
-        (c.type === 'pain' || c.type === 'injury') &&
-        c.bodyRegion === rule.bodyRegion &&
-        c.severity >= floor,
-    );
+    return constraints.some((c) => {
+      if (c.type !== 'pain' && c.type !== 'injury') return false;
+      if (c.bodyRegion !== rule.bodyRegion) return false;
+      // Una lesión no accede al tramo permisivo. Los dos umbrales salen de
+      // evidencia de dolor crónico —tejido ya cicatrizado, donde seguir
+      // cargando es lo que mejora el cuadro—; ninguna de esas fuentes miró algo
+      // lesionado hace poco. Así que para una lesión el piso para SACAR es el
+      // mismo en el que un dolor crónico apenas se monitorea.
+      const piso = c.type === 'injury' ? rule.monitorFrom : floor;
+      return c.severity >= piso;
+    });
   });
+}
+
+/**
+ * Los avisos de seguridad que acompañan al plan.
+ *
+ * El orden importa: primero qué sí se puede hacer por zona, después cuándo hay
+ * que ir a que lo vean, y al final una sola regla general — la de monitoreo de
+ * dolor o la de lesión, nunca las dos, porque se contradicen.
+ */
+function safetyWarnings(
+  ruleset: Ruleset,
+  constraints: readonly UserConstraint[],
+  painRules: readonly PainRule[],
+): string[] {
+  const out: string[] = [];
+  let hayLesion = false;
+
+  for (const rule of painRules) {
+    const region = regionLabel(rule.bodyRegion);
+    const lesion = isInjuryRegion(constraints, rule);
+    hayLesion ||= lesion;
+    // Llamarle "molestia" a una lesión no es solo impreciso: baja la guardia
+    // justo donde hay que subirla.
+    out.push(`Por ${lesion ? 'la lesión' : 'la molestia'} en ${region}: ${rule.keepDoing}`);
+    // `referIf` es la frase que distingue una molestia de gimnasio de algo que
+    // hay que hacer ver. Estaba escrita en el ruleset y no se emitía nunca.
+    out.push(`Consultá si ${lowerFirst(rule.referIf)}`);
+  }
+
+  // Con una lesión declarada, la regla de monitoreo de dolor NO se emite: su
+  // texto autoriza a cargar hasta 5 sobre 10, y esa autorización sale de
+  // literatura de dolor crónico. Se emite en su lugar la nota de lesión.
+  const monitoring = ruleset.safety?.painMonitoring;
+  const acute = ruleset.safety?.acuteInjury;
+  if (hayLesion && acute) out.push(acute.note);
+  else if (painRules.length > 0 && monitoring) out.push(monitoring.text);
+
+  return out;
+}
+
+/** Si la zona de esta regla es una lesión declarada y no un dolor de arrastre. */
+function isInjuryRegion(
+  constraints: readonly UserConstraint[],
+  rule: Pick<PainRule, 'bodyRegion' | 'monitorFrom'>,
+): boolean {
+  return constraints.some(
+    (c) =>
+      c.type === 'injury' && c.bodyRegion === rule.bodyRegion && c.severity >= rule.monitorFrom,
+  );
 }
 
 /** Para encadenar `referIf` después de "Consultá si...". */

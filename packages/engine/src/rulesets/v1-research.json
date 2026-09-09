@@ -1292,6 +1292,10 @@
         "confidence": "low"
       }
     ],
+    "acuteInjury": {
+      "note": "Marcaste esto como una lesión, no como un dolor que venís arrastrando, así que el plan se pone en el lado prudente: se saca todo lo que cargue la zona, no solo lo que más molesta. La evidencia de que conviene seguir cargando aunque duela está hecha con dolor de meses, sobre tejido que ya cicatrizó; no dice nada sobre algo que se lesionó hace poco. Mientras esté reciente, no uses el dolor como permiso para cargar. Si fue un golpe fuerte, si la zona se hinchó o se deformó, si no podés apoyar o mover, o si no mejora en unos días, eso lo tiene que ver un profesional antes de que sigas entrenando.",
+      "confidence": "low"
+    },
     "specialPopulations": [
       {
         "id": "pregnancy",

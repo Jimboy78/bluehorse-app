@@ -1,7 +1,7 @@
 import type { Equipment, Exercise, Profile, SetLog, UserGoal } from '@bh/domain';
 import { describe, expect, it } from 'vitest';
 import type { EngineContext, GymSnapshot, UserSnapshot } from './contract.ts';
-import { V0_PLACEHOLDER } from './index.ts';
+import { V0_PLACEHOLDER, V1_RESEARCH } from './index.ts';
 import { createPlaceholderEngine } from './placeholder-engine.ts';
 import type { Ruleset } from './ruleset.ts';
 
@@ -979,5 +979,68 @@ describe('deporte, temporada y día de partido', () => {
       expect(out.changed).toBe(false);
       expect(out.items).toBe(original);
     });
+  });
+});
+
+/**
+ * Lesión aguda contra dolor crónico. Ver `docs/research/17-lesion-aguda.md`.
+ *
+ * Antes de esta iteración el motor colapsaba los dos tipos en un `||`, así que
+ * un esguince de ayer y una molestia de meses producían el mismo plan y el mismo
+ * mensaje — incluido el que autoriza a cargar hasta 5 sobre 10, que sale de
+ * literatura de dolor crónico.
+ */
+describe('lesión declarada contra dolor de arrastre', () => {
+  const engine = createPlaceholderEngine();
+
+  function planCon(type: 'injury' | 'pain', severity: number) {
+    return engine.generatePlan({
+      context,
+      user: buildUser({
+        constraints: [
+          { type, bodyRegion: 'lower_back', exerciseId: null, equipmentId: null, severity },
+        ],
+      }),
+      gym: buildGym(),
+      ruleset: V1_RESEARCH,
+    });
+  }
+
+  it('una lesión no recibe el permiso de cargar con dolor que sale del dolor crónico', () => {
+    const monitoring = V1_RESEARCH.safety?.painMonitoring.text as string;
+    const lesion = planCon('injury', 3);
+    const dolor = planCon('pain', 3);
+
+    expect(dolor.warnings).toContain(monitoring);
+    expect(lesion.warnings).not.toContain(monitoring);
+  });
+
+  it('una lesión recibe en su lugar la nota de lesión', () => {
+    const nota = V1_RESEARCH.safety?.acuteInjury.note as string;
+    expect(planCon('injury', 3).warnings).toContain(nota);
+    expect(planCon('pain', 3).warnings).not.toContain(nota);
+  });
+
+  it('a una lesión no se le dice "molestia"', () => {
+    expect(planCon('injury', 3).warnings.some((w) => w.startsWith('Por la lesión en'))).toBe(true);
+    expect(planCon('pain', 3).warnings.some((w) => w.startsWith('Por la molestia en'))).toBe(true);
+  });
+
+  it('en el tramo de en medio la lesión saca el patrón y el dolor crónico lo mantiene', () => {
+    // Severidad 3 en lumbar: `monitorFrom` 3, `avoidFrom` 4. El dolor crónico
+    // conserva el `hinge` a propósito —sacarlo ataca la exposición, que es lo
+    // que las fuentes señalan como determinante—; la lesión no tiene detrás
+    // ninguna evidencia que sostenga eso.
+    const patrones = (plan: ReturnType<typeof planCon>) =>
+      plan.sessions.flatMap((s) => s.items.map((i) => i.exerciseId));
+
+    expect(patrones(planCon('pain', 3))).toContain('ex-peso-muerto');
+    expect(patrones(planCon('injury', 3))).not.toContain('ex-peso-muerto');
+  });
+
+  it('con severidad por debajo del umbral de monitoreo la lesión no cambia nada', () => {
+    // El piso conservador arranca en `monitorFrom`, no antes: una lesión leve
+    // que ni siquiera dispara el aviso tampoco puede vaciar el plan.
+    expect(JSON.stringify(planCon('injury', 2))).toEqual(JSON.stringify(planCon('pain', 2)));
   });
 });
