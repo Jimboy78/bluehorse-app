@@ -466,6 +466,269 @@ async function consulta(tabla, ...filtros) {
   out(`${tabla.toUpperCase()} (${filas.length})`, filas);
 }
 
+// ------------------------------------------------- análisis del motor (anónimo)
+
+/**
+ * DE QUÉ ENTRADA SALIÓ CADA PLAN — sin saber de quién es
+ *
+ * La pregunta que estos comandos contestan no es "qué hizo Fulano" sino "con
+ * esta entrada, ¿el motor prescribe bien?". Por eso no sale ni un nombre, ni un
+ * email, ni un id de socio: la unidad de análisis es la RUTA (objetivo, nivel,
+ * frecuencia, minutos por sesión), no la persona.
+ *
+ * Tampoco toca cribado de salud ni molestias. No es solo privacidad: no hacen
+ * falta para juzgar un plan, y traerlos convertiría una herramienta de calidad
+ * del motor en una de vigilancia.
+ *
+ * `goal_snapshot` es lo que hace que esto sea posible y honesto: guarda el
+ * objetivo TAL COMO ERA cuando se generó el plan. Mirar `user_goals` hoy
+ * mostraría la entrada equivocada para todo plan de alguien que después cambió
+ * de objetivo.
+ */
+
+/** La entrada que produjo un plan, en una línea. Es la clave de agrupación. */
+function rutaDe(plan, nivelPorSocio) {
+  const g = plan.goal_snapshot ?? {};
+  return [
+    g.goal ?? '?',
+    nivelPorSocio.get(plan.user_id) ?? '?',
+    `${g.sessionsPerWeekTarget ?? '?'}x/sem`,
+    `${g.sessionMinutesTarget ?? '?'}min`,
+  ].join(' · ');
+}
+
+/** Todo lo que hace falta para analizar planes, cargado de una. */
+async function datosDePlanes() {
+  const [planes, perfiles, sesiones, items, ejercicios] = await Promise.all([
+    pick(
+      'plans',
+      'id, user_id, template_id, goal_snapshot, warnings, ruleset_version, generated_at',
+    ),
+    pick('profiles', 'id, experience_level'),
+    pick('plan_sessions', 'id, plan_id, label, focus, status, estimated_minutes'),
+    pick(
+      'plan_session_items',
+      'plan_session_id, exercise_id, target_sets, target_reps_min, target_reps_max, target_rir, rest_seconds, target_load, is_placeholder',
+    ),
+    pick('exercises', 'id, name, pattern, primary_muscles'),
+  ]);
+
+  const nivelPorSocio = new Map(perfiles.map((p) => [p.id, p.experience_level]));
+  const sesionesPorPlan = new Map();
+  for (const s of sesiones) {
+    sesionesPorPlan.set(s.plan_id, [...(sesionesPorPlan.get(s.plan_id) ?? []), s]);
+  }
+  const itemsPorSesion = new Map();
+  for (const i of items) {
+    itemsPorSesion.set(i.plan_session_id, [...(itemsPorSesion.get(i.plan_session_id) ?? []), i]);
+  }
+  const ejercicioPorId = new Map(ejercicios.map((e) => [e.id, e]));
+
+  return { planes, nivelPorSocio, sesionesPorPlan, itemsPorSesion, ejercicioPorId };
+}
+
+/** Los ítems de un plan, aplanados. */
+function itemsDePlan(plan, sesionesPorPlan, itemsPorSesion) {
+  const suyas = sesionesPorPlan.get(plan.id) ?? [];
+  return suyas.flatMap((s) => itemsPorSesion.get(s.id) ?? []);
+}
+
+/** Series por músculo en el plan: es la métrica sobre la que avisa el motor. */
+function seriesPorMusculo(items, ejercicioPorId) {
+  const porSesion = new Map();
+  for (const i of items) {
+    const ej = ejercicioPorId.get(i.exercise_id);
+    for (const m of ej?.primary_muscles ?? []) {
+      porSesion.set(m, (porSesion.get(m) ?? 0) + i.target_sets);
+    }
+  }
+  return porSesion;
+}
+
+async function recetas() {
+  const { planes, nivelPorSocio, sesionesPorPlan, itemsPorSesion } = await datosDePlanes();
+
+  const porRuta = new Map();
+  for (const p of planes) {
+    const ruta = rutaDe(p, nivelPorSocio);
+    const suyas = sesionesPorPlan.get(p.id) ?? [];
+    const items = itemsDePlan(p, sesionesPorPlan, itemsPorSesion);
+    const acc = porRuta.get(ruta) ?? {
+      planes: 0,
+      templates: new Set(),
+      rulesets: new Set(),
+      sesiones: 0,
+      completadas: 0,
+      items: 0,
+      series: 0,
+      conAviso: 0,
+      placeholders: 0,
+      sinCarga: 0,
+    };
+    acc.planes += 1;
+    acc.templates.add(p.template_id);
+    acc.rulesets.add(p.ruleset_version);
+    acc.sesiones += suyas.length;
+    acc.completadas += suyas.filter((s) => s.status === 'completed').length;
+    acc.items += items.length;
+    acc.series += items.reduce((n, i) => n + i.target_sets, 0);
+    acc.conAviso += (p.warnings?.length ?? 0) > 0 ? 1 : 0;
+    acc.placeholders += items.filter((i) => i.is_placeholder).length;
+    acc.sinCarga += items.filter((i) => i.target_load === null).length;
+    porRuta.set(ruta, acc);
+  }
+
+  const filas = [...porRuta.entries()]
+    .sort((a, b) => b[1].planes - a[1].planes)
+    .map(([ruta, a], i) => ({
+      '#': i + 1,
+      'ruta (objetivo · nivel · frecuencia · duración)': ruta,
+      template: [...a.templates].join(', '),
+      planes: a.planes,
+      'ses/plan': (a.sesiones / a.planes).toFixed(1),
+      'ejerc/ses': a.sesiones ? (a.items / a.sesiones).toFixed(1) : '—',
+      'series/ses': a.sesiones ? (a.series / a.sesiones).toFixed(1) : '—',
+      completó: a.sesiones ? `${Math.round((a.completadas / a.sesiones) * 100)}%` : '—',
+      'con aviso': `${Math.round((a.conAviso / a.planes) * 100)}%`,
+      'sin carga': a.items ? `${Math.round((a.sinCarga / a.items) * 100)}%` : '—',
+      ruleset: [...a.rulesets].join(', '),
+    }));
+
+  out(`RUTAS QUE GENERARON PLANES (${filas.length} rutas, ${planes.length} planes)`, filas);
+  if (!asJson) {
+    console.log(
+      '  "completó" es la señal más dura de si el plan está bien calibrado: un plan\n' +
+        '  que nadie termina está mal armado, aunque los números cierren.\n' +
+        '  Detalle de una ruta: npm run admin receta <#>',
+    );
+  }
+}
+
+async function receta(numero) {
+  const n = Number(numero);
+  if (!Number.isInteger(n) || n < 1) throw new Error('Pasá el número de ruta que lista `recetas`.');
+
+  const { planes, nivelPorSocio, sesionesPorPlan, itemsPorSesion, ejercicioPorId } =
+    await datosDePlanes();
+
+  const rutas = new Map();
+  for (const p of planes) {
+    const r = rutaDe(p, nivelPorSocio);
+    rutas.set(r, [...(rutas.get(r) ?? []), p]);
+  }
+  const ordenadas = [...rutas.entries()].sort((a, b) => b[1].length - a[1].length);
+  const elegida = ordenadas[n - 1];
+  if (!elegida) throw new Error(`No hay ruta #${n}. Son ${ordenadas.length}.`);
+
+  const [ruta, susPlanes] = elegida;
+  const items = susPlanes.flatMap((p) => itemsDePlan(p, sesionesPorPlan, itemsPorSesion));
+
+  if (asJson) {
+    console.log(JSON.stringify({ ruta, planes: susPlanes.length, items }, null, 2));
+    return;
+  }
+
+  console.log(`\nRUTA #${n}: ${ruta}`);
+  console.log(
+    `  ${susPlanes.length} plan(es) · template: ${[...new Set(susPlanes.map((p) => p.template_id))].join(', ')}`,
+  );
+
+  // Qué prescribió el motor, por ejercicio.
+  const porEjercicio = new Map();
+  for (const i of items) {
+    const key = i.exercise_id;
+    const acc = porEjercicio.get(key) ?? {
+      veces: 0,
+      series: 0,
+      reps: new Set(),
+      rir: new Set(),
+      rest: new Set(),
+    };
+    acc.veces += 1;
+    acc.series += i.target_sets;
+    acc.reps.add(`${i.target_reps_min}-${i.target_reps_max}`);
+    if (i.target_rir !== null) acc.rir.add(i.target_rir);
+    acc.rest.add(i.rest_seconds);
+    porEjercicio.set(key, acc);
+  }
+
+  out(
+    'QUÉ PRESCRIBIÓ',
+    [...porEjercicio.entries()]
+      .sort((a, b) => b[1].veces - a[1].veces)
+      .map(([id, a]) => ({
+        ejercicio: ejercicioPorId.get(id)?.name ?? id,
+        patrón: ejercicioPorId.get(id)?.pattern ?? '—',
+        'veces en el plan': a.veces,
+        series: a.series,
+        reps: [...a.reps].join(' / '),
+        rir: [...a.rir].join(' / ') || '—',
+        descanso: [...a.rest].map((r) => `${r}s`).join(' / '),
+      })),
+  );
+
+  // Volumen por músculo, que es sobre lo que avisa el motor y sobre lo que
+  // habla la investigación.
+  const sesiones = susPlanes.reduce((n2, p) => n2 + (sesionesPorPlan.get(p.id)?.length ?? 0), 0);
+  const porMusculo = seriesPorMusculo(items, ejercicioPorId);
+  out(
+    'SERIES POR MÚSCULO (en todo el plan)',
+    [...porMusculo.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([musculo, series]) => ({
+        músculo: musculo,
+        series: Math.round(series / susPlanes.length),
+        'por sesión': sesiones ? (series / sesiones).toFixed(1) : '—',
+      })),
+  );
+
+  const avisos = susPlanes.flatMap((p) => p.warnings ?? []);
+  out(
+    'AVISOS DEL MOTOR',
+    [...new Set(avisos)].map((a) => ({
+      aviso: a,
+      veces: avisos.filter((x) => x === a).length,
+    })),
+  );
+}
+
+/**
+ * Los avisos ordenados por frecuencia.
+ *
+ * Cada aviso es el motor diciendo que el plan que acaba de armar tiene un
+ * hueco. Si uno se repite en la mayoría de los planes, el problema no es de
+ * esos planes: es del ruleset o del catálogo.
+ */
+async function avisos() {
+  const planes = await pick('plans', 'warnings, template_id, ruleset_version');
+  const todos = planes.flatMap((p) => (p.warnings ?? []).map((w) => ({ w, t: p.template_id })));
+
+  const porAviso = new Map();
+  for (const { w, t } of todos) {
+    const acc = porAviso.get(w) ?? { veces: 0, templates: new Set() };
+    acc.veces += 1;
+    acc.templates.add(t);
+    porAviso.set(w, acc);
+  }
+
+  const filas = [...porAviso.entries()]
+    .sort((a, b) => b[1].veces - a[1].veces)
+    .map(([aviso, a]) => ({
+      veces: a.veces,
+      'de los planes': `${Math.round((a.veces / planes.length) * 100)}%`,
+      templates: [...a.templates].join(', '),
+      aviso,
+    }));
+
+  out(`AVISOS DEL MOTOR (${planes.length} planes)`, filas);
+  if (!asJson && filas.length > 0) {
+    console.log(
+      '  Un aviso que aparece en la mayoría de los planes no es un problema de\n' +
+        '  esos planes: es el ruleset o el catálogo pidiendo una corrección.',
+    );
+  }
+}
+
 // ------------------------------------------------------- herramientas del agente
 
 /**
@@ -797,6 +1060,9 @@ const comandos = {
   planes,
   resumen,
   tabla: () => consulta(...rest),
+  recetas,
+  receta: () => receta(rest[0] ?? ''),
+  avisos,
   sql: () => sql(...rest),
   motor: () => motor(rest[0] ?? ''),
   sembrar: () => sembrar(rest.join(' ') || undefined),
@@ -812,6 +1078,11 @@ if (!run) {
   resumen                     números del gimnasio
   tabla <tabla> [col=valor]   filas de cualquier tabla
   motor <email|uuid>          qué plan le armaría el motor real, sin guardarlo
+
+Analizar el motor (anónimo: sin nombres, sin salud):
+  recetas                     de qué entrada salió cada plan, agrupado
+  receta <#>                  qué prescribió una ruta: ejercicios, volumen, avisos
+  avisos                      qué le viene avisando el motor a los planes
 
 Solo contra la base LOCAL (escriben o corren SQL suelto):
   sql "<select ...>"          consulta libre de solo lectura

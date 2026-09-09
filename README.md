@@ -56,6 +56,30 @@ npm run admin motor ana@ejemplo.com         # qué plan le armaría el motor, si
 npm run admin socio ana@ejemplo.com -- --json
 ```
 
+## Analizar el motor (anónimo)
+
+La pregunta acá no es "qué hizo Fulano" sino "con esta entrada, ¿el motor
+prescribe bien?". No sale ningún nombre, ningún email ni ningún id de socio: la
+unidad de análisis es la **ruta** (objetivo · nivel · frecuencia · duración), no
+la persona. Tampoco toca cribado de salud ni molestias — no hacen falta para
+juzgar un plan.
+
+```bash
+npm run admin recetas      # de qué entrada salió cada plan, agrupado por ruta
+npm run admin receta 3     # qué prescribió esa ruta: ejercicios, volumen por músculo, avisos
+npm run admin avisos       # qué le viene avisando el motor a los planes
+```
+
+`recetas` muestra, por ruta: qué template eligió, cuántos planes salieron,
+ejercicios y series por sesión, **qué porcentaje de sesiones se completó** y
+cuántos planes salieron con avisos. El porcentaje completado es la señal más
+dura de si un plan está bien calibrado: uno que nadie termina está mal armado
+aunque los números cierren.
+
+Esto es posible porque `plans.goal_snapshot` congela el objetivo tal como era
+al generar el plan. Mirar `user_goals` hoy mostraría la entrada equivocada para
+todo plan de alguien que después cambió de objetivo.
+
 Y contra la base **local** únicamente, para trabajar sobre el proyecto:
 
 ```bash
