@@ -278,17 +278,42 @@ function ExerciseEvolution({
           {recentSets.map((set) => (
             <li key={set.id} className="flex items-center justify-between gap-3 py-2.5">
               <span className="text-xs text-slate">{formatDate(set.completedAt)}</span>
-              <span className="font-display text-base font-semibold tabular-nums text-ink">
-                {formatLoadOrDash(set.load)}
-                {set.reps !== null && (
-                  <span className="text-sm font-normal text-slate"> × {set.reps}</span>
-                )}
+              <span className="flex items-baseline gap-2">
+                <span className="font-display text-base font-semibold tabular-nums text-ink">
+                  {formatLoadOrDash(set.load)}
+                  {set.reps !== null && (
+                    <span className="text-sm font-normal text-slate"> × {set.reps}</span>
+                  )}
+                </span>
+                {/* RIR: cuánto le quedaba en reserva. Es el mismo dato que ya
+                    usa el motor para proponer subir o bajar carga — hasta acá
+                    nunca se le mostraba al socio su propia tendencia. */}
+                {set.rir !== null && <RirBadge value={set.rir} />}
               </span>
             </li>
           ))}
         </ul>
       )}
     </Card>
+  );
+}
+
+/**
+ * RIR: cuántas repeticiones más podría haber hecho, declaradas al cerrar la
+ * serie. 0-1 se resalta en naranja (el mismo semántico de "esfuerzo" que usa
+ * el resto de la app, `styles.css`): es la zona que el motor mira para
+ * proponer una suba de carga, y a la persona le sirve verla venir antes de
+ * que llegue la propuesta.
+ */
+function RirBadge({ value }: { value: number }) {
+  const alto = value <= 1;
+  return (
+    <span
+      className={`font-mono text-[0.65rem] font-medium ${alto ? 'text-orange' : 'text-slate-dim'}`}
+      title="Repeticiones en reserva declaradas"
+    >
+      RIR {value}
+    </span>
   );
 }
 

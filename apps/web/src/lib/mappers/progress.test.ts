@@ -15,6 +15,7 @@ function set(overrides: Partial<SetRecord> = {}): SetRecord {
     load: { value: 40, unit: 'kg' },
     loadKgNormalized: 40,
     reps: 8,
+    rir: 2,
     isWarmup: false,
     completedAt: '2026-08-10T12:00:00Z',
     ...overrides,
@@ -30,12 +31,14 @@ describe('toSetRecord', () => {
       load_unit: 'kg',
       load_kg_normalized: 40,
       reps: 8,
+      rir: 2,
       is_warmup: false,
       completed_at: '2026-08-10T12:00:00Z',
       exercises: { name: 'Press de banca' },
     });
     expect(record.load).toEqual({ value: 40, unit: 'kg' });
     expect(record.exerciseName).toBe('Press de banca');
+    expect(record.rir).toBe(2);
   });
 
   it('usa "Ejercicio" cuando no viene el join', () => {
@@ -46,11 +49,28 @@ describe('toSetRecord', () => {
       load_unit: 'bodyweight',
       load_kg_normalized: null,
       reps: 10,
+      rir: null,
       is_warmup: false,
       completed_at: '2026-08-10T12:00:00Z',
       exercises: null,
     });
     expect(record.exerciseName).toBe('Ejercicio');
+  });
+
+  it('deja el RIR en null cuando no se declaró', () => {
+    const record = toSetRecord({
+      id: 's-1',
+      exercise_id: 'ex-1',
+      load_value: 40,
+      load_unit: 'kg',
+      load_kg_normalized: 40,
+      reps: 8,
+      rir: null,
+      is_warmup: false,
+      completed_at: '2026-08-10T12:00:00Z',
+      exercises: null,
+    });
+    expect(record.rir).toBeNull();
   });
 });
 

@@ -24,6 +24,10 @@ export const setLogRowSchema = z.object({
   load_unit: loadUnitSchema.nullable(),
   load_kg_normalized: z.coerce.number().nullable(),
   reps: z.number().int().nullable(),
+  // Repeticiones en reserva declaradas al cerrar la serie. `null` cuando no
+  // lo dijo — es lo mismo que ya lee `reviewProgress()` para proponer subir
+  // o bajar carga; hasta acá el socio nunca veía su propia tendencia.
+  rir: z.number().int().nullable(),
   is_warmup: z.boolean(),
   completed_at: z.string(),
   exercises: z.object({ name: z.string() }).nullable(),
@@ -44,6 +48,7 @@ export interface SetRecord {
   readonly load: LoadReading | null;
   readonly loadKgNormalized: number | null;
   readonly reps: number | null;
+  readonly rir: number | null;
   readonly isWarmup: boolean;
   readonly completedAt: string;
 }
@@ -56,6 +61,7 @@ export function toSetRecord(row: SetLogRow): SetRecord {
     load: row.load_unit === null ? null : { value: row.load_value, unit: row.load_unit },
     loadKgNormalized: row.load_kg_normalized,
     reps: row.reps,
+    rir: row.rir,
     isWarmup: row.is_warmup,
     completedAt: row.completed_at,
   };
