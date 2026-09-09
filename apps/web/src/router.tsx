@@ -24,6 +24,9 @@ import { RequireScreening } from './routes/RequireScreening.tsx';
  * de React Router en inglés, en vez del mensaje en castellano de `CrashScreen`.
  */
 const App = lazy(() => import('./App.tsx').then((m) => ({ default: m.App })));
+const Evidencia = lazy(() =>
+  import('./routes/Evidencia.tsx').then((m) => ({ default: m.Evidencia })),
+);
 const Explorar = lazy(() => import('./routes/Explorar.tsx').then((m) => ({ default: m.Explorar })));
 const Instalar = lazy(() => import('./routes/Instalar.tsx').then((m) => ({ default: m.Instalar })));
 const Onboarding = lazy(() =>
@@ -121,6 +124,19 @@ export const router = createBrowserRouter([
         <RequireScreening>
           <RequireOnboarding>
             <Explorar />
+          </RequireOnboarding>
+        </RequireScreening>
+      </RequireAuth>,
+    ),
+    errorElement: <RouteError />,
+  },
+  {
+    path: '/evidencia',
+    element: lazyPage(
+      <RequireAuth>
+        <RequireScreening>
+          <RequireOnboarding>
+            <Evidencia />
           </RequireOnboarding>
         </RequireScreening>
       </RequireAuth>,

@@ -13,9 +13,9 @@ Existe un dimorfismo regional significativo que el algoritmo debe contemplar. Me
 
 | Parámetro / Regla | Evidencia Respaldada | Valor App | Confianza | Justificación (Citas) |
 | :---- | :---- | :---- | :---- | :---- |
-| **Paso de Carga: Novatos (Multiarticular)** | \+2.0% a \+7.2% semanal | **\+5.0%** | ALTA | Rápida optimización del reclutamiento de unidades motoras; el tren superior novato puede progresar marginalmente más rápido (R. Jaiswal et al., 2023, Sports Med, DOI: 10.1007/s40279-022-01783-0)12. |
-| **Paso de Carga: Intermedios/Avanzados (Tren Inferior)** | \+1.5% a \+3.0% mensual | **\+2.5%** | ALTA | El límite biológico de acumulación de proteínas contráctiles decae (C. Barakat et al., 2020, J Strength Cond Res, DOI: 10.1519/SSC.0000000000000584)7. |
-| **Paso de Carga: Intermedios/Avanzados (Tren Superior)** | \+1.0% a \+2.0% mensual | **\+1.25% o \+2.5%** | ALTA | Adaptación logarítmica; saltos agresivos violan el RIR y fuerzan el fallo prematuro7. |
+| **Paso de Carga: Novatos (Multiarticular)** | \+2.0% a \+7.2% semanal | **\+5.0%** | ⚠️ **SIN VERIFICAR** | ~~R. Jaiswal et al., 2023, Sports Med, DOI: 10.1007/s40279-022-01783-0~~ — **ese DOI no existe** (404 en Crossref, 9/9/2026), y no hay ningún trabajo de ese autor sobre progresión de carga en Sports Medicine. Cita fabricada. El valor **no llegó al ruleset**: el motor usa 1,25 % / 2,5 %. |
+| **Paso de Carga: Intermedios/Avanzados (Tren Inferior)** | \+1.5% a \+3.0% mensual | **\+2.5%** | ⚠️ **CITA MAL APLICADA** | El DOI 10.1519/SSC.0000000000000584 sí existe y es de Barakat 2020, pero se titula *"Body Recomposition: Can Trained Individuals Build Muscle and Lose Fat"* — es sobre recomposición corporal, no sobre límites de progresión de carga. El paper no dice lo que se le atribuye. |
+| **Paso de Carga: Intermedios/Avanzados (Tren Superior)** | \+1.0% a \+2.0% mensual | **\+1.25% o \+2.5%** | ⚠️ **CITA MAL APLICADA** | Apoyado en la misma referencia 7 (Barakat 2020) que la fila anterior, con el mismo problema. |
 | **Umbral VBT (Fuerza/Potencia)** | 10% a 20% Velocity Loss | **15% VL** | ALTA | F. Pareja-Blanco et al. (2020, Med Sci Sports Exerc, DOI: 10.1249/MSS.0000000000002295) demostraron que un 15% VL optimiza la Fuerza-Velocidad sin fatiga periférica excesiva4. |
 
 ## **2\. Cuándo Subir la Carga: Filtrado de Señal**
@@ -126,3 +126,26 @@ Las reglas algorítmicas de la aplicación incluyen un bloque de "recomposition"
 > 31. Effect of exercise training on weight loss, body composition changes, [https://pmc.ncbi.nlm.nih.gov/articles/PMC8365736/](https://pmc.ncbi.nlm.nih.gov/articles/PMC8365736/)  
 > 32. Versus High-Load Resistance Training on Muscle Growth, Body, [https://pubmed.ncbi.nlm.nih.gov/28699923/](https://pubmed.ncbi.nlm.nih.gov/28699923/)  
 > 33. Understanding Body Dysmorphic Disorder Risk and Exercise, [https://rmrj.usjr.edu.ph/rmrj/index.php/RMRJ/article/view/2270](https://rmrj.usjr.edu.ph/rmrj/index.php/RMRJ/article/view/2270)
+
+---
+
+## Nota sobre las fuentes de esta tabla
+
+Auditoría del 9 de septiembre de 2026, al construir el catálogo de fuentes que la app muestra en
+pantalla (`scripts/build-sources.mjs`). Los DOIs de este documento se resolvieron uno por uno
+contra Crossref, y la tabla de progresión no sobrevivió:
+
+- **Tres de sus cuatro filas estaban marcadas ALTA con la cita rota.** Una apunta a un DOI que no
+  existe; dos a un paper real sobre un tema distinto.
+- **La cuarta sí se verificó**: Pareja-Blanco et al. 2020, DOI 10.1249/MSS.0000000000002295,
+  *"Velocity Loss as a Critical Variable Determining the Adaptations to Strength Training"*. Autores,
+  año y tema correctos.
+
+**No se cambió ningún número.** Los valores que el motor usa (`stepPctUpperBody: 1.25`,
+`stepPctLowerBody: 2.5`) son más conservadores que el 5 % de la fila fabricada y no salen de ella.
+Reemplazarlos por otra cosa exigiría evidencia que no tengo; lo que sí correspondía era dejar de
+presentarlos como respaldados por confianza ALTA.
+
+Lo que esto abre: **la primera tanda de investigación —la que llenó el ruleset entero— no fue
+verificada cita por cita.** Esta tabla es la primera que se revisó a fondo. El resto de
+`01` a `07` está en la misma situación hasta que se le pase el mismo control.

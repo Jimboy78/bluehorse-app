@@ -12,6 +12,7 @@
       "!**/node_modules",
       "!supabase/.temp",
       "!**/*.generated.ts",
+      "!**/*.generated.json",
       "!packages/domain/src/database.types.ts"
     ]
   },

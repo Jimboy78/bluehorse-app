@@ -2,8 +2,10 @@ import {
   Activity,
   AlertCircle,
   Ban,
+  BookOpen,
   Cake,
   Calendar,
+  ChevronRight,
   Download,
   Dumbbell,
   HeartPulse,
@@ -35,6 +37,7 @@ import {
   SectionLabel,
   Skeleton,
 } from '../components/ui/index.ts';
+import catalogo from '../content/sources.generated.json' with { type: 'json' };
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
 import { useBodyMetrics, useRecordBodyMetric } from '../lib/body-metrics.ts';
 import { useScreeningState } from '../lib/health-screening.ts';
@@ -55,6 +58,9 @@ import {
   useUpdateProfile,
 } from '../lib/profile.ts';
 import { isStandaloneDisplay } from '../lib/use-install-prompt.ts';
+
+/** Cuántas fuentes hay, para no escribir un número que se desactualice solo. */
+const SOURCE_COUNT = catalogo.sources.length;
 
 /**
  * TU PERFIL
@@ -141,7 +147,39 @@ function PerfilBody({
       <HealthCard />
       <ConstraintsSection />
       <PainHistorySection />
+      <EvidenceLink />
     </div>
+  );
+}
+
+/**
+ * La puerta a "En qué se basa tu plan".
+ *
+ * Va al final del perfil y no en la barra de navegación: no es una pantalla que
+ * se visite todos los días, es la que se busca cuando alguien duda de un número
+ * que le propuso la app. Ahí es donde tiene que estar a mano.
+ */
+function EvidenceLink() {
+  return (
+    <Link
+      to="/evidencia"
+      className="group flex items-center gap-3 rounded-card border border-line bg-surface p-4 transition-colors hover:border-brand"
+    >
+      <BookOpen size={18} aria-hidden="true" className="shrink-0 text-brand" />
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="font-display text-sm font-semibold uppercase tracking-tight text-ink">
+          En qué se basa tu plan
+        </span>
+        <span className="text-xs text-slate">
+          Las {SOURCE_COUNT} fuentes que usa la app, con enlace a cada trabajo.
+        </span>
+      </span>
+      <ChevronRight
+        size={16}
+        aria-hidden="true"
+        className="shrink-0 text-slate transition-colors group-hover:text-brand"
+      />
+    </Link>
   );
 }
 

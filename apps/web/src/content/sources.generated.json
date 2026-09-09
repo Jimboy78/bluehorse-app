@@ -1,0 +1,983 @@
+{
+  "generatedAt": "2026-09-09",
+  "resolved": 51,
+  "unresolved": [
+    "10.1007/s40279-022-01783-0"
+  ],
+  "sources": [
+    {
+      "doi": "10.1249/MSS.0000000000002585",
+      "title": "Resistance Training Load Effects on Muscle Hypertrophy and Strength Gain: Systematic Review and Network Meta-analysis",
+      "authors": [
+        "Lopez",
+        "Radaelli",
+        "Taaffe"
+      ],
+      "moreAuthors": 7,
+      "year": 2020,
+      "journal": "Medicine & Science in Sports & Exercise",
+      "type": "journal-article",
+      "temas": [
+        "Arranque sin test",
+        "Objetivo"
+      ],
+      "documentos": [
+        "12-objetivo.md",
+        "20-arranque-sin-test.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s40279-022-01717-9",
+      "title": "Are Trainees Lifting Heavy Enough? Self-Selected Loads in Resistance Exercise: A Scoping Review and Exploratory Meta-analysis",
+      "authors": [
+        "Steele",
+        "Malleron",
+        "Har-Nir"
+      ],
+      "moreAuthors": 4,
+      "year": 2022,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Arranque sin test",
+        "Punto de partida"
+      ],
+      "documentos": [
+        "15-baselines.md",
+        "20-arranque-sin-test.md"
+      ]
+    },
+    {
+      "doi": "10.1519/JSC.0000000000004653",
+      "title": "Accuracy of Intraset Repetitions-in-Reserve Predictions During the Bench Press Exercise in Resistance-Trained Male and Female Subjects",
+      "authors": [
+        "Refalo",
+        "Remmert",
+        "Pelland"
+      ],
+      "moreAuthors": 5,
+      "year": 2023,
+      "journal": "Journal of Strength & Conditioning Research",
+      "type": "journal-article",
+      "temas": [
+        "Arranque sin test"
+      ],
+      "documentos": [
+        "20-arranque-sin-test.md"
+      ]
+    },
+    {
+      "doi": "10.1177/00315125231169868",
+      "title": "Accuracy of Predicted Intraset Repetitions in Reserve (RIR) in Single- and Multi-Joint Resistance Exercises Among Trained and Untrained Men and Women",
+      "authors": [
+        "Remmert",
+        "Laurson",
+        "Zourdos"
+      ],
+      "moreAuthors": 0,
+      "year": 2023,
+      "journal": "Perceptual and Motor Skills",
+      "type": "journal-article",
+      "temas": [
+        "Arranque sin test"
+      ],
+      "documentos": [
+        "20-arranque-sin-test.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s40279-022-01688-x",
+      "title": "The Effects of Concurrent Aerobic and Strength Training on Muscle Fiber Hypertrophy: A Systematic Review and Meta-Analysis",
+      "authors": [
+        "Lundberg",
+        "Feuerbacher",
+        "Sünkeler"
+      ],
+      "moreAuthors": 1,
+      "year": 2022,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Cardio e interferencia"
+      ],
+      "documentos": [
+        "13-cardio-e-interferencia.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2020-102955",
+      "title": "World Health Organization 2020 guidelines on physical activity and sedentary behaviour",
+      "authors": [
+        "Bull",
+        "Al-Ansari",
+        "Biddle"
+      ],
+      "moreAuthors": 27,
+      "year": 2020,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Cardio y resistencia"
+      ],
+      "documentos": [
+        "02-cardio-resistencia-recomposicion.md"
+      ]
+    },
+    {
+      "doi": "10.1123/ijspp.2024-0303",
+      "title": "What Is “Zone 2 Training”?: Experts’ Viewpoint on Definition, Training Methods, and Expected Adaptations",
+      "authors": [
+        "Sitko",
+        "Artetxe",
+        "Bonnevie-Svendsen"
+      ],
+      "moreAuthors": 11,
+      "year": 2025,
+      "journal": "International Journal of Sports Physiology and Performance",
+      "type": "journal-article",
+      "temas": [
+        "Cardio y resistencia"
+      ],
+      "documentos": [
+        "02-cardio-resistencia-recomposicion.md"
+      ]
+    },
+    {
+      "doi": "10.1186/s12967-017-1216-6",
+      "title": "Similar cardiometabolic effects of high- and moderate-intensity training among apparently healthy inactive adults: a randomized clinical trial",
+      "authors": [
+        "Ramírez-Vélez",
+        "Tordecilla-Sanders",
+        "Téllez-T"
+      ],
+      "moreAuthors": 6,
+      "year": 2017,
+      "journal": "Journal of Translational Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Cardio y resistencia"
+      ],
+      "documentos": [
+        "02-cardio-resistencia-recomposicion.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s11332-026-01884-6",
+      "title": "Hybrid training for health and performance: a minimalist framework for sustainable adaptation in advanced recreational practitioners",
+      "authors": [
+        "Lessa"
+      ],
+      "moreAuthors": 0,
+      "year": 2026,
+      "journal": "Sport Sciences for Health",
+      "type": "journal-article",
+      "temas": [
+        "Cardio y resistencia"
+      ],
+      "documentos": [
+        "02-cardio-resistencia-recomposicion.md"
+      ]
+    },
+    {
+      "doi": "10.3389/fnut.2024.1467406",
+      "title": "Editorial: New insights and advances in body recomposition",
+      "authors": [
+        "Bonilla",
+        "Petro",
+        "Cannataro"
+      ],
+      "moreAuthors": 2,
+      "year": 2024,
+      "journal": "Frontiers in Nutrition",
+      "type": "journal-article",
+      "temas": [
+        "Cardio y resistencia"
+      ],
+      "documentos": [
+        "02-cardio-resistencia-recomposicion.md"
+      ]
+    },
+    {
+      "doi": "10.5114/jhk/185877",
+      "title": "The Effects of Resistance Training on Sport-Specific Performance of Elite Athletes: A Systematic Review with Meta-Analysis",
+      "authors": [
+        "Makaruk",
+        "Starzak",
+        "Tarkowski"
+      ],
+      "moreAuthors": 2,
+      "year": 2024,
+      "journal": "Journal of Human Kinetics",
+      "type": "journal-article",
+      "temas": [
+        "Deporte y temporada"
+      ],
+      "documentos": [
+        "06-deporte-y-temporada.md"
+      ]
+    },
+    {
+      "doi": "10.7717/peerj.18047",
+      "title": "Effects of direction specific exercise training on athletic performance: a systematic review and meta-analysis",
+      "authors": [
+        "Huang",
+        "Hortobágyi",
+        "Dos’Santos"
+      ],
+      "moreAuthors": 5,
+      "year": 2024,
+      "journal": "PeerJ",
+      "type": "journal-article",
+      "temas": [
+        "Deporte y temporada"
+      ],
+      "documentos": [
+        "06-deporte-y-temporada.md"
+      ]
+    },
+    {
+      "doi": "10.1186/s40798-024-00808-3",
+      "title": "Impact of Lower-Volume Training on Physical Fitness Adaptations in Team Sports Players: A Systematic Review and Meta-analysis",
+      "authors": [
+        "Clemente",
+        "Ramirez-Campillo",
+        "Moran"
+      ],
+      "moreAuthors": 3,
+      "year": 2025,
+      "journal": "Sports Medicine - Open",
+      "type": "journal-article",
+      "temas": [
+        "Deporte y temporada"
+      ],
+      "documentos": [
+        "06-deporte-y-temporada.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s40279-021-01460-7",
+      "title": "Effects of Variations in Resistance Training Frequency on Strength Development in Well-Trained Populations and Implications for In-Season Athlete Training: A Systematic Review and Meta-analysis",
+      "authors": [
+        "Cuthbert",
+        "Haff",
+        "Arent"
+      ],
+      "moreAuthors": 4,
+      "year": 2021,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Deporte y temporada",
+        "Días de partido"
+      ],
+      "documentos": [
+        "06-deporte-y-temporada.md",
+        "07-dias-pre-y-post-partido.md"
+      ]
+    },
+    {
+      "doi": "10.1155/2022/2130993",
+      "title": "Effects of Short‐ and Long‐Term Detraining on Maximal Oxygen Uptake in Athletes: A Systematic Review and Meta‐Analysis",
+      "authors": [
+        "Zheng",
+        "Pan",
+        "Jiang"
+      ],
+      "moreAuthors": 1,
+      "year": 2022,
+      "journal": "BioMed Research International",
+      "type": "journal-article",
+      "temas": [
+        "Desentrenamiento aeróbico"
+      ],
+      "documentos": [
+        "19-desentrenamiento-aerobico.md"
+      ]
+    },
+    {
+      "doi": "10.1186/s40798-022-00466-3",
+      "title": "Fatigue and Recovery Time Course After Female Soccer Matches: A Systematic Review And Meta-analysis",
+      "authors": [
+        "Goulart",
+        "Coimbra",
+        "Campos"
+      ],
+      "moreAuthors": 6,
+      "year": 2022,
+      "journal": "Sports Medicine - Open",
+      "type": "journal-article",
+      "temas": [
+        "Días de partido"
+      ],
+      "documentos": [
+        "07-dias-pre-y-post-partido.md"
+      ]
+    },
+    {
+      "doi": "10.1371/journal.pone.0282838",
+      "title": "Effects of tapering on performance in endurance athletes: A systematic review and meta-analysis",
+      "authors": [
+        "Wang",
+        "Wang",
+        "Gao"
+      ],
+      "moreAuthors": 1,
+      "year": 2023,
+      "journal": "PLOS ONE",
+      "type": "journal-article",
+      "temas": [
+        "Días de partido"
+      ],
+      "documentos": [
+        "07-dias-pre-y-post-partido.md"
+      ]
+    },
+    {
+      "doi": "10.1007/978-3-031-44270-4_8",
+      "title": "Muscle Damage Induced by Eccentric Exercise, Recovery and Adaptations",
+      "authors": [
+        "Nosaka",
+        "Chen"
+      ],
+      "moreAuthors": 0,
+      "year": 2025,
+      "journal": "Fundamentals of Recovery, Regeneration, and Adaptation to Exercise Stress: An Integrated Approach",
+      "type": "book-chapter",
+      "temas": [
+        "Días de partido",
+        "Énfasis excéntrico"
+      ],
+      "documentos": [
+        "07-dias-pre-y-post-partido.md",
+        "18-enfasis-excentrico.md"
+      ]
+    },
+    {
+      "doi": "10.3389/fphys.2018.00403",
+      "title": "An Evidence-Based Approach for Choosing Post-exercise Recovery Techniques to Reduce Markers of Muscle Damage, Soreness, Fatigue, and Inflammation: A Systematic Review With Meta-Analysis",
+      "authors": [
+        "Dupuy",
+        "Douzi",
+        "Theurot"
+      ],
+      "moreAuthors": 2,
+      "year": 2018,
+      "journal": "Frontiers in Physiology",
+      "type": "journal-article",
+      "temas": [
+        "Días de partido"
+      ],
+      "documentos": [
+        "07-dias-pre-y-post-partido.md"
+      ]
+    },
+    {
+      "doi": "10.1371/journal.pone.0354720",
+      "title": "Does delayed exercise-based priming improve subsequent athletic performance? A systematic review and multilevel meta-analysis",
+      "authors": [
+        "Wang",
+        "Li",
+        "Xia"
+      ],
+      "moreAuthors": 3,
+      "year": 2026,
+      "journal": "PLOS One",
+      "type": "journal-article",
+      "temas": [
+        "Días de partido"
+      ],
+      "documentos": [
+        "07-dias-pre-y-post-partido.md"
+      ]
+    },
+    {
+      "doi": "10.3390/sports12030073",
+      "title": "Weekly Programming of Hamstring-Related Training Contents in European Professional Soccer",
+      "authors": [
+        "Gómez-Piqueras",
+        "Martínez-Serrano",
+        "Freitas"
+      ],
+      "moreAuthors": 13,
+      "year": 2024,
+      "journal": "Sports",
+      "type": "journal-article",
+      "temas": [
+        "Días de partido"
+      ],
+      "documentos": [
+        "07-dias-pre-y-post-partido.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2016-097383",
+      "title": "Should exercises be painful in the management of chronic musculoskeletal pain? A systematic review and meta-analysis",
+      "authors": [
+        "Smith",
+        "Hendrick",
+        "Smith"
+      ],
+      "moreAuthors": 5,
+      "year": 2017,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Dolor y lesiones",
+        "Lesión aguda"
+      ],
+      "documentos": [
+        "09-dolor-y-lesiones.md",
+        "17-lesion-aguda.md"
+      ]
+    },
+    {
+      "doi": "10.2519/jospt.2025.13253",
+      "title": "Effectiveness of Painful Versus Nonpainful Exercise on Pain Intensity, Disability, and Other Patient-Reported Outcomes in Adults With Chronic Musculoskeletal Pain: An Updated Systematic Review With Meta-Analysis",
+      "authors": [
+        "Tran",
+        "Gibbs",
+        "Yu"
+      ],
+      "moreAuthors": 3,
+      "year": 2025,
+      "journal": "Journal of Orthopaedic & Sports Physical Therapy",
+      "type": "journal-article",
+      "temas": [
+        "Dolor y lesiones"
+      ],
+      "documentos": [
+        "09-dolor-y-lesiones.md"
+      ]
+    },
+    {
+      "doi": "10.1177/0363546506298279",
+      "title": "Continued Sports Activity, Using a Pain-Monitoring Model, during Rehabilitation in Patients with Achilles Tendinopathy",
+      "authors": [
+        "Silbernagel",
+        "Thomeé",
+        "Eriksson"
+      ],
+      "moreAuthors": 1,
+      "year": 2007,
+      "journal": "The American Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Dolor y lesiones"
+      ],
+      "documentos": [
+        "09-dolor-y-lesiones.md"
+      ]
+    },
+    {
+      "doi": "10.1038/s41598-025-90699-5",
+      "title": "Impact of isolated lumbar extension strength training on reducing nonspecific low back pain, disability, and improving function: a systematic review and meta-analysis",
+      "authors": [
+        "Trybulski",
+        "Michał",
+        "Małgorzata"
+      ],
+      "moreAuthors": 5,
+      "year": 2025,
+      "journal": "Scientific Reports",
+      "type": "journal-article",
+      "temas": [
+        "Dolor y lesiones"
+      ],
+      "documentos": [
+        "09-dolor-y-lesiones.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s40279-015-0385-9",
+      "title": "Dose–Response Relationships of Resistance Training in Healthy Old Adults: A Systematic Review and Meta-Analysis",
+      "authors": [
+        "Borde",
+        "Hortobágyi",
+        "Granacher"
+      ],
+      "moreAuthors": 0,
+      "year": 2015,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Edad"
+      ],
+      "documentos": [
+        "08-edad.md"
+      ]
+    },
+    {
+      "doi": "10.3389/fpubh.2025.1735899",
+      "title": "Effects of resistance training on muscle mass, strength, and physical function in older women with sarcopenia: a systematic review and meta-analysis",
+      "authors": [
+        "Zhou",
+        "Wen",
+        "Zhang"
+      ],
+      "moreAuthors": 1,
+      "year": 2026,
+      "journal": "Frontiers in Public Health",
+      "type": "journal-article",
+      "temas": [
+        "Edad"
+      ],
+      "documentos": [
+        "08-edad.md"
+      ]
+    },
+    {
+      "doi": "10.1186/s40798-023-00646-9",
+      "title": "Chronic Effects of Different Intensities of Power Training on Neuromuscular Parameters in Older People: A Systematic Review with Meta-analysis",
+      "authors": [
+        "Bandeira-Guimarães",
+        "Blanco-Rambo",
+        "Vieira"
+      ],
+      "moreAuthors": 4,
+      "year": 2023,
+      "journal": "Sports Medicine - Open",
+      "type": "journal-article",
+      "temas": [
+        "Edad"
+      ],
+      "documentos": [
+        "08-edad.md"
+      ]
+    },
+    {
+      "doi": "10.3390/app13137969",
+      "title": "Eccentric Resistance Training: A Methodological Proposal of Eccentric Muscle Exercise Classification Based on Exercise Complexity, Training Objectives, Methods, and Intensity",
+      "authors": [
+        "Burgos-Jara",
+        "Cerda-Kohler",
+        "Aedo-Muñoz"
+      ],
+      "moreAuthors": 1,
+      "year": 2023,
+      "journal": "Applied Sciences",
+      "type": "journal-article",
+      "temas": [
+        "Énfasis excéntrico"
+      ],
+      "documentos": [
+        "18-enfasis-excentrico.md"
+      ]
+    },
+    {
+      "doi": "10.1371/journal.pone.0271233",
+      "title": "Appropriateness of indirect markers of muscle damage following lower limbs eccentric-biased exercises: A systematic review with meta-analysis",
+      "authors": [
+        "Chalchat",
+        "Gaston",
+        "Charlot"
+      ],
+      "moreAuthors": 7,
+      "year": 2022,
+      "journal": "PLOS ONE",
+      "type": "journal-article",
+      "temas": [
+        "Énfasis excéntrico"
+      ],
+      "documentos": [
+        "18-enfasis-excentrico.md"
+      ]
+    },
+    {
+      "doi": "10.3389/fphys.2020.596640",
+      "title": "Fast-Velocity Eccentric Cycling Exercise Causes Greater Muscle Damage Than Slow Eccentric Cycling",
+      "authors": [
+        "Ueda",
+        "Tsuchiya",
+        "Ochi"
+      ],
+      "moreAuthors": 0,
+      "year": 2020,
+      "journal": "Frontiers in Physiology",
+      "type": "journal-article",
+      "temas": [
+        "Énfasis excéntrico"
+      ],
+      "documentos": [
+        "18-enfasis-excentrico.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s12603-012-0084-2",
+      "title": "A simple frailty questionnaire (FRAIL) predicts outcomes in middle aged African Americans",
+      "authors": [
+        "Morley",
+        "Malmstrom",
+        "Miller"
+      ],
+      "moreAuthors": 0,
+      "year": 2012,
+      "journal": "The Journal of nutrition, health and aging",
+      "type": "journal-article",
+      "temas": [
+        "Fragilidad"
+      ],
+      "documentos": [
+        "21-fragilidad.md"
+      ]
+    },
+    {
+      "doi": "10.1093/gerona/56.3.m146",
+      "title": "Frailty in Older Adults: Evidence for a Phenotype",
+      "authors": [
+        "Fried",
+        "Tangen",
+        "Walston"
+      ],
+      "moreAuthors": 8,
+      "year": 2001,
+      "journal": "The Journals of Gerontology Series A: Biological Sciences and Medical Sciences",
+      "type": "journal-article",
+      "temas": [
+        "Fragilidad"
+      ],
+      "documentos": [
+        "21-fragilidad.md"
+      ]
+    },
+    {
+      "doi": "10.1519/JSC.0000000000003230",
+      "title": "Resistance Training for Older Adults: Position Statement From the National Strength and Conditioning Association",
+      "authors": [
+        "Fragala",
+        "Cadore",
+        "Dorgo"
+      ],
+      "moreAuthors": 4,
+      "year": 2019,
+      "journal": "Journal of Strength and Conditioning Research",
+      "type": "journal-article",
+      "temas": [
+        "Fragilidad"
+      ],
+      "documentos": [
+        "21-fragilidad.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s40279-025-02344-w",
+      "title": "The Resistance Training Dose Response: Meta-Regressions Exploring the Effects of Weekly Volume and Frequency on Muscle Hypertrophy and Strength Gains",
+      "authors": [
+        "Pelland",
+        "Remmert",
+        "Robinson"
+      ],
+      "moreAuthors": 2,
+      "year": 2025,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Frecuencia semanal",
+        "Nivel de experiencia"
+      ],
+      "documentos": [
+        "10-nivel-de-experiencia.md",
+        "11-frecuencia-semanal.md"
+      ]
+    },
+    {
+      "doi": "10.2478/hukin-2019-0062",
+      "title": "Similar Muscular Adaptations in Resistance Training Performed Two Versus Three Days Per Week",
+      "authors": [
+        "Lasevicius",
+        "Schoenfeld",
+        "Grgic"
+      ],
+      "moreAuthors": 3,
+      "year": 2019,
+      "journal": "Journal of Human Kinetics",
+      "type": "journal-article",
+      "temas": [
+        "Frecuencia semanal"
+      ],
+      "documentos": [
+        "11-frecuencia-semanal.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2017-098983",
+      "title": "Musculoskeletal pain and exercise—challenging existing paradigms and introducing new",
+      "authors": [
+        "Smith",
+        "Hendrick",
+        "Bateman"
+      ],
+      "moreAuthors": 4,
+      "year": 2018,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Lesión aguda"
+      ],
+      "documentos": [
+        "17-lesion-aguda.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2019-101253",
+      "title": "Soft-tissue injuries simply need PEACE and LOVE",
+      "authors": [
+        "Dubois",
+        "Esculier"
+      ],
+      "moreAuthors": 0,
+      "year": 2019,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Lesión aguda"
+      ],
+      "documentos": [
+        "17-lesion-aguda.md"
+      ]
+    },
+    {
+      "doi": "10.3389/fmed.2022.868474",
+      "title": "Acute Ankle Sprain Management: An Umbrella Review of Systematic Reviews",
+      "authors": [
+        "Gaddi",
+        "Mosca",
+        "Piatti"
+      ],
+      "moreAuthors": 9,
+      "year": 2022,
+      "journal": "Frontiers in Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Lesión aguda"
+      ],
+      "documentos": [
+        "17-lesion-aguda.md"
+      ]
+    },
+    {
+      "doi": "10.1519/SSC.0000000000000627",
+      "title": "Classification and Determination Model of Resistance Training Status",
+      "authors": [
+        "Santos Junior",
+        "de Salles",
+        "Dias"
+      ],
+      "moreAuthors": 3,
+      "year": 2021,
+      "journal": "Strength & Conditioning Journal",
+      "type": "journal-article",
+      "temas": [
+        "Nivel de experiencia"
+      ],
+      "documentos": [
+        "10-nivel-de-experiencia.md"
+      ]
+    },
+    {
+      "doi": "10.1519/SSC.0000000000000584",
+      "title": "Body Recomposition: Can Trained Individuals Build Muscle and Lose Fat at the Same Time?",
+      "authors": [
+        "Barakat",
+        "Pearson",
+        "Escalante"
+      ],
+      "moreAuthors": 2,
+      "year": 2020,
+      "journal": "Strength & Conditioning Journal",
+      "type": "journal-article",
+      "temas": [
+        "Progresión y descarga"
+      ],
+      "documentos": [
+        "03-progresion-descarga.md"
+      ]
+    },
+    {
+      "doi": "10.1519/SSC.0000000000000218",
+      "title": "Application of the Repetitions in Reserve-Based Rating of Perceived Exertion Scale for Resistance Training",
+      "authors": [
+        "Helms",
+        "Cronin",
+        "Storey"
+      ],
+      "moreAuthors": 1,
+      "year": 2016,
+      "journal": "Strength & Conditioning Journal",
+      "type": "journal-article",
+      "temas": [
+        "Progresión y descarga"
+      ],
+      "documentos": [
+        "03-progresion-descarga.md"
+      ]
+    },
+    {
+      "doi": "10.3390/sports10080120",
+      "title": "Acute Supplementation with Capsaicin Enhances Upper-Limb Performance in Male Jiu-Jitsu Athletes",
+      "authors": [
+        "da Silva",
+        "Mota",
+        "Marocolo"
+      ],
+      "moreAuthors": 2,
+      "year": 2022,
+      "journal": "Sports",
+      "type": "journal-article",
+      "temas": [
+        "Progresión y descarga"
+      ],
+      "documentos": [
+        "03-progresion-descarga.md"
+      ]
+    },
+    {
+      "doi": "10.1519/JSC.0000000000004536",
+      "title": "Influence of Body Mass on Running-Induced Changes in Mechanical Properties of Plantar Fascia",
+      "authors": [
+        "Shiotani",
+        "Mizokuchi",
+        "Yamashita"
+      ],
+      "moreAuthors": 2,
+      "year": 2023,
+      "journal": "Journal of Strength & Conditioning Research",
+      "type": "journal-article",
+      "temas": [
+        "Progresión y descarga"
+      ],
+      "documentos": [
+        "03-progresion-descarga.md"
+      ]
+    },
+    {
+      "doi": "10.2165/00007256-200030020-00002",
+      "title": "Detraining: Loss of Training-Induced Physiological and Performance Adaptations. Part I",
+      "authors": [
+        "Mujika",
+        "Padilla"
+      ],
+      "moreAuthors": 0,
+      "year": 2000,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Progresión y descarga"
+      ],
+      "documentos": [
+        "03-progresion-descarga.md"
+      ]
+    },
+    {
+      "doi": "10.1519/JSC.0000000000000539",
+      "title": "Changes in Exercises Are More Effective Than in Loading Schemes to Improve Muscle Strength",
+      "authors": [
+        "Fonseca",
+        "Roschel",
+        "Tricoli"
+      ],
+      "moreAuthors": 6,
+      "year": 2014,
+      "journal": "Journal of Strength and Conditioning Research",
+      "type": "journal-article",
+      "temas": [
+        "Progresión y descarga"
+      ],
+      "documentos": [
+        "03-progresion-descarga.md"
+      ]
+    },
+    {
+      "doi": "10.1139/apnm-2019-0829",
+      "title": "Velocity-based resistance training: impact of velocity loss in the set on neuromuscular performance and hormonal response",
+      "authors": [
+        "Rodríguez-Rosell",
+        "Yáñez-García",
+        "Mora-Custodio"
+      ],
+      "moreAuthors": 4,
+      "year": 2020,
+      "journal": "Applied Physiology, Nutrition, and Metabolism",
+      "type": "journal-article",
+      "temas": [
+        "Progresión y descarga"
+      ],
+      "documentos": [
+        "03-progresion-descarga.md"
+      ]
+    },
+    {
+      "doi": "10.1371/journal.pone.0284216",
+      "title": "Muscle strength gains per week are higher in the lower-body than the upper-body in resistance training experienced healthy young women—A systematic review with meta-analysis",
+      "authors": [
+        "Jung",
+        "Gehlert",
+        "Geisler"
+      ],
+      "moreAuthors": 3,
+      "year": 2023,
+      "journal": "PLOS ONE",
+      "type": "journal-article",
+      "temas": [
+        "Progresión y descarga"
+      ],
+      "documentos": [
+        "03-progresion-descarga.md"
+      ]
+    },
+    {
+      "doi": "10.3389/fphys.2026.1891899",
+      "title": "The effects of detraining on body composition and cardiometabolic health: a systematic review and meta-analysis of randomized controlled trials",
+      "authors": [
+        "Zhang",
+        "Zhu",
+        "Zhao"
+      ],
+      "moreAuthors": 1,
+      "year": 2026,
+      "journal": "Frontiers in Physiology",
+      "type": "journal-article",
+      "temas": [
+        "Progresión y descarga"
+      ],
+      "documentos": [
+        "03-progresion-descarga.md"
+      ]
+    },
+    {
+      "doi": "10.1249/MSS.0000000000003897",
+      "title": "American College of Sports Medicine Position Stand. Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults: An Overview of Reviews",
+      "authors": [
+        "Currier",
+        "D’souza",
+        "Singh"
+      ],
+      "moreAuthors": 10,
+      "year": 2026,
+      "journal": "Medicine & Science in Sports & Exercise",
+      "type": "journal-article",
+      "temas": [
+        "Tiempo bajo tensión"
+      ],
+      "documentos": [
+        "16-tiempo-bajo-tension.md"
+      ]
+    },
+    {
+      "doi": "10.3390/ijerph192114048",
+      "title": "Use It or Lose It? A Meta-Analysis on the Effects of Resistance Training Cessation (Detraining) on Muscle Size in Older Adults",
+      "authors": [
+        "Grgic"
+      ],
+      "moreAuthors": 0,
+      "year": 2022,
+      "journal": "International Journal of Environmental Research and Public Health",
+      "type": "journal-article",
+      "temas": [
+        "Volver después de una pausa"
+      ],
+      "documentos": [
+        "14-historial-y-desentrenamiento.md"
+      ]
+    }
+  ]
+}

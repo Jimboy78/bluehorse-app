@@ -92,6 +92,17 @@ resultado de investigación.
   queda abierta.
 - **Peso libre contra máquina, unilateral contra bilateral, recorrido completo contra parcial.** Son
   las candidatas que quedaron sin evaluar con evidencia propia. El informe las ordenó, pero apoyado
-  en el artefacto de corpus descrito arriba y en una cita cuyo DOI
-  (`10.1152/japplphysiol.00664.2006`, atribuido a "Chen 2007") **resuelve a un paper de modelos
-  windkessel de propiedades arteriales**. Nada de ese ordenamiento entró acá.
+  en el artefacto de corpus descrito arriba y en una cita que resuelve a otro paper (ver la nota al
+  pie). Nada de ese ordenamiento entró acá.
+
+## Nota sobre las fuentes de esta iteración
+
+El informe atribuyó a "Chen 2007" el DOI `10.1152/japplphysiol.00664.2006` como respaldo de que la
+amplitud de recorrido predice el daño muscular. Ese DOI **resuelve a un paper de modelos windkessel
+de propiedades arteriales**, sin relación con el tema. Y el paper que sí lleva ese título —*Intensity
+and volume of eccentric exercise, not stretch amplitude, determines changes in muscle damage*— dice
+en su propio título lo contrario de lo que se le atribuía.
+
+También presentó como "64,1 % contra 35,9 %" un contraste que en el paper es 64,1 % contra 47,5 %,
+y describió el metaanálisis de Chalchat como si comparara ejercicios cuando compara marcadores de
+daño. Nada de eso entró.
