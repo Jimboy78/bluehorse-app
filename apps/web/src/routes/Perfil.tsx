@@ -1,4 +1,5 @@
 import {
+  Activity,
   AlertCircle,
   Ban,
   Cake,
@@ -41,6 +42,7 @@ import {
   SEX_LABELS,
 } from '../lib/labels.ts';
 import { fadeUp, listContainer, listItem } from '../lib/motion.ts';
+import { countByRegion, usePainHistory } from '../lib/pain-history.ts';
 import type { ConstraintDetail } from '../lib/profile.ts';
 import { useClearConstraint, useConstraints, useProfileDetail } from '../lib/profile.ts';
 
@@ -125,6 +127,7 @@ function PerfilBody({
       <PersonalDataCard profile={profile.data} />
       <HealthCard />
       <ConstraintsSection />
+      <PainHistorySection />
     </div>
   );
 }
@@ -498,4 +501,117 @@ function formatDate(iso: string): string {
     month: 'short',
     year: 'numeric',
   }).format(new Date(iso));
+}
+
+/** Identidad estable por punto, mismo criterio que `SetDots` en `Hoy.tsx`: la posición no alcanza como clave de React. */
+function severityDots(severity: number): { id: string; filled: boolean }[] {
+  return Array.from({ length: 5 }, (_, i) => ({
+    id: `punto-${i + 1}`,
+    filled: i < severity,
+  }));
+}
+
+// ---------------------------------------------------------- historial de molestias
+
+/**
+ * Lo que se reportó al cerrar sesiones, sesión a sesión — distinto de
+ * `ConstraintsSection` arriba, que es lo VIGENTE (lo que el motor esquiva
+ * ahora). Esto es el historial completo: hasta acá se escribía al cerrar una
+ * sesión y no se volvía a ver en ningún lado, ni siquiera por quien lo
+ * reportó.
+ *
+ * La cuenta por zona es la parte que importa más que la lista: una molestia
+ * reportada una vez no dice nada por sí sola, pero la misma zona repetida
+ * varias veces en las últimas reportadas es justo la señal que alguien
+ * necesita para decidir si vale la pena ver a un médico — y esa señal no se
+ * ve mirando las filas sueltas del cierre de cada sesión.
+ */
+function PainHistorySection() {
+  const history = usePainHistory();
+
+  if (history.isPending) {
+    return (
+      <section className="flex flex-col gap-2.5">
+        <SectionLabel icon={<Activity size={13} aria-hidden="true" />}>
+          Historial de molestias
+        </SectionLabel>
+        <Skeleton className="h-14 w-full" />
+      </section>
+    );
+  }
+
+  // Sin nada reportado nunca, la sección no suma nada — a diferencia de
+  // `ConstraintsSection`, que sí muestra su estado vacío porque confirma que
+  // el motor no está esquivando nada (una afirmación). Acá "nunca reportaste
+  // nada" no es una afirmación que valga la pena hacer siempre visible.
+  if (history.isError || !history.data || history.data.length === 0) return null;
+
+  const counts = countByRegion(history.data);
+  const repeated = [...counts.entries()]
+    .filter(([, count]) => count >= 2)
+    .sort((a, b) => b[1] - a[1]);
+
+  return (
+    <section className="flex flex-col gap-2.5">
+      <SectionLabel icon={<Activity size={13} aria-hidden="true" />}>
+        Historial de molestias
+      </SectionLabel>
+
+      {repeated.length > 0 && (
+        <Notice tone="warn" icon={<AlertCircle size={15} aria-hidden="true" />}>
+          {repeated.length === 1 && repeated[0] ? (
+            <>
+              Reportaste <strong className="text-ink">{BODY_REGION_LABELS[repeated[0][0]]}</strong>{' '}
+              {repeated[0][1]} veces en tus últimas {history.data.length} sesiones con molestia. Si
+              se repite, vale la pena que lo veas con un médico.
+            </>
+          ) : (
+            <>
+              Varias zonas se repiten en tus últimas sesiones con molestia:{' '}
+              {repeated.map(([region, count], i) => (
+                <span key={region}>
+                  {i > 0 && ', '}
+                  <strong className="text-ink">{BODY_REGION_LABELS[region]}</strong> ({count})
+                </span>
+              ))}
+              . Si se repite, vale la pena que lo veas con un médico.
+            </>
+          )}
+        </Notice>
+      )}
+
+      <motion.ul
+        variants={listContainer}
+        initial="hidden"
+        animate="visible"
+        className="flex flex-col gap-1.5"
+      >
+        {history.data.map((report) => (
+          <motion.li
+            key={report.id}
+            variants={listItem}
+            className="flex items-center justify-between gap-3 rounded-xl border border-line/70 bg-navy px-3.5 py-3"
+          >
+            <span className="flex min-w-0 flex-col gap-0.5">
+              <span className="text-sm font-semibold text-ink">
+                {BODY_REGION_LABELS[report.bodyRegion]}
+              </span>
+              <span className="text-[0.65rem] text-slate-dim">{formatDate(report.reportedAt)}</span>
+            </span>
+            {/* Los mismos cinco puntos que en el cierre de sesión: intensidad
+                del 1 al 5, sin volver a inventar una escala distinta acá. */}
+            <span className="flex shrink-0 items-center gap-1" aria-hidden="true">
+              {severityDots(report.severity).map((dot) => (
+                <span
+                  key={dot.id}
+                  className={`size-1.5 rounded-full ${dot.filled ? 'bg-orange' : 'bg-line-bright'}`}
+                />
+              ))}
+            </span>
+            <span className="sr-only">Intensidad {report.severity} de 5</span>
+          </motion.li>
+        ))}
+      </motion.ul>
+    </section>
+  );
 }
