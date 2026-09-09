@@ -14,7 +14,7 @@ Medido contando usos reales en `packages/engine/src/`, no leyendo la documentaci
 | Entrada | ¿La usa? | Estado |
 |---|---|---|
 | `experienceLevel` | sí | ✅ **auditado** — `10-nivel-de-experiencia.md` |
-| `goal` | sí | pendiente |
+| `goal` | sí | ✅ **auditado** — `12-objetivo.md` |
 | `birthDate` (edad) | sí | ✅ **auditado** — `08-edad.md` |
 | `sport` | sí | auditado en `06`; queda como dato, sin promesas |
 | `seasonPhase` | sí | auditado en `06` |
@@ -29,6 +29,8 @@ Medido contando usos reales en `packages/engine/src/`, no leyendo la documentaci
 | `sessionMinutesTarget` | **no (0 usos)** | pendiente — se le pide al socio y no hace nada |
 | `preSleep` / `preEnergy` | **no (0 usos)** | pendiente — se registran y no alimentan nada |
 | `sessionFeel` | **no (0 usos)** | pendiente |
+| `priority` | sí, pero **nunca discrimina** | el onboarding deja elegir un solo objetivo — ver `12` |
+| `cardio.interference` | **está en el ruleset, no lo lee nadie** | pendiente — iteración de cardio |
 | `redFlags` (señales de alarma) | **están en el ruleset, no se muestran** | pendiente — es plomería, no evidencia |
 | `specialPopulations` (embarazo, hipertensión…) | **están en el ruleset, sin ninguna consecuencia** | pendiente — iteración propia |
 | lesión **aguda** vs dolor crónico | **no se distinguen** | pendiente — brecha abierta en `09` |
@@ -139,10 +141,35 @@ principal: alcanzó con medir el ruleset contra sí mismo.
 - Se agregó `modifiers.frequency`: el plan dice qué se pierde, y lo dice distinto según el objetivo.
   5 tests nuevos, 305 en verde.
 
-### Próxima: objetivo (`goal`)
+### 5 · Objetivo — cerrada el 2026-09-09
 
-Es la entrada que más mueve el plan — elige la plantilla y todo el bloque de prescripción — y es la
-única de las grandes que sigue sin auditar. Hay señales de que necesita mirada: `power` tiene una
-prescripción idéntica para los cuatro niveles y ninguna plantilla por encima de 3 sesiones, y
-`recomposition` apenas se separa de `hypertrophy`. También hay que revisar `priority`, que se usa
-una sola vez, y qué pasa cuando el socio declara varios objetivos.
+`docs/research/12-objetivo.md`.
+
+- **Seis objetivos, cinco prescripciones**: `recomposition` es idéntico byte por byte a
+  `hypertrophy` en su bloque `default`. Y está bien: la diferencia real es dietética y la app
+  declara que no maneja nutrición. El propio ruleset ya lo decía en su nota.
+- **El hallazgo: esa nota nunca se mostraba.** `EvidenceNotice` filtraba por
+  `confidence !== 'low'`, así que las notas de `cardio` y `recomposition` —ambas `medium`—
+  quedaban escritas y silenciadas. La de recomposición dice que los números son los de hipertrofia
+  y que la diferencia la hace la dieta: información que cambia lo que el socio espera del plan.
+  La regla dura 4 pide que lo flojo avise; no pide que lo demás se calle cuando tiene algo escrito.
+- **La hipertrofia es independiente de la carga; la fuerza no.** Metaanálisis en red de 28 estudios
+  y 747 adultos (DOI 10.1249/MSS.0000000000002585): en hipertrofia **ninguna** comparación entre
+  cargas alta, moderada y baja resultó significativa (la mayor, SMD 0,12; IC −0,06 a 0,29). En
+  fuerza sí: alta contra baja SMD **0,60** (IC 0,38 a 0,82; p < 0,001).
+- **Tensión declarada, no resuelta:** `strength` prescribe el primario a 85-100 % 1RM, y esa ventaja
+  sobre la carga moderada **no alcanza significación** (SMD 0,26; IC −0,02 a 0,54; p = 0,068). Para
+  una app que prescribe sin supervisión, y cuyo propio bloque de seguridad desaconseja cargas
+  máximas sin guía, hay un choque entre dos bloques del mismo ruleset. **No se cambió ningún
+  número**: no significativo no es equivalente, y reemplazarlo sería inventar.
+- `priority` nunca discrimina: el onboarding permite un solo objetivo.
+- `EvidenceNotice` se movió a su propio archivo para poder testearlo — importar `App.tsx` arrastra
+  el service worker. 8 tests nuevos, 313 en verde.
+
+### Próxima: cardio y la interferencia
+
+`cardio.interference` (`avoidIntervalsSameDayAsLowerBody`, `minHoursBetweenSessions: 6`) está
+declarado, validado por zod y **no lo lee nadie** — tercer caso del mismo patrón después de
+`referIf` y `redFlags`. El efecto de interferencia entre cardio y fuerza tiene metaanálisis propios,
+así que hay con qué decidir si implementarlo o sacarlo. También quedan por auditar `baselines`,
+`daysSinceLastSession` y los cuatro campos con cero usos.

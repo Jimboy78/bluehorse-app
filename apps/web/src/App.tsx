@@ -1,8 +1,8 @@
-import type { Goal } from '@bh/domain';
 import { useQuery } from '@tanstack/react-query';
 import { Info, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AppShell } from './components/AppShell.tsx';
+import { EvidenceNotice } from './components/EvidenceNotice.tsx';
 import { Hoy } from './components/Hoy.tsx';
 import { Proposals } from './components/Proposals.tsx';
 import { Card, Notice, SectionLabel } from './components/ui/index.ts';
@@ -172,27 +172,6 @@ function PlaceholderNotice() {
         </>
       )}
       {sinCatalogo && ' El catálogo de Blue Horse todavía no está cargado.'}
-    </Notice>
-  );
-}
-
-/**
- * Aviso cuando el objetivo del socio se apoya en evidencia floja.
- *
- * La investigación no es pareja: fuerza e hipertrofia tienen metaanálisis
- * detrás; potencia y resistencia muscular en sala tienen consenso y poco más.
- * Mostrar las dos cosas con la misma cara sería mentir por omisión, así que
- * cuando el bloque está marcado como confianza baja se dice, con el motivo que
- * el propio ruleset trae.
- */
-function EvidenceNotice({ goal }: { readonly goal: Goal | null }) {
-  if (!goal) return null;
-  const block = activeRuleset.prescription[goal];
-  if (block?.confidence !== 'low' || !block.confidenceNote) return null;
-
-  return (
-    <Notice tone="warn" icon={<Info size={16} aria-hidden="true" />}>
-      <strong className="font-semibold">Sobre este objetivo:</strong> {block.confidenceNote}
     </Notice>
   );
 }

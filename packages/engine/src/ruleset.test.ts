@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { V0_PLACEHOLDER } from './index.ts';
+import { V0_PLACEHOLDER, V1_RESEARCH } from './index.ts';
 import { isPlaceholder, parseRuleset, type Ruleset, resolveParams } from './ruleset.ts';
 
 /**
@@ -57,5 +57,34 @@ describe('parseRuleset / isPlaceholder', () => {
   it('isPlaceholder distingue source', () => {
     expect(isPlaceholder(V0_PLACEHOLDER)).toBe(true);
     expect(isPlaceholder({ ...V0_PLACEHOLDER, source: 'research' })).toBe(false);
+  });
+});
+
+/**
+ * El contrato que sostiene el aviso de evidencia en pantalla: un bloque que no
+ * es `high` tiene algo que explicar, y si no lo trae escrito el socio se queda
+ * sin saberlo. Ver `docs/research/12-objetivo.md`.
+ */
+describe('notas de confianza por objetivo', () => {
+  it('todo bloque que no sea de confianza alta trae su nota', () => {
+    const sinNota = Object.entries(V1_RESEARCH.prescription)
+      .filter(([, block]) => block !== undefined && block.confidence !== 'high')
+      .filter(([, block]) => !block?.confidenceNote)
+      .map(([goal]) => goal);
+
+    expect(sinNota).toEqual([]);
+  });
+
+  // Se escribieron a propósito y un `!== 'low'` las escondía.
+  it('las notas de los bloques medios existen y no están vacías', () => {
+    for (const goal of ['cardio', 'recomposition'] as const) {
+      const block = V1_RESEARCH.prescription[goal];
+      expect(block?.confidence).toBe('medium');
+      expect(block?.confidenceNote?.length ?? 0).toBeGreaterThan(0);
+    }
+  });
+
+  it('un bloque de confianza alta no necesita nota', () => {
+    expect(V1_RESEARCH.prescription.strength?.confidence).toBe('high');
   });
 });
