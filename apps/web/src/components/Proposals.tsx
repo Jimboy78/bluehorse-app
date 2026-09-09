@@ -25,10 +25,26 @@ export function Proposals() {
   // tocó. Antes los dos quedaban deshabilitados y ninguno decía nada: con
   // señal mala eso son tres segundos en los que parece que no pasó nada.
   const [resolving, setResolving] = useState<{ id: string; accept: boolean } | null>(null);
+  // A diferencia de set_logs/session_events, resolver una propuesta escribe
+  // directo (`useResolveProposal`), sin pasar por la cola offline — el motivo
+  // está en su propio comentario: "aplicar" un load_increase también mueve
+  // plan_session_items, y ese combo no encaja en el modelo simple de "una
+  // fila, reintentar" que usa el resto de la cola. Sin conexión, el clic
+  // fallaba y no pasaba nada en pantalla: ni error, ni pista de por qué
+  // seguía ahí. Con señal mala en el gimnasio (el caso que justifica que la
+  // cola exista) esto se veía todo el tiempo.
+  const [failedId, setFailedId] = useState<string | null>(null);
 
   function handleResolve(proposal: AdaptationProposal, accept: boolean) {
     setResolving({ id: proposal.id, accept });
-    resolve.mutate({ proposal, accept }, { onSettled: () => setResolving(null) });
+    setFailedId(null);
+    resolve.mutate(
+      { proposal, accept },
+      {
+        onError: () => setFailedId(proposal.id),
+        onSettled: () => setResolving(null),
+      },
+    );
   }
 
   // Que el motor falle no puede verse igual que "no tiene nada para
@@ -83,6 +99,13 @@ export function Proposals() {
                 {showsPlaceholderContent && (
                   <p className="font-display text-[0.6rem] uppercase tracking-[0.18em] text-amber">
                     ruleset provisorio
+                  </p>
+                )}
+
+                {failedId === proposal.id && (
+                  <p role="alert" className="flex items-center gap-1.5 text-xs text-orange">
+                    <AlertCircle size={13} aria-hidden="true" />
+                    No se pudo guardar. Revisá tu conexión y probá de nuevo.
                   </p>
                 )}
 
