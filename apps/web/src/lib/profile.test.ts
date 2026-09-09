@@ -15,12 +15,25 @@ import { yearsSince } from './profile.ts';
  * `onboarding/schemas.test.ts` para el mismo tipo de cuenta.
  */
 
-/** N años atrás, mismo día — para no depender de en qué mes se corra el test. */
+/**
+ * N años atrás, mismo día — para no depender de en qué mes se corra el test.
+ *
+ * La fecha se arma con los componentes **locales**, no con `toISOString()`.
+ * `toISOString()` pasa por UTC arrastrando la hora actual del día, y para las
+ * fechas más viejas de estas pruebas eso cambiaba el día: antes de 1900 Buenos
+ * Aires usaba LMT (−4:16:48), así que a partir de las 19:43 hora local
+ * `yearsAgo(129)` devolvía 1897-09-**10** en vez de 1897-09-09. `yearsSince`
+ * leía un cumpleaños que todavía no había llegado y restaba un año, y el test
+ * del límite exacto fallaba — todas las noches, solo en los casos de 129 y 130
+ * años, porque para 1996 el offset es −3:00 exacto y no cruza medianoche.
+ */
 function yearsAgo(n: number, dayOffset = 0): string {
   const d = new Date();
   d.setFullYear(d.getFullYear() - n);
   d.setDate(d.getDate() + dayOffset);
-  return d.toISOString().slice(0, 10);
+  const mes = String(d.getMonth() + 1).padStart(2, '0');
+  const dia = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mes}-${dia}`;
 }
 
 describe('yearsSince', () => {
