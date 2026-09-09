@@ -73,21 +73,29 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
   // rápida de lesionarse: la fuerza aguanta, el tendón no.
   const comeback = comebackMultiplier(params, input.daysSinceLastSession ?? null, warnings);
 
-  const painRules = activePainRules(ruleset, user.constraints);
+  // Dos tramos, no uno: con dolor moderado el ejercicio se mantiene y se muestra
+  // la regla de monitoreo; recién con dolor alto se saca. Sacar de más ataca la
+  // exposición, que es lo que las fuentes señalan como el factor que decide.
+  const painRules = activePainRules(ruleset, user.constraints, 'monitor');
+  const avoidRules = activePainRules(ruleset, user.constraints, 'avoid');
   const equipmentById = new Map(gym.equipment.map((e) => [e.id, e]));
   const usableExercises = gym.exercises.filter(
     (ex) =>
       !isBlocked(ex, user.constraints) &&
-      !isBlockedByPain(ex, painRules) &&
+      !isBlockedByPain(ex, avoidRules) &&
       isWithinSkillLevel(ex, user.profile.experienceLevel) &&
       hasUsableEquipment(ex, gym, []),
   );
 
-  if (painRules.length > 0) {
-    for (const rule of painRules) {
-      warnings.push(`Por la molestia en ${regionLabel(rule.bodyRegion)}: ${rule.keepDoing}`);
-    }
+  for (const rule of painRules) {
+    const region = regionLabel(rule.bodyRegion);
+    warnings.push(`Por la molestia en ${region}: ${rule.keepDoing}`);
+    // `referIf` es la frase que distingue una molestia de gimnasio de algo que
+    // hay que hacer ver. Estaba escrita en el ruleset y no se emitía nunca.
+    warnings.push(`Consultá si ${lowerFirst(rule.referIf)}`);
   }
+  const monitoring = ruleset.safety?.painMonitoring;
+  if (painRules.length > 0 && monitoring) warnings.push(monitoring.text);
 
   // Rotar los ejercicios del plan anterior hace que el músculo trabaje en
   // ángulos distintos. Es preferencia, no requisito: si rotar dejaría un patrón
@@ -371,22 +379,35 @@ function applySportVolume(
   };
 }
 
-/** Reglas de dolor que aplican hoy, según lo que el socio reportó. */
+/**
+ * Reglas de dolor que aplican hoy, según lo que el socio reportó.
+ *
+ * `'monitor'` son las que hay que contarle; `'avoid'`, el subconjunto que además
+ * saca ejercicios del plan. La diferencia entre las dos es lo que evita tratar
+ * "me molesta" y "no puedo" como la misma decisión.
+ */
 function activePainRules(
   ruleset: Ruleset,
   constraints: readonly UserConstraint[],
+  level: 'monitor' | 'avoid',
 ): readonly PainRule[] {
   const rules = ruleset.safety?.painRules;
   if (!rules) return [];
 
-  return rules.filter((rule) =>
-    constraints.some(
+  return rules.filter((rule) => {
+    const floor = level === 'avoid' ? rule.avoidFrom : rule.monitorFrom;
+    return constraints.some(
       (c) =>
         (c.type === 'pain' || c.type === 'injury') &&
         c.bodyRegion === rule.bodyRegion &&
-        c.severity >= rule.severityAtLeast,
-    ),
-  );
+        c.severity >= floor,
+    );
+  });
+}
+
+/** Para encadenar `referIf` después de "Consultá si...". */
+function lowerFirst(text: string): string {
+  return text.charAt(0).toLowerCase() + text.slice(1);
 }
 
 /**

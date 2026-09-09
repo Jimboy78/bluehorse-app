@@ -1195,7 +1195,8 @@
     "painRules": [
       {
         "bodyRegion": "lower_back",
-        "severityAtLeast": 3,
+        "monitorFrom": 3,
+        "avoidFrom": 4,
         "avoidPatterns": [
           "hinge"
         ],
@@ -1208,7 +1209,8 @@
       },
       {
         "bodyRegion": "knee",
-        "severityAtLeast": 3,
+        "monitorFrom": 3,
+        "avoidFrom": 4,
         "avoidPatterns": [
           "lunge"
         ],
@@ -1219,7 +1221,8 @@
       },
       {
         "bodyRegion": "knee",
-        "severityAtLeast": 4,
+        "monitorFrom": 4,
+        "avoidFrom": 4,
         "avoidPatterns": [
           "lunge",
           "squat"
@@ -1233,7 +1236,8 @@
       },
       {
         "bodyRegion": "shoulder",
-        "severityAtLeast": 3,
+        "monitorFrom": 3,
+        "avoidFrom": 4,
         "avoidPatterns": [
           "vertical_push"
         ],
@@ -1246,7 +1250,8 @@
       },
       {
         "bodyRegion": "wrist",
-        "severityAtLeast": 3,
+        "monitorFrom": 3,
+        "avoidFrom": 4,
         "avoidPatterns": [],
         "avoidMuscles": [
           "forearms"
@@ -1257,7 +1262,8 @@
       },
       {
         "bodyRegion": "neck",
-        "severityAtLeast": 3,
+        "monitorFrom": 3,
+        "avoidFrom": 4,
         "avoidPatterns": [
           "vertical_push"
         ],
@@ -1294,7 +1300,53 @@
         "requiresClearance": true,
         "note": "Con autorización, incluir trabajo de equilibrio y fuerza progresiva. Nada de superficies inestables sin supervisión."
       }
-    ]
+    ],
+    "severityScale": [
+      {
+        "severity": 1,
+        "nprs": [
+          1,
+          2
+        ],
+        "label": "Molestia leve. La noto pero no me cambia cómo me muevo."
+      },
+      {
+        "severity": 2,
+        "nprs": [
+          3,
+          4
+        ],
+        "label": "Molesta durante el ejercicio y se me va al rato."
+      },
+      {
+        "severity": 3,
+        "nprs": [
+          5,
+          6
+        ],
+        "label": "Duele mientras entreno y sigue molestando después."
+      },
+      {
+        "severity": 4,
+        "nprs": [
+          7,
+          8
+        ],
+        "label": "Duele bastante y me hace cambiar cómo hago el movimiento."
+      },
+      {
+        "severity": 5,
+        "nprs": [
+          9,
+          10
+        ],
+        "label": "No puedo hacer ese movimiento."
+      }
+    ],
+    "painMonitoring": {
+      "text": "Que moleste no quiere decir que estés haciéndote mal. La referencia es 5 sobre 10: durante el ejercicio podés llegar hasta ahí, y al día siguiente tenés que estar como empezaste. Si el dolor pasa de ahí, si no baja para la mañana siguiente, o si va aumentando semana a semana, ese movimiento está cargando de más.",
+      "confidence": "low"
+    }
   },
   "templates": [
     {

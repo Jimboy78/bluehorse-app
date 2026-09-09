@@ -242,18 +242,42 @@ const safetySchema = z.object({
     )
     .min(1),
   /**
-   * Qué hacer cuando duele una zona. La regla general del research es no parar
-   * del todo: se evita lo que irrita y se sigue con el resto.
+   * Qué significa cada punto de la escala de severidad (1..5) que elige el socio,
+   * traducido al NPRS 0-10 que usan las fuentes. Sin esto el socio elige un
+   * número sin anclas y ese número decide si se le saca un ejercicio.
+   */
+  severityScale: z
+    .array(
+      z.object({
+        severity: z.number().int().min(1).max(5),
+        /** Equivalente aproximado en NPRS 0-10, para poder citar las fuentes. */
+        nprs: z.tuple([z.number().int().min(0).max(10), z.number().int().min(0).max(10)]),
+        label: z.string().min(1),
+      }),
+    )
+    .length(5),
+  /**
+   * Qué hacer cuando duele una zona. **No parar del todo**: tres metaanálisis
+   * coinciden en que el dolor no es barrera para entrenar y que lo que manda es
+   * la exposición y la adherencia, no la carga. Ver `docs/research/09`.
+   *
+   * Por eso hay dos umbrales y no uno: en el tramo de en medio el ejercicio se
+   * mantiene con la regla de monitoreo a la vista; recién arriba se saca.
    */
   painRules: z
     .array(
       z.object({
         bodyRegion: z.enum(BODY_REGIONS),
-        /** Desde qué severidad (1..5) aplica esta regla. */
-        severityAtLeast: z.number().int().min(1).max(5),
-        /** Patrones que se sacan del plan mientras dure la molestia. */
+        /**
+         * Desde qué severidad (1..5) se muestra la regla de monitoreo sin sacar
+         * nada del plan.
+         */
+        monitorFrom: z.number().int().min(1).max(5),
+        /** Desde qué severidad (1..5) sí se sacan los patrones y músculos. */
+        avoidFrom: z.number().int().min(1).max(5),
+        /** Patrones que se sacan del plan a partir de `avoidFrom`. */
         avoidPatterns: z.array(z.enum(MOVEMENT_PATTERNS)),
-        /** Músculos cuyo trabajo directo se saca del plan. */
+        /** Músculos cuyo trabajo directo se saca a partir de `avoidFrom`. */
         avoidMuscles: z.array(z.enum(MUSCLE_GROUPS)),
         /** Qué sí se puede seguir haciendo, en castellano. */
         keepDoing: z.string().min(1),
@@ -262,7 +286,19 @@ const safetySchema = z.object({
         confidence: z.enum(CONFIDENCE_LEVELS),
       }),
     )
-    .min(1),
+    .min(1)
+    .refine(
+      (rules) => rules.every((r) => r.monitorFrom <= r.avoidFrom),
+      'Una regla de dolor no puede empezar a evitar antes de empezar a monitorear.',
+    ),
+  /**
+   * La regla de monitoreo de dolor, en castellano, tal cual se le muestra al
+   * socio: hasta cuánto dolor es aceptable y cuándo eso deja de serlo.
+   */
+  painMonitoring: z.object({
+    text: z.string().min(1),
+    confidence: z.enum(CONFIDENCE_LEVELS),
+  }),
   /** Situaciones que requieren autorización médica antes de entrenar. */
   specialPopulations: z
     .array(

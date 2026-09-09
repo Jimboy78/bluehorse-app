@@ -286,6 +286,52 @@ describe('dolor por zona', () => {
     expect(patternsFor(1)).toContain('hinge');
   });
 
+  // El corazón del cambio de `docs/research/09`: con dolor moderado el ejercicio
+  // se mantiene. Tres metaanálisis coinciden en que cargar la zona es seguro y
+  // al menos igual de bueno que evitarla, y que lo que decide el resultado es la
+  // exposición, no la carga. Sacar el `hinge` acá elimina el tratamiento.
+  it('con dolor moderado no saca el patrón: lo mantiene y avisa', () => {
+    expect(patternsFor(3)).toContain('hinge');
+  });
+
+  it('con dolor alto sí lo saca', () => {
+    expect(patternsFor(5)).not.toContain('hinge');
+  });
+
+  const avisosCon = (severity: number) =>
+    engine.generatePlan({
+      context,
+      user: buildUser({
+        constraints: [
+          { type: 'pain', bodyRegion: 'lower_back', exerciseId: null, equipmentId: null, severity },
+        ],
+      }),
+      gym: buildGym(),
+      ruleset: V1_RESEARCH,
+    }).warnings;
+
+  // `referIf` estaba escrito en el ruleset para las seis regiones y no se
+  // emitía nunca. Es la frase que separa una molestia de gimnasio de algo que
+  // hay que hacer ver.
+  it('dice cuándo hay que ir al médico, no solo qué evitar', () => {
+    const rule = V1_RESEARCH.safety?.painRules.find((r) => r.bodyRegion === 'lower_back');
+    if (!rule) throw new Error('El ruleset no tiene la regla lumbar.');
+    const esperado = rule.referIf.slice(1);
+    expect(avisosCon(3).some((w) => w.includes(esperado))).toBe(true);
+  });
+
+  it('muestra hasta cuánto dolor es aceptable, en vez de dejarlo a la intuición', () => {
+    const texto = V1_RESEARCH.safety?.painMonitoring.text;
+    if (!texto) throw new Error('El ruleset no tiene la regla de monitoreo.');
+    expect(avisosCon(3)).toContain(texto);
+  });
+
+  it('sin dolor reportado no aparece ninguna regla de monitoreo', () => {
+    const texto = V1_RESEARCH.safety?.painMonitoring.text;
+    if (!texto) throw new Error('El ruleset no tiene la regla de monitoreo.');
+    expect(avisosCon(1)).not.toContain(texto);
+  });
+
   it('explica qué sí se puede seguir haciendo, en vez de solo prohibir', () => {
     const result = engine.generatePlan({
       context,
