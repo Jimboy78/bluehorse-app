@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { AppShell } from '../components/AppShell.tsx';
+import { MisDatos } from '../components/MisDatos.tsx';
 import { MisPlanes } from '../components/MisPlanes.tsx';
 import { Progreso as ProgresoBody } from '../components/Progreso.tsx';
 import { fadeUp } from '../lib/motion.ts';
@@ -28,6 +29,9 @@ export function Progreso() {
         </h1>
       </motion.header>
 
+      {/* Los datos del cuerpo antes que el historial: son lo único de esta
+          pantalla que se puede actualizar hoy mismo, sin haber entrenado. */}
+      <MisDatos />
       <MisPlanes />
       <ProgresoBody />
     </AppShell>

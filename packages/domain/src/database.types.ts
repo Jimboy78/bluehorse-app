@@ -107,6 +107,48 @@ export type Database = {
           },
         ]
       }
+      body_metrics: {
+        Row: {
+          gym_id: string
+          height_cm: number | null
+          id: string
+          recorded_at: string
+          user_id: string
+          weight_kg: number | null
+        }
+        Insert: {
+          gym_id: string
+          height_cm?: number | null
+          id?: string
+          recorded_at?: string
+          user_id: string
+          weight_kg?: number | null
+        }
+        Update: {
+          gym_id?: string
+          height_cm?: number | null
+          id?: string
+          recorded_at?: string
+          user_id?: string
+          weight_kg?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "body_metrics_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "body_metrics_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       equipment: {
         Row: {
           base_weight_kg: number | null

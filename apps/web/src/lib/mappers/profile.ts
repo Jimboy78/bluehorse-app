@@ -17,6 +17,14 @@ export interface ProfileUpdateRow {
   readonly onboarded_at: string;
 }
 
+/** Lo que se inserta en `body_metrics`: la primera medición del socio. */
+export interface BodyMetricInsertRow {
+  readonly user_id: string;
+  readonly gym_id: string;
+  readonly weight_kg: number;
+  readonly height_cm: number;
+}
+
 /** Lo que se inserta en `user_goals`, el primero del socio. */
 export interface UserGoalInsertRow {
   readonly user_id: string;
@@ -33,6 +41,19 @@ export function toProfileUpdate(input: OnboardingInput, now = new Date()): Profi
     sex: input.sex,
     experience_level: input.experienceLevel,
     onboarded_at: now.toISOString(),
+  };
+}
+
+export function toBodyMetricInsert(
+  userId: string,
+  gymId: string,
+  input: OnboardingInput,
+): BodyMetricInsertRow {
+  return {
+    user_id: userId,
+    gym_id: gymId,
+    weight_kg: input.weightKg,
+    height_cm: input.heightCm,
   };
 }
 

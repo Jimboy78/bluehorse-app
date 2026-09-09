@@ -2,6 +2,8 @@ import type {
   EquipmentLoadSpec,
   ExperienceLevel,
   LoadReading,
+  MovementPattern,
+  MuscleGroup,
   Sex,
   UserBaseline,
   UserConstraint,
@@ -160,8 +162,8 @@ async function persistSessions(
 }
 
 /**
- * Genera el plan con el motor y lo persiste en tres pasos (plan → sesiones →
- * items), porque cada tabla necesita el id que la anterior generó.
+ * Guarda un blueprint en tres pasos (plan → sesiones → items), porque cada
+ * tabla necesita el id que la anterior generó.
  *
  * `plans` tiene un índice único por socio con `status = 'active'`
  * (`05_plans.sql`): si sesiones o ítems fallan a mitad de camino, el `plans`
@@ -170,6 +172,40 @@ async function persistSessions(
  * para borrarlo. Por eso, si algo falla después de crear el plan, se borra
  * acá mismo (`on delete cascade` se lleva sesiones/ítems si llegó a haber
  * alguno) antes de relanzar el error original.
+ *
+ * Exportada porque la vista previa guarda por el mismo camino: lo que se
+ * confirma en pantalla es un blueprint igual al que arma el motor, y tener dos
+ * formas de escribir un plan sería tener dos formas de romperlo.
+ */
+export async function persistBlueprint(
+  client: SupabaseClient,
+  userId: string,
+  gymId: string,
+  blueprint: PlanBlueprint,
+  primaryGoal: UserSnapshot['goals'][number] | undefined,
+): Promise<string> {
+  const { data: plan, error: planError } = await client
+    .from('plans')
+    .insert(toPlanInsert(userId, gymId, blueprint, { ...primaryGoal }))
+    .select('id')
+    .single();
+  if (planError) throw planError;
+
+  try {
+    await persistSessions(client, plan.id as string, blueprint.sessions);
+  } catch (error) {
+    await client.from('plans').delete().eq('id', plan.id);
+    throw error;
+  }
+
+  return plan.id as string;
+}
+
+/**
+ * Genera el plan con el motor y lo guarda de una. Sigue existiendo para el
+ * botón "Generar mi plan" de "Hoy" — el camino de rescate de alguien que
+ * terminó el onboarding sin confirmar la previa. El alta normal pasa por
+ * `plan-preview.ts`.
  */
 export function useGeneratePlan() {
   const { user } = useAuth();
@@ -192,25 +228,11 @@ export function useGeneratePlan() {
         daysSinceLastSession: await daysSinceLastSession(client, user.id),
       });
 
-      const primaryGoal = userSnapshot.goals[0];
-      const { data: plan, error: planError } = await client
-        .from('plans')
-        .insert(toPlanInsert(user.id, gymId, blueprint, { ...primaryGoal }))
-        .select('id')
-        .single();
-      if (planError) throw planError;
-
-      try {
-        await persistSessions(client, plan.id as string, blueprint.sessions);
-      } catch (error) {
-        await client.from('plans').delete().eq('id', plan.id);
-        throw error;
-      }
-
-      return plan.id as string;
+      return persistBlueprint(client, user.id, gymId, blueprint, userSnapshot.goals[0]);
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['active-plan', user?.id] });
+      void queryClient.invalidateQueries({ queryKey: ['plans', user?.id] });
     },
   });
 }
@@ -265,9 +287,14 @@ export function useRequestNextPlan() {
       await setPlanStatus(client, previousId, 'archived');
 
       try {
-        const planId = await insertPlan(client, user.id, gymId, blueprint, userSnapshot.goals[0]);
+        const planId = await persistBlueprint(
+          client,
+          user.id,
+          gymId,
+          blueprint,
+          userSnapshot.goals[0],
+        );
         try {
-          await persistSessions(client, planId, blueprint.sessions);
           await applyCarriedLoads(client, planId, carried);
         } catch (error) {
           await client.from('plans').delete().eq('id', planId);
@@ -281,6 +308,7 @@ export function useRequestNextPlan() {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['active-plan', user?.id] });
+      void queryClient.invalidateQueries({ queryKey: ['plans', user?.id] });
       void queryClient.invalidateQueries({ queryKey: ['proposals', user?.id] });
     },
   });
@@ -466,22 +494,6 @@ async function setPlanStatus(
   if (error) throw error;
 }
 
-async function insertPlan(
-  client: SupabaseClient,
-  userId: string,
-  gymId: string,
-  blueprint: PlanBlueprint,
-  primaryGoal: UserSnapshot['goals'][number] | undefined,
-): Promise<string> {
-  const { data, error } = await client
-    .from('plans')
-    .insert(toPlanInsert(userId, gymId, blueprint, { ...primaryGoal }))
-    .select('id')
-    .single();
-  if (error) throw error;
-  return data.id as string;
-}
-
 /** La última carga objetivo de cada ejercicio en el plan que termina. */
 async function carriedLoads(
   client: SupabaseClient,
@@ -538,7 +550,11 @@ export interface ActiveSessionItem {
   readonly exerciseId: string;
   readonly equipmentId: string | null;
   readonly name: string;
-  readonly sector: string;
+  /** Dónde está la estación, o `null` si el catálogo todavía no lo tiene cargado. */
+  readonly sector: string | null;
+  /** Patrón de movimiento y músculos: el ícono y el subtítulo de la fila salen de acá. */
+  readonly pattern: MovementPattern;
+  readonly primaryMuscles: readonly MuscleGroup[];
   /** Ya formateada tal como la máquina la muestra: nunca convertida. */
   readonly load: string;
   /** El mismo dato, crudo, para poder registrar la serie sin re-parsear el texto. */
@@ -612,7 +628,7 @@ export function useActivePlan() {
       const { data: items, error: itemsError } = await client
         .from('plan_session_items')
         .select(
-          'id, exercise_id, equipment_id, order_index, target_sets, target_reps_min, target_reps_max, target_rir, target_load, target_load_unit, rest_seconds, rationale, is_placeholder, target_duration_seconds, target_intensity_zone, target_interval_rest_seconds, exercises(name), equipment(location_note, load_unit, load_min, load_max, load_increment, stack_kg, base_weight_kg)',
+          'id, exercise_id, equipment_id, order_index, target_sets, target_reps_min, target_reps_max, target_rir, target_load, target_load_unit, rest_seconds, rationale, is_placeholder, target_duration_seconds, target_intensity_zone, target_interval_rest_seconds, exercises(name, pattern, primary_muscles), equipment(location_note, load_unit, load_min, load_max, load_increment, stack_kg, base_weight_kg)',
         )
         .eq('plan_session_id', session.id)
         .order('order_index');
@@ -646,7 +662,11 @@ interface PlanSessionItemRow {
   readonly target_duration_seconds: number | null;
   readonly target_intensity_zone: number | null;
   readonly target_interval_rest_seconds: number | null;
-  readonly exercises: { name: string } | null;
+  readonly exercises: {
+    name: string;
+    pattern: MovementPattern;
+    primary_muscles: MuscleGroup[] | null;
+  } | null;
   readonly equipment: {
     location_note: string | null;
     load_unit: LoadReading['unit'];
@@ -682,7 +702,9 @@ function toActiveSessionItem(raw: unknown): ActiveSessionItem {
     exerciseId: row.exercise_id,
     equipmentId: row.equipment_id,
     name: row.exercises?.name ?? 'Ejercicio',
-    sector: row.equipment?.location_note ?? 'sin ubicación',
+    sector: row.equipment?.location_note ?? null,
+    pattern: row.exercises?.pattern ?? 'isolation',
+    primaryMuscles: row.exercises?.primary_muscles ?? [],
     load: targetLoad ? formatLoad(targetLoad) : 'sin carga previa',
     targetLoad,
     equipmentLoadSpec: toLoadSpec(row.equipment),

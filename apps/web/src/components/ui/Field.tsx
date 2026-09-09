@@ -16,12 +16,15 @@ export function Field({
   label,
   htmlFor,
   hint,
+  icon,
   children,
   className = '',
 }: {
   label: ReactNode;
   htmlFor?: string;
   hint?: ReactNode;
+  /** Ícono chico antes de la etiqueta. Sirve cuando hay dos campos cortos lado a lado. */
+  icon?: ReactNode;
   children: ReactNode;
   className?: string;
 }) {
@@ -29,8 +32,9 @@ export function Field({
     <div className={`flex flex-col gap-1.5 ${className}`}>
       <label
         htmlFor={htmlFor}
-        className="text-xs font-semibold uppercase tracking-[0.12em] text-slate"
+        className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-slate"
       >
+        {icon}
         {label}
       </label>
       {children}

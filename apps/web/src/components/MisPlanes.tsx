@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { useState } from 'react';
 import { listContainer, listItem } from '../lib/motion.ts';
 import { type PlanSummary, useActivatePlan, usePlans } from '../lib/plan.ts';
-import { Button, Card, Notice, SectionLabel, Skeleton } from './ui/index.ts';
+import { Button, Card, ConfirmDialog, Notice, SectionLabel, Skeleton } from './ui/index.ts';
 
 const TEMPLATE_LABELS: Record<string, string> = {
   full_body_ab: 'Cuerpo completo A/B',
@@ -37,6 +37,8 @@ export function MisPlanes() {
   const plans = usePlans();
   const activate = useActivatePlan();
   const [pendingId, setPendingId] = useState<string | null>(null);
+  // Cambiar de plan cambia lo que toca hoy: se pregunta antes de hacerlo.
+  const [asking, setAsking] = useState<PlanSummary | null>(null);
 
   if (plans.isPending) {
     return (
@@ -50,6 +52,7 @@ export function MisPlanes() {
   if (plans.isError || !plans.data || plans.data.length < 2) return null;
 
   async function handleActivate(planId: string) {
+    setAsking(null);
     setPendingId(planId);
     try {
       await activate.mutateAsync(planId);
@@ -57,6 +60,8 @@ export function MisPlanes() {
       setPendingId(null);
     }
   }
+
+  const activo = plans.data.find((p) => p.status === 'active');
 
   return (
     <section className="flex flex-col gap-3">
@@ -76,16 +81,41 @@ export function MisPlanes() {
       >
         {plans.data.map((plan) => (
           <motion.li key={plan.id} variants={listItem}>
-            <PlanRow
-              plan={plan}
-              busy={pendingId === plan.id}
-              onActivate={() => void handleActivate(plan.id)}
-            />
+            <PlanRow plan={plan} busy={pendingId === plan.id} onActivate={() => setAsking(plan)} />
           </motion.li>
         ))}
       </motion.ul>
+
+      <ConfirmDialog
+        open={asking !== null}
+        icon={<PlayCircle size={18} aria-hidden="true" />}
+        title="¿Cambiar el plan de hoy?"
+        confirmLabel="Retomar este"
+        cancelLabel="Dejarlo así"
+        busy={pendingId !== null}
+        onCancel={() => setAsking(null)}
+        onConfirm={() => asking && void handleActivate(asking.id)}
+      >
+        {asking && (
+          <>
+            Vas a retomar <strong className="text-ink">{labelOf(asking)}</strong> donde lo dejaste (
+            {asking.completedSessions}/{asking.totalSessions} sesiones).
+            {activo && (
+              <>
+                {' '}
+                <strong className="text-ink">{labelOf(activo)}</strong> queda guardado: podés volver
+                cuando quieras, no se pierde nada.
+              </>
+            )}
+          </>
+        )}
+      </ConfirmDialog>
     </section>
   );
+}
+
+function labelOf(plan: PlanSummary): string {
+  return TEMPLATE_LABELS[plan.templateId] ?? plan.templateId;
 }
 
 function PlanRow({

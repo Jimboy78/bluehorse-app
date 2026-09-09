@@ -5,16 +5,18 @@ import {
   Check,
   ChevronRight,
   Dumbbell,
+  Flag,
   Loader2,
   MapPin,
   Repeat2,
   Trophy,
+  Undo2,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
 import type { SetActual } from '../lib/mappers/session-log.ts';
-import { fadeUp, listContainer, listItem, screen, tappable } from '../lib/motion.ts';
+import { checkPop, fadeUp, listContainer, listItem, screen, tappable } from '../lib/motion.ts';
 import { onboardingUnavailable, useProfileStatus } from '../lib/onboarding.ts';
 import type { ActiveSessionItem } from '../lib/plan.ts';
 import { useActivePlan, useGeneratePlan, useRequestNextPlan } from '../lib/plan.ts';
@@ -24,7 +26,16 @@ import { RestTimer } from './RestTimer.tsx';
 import { SessionClose } from './SessionClose.tsx';
 import { SetRow } from './SetRow.tsx';
 import { SubstitutePicker } from './SubstitutePicker.tsx';
-import { Button, Card, EmptyState, Skeleton } from './ui/index.ts';
+import {
+  Button,
+  Card,
+  ConfirmDialog,
+  EmptyState,
+  muscleSummary,
+  PATTERN_LABELS,
+  PatternIcon,
+  Skeleton,
+} from './ui/index.ts';
 
 /** Lo que reemplaza a un ítem cuando su estación estaba ocupada. Los objetivos
  * (series, reps, descanso) siguen siendo los de la prescripción original —
@@ -33,7 +44,7 @@ interface Substitution {
   readonly exerciseId: string;
   readonly equipmentId: string | null;
   readonly name: string;
-  readonly sector: string;
+  readonly sector: string | null;
 }
 
 /**
@@ -59,6 +70,9 @@ export function Hoy() {
   const [closing, setClosing] = useState(false);
   const [showingSubstitutes, setShowingSubstitutes] = useState(false);
   const [substitutions, setSubstitutions] = useState<Record<string, Substitution>>({});
+  // Destildar una serie ya registrada borra el registro: se pregunta antes.
+  const [undoing, setUndoing] = useState<number | null>(null);
+  const [endingEarly, setEndingEarly] = useState(false);
 
   const activePlanSessionId = plan.data?.kind === 'active' ? plan.data.session.planSessionId : '';
   const restored = useRestoredSession(user?.id, activePlanSessionId);
@@ -105,20 +119,28 @@ export function Hoy() {
   function markDone(indice: number) {
     if (!activeItemId || !item) return;
     const previas = hechasPorItem[activeItemId] ?? [];
-    const yaEstaba = previas.includes(indice);
-    setHechasPorItem((mapa) => ({
-      ...mapa,
-      [activeItemId]: yaEstaba ? previas.filter((i) => i !== indice) : [...previas, indice],
-    }));
-    if (yaEstaba) {
-      // Destildar tiene que borrar el registro, no solo el tilde: si no, una
-      // serie marcada por error sigue contando en Progreso y alimentando la
-      // adaptación como si se hubiera hecho.
-      void undoSetDone(item, indice);
-      if (restingIndex === indice) setRestingIndex(null);
+    if (previas.includes(indice)) {
+      // Destildar borra el registro, no solo el tilde: si no, una serie
+      // marcada por error sigue contando en Progreso y alimentando la
+      // adaptación como si se hubiera hecho. Justamente porque borra, se
+      // pregunta: es lo único de esta pantalla que no se puede deshacer.
+      setUndoing(indice);
       return;
     }
+    setHechasPorItem((mapa) => ({ ...mapa, [activeItemId]: [...previas, indice] }));
     setRestingIndex(indice);
+  }
+
+  function confirmUndo() {
+    if (undoing === null || !activeItemId || !item) return;
+    const indice = undoing;
+    setUndoing(null);
+    setHechasPorItem((mapa) => ({
+      ...mapa,
+      [activeItemId]: (mapa[activeItemId] ?? []).filter((i) => i !== indice),
+    }));
+    void undoSetDone(item, indice);
+    if (restingIndex === indice) setRestingIndex(null);
   }
 
   async function handleRestFinish(actualSeconds: number, actual: SetActual) {
@@ -128,7 +150,11 @@ export function Hoy() {
     setRestingIndex(null);
   }
 
-  async function handlePickSubstitute(option: SubstituteOption, name: string, sector: string) {
+  async function handlePickSubstitute(
+    option: SubstituteOption,
+    name: string,
+    sector: string | null,
+  ) {
     if (!original) return;
     setSubstitutions((prev) => ({
       ...prev,
@@ -225,12 +251,50 @@ export function Hoy() {
               app te ofrece un reemplazo equivalente.
             </p>
 
-            <Button variant="ghost" size="lg" onClick={() => setClosing(true)}>
+            <Button
+              variant="ghost"
+              size="lg"
+              onClick={() =>
+                seriesCompletas < seriesTotales ? setEndingEarly(true) : setClosing(true)
+              }
+            >
               Terminar sesión
             </Button>
           </motion.section>
         )}
       </AnimatePresence>
+
+      {/* Terminar con series sin hacer marca la sesión como completada y hace
+          avanzar la cola: la próxima vez toca la siguiente, no esta. No es
+          reversible desde ninguna pantalla, así que se avisa. */}
+      <ConfirmDialog
+        open={endingEarly}
+        icon={<Flag size={18} aria-hidden="true" />}
+        title="Todavía te faltan series"
+        confirmLabel="Terminar igual"
+        cancelLabel="Seguir entrenando"
+        onCancel={() => setEndingEarly(false)}
+        onConfirm={() => {
+          setEndingEarly(false);
+          setClosing(true);
+        }}
+      >
+        Llevás {seriesCompletas} de {seriesTotales}. Si terminás ahora, la sesión queda cerrada con
+        lo que hiciste y la próxima vez te toca la siguiente de la cola.
+      </ConfirmDialog>
+
+      <ConfirmDialog
+        open={undoing !== null}
+        icon={<Undo2 size={18} aria-hidden="true" />}
+        title="¿Desmarcar esta serie?"
+        confirmLabel="Desmarcar"
+        confirmVariant="danger"
+        onCancel={() => setUndoing(null)}
+        onConfirm={confirmUndo}
+      >
+        Se borra el registro de esa serie. Deja de contar en tu progreso y de alimentar los ajustes
+        de carga.
+      </ConfirmDialog>
     </div>
   );
 }
@@ -317,6 +381,7 @@ function SessionItemRow({
   onOpen: () => void;
 }) {
   const completo = hechas >= item.sets;
+  const musculos = muscleSummary(item.primaryMuscles);
 
   return (
     <motion.li variants={listItem}>
@@ -332,20 +397,37 @@ function SessionItemRow({
               : 'border-line bg-surface shadow-card hover:border-line-bright'
         }`}
       >
+        {/* El ícono sale del patrón de movimiento, no es siempre la misma
+            mancuerna: con cinco filas idénticas no servía para nada, y en el
+            gimnasio la lista se mira de reojo para encontrar "el de piernas"
+            sin leer. Al completarse, el patrón deja lugar al tilde — ahí lo
+            que importa ya no es qué ejercicio es, sino que está hecho. */}
         <span
-          className={`grid size-11 shrink-0 place-items-center rounded-xl border ${
+          className={`grid size-11 shrink-0 place-items-center rounded-xl border transition-colors duration-200 ${
             completo
               ? 'border-brand/40 bg-brand/15 text-brand'
               : sugerido
                 ? 'border-brand/40 bg-gradient-to-b from-brand/25 to-brand/5 text-brand'
                 : 'border-line bg-navy text-slate'
           }`}
+          title={PATTERN_LABELS[item.pattern]}
         >
-          {completo ? (
-            <Check size={19} strokeWidth={2.5} aria-hidden="true" />
-          ) : (
-            <Dumbbell size={19} aria-hidden="true" />
-          )}
+          <AnimatePresence mode="wait" initial={false}>
+            {completo ? (
+              <motion.span key="hecho" variants={checkPop} initial="hidden" animate="visible">
+                <Check size={19} strokeWidth={2.5} aria-hidden="true" />
+              </motion.span>
+            ) : (
+              <motion.span
+                key="patron"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <PatternIcon pattern={item.pattern} size={19} />
+              </motion.span>
+            )}
+          </AnimatePresence>
         </span>
         {/* El nombre se queda con todo el ancho de la fila: con la chapita
             "sugerido" al costado, en un teléfono "Peso muerto rumano" partía
@@ -365,6 +447,12 @@ function SessionItemRow({
               {item.reps} reps · {item.load}
             </span>
           </span>
+          {/* Qué músculo se trabaja: sin esto, "Remo sentado" y "Jalón al
+              pecho" son dos nombres y no dos cosas distintas para quien
+              recién empieza. */}
+          {musculos && (
+            <span className="text-[0.65rem] leading-none text-slate-dim">{musculos}</span>
+          )}
           {substitution && (
             <span className="flex items-center gap-1 text-[0.65rem] text-slate-dim">
               <Repeat2 size={11} aria-hidden="true" />
@@ -435,7 +523,7 @@ function ExerciseDetail({
   seriesHechas: number[];
   onBack: () => void;
   onShowSubstitutes: () => void;
-  onPickSubstitute: (option: SubstituteOption, name: string, sector: string) => void;
+  onPickSubstitute: (option: SubstituteOption, name: string, sector: string | null) => void;
   onCancelSubstitutes: () => void;
   onRestFinish: (actualSeconds: number, actual: SetActual) => void;
   onToggleSet: (indice: number) => void;
@@ -454,14 +542,26 @@ function ExerciseDetail({
         </motion.button>
         {/* `min-w-0` para que el nombre pueda achicarse: sin eso un ejercicio
             de nombre largo desborda la tarjeta. */}
-        <div className="flex min-w-0 flex-col gap-1.5">
-          <h2 className="font-display text-3xl font-semibold uppercase leading-[1.05] tracking-tight">
-            {item.name}
-          </h2>
-          <p className="flex items-center gap-1.5 text-sm text-slate">
-            <MapPin size={14} className="text-brand" aria-hidden="true" />
-            {item.sector}
-          </p>
+        <div className="flex min-w-0 items-start gap-3">
+          <span className="mt-1 grid size-11 shrink-0 place-items-center rounded-xl border border-brand/30 bg-brand/10 text-brand">
+            <PatternIcon pattern={item.pattern} size={20} />
+          </span>
+          <div className="flex min-w-0 flex-col gap-1.5">
+            <h2 className="font-display text-3xl font-semibold uppercase leading-[1.05] tracking-tight">
+              {item.name}
+            </h2>
+            {/* La ubicación solo si el catálogo la tiene: repetir "sin
+                ubicación" ocupa el lugar de un dato sin ser uno. */}
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate">
+              {item.sector && (
+                <span className="flex items-center gap-1.5">
+                  <MapPin size={14} className="text-brand" aria-hidden="true" />
+                  {item.sector}
+                </span>
+              )}
+              <span className="text-slate-dim">{PATTERN_LABELS[item.pattern]}</span>
+            </p>
+          </div>
         </div>
       </div>
 

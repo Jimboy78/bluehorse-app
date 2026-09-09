@@ -50,3 +50,7 @@ claude_md_best_practices_for_coding_projects.md
 .claude/scheduled_tasks.lock
 
 .vercel
+
+# El ícono original de la marca, en la raíz. Ya se coló una vez al repo con un
+# `git add -A`: la copia que se usa vive en apps/web/public/brand/.
+/bluehorse-icon.png

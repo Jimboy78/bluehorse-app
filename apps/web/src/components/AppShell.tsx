@@ -1,11 +1,11 @@
-import { Dumbbell, LogOut, SlidersHorizontal, TrendingUp } from 'lucide-react';
+import { CloudOff, Dumbbell, LogOut, SlidersHorizontal, TrendingUp } from 'lucide-react';
 import { motion } from 'motion/react';
-import type { ReactNode } from 'react';
-import { NavLink } from 'react-router';
+import { type ReactNode, useState } from 'react';
+import { NavLink, useLocation } from 'react-router';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
-import { tappable } from '../lib/motion.ts';
+import { screen, tappable } from '../lib/motion.ts';
 import { useProfileRole } from '../lib/panel.ts';
-import { BrandMark, Wordmark } from './ui/index.ts';
+import { BrandMark, ConfirmDialog, Wordmark } from './ui/index.ts';
 
 /**
  * El marco de las pantallas de socio: barra de marca arriba, contenido en el
@@ -26,26 +26,44 @@ import { BrandMark, Wordmark } from './ui/index.ts';
 const NAV_BASE =
   'flex flex-1 flex-col items-center justify-center gap-1 rounded-xl py-2 text-[0.65rem] font-semibold uppercase tracking-[0.14em] transition-colors duration-150';
 
+/** Qué está preguntando el cuadro de salida, o `null` si no hay ninguno abierto. */
+type SignOutPrompt =
+  | { readonly kind: 'confirmar' }
+  | { readonly kind: 'pendientes'; readonly count: number };
+
 export function AppShell({ children }: { children: ReactNode }) {
   const { signOut } = useAuth();
   const role = useProfileRole();
+  const location = useLocation();
   const isStaff = role.data?.role === 'staff' || role.data?.role === 'admin';
 
-  /**
-   * Si quedan series sin mandar al servidor, `signOut` frena en vez de
-   * cerrar la sesión igual: esa cola se queda atada a una cuenta que ya no
-   * tiene sesión, y `flush()` nunca la reintenta. Se le pregunta antes de
-   * perderla en silencio; si confirma, se cierra sesión igual con `force`.
-   */
-  async function handleSignOut() {
-    const result = await signOut();
-    if (!result.blocked) return;
+  const [prompt, setPrompt] = useState<SignOutPrompt | null>(null);
+  const [leaving, setLeaving] = useState(false);
 
-    const plural = result.pendingCount === 1 ? '' : 's';
-    const confirmed = window.confirm(
-      `Tenés ${result.pendingCount} serie${plural} sin sincronizar todavía. Si salís ahora, quedan pendientes hasta que vuelvas a entrar con esta cuenta desde este mismo teléfono. ¿Salir igual?`,
-    );
-    if (confirmed) await signOut({ force: true });
+  /**
+   * Salir pasa por dos preguntas posibles, no por ninguna.
+   *
+   * La primera es que salir es una decisión y el botón está a un dedo del
+   * ícono de la marca: antes se tocaba sin querer y la app te escupía a la
+   * pantalla de login sin decir nada.
+   *
+   * La segunda solo aparece si quedan series sin mandar al servidor. Esa cola
+   * queda atada a una cuenta que ya no tiene sesión y `flush()` nunca la
+   * reintenta, así que se avisa antes de perderla en silencio; si igual
+   * confirma, se sale con `force`.
+   */
+  async function handleSignOut(force: boolean) {
+    setLeaving(true);
+    try {
+      const result = await signOut(force ? { force: true } : undefined);
+      if (result.blocked) {
+        setPrompt({ kind: 'pendientes', count: result.pendingCount });
+        return;
+      }
+      setPrompt(null);
+    } finally {
+      setLeaving(false);
+    }
   }
 
   return (
@@ -60,7 +78,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <motion.button
             type="button"
             {...tappable}
-            onClick={() => void handleSignOut()}
+            onClick={() => setPrompt({ kind: 'confirmar' })}
             aria-label="Cerrar sesión"
             className="ml-auto grid size-10 place-items-center rounded-full border border-line text-slate transition-colors hover:border-orange/50 hover:text-orange"
           >
@@ -70,10 +88,51 @@ export function AppShell({ children }: { children: ReactNode }) {
       </header>
 
       {/* El `pb` deja el aire de la barra de abajo (72 px) más el área segura:
-          sin eso la última tarjeta de Progreso queda tapada por la navegación. */}
+          sin eso la última tarjeta de Progreso queda tapada por la navegación.
+
+          La `key` por ruta hace que cambiar de sección sea una transición y no
+          un corte seco: sin eso, "Hoy" y "Progreso" se reemplazaban en el
+          mismo frame y no quedaba ninguna señal de que la pantalla cambió. */}
       <main className="mx-auto flex max-w-md flex-col gap-6 px-5 pt-6 pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
-        {children}
+        <motion.div key={location.pathname} {...screen} className="flex flex-col gap-6">
+          {children}
+        </motion.div>
       </main>
+
+      <ConfirmDialog
+        open={prompt?.kind === 'confirmar'}
+        icon={<LogOut size={18} aria-hidden="true" />}
+        title="¿Cerrar sesión?"
+        confirmLabel="Cerrar sesión"
+        confirmVariant="danger"
+        cancelLabel="Quedarme"
+        busy={leaving}
+        onCancel={() => setPrompt(null)}
+        onConfirm={() => void handleSignOut(false)}
+      >
+        Vas a volver a la pantalla de inicio. Tu plan y tus series quedan guardadas: al volver a
+        entrar está todo donde lo dejaste.
+      </ConfirmDialog>
+
+      <ConfirmDialog
+        open={prompt?.kind === 'pendientes'}
+        icon={<CloudOff size={18} aria-hidden="true" />}
+        title="Queda algo sin sincronizar"
+        confirmLabel="Salir igual"
+        confirmVariant="danger"
+        cancelLabel="Esperar"
+        busy={leaving}
+        onCancel={() => setPrompt(null)}
+        onConfirm={() => void handleSignOut(true)}
+      >
+        {prompt?.kind === 'pendientes' && (
+          <>
+            Tenés {prompt.count} {prompt.count === 1 ? 'serie' : 'series'} sin mandar al servidor.
+            Si salís ahora, quedan pendientes hasta que vuelvas a entrar con esta cuenta desde este
+            mismo teléfono.
+          </>
+        )}
+      </ConfirmDialog>
 
       <nav
         aria-label="Secciones"

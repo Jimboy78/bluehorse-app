@@ -22,9 +22,15 @@ export const showsPlaceholderContent = activeRuleset.source === 'placeholder';
 /**
  * El motor es puro: la hora y la semilla se le pasan desde acá, no las lee él.
  * La semilla se deriva del usuario para que su plan sea siempre el mismo.
+ *
+ * `variant` existe para el botón "probá otra combinación" de la vista previa:
+ * cambia la semilla sin perder la determinación — la misma variante para el
+ * mismo socio siempre da el mismo plan, así que volver atrás y adelante en la
+ * previa no reorganiza la pantalla debajo del dedo.
  */
-export function engineContext(userId: string, now = new Date()): EngineContext {
-  return { now: now.toISOString(), seed: hash(userId) };
+export function engineContext(userId: string, now = new Date(), variant = 0): EngineContext {
+  const seedKey = variant === 0 ? userId : `${userId}#${variant}`;
+  return { now: now.toISOString(), seed: hash(seedKey) };
 }
 
 function hash(value: string): number {

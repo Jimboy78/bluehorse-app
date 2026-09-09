@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { OnboardingInput } from '../routes/onboarding/schemas.ts';
 import { useAuth } from './auth/AuthProvider.tsx';
-import { toProfileUpdate, toUserGoalInsert } from './mappers/profile.ts';
+import { toBodyMetricInsert, toProfileUpdate, toUserGoalInsert } from './mappers/profile.ts';
 import { requireSupabase, supabase } from './supabase.ts';
 
 /**
@@ -50,10 +50,25 @@ export function useCompleteOnboarding() {
       if (!user) throw new Error('No hay sesión activa.');
       const client = requireSupabase();
 
+      const { data: profileRow, error: readError } = await client
+        .from('profiles')
+        .select('gym_id')
+        .eq('id', user.id)
+        .single();
+      if (readError) throw readError;
+
       const { error: goalError } = await client
         .from('user_goals')
         .insert(toUserGoalInsert(user.id, input));
       if (goalError) throw goalError;
+
+      // La primera medición va antes de marcar `onboarded_at`, igual que el
+      // objetivo: si falla, el socio repite el paso en vez de entrar a la app
+      // sin ningún peso registrado y sin ninguna pantalla para cargarlo.
+      const { error: metricError } = await client
+        .from('body_metrics')
+        .insert(toBodyMetricInsert(user.id, profileRow.gym_id as string, input));
+      if (metricError) throw metricError;
 
       const { error: profileError } = await client
         .from('profiles')
@@ -63,6 +78,7 @@ export function useCompleteOnboarding() {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['profile-status', user?.id] });
+      void queryClient.invalidateQueries({ queryKey: ['body-metrics', user?.id] });
     },
   });
 }

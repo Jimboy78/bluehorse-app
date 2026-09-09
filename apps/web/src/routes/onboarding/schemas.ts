@@ -12,6 +12,11 @@ export const goalStepSchema = z.object({
   sport: z.string().trim().max(60).optional(),
 });
 
+/**
+ * Los rangos son los mismos que los `check` de `body_metrics` en la base: si
+ * se separan, el formulario deja pasar algo que el insert rechaza y el socio
+ * ve un error de Postgres en vez de un mensaje.
+ */
 export const personalStepSchema = z.object({
   birthDate: z
     .string()
@@ -21,6 +26,17 @@ export const personalStepSchema = z.object({
       return age >= 13 && age <= 100;
     }, 'La edad tiene que estar entre 13 y 100 años.'),
   sex: z.enum(SEXES),
+  weightKg: z.coerce
+    .number({ message: 'Ingresá tu peso en kilos.' })
+    .min(25, 'El peso tiene que estar entre 25 y 350 kg.')
+    .max(350, 'El peso tiene que estar entre 25 y 350 kg.'),
+  heightCm: z.coerce
+    .number({ message: 'Ingresá tu altura en centímetros.' })
+    .min(100, 'La altura tiene que estar entre 100 y 250 cm.')
+    .max(250, 'La altura tiene que estar entre 100 y 250 cm.'),
+});
+
+export const experienceStepSchema = z.object({
   experienceLevel: z.enum(EXPERIENCE_LEVELS, { message: 'Elegí tu nivel.' }),
 });
 
@@ -40,6 +56,7 @@ export const calibrationStepSchema = z.object({
 
 export const onboardingSchema = goalStepSchema
   .extend(personalStepSchema.shape)
+  .extend(experienceStepSchema.shape)
   .extend(frequencyStepSchema.shape)
   .extend(calibrationStepSchema.shape);
 

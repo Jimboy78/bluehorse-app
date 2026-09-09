@@ -14,6 +14,7 @@ alter table user_goals enable row level security;
 alter table user_constraints enable row level security;
 alter table user_baselines enable row level security;
 alter table user_equipment_settings enable row level security;
+alter table body_metrics enable row level security;
 alter table rulesets enable row level security;
 alter table health_screenings enable row level security;
 alter table plans enable row level security;
@@ -85,6 +86,21 @@ create policy "baselines propios" on user_baselines
 
 create policy "ajustes de maquina propios" on user_equipment_settings
   for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+-- Peso y altura: solo del socio, ni el staff los ve. Es un dato de salud, no
+-- de entrenamiento — mismo criterio que el cribado.
+--
+-- Select, insert y delete, sin update: la serie histórica no se reescribe, se
+-- corrige borrando la medición equivocada y cargando otra. Sin delete, un peso
+-- mal tipeado (780 en vez de 78) queda para siempre torciendo el gráfico.
+create policy "mediciones propias" on body_metrics
+  for select to authenticated using (user_id = auth.uid());
+
+create policy "cargar mediciones propias" on body_metrics
+  for insert to authenticated with check (user_id = auth.uid());
+
+create policy "borrar mediciones propias" on body_metrics
+  for delete to authenticated using (user_id = auth.uid());
 
 -- El cribado de salud es solo del socio: ni siquiera el staff del gimnasio lo ve.
 -- Son datos de salud, no datos de entrenamiento.

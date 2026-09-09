@@ -26,7 +26,7 @@ export function SubstitutePicker({
   gymId: string | null;
   exerciseId: Id;
   equipmentId: Id | null;
-  onPick: (option: SubstituteOption, exerciseName: string, sector: string) => void;
+  onPick: (option: SubstituteOption, exerciseName: string, sector: string | null) => void;
   onCancel: () => void;
 }) {
   const catalog = useGymCatalog(gymId);
@@ -77,11 +77,7 @@ export function SubstitutePicker({
               type="button"
               {...tappable}
               onClick={() =>
-                onPick(
-                  option,
-                  exercise?.name ?? 'Ejercicio',
-                  equipment?.locationNote ?? 'sin ubicación',
-                )
+                onPick(option, exercise?.name ?? 'Ejercicio', equipment?.locationNote ?? null)
               }
               className="flex items-center justify-between gap-3 rounded-xl border border-line/70 bg-navy px-3.5 py-3 text-left transition-colors hover:border-brand/50"
             >

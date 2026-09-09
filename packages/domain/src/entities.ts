@@ -101,6 +101,21 @@ export interface UserConstraint {
   readonly severity: number;
 }
 
+/**
+ * Peso y altura en un momento dado. Siempre en kg y cm, convertidos una sola
+ * vez al escribirlos: a diferencia de la carga de una máquina (regla dura 6),
+ * acá no hay ninguna placa contra la cual el socio vuelva a comparar.
+ *
+ * Las dos son opcionales por separado: alguien puede querer registrar el peso
+ * y no la altura, y forzar los dos para guardar uno haría que no se registre
+ * ninguno.
+ */
+export interface BodyMetric {
+  readonly weightKg: number | null;
+  readonly heightCm: number | null;
+  readonly recordedAt: string;
+}
+
 /** Punto de partida por ejercicio: lo declaró el usuario o lo calibró la app. */
 export interface UserBaseline {
   readonly exerciseId: Id;

@@ -50,11 +50,18 @@ export function OptionCard({
   selected,
   title,
   hint,
+  icon,
   className = '',
   ...rest
 }: Omit<ToggleProps, 'children' | 'tone'> & {
   readonly title: ReactNode;
   readonly hint?: ReactNode;
+  /**
+   * Ícono a la izquierda. Con seis opciones apiladas, es lo que deja encontrar
+   * la propia sin leer las seis: seis títulos en el mismo cuerpo y el mismo
+   * color se leen como un bloque de texto, no como opciones.
+   */
+  readonly icon?: ReactNode;
 }) {
   return (
     <motion.button
@@ -62,16 +69,29 @@ export function OptionCard({
       {...tappable}
       aria-pressed={selected}
       {...rest}
-      className={`flex w-full flex-col items-start gap-0.5 rounded-card border px-4 py-3.5 text-left transition-colors duration-150 ${
+      className={`flex w-full items-center gap-3.5 rounded-card border px-4 py-3.5 text-left transition-colors duration-150 ${
         selected
           ? 'border-brand bg-brand/10 shadow-brand'
           : 'border-line bg-surface shadow-card hover:border-line-bright'
       } ${className}`}
     >
-      <span className={`text-sm font-semibold ${selected ? 'text-brand' : 'text-ink'}`}>
-        {title}
+      {icon && (
+        <span
+          className={`grid size-10 shrink-0 place-items-center rounded-xl border transition-colors duration-150 ${
+            selected
+              ? 'border-brand/40 bg-brand/15 text-brand'
+              : 'border-line bg-navy text-slate-dim'
+          }`}
+        >
+          {icon}
+        </span>
+      )}
+      <span className="flex min-w-0 flex-col gap-0.5">
+        <span className={`text-sm font-semibold ${selected ? 'text-brand' : 'text-ink'}`}>
+          {title}
+        </span>
+        {hint && <span className="text-xs leading-snug text-slate">{hint}</span>}
       </span>
-      {hint && <span className="text-xs leading-snug text-slate">{hint}</span>}
     </motion.button>
   );
 }

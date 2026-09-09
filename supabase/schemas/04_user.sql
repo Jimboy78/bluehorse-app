@@ -48,6 +48,30 @@ create table user_baselines (
 
 create unique index user_baselines_current_idx on user_baselines (user_id, exercise_id, recorded_at desc);
 
+-- Peso y altura. Append-only, igual que `user_baselines`: el peso cambia, y la
+-- serie de mediciones ES el dato en un objetivo de recomposición. Un UPDATE
+-- sobre una fila única borraría justo eso.
+--
+-- La altura viaja en la misma fila y no en `profiles` porque se toma en el
+-- mismo momento que el peso; en un adulto no cambia, pero repetirla es más
+-- barato que tener el dato partido en dos tablas y desincronizado.
+--
+-- Se guarda en kg y cm SIEMPRE. No es la trampa de la regla dura 6: eso es
+-- sobre la carga que muestra una máquina, que se lee de una placa y se anota
+-- cruda. Acá el socio elige la unidad al escribir y la app convierte una vez;
+-- una balanza en libras se lee igual en kg y nadie vuelve a la balanza a
+-- comparar contra lo que dice la app.
+create table body_metrics (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references profiles (id) on delete cascade,
+  gym_id uuid not null references gyms (id) on delete restrict,
+  weight_kg numeric(5, 2) check (weight_kg between 25 and 350),
+  height_cm numeric(5, 1) check (height_cm between 100 and 250),
+  recorded_at timestamptz not null default now()
+);
+
+create index body_metrics_recent_idx on body_metrics (user_id, recorded_at desc);
+
 -- "Asiento en 4, respaldo en 2". Detalle chico que ahorra un minuto por ejercicio.
 create table user_equipment_settings (
   user_id uuid not null references profiles (id) on delete cascade,
