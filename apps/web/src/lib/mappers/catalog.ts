@@ -1,4 +1,4 @@
-import type { Equipment, EquipmentLoadSpec, Exercise, Id } from '@bh/domain';
+import type { Equipment, EquipmentLoadSpec, Exercise, Id, SubstitutionEdge } from '@bh/domain';
 import {
   bodyRegionSchema,
   equipmentCategorySchema,
@@ -67,6 +67,24 @@ export const exerciseEquipmentRowSchema = z.object({
 export const painConstraintRowSchema = z.object({
   body_region: bodyRegionSchema.nullable(),
 });
+
+export const substitutionRowSchema = z.object({
+  exercise_id: z.uuid(),
+  substitute_id: z.uuid(),
+  equivalence: z.coerce.number(),
+  note: z.string().nullable(),
+});
+
+export type SubstitutionRow = z.infer<typeof substitutionRowSchema>;
+
+export function toDomainSubstitution(row: SubstitutionRow): SubstitutionEdge {
+  return {
+    exerciseId: row.exercise_id,
+    substituteId: row.substitute_id,
+    equivalence: row.equivalence,
+    note: row.note,
+  };
+}
 
 export function toDomainEquipment(row: EquipmentRow): Equipment {
   const load: EquipmentLoadSpec = {

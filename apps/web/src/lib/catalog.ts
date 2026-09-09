@@ -5,8 +5,10 @@ import {
   equipmentRowSchema,
   exerciseEquipmentRowSchema,
   exerciseRowSchema,
+  substitutionRowSchema,
   toDomainEquipment,
   toDomainExercise,
+  toDomainSubstitution,
 } from './mappers/catalog.ts';
 import { PLACEHOLDER_GYM } from './placeholder-gym.ts';
 import { requireSupabase } from './supabase.ts';
@@ -42,11 +44,33 @@ export async function fetchGymCatalog(client: SupabaseClient, gymId: string): Pr
   }
 
   const exercises = await fetchExercises(client, gymId, new Set(equipment.map((e) => e.id)));
+  const substitutions = await fetchSubstitutions(client, new Set(exercises.map((e) => e.id)));
 
   return {
-    gym: { gymId, equipment, exercises, substitutions: [] },
+    gym: { gymId, equipment, exercises, substitutions },
     isPlaceholder: false,
   };
+}
+
+/**
+ * Equivalencias cargadas a mano en `/panel` (tabla `exercise_substitutions`).
+ * El motor las prioriza sobre el cálculo automático por patrón y músculos —
+ * ver `findSubstitutes` en el engine — pero hasta acá nunca se leían: esta
+ * consulta faltaba, así que ninguna equivalencia curada llegaba nunca al
+ * motor, en ninguna de las tres pantallas que ofrecen "cambiar ejercicio".
+ */
+async function fetchSubstitutions(client: SupabaseClient, ownedExerciseIds: ReadonlySet<string>) {
+  const { data, error } = await client
+    .from('exercise_substitutions')
+    .select('exercise_id, substitute_id, equivalence, note');
+  if (error) throw error;
+
+  return (data ?? [])
+    .map((raw) => substitutionRowSchema.parse(raw))
+    .filter(
+      (row) => ownedExerciseIds.has(row.exercise_id) && ownedExerciseIds.has(row.substitute_id),
+    )
+    .map(toDomainSubstitution);
 }
 
 async function fetchEquipment(client: SupabaseClient, gymId: string) {
