@@ -1,4 +1,4 @@
-import type { AdaptationProposal } from '@bh/domain';
+import type { AdaptationProposal, LoadUnit } from '@bh/domain';
 import { formatLoad } from '@bh/domain';
 import { ArrowRight, Check, ChevronRight, Compass, History, X } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -152,10 +152,10 @@ function ProposalHistoryRow({ proposal }: { proposal: AdaptationProposal }) {
           {hasLoadChange && (
             <span className="flex items-center gap-1.5 font-mono tabular-nums">
               <span className="line-through decoration-slate-dim/60">
-                {formatLoad({ value: Number(proposal.fromValue), unit: proposal.loadUnit ?? 'kg' })}
+                {showValue(proposal.fromValue, proposal.loadUnit)}
               </span>
               <ArrowRight size={11} aria-hidden="true" />
-              {formatLoad({ value: Number(proposal.toValue), unit: proposal.loadUnit ?? 'kg' })}
+              {showValue(proposal.toValue, proposal.loadUnit)}
             </span>
           )}
           {proposal.resolvedAt && <span>{formatResolvedDate(proposal.resolvedAt)}</span>}
@@ -163,4 +163,18 @@ function ProposalHistoryRow({ proposal }: { proposal: AdaptationProposal }) {
       </div>
     </Card>
   );
+}
+
+/**
+ * Mismo criterio que `showValue` de `components/Proposals.tsx`: los valores
+ * de una propuesta son texto genérico, "20" para una carga o "60%" para un
+ * deload. Con unidad se muestra como lo muestra la máquina; sin unidad
+ * (deload) se muestra tal cual — poner un `?? 'kg'` acá haría que "60%" se
+ * lea "60 kg", una unidad que la propuesta nunca tuvo.
+ */
+function showValue(value: string | null, unit: LoadUnit | null): string {
+  if (value === null) return '';
+  if (unit === null) return value;
+  const n = Number(value);
+  return Number.isNaN(n) ? value : formatLoad({ value: n, unit });
 }
