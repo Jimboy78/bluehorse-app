@@ -90,16 +90,13 @@ export function startSessionOutbox(getOwnerId: () => string | null): () => void 
  * Exige un récord anterior real (no solo un valor): la primera vez que se
  * hace un ejercicio no es un "récord", es el punto de partida.
  *
- * OJO al agregar un campo de carga real en `SetRow` (hoy `markSetDone` solo
- * confirma "hecho", `loadKg` sale de `item.targetLoad` — lo que el motor
- * PLANIFICÓ, no lo que el socio efectivamente levantó). Mientras eso no
- * exista, un "récord" acá es "la carga que el plan subió y la persona
- * confirmó", no necesariamente un logro nuevo de desempeño — son la misma
- * cosa solo porque el motor solo sube la carga cuando `reviewProgress()`
- * detecta que a la persona le sobraron repeticiones. El día que exista carga
- * real editable, esta función tiene que compararla a ELLA, no a la
- * planificada, o va a inflar `personal_records` con progresión del plan en
- * vez de desempeño real.
+ * El `loadKg` que recibe es el que la persona levantó de verdad (`actual.load`
+ * de la serie), no el que el plan proponía. Esto era una advertencia pendiente
+ * mientras `SetRow` no tenía campo de carga: hasta entonces un "récord" era
+ * "la carga que el plan subió y la persona confirmó", que es progresión del
+ * plan disfrazada de desempeño. Desde que cada serie se anota con su peso
+ * real, se compara contra lo que se hizo — que es lo único que un récord
+ * puede significar.
  */
 async function celebrateIfRecord(
   userId: string,
@@ -477,6 +474,12 @@ export function useCloseSession() {
       void queryClient.invalidateQueries({ queryKey: ['plans', user?.id] });
       void queryClient.invalidateQueries({ queryKey: ['plan-sessions'] });
       void queryClient.invalidateQueries({ queryKey: ['progress', user?.id] });
+      // El cierre de sesión es el único lugar de la app donde se reporta una
+      // molestia (`pain_reports`), y Perfil la muestra en el historial. Sin
+      // esto, terminabas la sesión diciendo que te dolió la rodilla, ibas a
+      // Perfil, y no figuraba — hasta que pasaran los 5 minutos de `staleTime`
+      // o recargaras la pantalla.
+      void queryClient.invalidateQueries({ queryKey: ['pain-history', user?.id] });
     },
   });
 }
