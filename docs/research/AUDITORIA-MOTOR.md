@@ -20,7 +20,7 @@ Medido contando usos reales en `packages/engine/src/`, no leyendo la documentaci
 | `seasonPhase` | sí | auditado en `06` |
 | día de partido | sí | auditado en `07`; falta el marcador de énfasis excéntrico |
 | `constraints` (dolor / lesión) | sí | ✅ **auditado** — `09-dolor-y-lesiones.md` |
-| `sessionsPerWeekTarget` | sí | pendiente — **prioridad alta**, ver brecha de frecuencia en `10` |
+| `sessionsPerWeekTarget` | sí | ✅ **auditado** — `11-frecuencia-semanal.md` |
 | `baselines` | sí | pendiente |
 | `daysSinceLastSession` | sí | pendiente |
 | `sex` | **no (0 usos)** | pendiente — decidir si se saca del formulario |
@@ -114,10 +114,35 @@ principal: alcanzó con medir el ruleset contra sí mismo.
 - Se agregó `modifiers.experienceLevel.noDoseEffectNote`: cuando el nivel no cambia la dosis, el
   plan lo dice (regla dura 4). 4 tests nuevos, 300 en verde.
 
-### Próxima: frecuencia (`sessionsPerWeekTarget`)
+### 4 · Frecuencia semanal — cerrada el 2026-09-09
 
-Pelland deja una brecha concreta y accionable: la frecuencia semanal tiene efecto sobre la **fuerza**
-(probabilidad posterior 100 %, con rendimientos decrecientes) pero es **compatible con nulo** para
-hipertrofia. El motor hoy deja que el socio elija la frecuencia y no le dice nada de eso. Además
-hay que revisar cómo se elige la plantilla cuando la frecuencia pedida no tiene una que la cubra:
-`pickTemplate` ya emite una advertencia de fallback que conviene auditar.
+`docs/research/11-frecuencia-semanal.md`.
+
+- **El 42 % de lo que el socio puede elegir cae a un fallback.** El slider ofrece 1 a 7 sesiones y
+  las plantillas cubren 18 de 42 combinaciones objetivo × frecuencia mal: ninguna cubre 1 ni 7 para
+  ningún objetivo, y `power` no tiene nada por encima de 3.
+- **Bug con consecuencia real:** `Math.max(target, template[0])` subía la frecuencia declarada hasta
+  el mínimo de la plantilla **para medir el volumen semanal**. Quien decía que solo puede venir una
+  vez tenía su volumen medido sobre dos sesiones, así que el aviso de "estás por debajo del mínimo"
+  **nunca se disparaba justo para quien lo necesitaba**. Ahora se mide sobre lo que el socio dijo.
+- **La frecuencia pesa diez veces más en fuerza que en hipertrofia.** Pelland 2025
+  (DOI 10.1007/s40279-025-02344-w): pendiente marginal β = **3,27 %** (IC creíble 2,74 a 3,84,
+  probabilidad 100 %) para fuerza, contra β = 0,32 % (IC **−0,14 a 0,82**, probabilidad 91,3 %) para
+  hipertrofia — este último cruza el cero y los autores lo llaman compatible con efectos
+  insignificantes.
+- **Matiz que hay que tener presente:** esos modelos están ajustados por volumen. En la app, bajar
+  la frecuencia **sí** baja el volumen (medido: 16 series/semana con f=1 contra 48 con f=3), así que
+  quien viene menos pierde por los dos lados.
+- Los autores mismos declaran que su hallazgo sobre frecuencia y fuerza **contradice metaanálisis
+  previos**, y un ECA volumen-igualado (DOI 10.2478/hukin-2019-0062) no encontró diferencias. Queda
+  documentado así, no como consenso.
+- Se agregó `modifiers.frequency`: el plan dice qué se pierde, y lo dice distinto según el objetivo.
+  5 tests nuevos, 305 en verde.
+
+### Próxima: objetivo (`goal`)
+
+Es la entrada que más mueve el plan — elige la plantilla y todo el bloque de prescripción — y es la
+única de las grandes que sigue sin auditar. Hay señales de que necesita mirada: `power` tiene una
+prescripción idéntica para los cuatro niveles y ninguna plantilla por encima de 3 sesiones, y
+`recomposition` apenas se separa de `hypertrophy`. También hay que revisar `priority`, que se usa
+una sola vez, y qué pasa cuando el socio declara varios objetivos.

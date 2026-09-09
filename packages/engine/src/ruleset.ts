@@ -349,6 +349,21 @@ const modifiersSchema = z.object({
       confidence: z.enum(CONFIDENCE_LEVELS),
     })
     .optional(),
+  /**
+   * Qué decir cuando el socio declara menos sesiones de las que la plantilla
+   * necesita. La frecuencia no pesa igual en todos lados: a igual volumen, su
+   * pendiente sobre la fuerza es diez veces la que tiene sobre la hipertrofia,
+   * y en hipertrofia el intervalo cruza el cero. Ver `docs/research/11`.
+   */
+  frequency: z
+    .object({
+      /** Usa `{declaradas}` y `{minimo}` como marcadores. */
+      belowTemplateNote: z.string().min(1),
+      /** Qué se pierde exactamente, según el objetivo. */
+      byGoal: z.partialRecord(z.enum(GOALS), z.string().min(1)),
+      confidence: z.enum(CONFIDENCE_LEVELS),
+    })
+    .optional(),
   olderAdults: z
     .object({
       fromAge: z.number().int().min(40).max(100),

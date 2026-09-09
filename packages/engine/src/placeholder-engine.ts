@@ -73,6 +73,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
   const sport = resolveSport(ruleset, goal, warnings);
   const params = applySportVolume(byAge, sport, warnings);
   const template = pickTemplate(ruleset, goal, warnings);
+  warnings.push(...frequencyWarnings(ruleset, goal, template));
   const placeholder = isPlaceholder(ruleset);
 
   // Volver después de mucho con la carga con la que dejaste es la forma más
@@ -518,11 +519,11 @@ function weeklyVolumeWarnings(
   const exerciseById = new Map(gym.exercises.map((e) => [e.id, e]));
 
   // La cola no tiene fechas: se estima la semana con las sesiones que la persona
-  // dijo que puede hacer, acotadas a lo que la plantilla soporta.
-  const perWeek = Math.min(
-    Math.max(goal.sessionsPerWeekTarget, template.sessionsPerWeek[0]),
-    template.sessionsPerWeek[1],
-  );
+  // dijo que puede hacer. **Solo se acota por arriba.** Subirla hasta el mínimo
+  // de la plantilla —lo que hacía antes— medía una semana que el socio no iba a
+  // hacer, y así el aviso de volumen bajo nunca se disparaba justo para quien va
+  // menos veces. Ver `docs/research/11`.
+  const perWeek = Math.min(goal.sessionsPerWeekTarget, template.sessionsPerWeek[1]);
 
   const week = sessions.slice(0, perWeek);
   const setsByMuscle = new Map<MuscleGroup, number>();
@@ -949,6 +950,27 @@ function pickTemplate(ruleset: Ruleset, goal: UserGoal, warnings: string[]) {
     `Ninguna plantilla cubre ${goal.sessionsPerWeekTarget} sesiones por semana para el objetivo "${goal.goal}". Se usó "${fallback.label}".`,
   );
   return fallback;
+}
+
+/**
+ * Qué pierde el socio cuando declara menos sesiones de las que la plantilla
+ * necesita. Antes esto no se decía: el motor rellenaba la semana con sesiones
+ * que la persona no iba a hacer y daba el plan por bueno.
+ */
+function frequencyWarnings(
+  ruleset: Ruleset,
+  goal: UserGoal,
+  template: Ruleset['templates'][number],
+): string[] {
+  const rule = ruleset.modifiers?.frequency;
+  const minimo = template.sessionsPerWeek[0];
+  if (!rule || goal.sessionsPerWeekTarget >= minimo) return [];
+
+  const aviso = rule.belowTemplateNote
+    .replace('{declaradas}', String(goal.sessionsPerWeekTarget))
+    .replace('{minimo}', String(minimo));
+  const porObjetivo = rule.byGoal[goal.goal];
+  return porObjetivo ? [aviso, porObjetivo] : [aviso];
 }
 
 function isBlocked(exercise: Exercise, constraints: readonly UserConstraint[]): boolean {

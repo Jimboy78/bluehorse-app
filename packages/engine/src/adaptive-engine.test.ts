@@ -815,3 +815,55 @@ describe('nivel de experiencia', () => {
     expect(dosisDe('beginner', 'strength')).not.toBe(dosisDe('advanced', 'strength'));
   });
 });
+
+// ---------------------------------------------------------------- frecuencia
+
+describe('frecuencia semanal', () => {
+  const planCon = (sessionsPerWeek: number, goal: UserGoal['goal'] = 'hypertrophy') =>
+    engine.generatePlan({
+      context,
+      user: buildUser({ goals: [goalOf(goal, sessionsPerWeek)] }),
+      gym: buildGym(),
+      ruleset: V1_RESEARCH,
+    });
+
+  const regla = V1_RESEARCH.modifiers?.frequency;
+
+  it('dice qué pierde quien viene menos veces de las que el plan necesita', () => {
+    if (!regla) throw new Error('El ruleset no tiene la regla de frecuencia.');
+    const avisos = planCon(1).warnings.join(' ');
+    expect(avisos).toContain('1');
+    expect(avisos).toContain(regla.byGoal.hypertrophy ?? '¡falta!');
+  });
+
+  // A igual volumen la frecuencia pesa diez veces más en fuerza que en
+  // hipertrofia (β 3,27 % contra 0,32 %, y el de hipertrofia cruza el cero).
+  // Decirle lo mismo a los dos sería plancharlo. Ver `docs/research/11`.
+  it('lo que pierde depende del objetivo', () => {
+    if (!regla) throw new Error('El ruleset no tiene la regla de frecuencia.');
+    const fuerza = planCon(1, 'strength').warnings.join(' ');
+    const hipertrofia = planCon(1, 'hypertrophy').warnings.join(' ');
+    expect(fuerza).toContain(regla.byGoal.strength ?? '¡falta!');
+    expect(hipertrofia).not.toContain(regla.byGoal.strength ?? '¡falta!');
+  });
+
+  it('con una frecuencia que la plantilla cubre no avisa nada de esto', () => {
+    if (!regla) throw new Error('El ruleset no tiene la regla de frecuencia.');
+    expect(planCon(3).warnings.join(' ')).not.toContain(regla.belowTemplateNote.slice(0, 20));
+  });
+
+  // El chequeo de volumen subía la frecuencia declarada hasta el mínimo de la
+  // plantilla, así que medía una semana que el socio no iba a hacer y el aviso
+  // de volumen bajo nunca se disparaba justo para quien va menos veces.
+  it('mide el volumen sobre las sesiones que el socio dijo, no sobre las que le convienen', () => {
+    const unaVez = planCon(1).warnings.join(' ');
+    expect(unaVez).toMatch(/Con 1 sesion|Con 1 sesión|Con 1 /);
+  });
+
+  // Guarda de regresión: no discrimina el cambio de `perWeek`, pero fija que
+  // el aviso de volumen bajo siga existiendo para quien entrena una vez.
+  it('quien va una vez por semana recibe el aviso de volumen bajo', () => {
+    const avisos = planCon(1).warnings;
+    expect(avisos.some((w) => w.includes('quedan abajo'))).toBe(true);
+  });
+});

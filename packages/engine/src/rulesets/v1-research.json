@@ -1116,6 +1116,14 @@
     "experienceLevel": {
       "noDoseEffectNote": "Para este objetivo tu nivel decide qué ejercicios entran al plan por la técnica que piden, pero no cambia las series ni las repeticiones. La evidencia que mide la dosis solo distingue entre entrenado y no entrenado, así que afinar más sería inventarlo.",
       "confidence": "medium"
+    },
+    "frequency": {
+      "belowTemplateNote": "Dijiste que podés entrenar {declaradas} veces por semana y este plan necesita al menos {minimo} para cubrir todo el cuerpo. Se armó igual y vas a progresar, pero más lento.",
+      "byGoal": {
+        "strength": "Para fuerza es donde más se nota: repartir el mismo trabajo en más días rinde más que juntarlo. Si algún día podés sumar una sesión, acá es donde más te va a servir.",
+        "hypertrophy": "Para ganar músculo lo que manda es el total de series de la semana, no en cuántos días las hagas. Si podés sostener el volumen, venir menos veces te cuesta poco."
+      },
+      "confidence": "medium"
     }
   },
   "safety": {
