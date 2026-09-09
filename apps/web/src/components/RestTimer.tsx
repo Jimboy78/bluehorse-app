@@ -94,11 +94,46 @@ export function RestTimer({
   const actualRef = useRef<SetActual>({ reps: repsTarget, rir: targetRir, load: targetLoad });
   actualRef.current = { reps, rir, load };
 
+  /**
+   * Contra el reloj de la máquina, no contra los ticks del intervalo.
+   *
+   * `setInterval(fn, 1000)` no garantiza un tick por segundo real: el
+   * navegador lo frena en una pestaña en segundo plano, y en algunos casos lo
+   * pausa del todo mientras la pantalla está bloqueada. Restar 1 por tick
+   * (como hacía antes) asume que cada tick vale un segundo real — con la
+   * pantalla bloqueada un rato, o cambiando a otra app a mitad del descanso
+   * (algo tan común como mirar un mensaje entre series), el contador se
+   * desincroniza del reloj real: al volver, muestra más tiempo del que
+   * queda de verdad, y el descanso que termina quedando en `set_logs` no es
+   * el que pasó.
+   *
+   * Guardando el instante en que termina el descanso y recalculando `remaining`
+   * contra `Date.now()` en cada tick, el primer tick después de volver de
+   * segundo plano se autocorrige solo — no importa cuántos ticks se perdieron
+   * mientras tanto.
+   */
+  const endAtRef = useRef(Date.now() + prescribedSeconds * 1000);
+
   useEffect(() => {
-    const id = setInterval(() => {
-      setRemaining((prev) => (prev <= 1 ? 0 : prev - 1));
-    }, 1000);
-    return () => clearInterval(id);
+    function tick() {
+      setRemaining(Math.max(0, Math.ceil((endAtRef.current - Date.now()) / 1000)));
+    }
+    tick(); // corrige de inmediato si el efecto tarda en montar
+
+    // Al volver de segundo plano no hace falta esperar hasta 1s al próximo
+    // tick del intervalo: se corrige apenas la pantalla se vuelve a ver, que
+    // es exactamente el momento en que el número mostrado puede estar más
+    // desactualizado.
+    function onVisible() {
+      if (document.visibilityState === 'visible') tick();
+    }
+    document.addEventListener('visibilitychange', onVisible);
+
+    const id = setInterval(tick, 1000);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, []);
 
   useEffect(() => {
