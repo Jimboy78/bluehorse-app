@@ -15,7 +15,7 @@ import { toSubstitutionEvent } from './mappers/session-event.ts';
 import { type SetActual, toSetLogInsert, toWorkoutLogInsert } from './mappers/session-log.ts';
 import { dequeue, enqueue, flush, newClientId, type OutboxItem, startAutoFlush } from './outbox.ts';
 import type { ActiveSessionItem } from './plan.ts';
-import type { RestoredSession } from './session-restore.ts';
+import { EMPTY_RESTORED, type RestoredSession } from './session-restore.ts';
 import { requireSupabase } from './supabase.ts';
 
 /**
@@ -163,7 +163,39 @@ export function useSessionLog(
   planSessionId: string,
   restored?: RestoredSession,
 ) {
+  const queryClient = useQueryClient();
   const workoutLogIdRef = useRef<{ sessionId: string; workoutLogId: string } | null>(null);
+
+  /**
+   * Deja la sesión reconstruida (`useRestoredSession`) al día en el mismo
+   * momento en que se registra algo.
+   *
+   * Esto NO es una optimización: es lo que hace que salir de "Hoy" y volver
+   * no pierda las series. `Hoy` guarda el progreso en `useState`, así que al
+   * cambiar de pestaña el componente se desmonta y ese estado se va; al
+   * volver, la pantalla se reconstruye desde esta query. Y como la query
+   * tiene `staleTime: Infinity` (la sesión en curso la cambia esta misma
+   * pantalla, no el servidor), lo que devolvía era la foto del momento en
+   * que se entró: cero series.
+   *
+   * El resultado era el bug exacto que `session-restore.ts` dice prevenir,
+   * pero por navegación en vez de por recarga: las series marcadas volvían
+   * destildadas, y volver a marcarlas escribía `set_logs` duplicados y un
+   * `workout_log` nuevo para la misma sesión, partiendo el entrenamiento en
+   * dos. Recargar la página lo "arreglaba" — porque ahí sí la caché arrancaba
+   * vacía y se leía la base.
+   *
+   * Se escribe la caché en vez de invalidarla porque esto pasa en el
+   * gimnasio, con señal mala: invalidar necesita red para resolverse, y
+   * quedarse sin señal justo ahí volvería a mostrar la foto vieja. Lo que se
+   * acaba de registrar ya se sabe sin preguntarle a nadie.
+   */
+  function patchRestored(patch: (prev: RestoredSession) => RestoredSession): void {
+    if (!userId || !planSessionId) return;
+    queryClient.setQueryData<RestoredSession>(['restored-session', userId, planSessionId], (prev) =>
+      patch(prev ?? EMPTY_RESTORED),
+    );
+  }
   /**
    * Qué serie escribió qué registro, para poder deshacerla. La clave es
    * `itemId:setIndex` — la misma serie del mismo ejercicio.
@@ -205,6 +237,9 @@ export function useSessionLog(
         userId,
       );
       workoutLogIdRef.current = { sessionId: planSessionId, workoutLogId };
+      // Que la reconstrucción sepa que esta sesión ya tiene un registro
+      // abierto: sin esto, volver a la pantalla crea otro.
+      patchRestored((prev) => ({ ...prev, workoutLogId }));
     }
 
     return workoutLogIdRef.current.workoutLogId;
@@ -257,6 +292,28 @@ export function useSessionLog(
     );
     writtenSetsRef.current.set(`${item.id}:${setIndex}`, { setLogId, clientId });
 
+    patchRestored((prev) => {
+      const hechas = prev.doneByItem[item.id] ?? [];
+      const setLogIds = new Map(prev.setLogIds);
+      setLogIds.set(`${item.id}:${setIndex}`, setLogId);
+      return {
+        ...prev,
+        doneByItem: {
+          ...prev.doneByItem,
+          [item.id]: hechas.includes(setIndex) ? hechas : [...hechas, setIndex],
+        },
+        setLogIds,
+        // La carga se guarda tal como se registró, no la del plan: es la que
+        // tiene que aparecer al volver a este ejercicio.
+        loadByItem: actual.load ? { ...prev.loadByItem, [item.id]: actual.load } : prev.loadByItem,
+      };
+    });
+
+    // Progreso lee del servidor y tiene 5 minutos de `staleTime`: sin esto,
+    // terminar una serie e ir a Progreso mostraba los números de antes hasta
+    // que pasaran esos 5 minutos (o hasta refrescar la pantalla a mano).
+    void queryClient.invalidateQueries({ queryKey: ['progress', userId] });
+
     void flush(sendOutboxItem, userId);
   }
 
@@ -276,6 +333,23 @@ export function useSessionLog(
     if (!written) return; // nunca se llegó a registrar (se deshizo durante el descanso)
 
     writtenSetsRef.current.delete(key);
+
+    // La serie deja de existir en los dos lados a la vez: si solo se sacara
+    // del estado local, volver a la pantalla la traería de vuelta desde la
+    // reconstrucción, ya borrada de la base.
+    patchRestored((prev) => {
+      const setLogIds = new Map(prev.setLogIds);
+      setLogIds.delete(key);
+      return {
+        ...prev,
+        doneByItem: {
+          ...prev.doneByItem,
+          [item.id]: (prev.doneByItem[item.id] ?? []).filter((i) => i !== setIndex),
+        },
+        setLogIds,
+      };
+    });
+    void queryClient.invalidateQueries({ queryKey: ['progress', userId] });
 
     const stillQueued = await dequeue(written.clientId);
     if (stillQueued) return;

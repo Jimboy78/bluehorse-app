@@ -37,7 +37,7 @@ export interface RestoredSession {
   readonly loadByItem: Readonly<Record<string, LoadReading>>;
 }
 
-const EMPTY: RestoredSession = {
+export const EMPTY_RESTORED: RestoredSession = {
   workoutLogId: null,
   doneByItem: {},
   setLogIds: new Map(),
@@ -52,8 +52,8 @@ interface SetLogRow {
   readonly load_unit: LoadUnit | null;
 }
 
-/** Las series registradas → lo que la pantalla necesita para reconstruirse. */
-function rebuild(rows: readonly unknown[]): Omit<RestoredSession, 'workoutLogId'> {
+/** Las series registradas → lo que la pantalla necesita para reconstruirse. Exportada para test. */
+export function rebuild(rows: readonly unknown[]): Omit<RestoredSession, 'workoutLogId'> {
   const doneByItem: Record<string, number[]> = {};
   const setLogIds = new Map<string, string>();
   const loadByItem: Record<string, LoadReading> = {};
@@ -110,7 +110,7 @@ export function useRestoredSession(userId: string | undefined, planSessionId: st
         .limit(1)
         .maybeSingle();
       if (error) throw error;
-      if (!data) return EMPTY;
+      if (!data) return EMPTY_RESTORED;
 
       return { workoutLogId: data.id as string, ...rebuild(data.set_logs ?? []) };
     },
