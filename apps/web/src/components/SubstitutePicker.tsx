@@ -9,10 +9,17 @@ import { tappable } from '../lib/motion.ts';
 import { Button, Card, Skeleton } from './ui/index.ts';
 
 /**
- * "Esta máquina está ocupada": ofrece un reemplazo equivalente calculado por
- * el motor real, contra el catálogo real del gimnasio (con el mismo
- * fallback a placeholder que el resto de la app). No toca `plan_session_items`
- * — es una decisión de ese momento, no una reescritura del plan.
+ * Alternativas para este ejercicio, calculadas por el motor real contra el
+ * catálogo real del gimnasio (con el mismo fallback a placeholder que el
+ * resto de la app). No toca `plan_session_items` — es una decisión de ese
+ * momento, no una reescritura del plan.
+ *
+ * Nació como "la máquina está ocupada", pero `findSubstitutes()` recorre TODO
+ * el catálogo por patrón de movimiento y músculos compartidos — no solo lo
+ * que está libre ahora mismo. Por eso el botón que lo abre en `Hoy.tsx` dice
+ * "Cambiar ejercicio" y no "Máquina ocupada": sirve igual para "¿esto lo
+ * puedo hacer con otra cosa?" un día que no hay ningún problema con la
+ * estación.
  */
 export function SubstitutePicker({
   userId,
@@ -49,7 +56,7 @@ export function SubstitutePicker({
   return (
     <Card className="flex flex-col gap-3 p-4">
       <h3 className="font-display text-sm font-medium uppercase tracking-[0.16em]">
-        ¿Con qué la reemplazamos?
+        Otras formas de hacerlo
       </h3>
 
       {catalog.isPending && (

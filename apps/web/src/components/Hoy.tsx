@@ -571,10 +571,16 @@ function ExerciseDetail({
         {item.rationale}
       </p>
 
+      {/* "Máquina ocupada" antes: el nombre daba a entender que este botón
+          solo servía para ese caso puntual, cuando en realidad recorre TODO
+          el catálogo por patrón y músculos compartidos (`findSubstitutes()`),
+          no solo máquinas libres. "Cambiar ejercicio" es lo que hace de
+          verdad — sirve tanto para la estación ocupada como para "che, ¿esto
+          lo puedo hacer de otra forma?" un día cualquiera. */}
       {!showingSubstitutes && restingIndex === null && (
         <Button variant="ghost" size="sm" className="self-start" onClick={onShowSubstitutes}>
           <Repeat2 size={13} aria-hidden="true" />
-          Máquina ocupada
+          Cambiar ejercicio
         </Button>
       )}
 
