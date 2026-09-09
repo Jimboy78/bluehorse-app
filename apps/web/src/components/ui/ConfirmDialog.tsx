@@ -56,10 +56,33 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   const titleId = useId();
   const confirmRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const returnFocusTo = useRef<Element | null>(null);
+  /** Si ya se movió el foco adentro de este cuadro desde que se abrió. */
+  const focusedOnOpen = useRef(false);
+
+  /**
+   * `onCancel` por ref y no en las dependencias del efecto.
+   *
+   * Quien usa este cuadro le pasa una función nueva en cada render (`onCancel=
+   * {() => setAlgo(null)}`, que es lo normal). Con `onCancel` en las
+   * dependencias, el efecto se desmontaba y volvía a montar en CADA render del
+   * padre — y su limpieza devuelve el foco a donde estaba antes de abrirse.
+   *
+   * Con un cuadro de solo botones no se notaba. Con uno que tiene un campo de
+   * texto adentro (escribir el nombre del plan para borrarlo) era imposible de
+   * usar: cada tecla cambiaba el estado del padre, el efecto se rearmaba, y el
+   * foco se volaba del campo. Había que tocar el campo, escribir una letra,
+   * tocar de nuevo, otra letra.
+   */
+  const onCancelRef = useRef(onCancel);
+  onCancelRef.current = onCancel;
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      focusedOnOpen.current = false;
+      return;
+    }
 
     returnFocusTo.current = document.activeElement;
     // Un cuadro por encima de la barra fija de abajo: sin esto se puede seguir
@@ -68,7 +91,7 @@ export function ConfirmDialog({
     document.body.style.overflow = 'hidden';
 
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') onCancel();
+      if (event.key === 'Escape') onCancelRef.current();
     }
     document.addEventListener('keydown', onKeyDown);
 
@@ -77,7 +100,22 @@ export function ConfirmDialog({
       document.body.style.overflow = previousOverflow;
       if (returnFocusTo.current instanceof HTMLElement) returnFocusTo.current.focus();
     };
-  }, [open, onCancel]);
+  }, [open]);
+
+  /**
+   * El foco entra al cuadro una sola vez, cuando termina de aparecer.
+   *
+   * `onAnimationComplete` se dispara cada vez que motion termina una
+   * animación, no solo la de entrada: sin la guarda, cada render del padre
+   * volvía a tirar el foco al botón de confirmar. Y si la persona ya está
+   * escribiendo adentro del cuadro, no se le mueve el foco de ningún modo.
+   */
+  function focusOnOpen(): void {
+    if (focusedOnOpen.current) return;
+    if (panelRef.current?.contains(document.activeElement)) return;
+    focusedOnOpen.current = true;
+    confirmRef.current?.focus();
+  }
 
   return (
     <AnimatePresence>
@@ -98,13 +136,14 @@ export function ConfirmDialog({
           />
 
           <motion.div
+            ref={panelRef}
             role="alertdialog"
             aria-modal="true"
             aria-labelledby={titleId}
             initial={{ opacity: 0, y: 24, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1, transition: spring.settle }}
             exit={{ opacity: 0, y: 16, transition: { duration: duration.instant } }}
-            onAnimationComplete={() => confirmRef.current?.focus()}
+            onAnimationComplete={focusOnOpen}
             className="relative m-3 flex w-full max-w-sm flex-col gap-4 rounded-panel border border-line-bright bg-surface p-5 shadow-raised"
           >
             <div className="flex items-start gap-3">
