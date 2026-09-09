@@ -177,6 +177,65 @@ function setLog(over: Partial<SetLog> & Pick<SetLog, 'workoutLogId' | 'completed
 
 const engine = createPlaceholderEngine();
 
+describe('generatePlan · variedad entre sesiones', () => {
+  // `full_body_ab` pide `horizontal_pull` en la sesión A y también en la B.
+  // Antes el set de "ya usados" se reiniciaba en cada sesión, así que las dos
+  // recibían el MISMO ejercicio con el resto del catálogo sin tocar: en el
+  // gimnasio real eso era remo con mancuerna dos veces por semana mientras el
+  // remo sentado quedaba libre.
+  it('un patrón que aparece en dos sesiones recibe ejercicios distintos', () => {
+    const gym = buildGym();
+    const conDosRemos = {
+      ...gym,
+      exercises: [
+        ...gym.exercises,
+        exercise('ex-remo-mancuerna', 'Remo con mancuerna', {
+          pattern: 'horizontal_pull',
+          primaryMuscles: ['back'],
+          equipmentIds: ['eq-barra'],
+        }),
+      ],
+    };
+
+    // Varias semillas a propósito: con dos candidatos, `pickDeterministic`
+    // elige uno según el rng, así que UNA semilla puede dar ejercicios
+    // distintos por casualidad y no porque la preferencia exista. Si la
+    // variedad es de verdad, tiene que valer para todas.
+    for (let seed = 1; seed <= 12; seed += 1) {
+      const plan = engine.generatePlan({
+        context: { ...context, seed },
+        user: buildUser(),
+        gym: conDosRemos,
+        ruleset: V0_PLACEHOLDER,
+      });
+
+      // Las dos primeras sesiones de la cola son A y B de la plantilla.
+      const [a, b] = plan.sessions;
+      const remoDeA = a?.items.find((i) => i.exerciseId.startsWith('ex-remo'));
+      const remoDeB = b?.items.find((i) => i.exerciseId.startsWith('ex-remo'));
+
+      expect(remoDeA, `semilla ${seed}`).toBeDefined();
+      expect(remoDeB, `semilla ${seed}`).toBeDefined();
+      expect(remoDeA?.exerciseId, `semilla ${seed}`).not.toBe(remoDeB?.exerciseId);
+    }
+  });
+
+  it('con un solo ejercicio para el patrón, se repite antes que dejar el slot vacío', () => {
+    // La variedad es preferencia, no requisito: el gimnasio de prueba tiene un
+    // único `horizontal_pull`, y el plan tiene que cubrir el patrón igual.
+    const plan = engine.generatePlan({
+      context,
+      user: buildUser(),
+      gym: buildGym(),
+      ruleset: V0_PLACEHOLDER,
+    });
+
+    const [a, b] = plan.sessions;
+    expect(a?.items.some((i) => i.exerciseId === 'ex-remo')).toBe(true);
+    expect(b?.items.some((i) => i.exerciseId === 'ex-remo')).toBe(true);
+  });
+});
+
 describe('generatePlan', () => {
   it('arma la cola completa que pide el ruleset', () => {
     const plan = engine.generatePlan({

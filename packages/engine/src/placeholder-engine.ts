@@ -93,6 +93,10 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
   // semanal y tríceps sin tocar.
   const setsByMuscle = new Map<MuscleGroup, number>();
 
+  // Los ejercicios ya usados en CUALQUIER sesión de este plan, para no repetir
+  // el mismo en dos sesiones si el catálogo da para variar.
+  const usedInPlan = new Set<Id>();
+
   // Se elige una vez por sesión de la plantilla y se reutiliza en cada repetición
   // de la cola: si el ejercicio cambia cada vez, no hay progresión que medir.
   const resolvedTemplateSessions = template.sessions.map((tplSession) => {
@@ -105,6 +109,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
         slot.role,
         usableExercises,
         used,
+        usedInPlan,
         rotateAway,
         setsByMuscle,
         rng,
@@ -116,6 +121,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
         continue;
       }
       used.add(exercise.id);
+      usedInPlan.add(exercise.id);
 
       const roleParams = params[slot.role];
       for (const muscle of exercise.primaryMuscles) {
@@ -786,6 +792,7 @@ function chooseExercise(
   role: SlotRole,
   pool: readonly Exercise[],
   used: ReadonlySet<Id>,
+  usedInPlan: ReadonlySet<Id>,
   rotateAway: ReadonlySet<Id>,
   setsByMuscle: ReadonlyMap<MuscleGroup, number>,
   rng: () => number,
@@ -840,6 +847,26 @@ function chooseExercise(
     const leastWorked = Math.min(...eligible.map(volumeOf));
     eligible = prefer(eligible, (e) => volumeOf(e) === leastWorked);
   }
+
+  // 7. Y entre los que quedaron igual de buenos, uno que no esté ya en OTRA
+  //    sesión de este mismo plan.
+  //
+  //    `used` evita repetir dentro de una sesión, pero se reinicia en cada
+  //    una: un patrón que la plantilla pide en A y en B (horizontal_pull en
+  //    full_body_ab, por ejemplo) recibía el mismo ejercicio las dos veces,
+  //    con el resto del catálogo sin tocar — remo con mancuerna dos veces por
+  //    semana mientras el remo sentado quedaba libre.
+  //
+  //    Va última a propósito: primero se elige un ejercicio bueno, y recién
+  //    entre los empatados se desempata por variedad. Al revés, la variedad
+  //    podría empujar hacia una opción peor. Y como toda preferencia acá, es
+  //    preferencia y no requisito: si el patrón tiene un solo ejercicio
+  //    disponible, se repite antes que dejar el slot vacío.
+  //
+  //    Es el mismo criterio que ya aplica `rotateAway` entre planes ("el
+  //    músculo trabaja en ángulos distintos"), llevado al hueco que faltaba:
+  //    entre sesiones del mismo plan.
+  eligible = prefer(eligible, (e) => !usedInPlan.has(e.id));
 
   return pickDeterministic(eligible, rng);
 }
