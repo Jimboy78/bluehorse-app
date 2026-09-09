@@ -1,5 +1,4 @@
 import type { LoadReading } from '@bh/domain';
-import { formatLoad } from '@bh/domain';
 import type { SubstituteOption } from '@bh/engine';
 import {
   AlertCircle,
@@ -24,7 +23,7 @@ import type { ActiveSessionItem } from '../lib/plan.ts';
 import { useActivePlan, useGeneratePlan, useRequestNextPlan } from '../lib/plan.ts';
 import { useSessionLog } from '../lib/session-log.ts';
 import { useRestoredSession } from '../lib/session-restore.ts';
-import { carriesLoad, LoadInput } from './LoadInput.tsx';
+import { carriesLoad } from './LoadInput.tsx';
 import { RestTimer } from './RestTimer.tsx';
 import { SessionClose } from './SessionClose.tsx';
 import { SetRow } from './SetRow.tsx';
@@ -74,6 +73,17 @@ export function Hoy() {
   // serie: en la primera sesión de cualquier estación no hay baseline, así que
   // el plan llega sin número y no había dónde escribirlo hasta el descanso.
   const [cargaPorItem, setCargaPorItem] = useState<Record<string, LoadReading | null>>({});
+  /**
+   * La carga anotada de cada serie, por `itemId:setIndex`. Encima de
+   * `cargaPorItem`, que es el punto de partida del ejercicio (lo del plan, o
+   * lo que se venía usando según la sesión reconstruida).
+   *
+   * Una serie sin valor propio hereda el de la anterior: en la práctica se
+   * anota una vez y las que siguen arrastran, salvo que se cambie el peso —
+   * que es justo lo que antes no se podía registrar, porque el número era uno
+   * solo para todo el ejercicio.
+   */
+  const [cargaPorSerie, setCargaPorSerie] = useState<Record<string, LoadReading | null>>({});
   const [restingIndex, setRestingIndex] = useState<number | null>(null);
   const [closing, setClosing] = useState(false);
   const [showingSubstitutes, setShowingSubstitutes] = useState(false);
@@ -215,8 +225,17 @@ export function Hoy() {
             showingSubstitutes={showingSubstitutes}
             restingIndex={restingIndex}
             seriesHechas={seriesHechas}
-            carga={cargaPorItem[item.id] ?? item.targetLoad}
-            onCarga={(load) => setCargaPorItem((mapa) => ({ ...mapa, [item.id]: load }))}
+            cargaDeSerie={(setIndex) =>
+              cargaDeSerie(
+                cargaPorSerie,
+                cargaPorItem[item.id] ?? item.targetLoad,
+                item.id,
+                setIndex,
+              )
+            }
+            onCargaSerie={(setIndex, load) =>
+              setCargaPorSerie((mapa) => ({ ...mapa, [`${item.id}:${setIndex}`]: load }))
+            }
             onBack={() => {
               setActiveItemId(null);
               setRestingIndex(null);
@@ -517,13 +536,25 @@ function SetDots({ total, done }: { total: number; done: number }) {
  * "acá no hay peso que anotar". La primera es algo que la persona puede
  * resolver ahora mismo; la segunda no, y pedirle un número sería inventarlo.
  */
-function textoDeCarga(item: ActiveSessionItem, carga: LoadReading | null): string {
-  if (carga) return formatLoad(carga);
-  const spec = item.equipmentLoadSpec;
-  // Peso corporal / sin carga: `formatLoad` ya sabe nombrarlos, y no hay nada
-  // que anotar ahí.
-  if (spec && !carriesLoad(spec)) return formatLoad({ value: null, unit: spec.unit });
-  return 'anotá la carga';
+/**
+ * Con cuánto va esta serie: lo que se anotó para ella, o lo que arrastra de
+ * la anterior, o el punto de partida del ejercicio.
+ *
+ * Se camina para atrás en vez de guardar un valor por serie de entrada porque
+ * "no anotado" y "anotado en blanco" son cosas distintas: borrar el campo de
+ * la serie 3 tiene que dejarla vacía, no volver a copiar la 2 encima.
+ */
+function cargaDeSerie(
+  porSerie: Record<string, LoadReading | null>,
+  base: LoadReading | null,
+  itemId: string,
+  setIndex: number,
+): LoadReading | null {
+  for (let i = setIndex; i >= 0; i -= 1) {
+    const key = `${itemId}:${i}`;
+    if (key in porSerie) return porSerie[key] ?? null;
+  }
+  return base;
 }
 
 /**
@@ -539,8 +570,8 @@ function ExerciseDetail({
   showingSubstitutes,
   restingIndex,
   seriesHechas,
-  carga,
-  onCarga,
+  cargaDeSerie: cargaDe,
+  onCargaSerie,
   onBack,
   onShowSubstitutes,
   onPickSubstitute,
@@ -556,8 +587,9 @@ function ExerciseDetail({
   restingIndex: number | null;
   seriesHechas: number[];
   /** Con cuánto se está trabajando hoy: lo del plan, o lo que la persona anotó. */
-  carga: LoadReading | null;
-  onCarga: (load: LoadReading | null) => void;
+  /** Con cuánto va cada serie, resuelto arriba (lo propio, lo heredado o lo del plan). */
+  cargaDeSerie: (setIndex: number) => LoadReading | null;
+  onCargaSerie: (setIndex: number, load: LoadReading | null) => void;
   onBack: () => void;
   onShowSubstitutes: () => void;
   onPickSubstitute: (option: SubstituteOption, name: string, sector: string | null) => void;
@@ -637,7 +669,7 @@ function ExerciseDetail({
               prescribedSeconds={item.restSeconds}
               repsTarget={item.repsTarget}
               targetRir={item.targetRir}
-              targetLoad={carga}
+              targetLoad={cargaDe(restingIndex)}
               loadSpec={item.equipmentLoadSpec}
               onFinish={onRestFinish}
             />
@@ -650,35 +682,26 @@ function ExerciseDetail({
           animate="visible"
           className="flex flex-col gap-2.5"
         >
-          {/* Anotar la carga ANTES de la primera serie. En la primera sesión
-              de cualquier estación el plan llega sin número (no hay con qué
-              calcularlo sin inventarlo), y hasta acá el único lugar donde se
-              podía escribir era el descanso — o sea, después de haber hecho
-              la serie. */}
+          {/* Cada serie con su carga: se anota ANTES de hacerla, ahí mismo.
+              En la primera sesión de cualquier estación el plan llega sin
+              número (no hay con qué calcularlo sin inventarlo), y hasta hace
+              poco el único lugar donde se podía escribir era el descanso — o
+              sea, después. La de cada serie arrastra de la anterior, así que
+              el caso común sigue siendo anotar una vez. */}
           {carriesLoad(item.equipmentLoadSpec) && (
-            <div className="flex items-center justify-between gap-3 rounded-card border border-line bg-navy px-4 py-3">
-              <span className="flex flex-col gap-0.5">
-                <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate">
-                  Carga de hoy
-                </span>
-                <span className="text-[0.65rem] text-slate-dim">
-                  {carga ? 'Se usa en todas las series' : 'Anotá con cuánto vas a trabajar'}
-                </span>
-              </span>
-              <LoadInput
-                load={carga}
-                loadSpec={item.equipmentLoadSpec}
-                onLoad={onCarga}
-                ariaLabel="Carga de hoy"
-              />
-            </div>
+            <p className="px-1 text-[0.7rem] leading-relaxed text-slate-dim">
+              Anotá con cuánto hacés cada serie. La que sigue arranca con lo mismo, y la cambiás
+              solo si movés el peso.
+            </p>
           )}
 
           {seriesDe(item).map(({ id, numero: i }) => (
             <motion.div key={id} variants={listItem}>
               <SetRow
                 index={i}
-                targetLoad={textoDeCarga(item, carga)}
+                load={cargaDe(i)}
+                loadSpec={item.equipmentLoadSpec}
+                onLoad={(load) => onCargaSerie(i, load)}
                 targetReps={item.reps}
                 done={seriesHechas.includes(i)}
                 onToggle={() => onToggleSet(i)}
