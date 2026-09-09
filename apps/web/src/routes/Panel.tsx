@@ -8,7 +8,7 @@ import type {
   MovementPattern,
   MuscleGroup,
 } from '@bh/domain';
-import { AlertCircle, Check, Loader2, MapPin, Pencil, Plus, Trash2 } from 'lucide-react';
+import { AlertCircle, Check, Info, Loader2, MapPin, Pencil, Plus, Trash2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { type FormEvent, useRef, useState } from 'react';
 import {
@@ -34,6 +34,7 @@ import {
   useEquipmentList,
   useEquipmentUsage,
   useExerciseList,
+  useMembers,
   useProfileRole,
   useSubstitutionList,
   useUpdateEquipment,
@@ -77,11 +78,100 @@ export function Panel() {
         </Notice>
       )}
 
+      <MembersSection gymId={gymId} />
       <EquipmentSection gymId={gymId} />
       <ExerciseSection gymId={gymId} />
       <SubstitutionSection gymId={gymId} />
     </main>
   );
+}
+
+// ======================================================================= socios
+
+const ROLE_LABELS: Record<string, string> = {
+  member: 'Socio',
+  staff: 'Staff',
+  admin: 'Admin',
+};
+
+/**
+ * Quiénes están dados de alta y si terminaron el onboarding.
+ *
+ * Es todo lo que se puede mostrar acá de otra persona: la RLS solo le abre
+ * `profiles` a un admin (ver `useMembers`). El resto — qué plan tiene cada
+ * uno, qué entrenó, qué respondió en el formulario — se consulta con
+ * `npm run admin`, que corre con la `service_role` en la máquina del dueño.
+ *
+ * Se dice en pantalla en vez de dejar la sección a medias sin explicación: un
+ * panel que muestra menos de lo que se espera y no dice por qué parece roto.
+ */
+function MembersSection({ gymId }: { gymId: string | null }) {
+  const members = useMembers(gymId);
+
+  return (
+    <motion.section
+      variants={fadeUp}
+      initial="hidden"
+      animate="visible"
+      className="flex flex-col gap-4"
+    >
+      <SectionLabel>Socios</SectionLabel>
+
+      <Notice tone="info" icon={<Info size={16} aria-hidden="true" />}>
+        Acá se ve quién está dado de alta. Los planes, los entrenamientos y lo que cada uno
+        respondió en el onboarding no salen por la app a propósito: la base los tiene cerrados a
+        cada socio. Para verlos, <code className="font-mono text-xs">npm run admin socio</code> con
+        su email.
+      </Notice>
+
+      <SectionLabel>
+        {members.data
+          ? `${members.data.length} ${members.data.length === 1 ? 'socio' : 'socios'}`
+          : onboardingUnavailable
+            ? 'sin datos: falta configurar Supabase'
+            : 'Cargando…'}
+      </SectionLabel>
+
+      <div className="flex flex-col gap-2">
+        {members.data?.map((m) => (
+          <Card key={m.id} className="flex items-center gap-3 px-4 py-3">
+            <span className="grid size-9 shrink-0 place-items-center rounded-full border border-line bg-navy font-display text-sm font-semibold text-slate">
+              {m.displayName.trim().charAt(0).toUpperCase() || '?'}
+            </span>
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span className="truncate text-sm font-semibold">{m.displayName}</span>
+              <span className="flex flex-wrap items-center gap-x-2 text-xs text-slate">
+                {m.role !== 'member' && (
+                  <span className="text-brand">{ROLE_LABELS[m.role] ?? m.role}</span>
+                )}
+                <span>{EXPERIENCE_LABELS[m.experienceLevel as ExperienceLevel] ?? '—'}</span>
+                <span className="text-slate-dim">desde {formatShortDate(m.createdAt)}</span>
+              </span>
+            </div>
+            {/* Un socio sin onboarding no tiene objetivo cargado, así que el
+                motor no puede armarle nada: es lo único de esta lista sobre lo
+                que hay algo que hacer. */}
+            {!m.onboarded && (
+              <span className="shrink-0 rounded-full bg-amber/15 px-2 py-0.5 font-display text-[0.6rem] font-medium uppercase tracking-[0.12em] text-amber">
+                sin onboarding
+              </span>
+            )}
+          </Card>
+        ))}
+      </div>
+    </motion.section>
+  );
+}
+
+const GYM_TZ = 'America/Argentina/Buenos_Aires';
+
+function formatShortDate(iso: string): string {
+  return new Intl.DateTimeFormat('es-AR', {
+    timeZone: GYM_TZ,
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }).format(new Date(iso));
 }
 
 // ==================================================================== equipamiento

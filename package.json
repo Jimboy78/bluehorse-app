@@ -30,6 +30,7 @@
     "db:types": "supabase gen types typescript --local > packages/domain/src/database.types.ts",
     "db:ruleset": "node scripts/push-ruleset.mjs",
     "db:catalog": "node scripts/push-catalog.mjs",
+    "admin": "node scripts/admin.mjs",
     "prepare": "lefthook install"
   },
   "devDependencies": {

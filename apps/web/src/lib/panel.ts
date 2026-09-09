@@ -375,6 +375,76 @@ export function useDeleteExercise(gymId: string | null) {
   });
 }
 
+// ======================================================================= socios
+
+export interface MemberRow {
+  readonly id: string;
+  readonly displayName: string;
+  readonly role: 'member' | 'staff' | 'admin';
+  readonly sex: string;
+  readonly experienceLevel: string;
+  readonly birthDate: string | null;
+  readonly onboarded: boolean;
+  readonly createdAt: string;
+}
+
+/**
+ * Los socios del gimnasio.
+ *
+ * Es TODO lo que el panel puede mostrar de otra persona, y no por falta de
+ * ganas: de las tablas de socio, la RLS solo le abre `profiles` a un admin
+ * (`08_rls.sql`). Objetivos, planes, entrenamientos, series y mediciones están
+ * cerrados a `user_id = auth.uid()`, y dos lo están por decisión explícita de
+ * producto — `pain_reports` ("dato de salud: sin excepción para admin") y
+ * `health_screenings`.
+ *
+ * Mostrar acá los planes o el progreso de cada socio requiere ampliar esas
+ * políticas primero, que es una decisión de privacidad de quien maneja el
+ * gimnasio. Mientras tanto, esa data se consulta con `npm run admin`, que
+ * corre con la `service_role` en la máquina del dueño y no expone nada a
+ * internet.
+ */
+export function useMembers(gymId: string | null) {
+  return useQuery<readonly MemberRow[]>({
+    queryKey: ['members', gymId],
+    enabled: !!gymId,
+    queryFn: async () => {
+      const client = requireSupabase();
+      const { data, error } = await client
+        .from('profiles')
+        .select(
+          'id, display_name, role, sex, experience_level, birth_date, onboarded_at, created_at',
+        )
+        .eq('gym_id', gymId as string)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+
+      return (data ?? []).map((raw) => {
+        const row = raw as {
+          id: string;
+          display_name: string;
+          role: MemberRow['role'];
+          sex: string;
+          experience_level: string;
+          birth_date: string | null;
+          onboarded_at: string | null;
+          created_at: string;
+        };
+        return {
+          id: row.id,
+          displayName: row.display_name,
+          role: row.role,
+          sex: row.sex,
+          experienceLevel: row.experience_level,
+          birthDate: row.birth_date,
+          onboarded: row.onboarded_at !== null,
+          createdAt: row.created_at,
+        };
+      });
+    },
+  });
+}
+
 // ==================================================================== sustituciones
 
 /**

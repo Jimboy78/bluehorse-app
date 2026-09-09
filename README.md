@@ -38,6 +38,36 @@ están los esquemas declarativos.
 | `npm run db:sync` | genera y aplica una migración desde `supabase/schemas/` |
 | `npm run db:types` | regenera los tipos de TypeScript desde la base |
 | `npm run db:ruleset` | sube el ruleset a la base y lo deja activo |
+| `npm run admin` | consultar los datos de los socios (ver abajo) |
+
+## Ver los datos de los socios
+
+```bash
+# Las claves salen de `npx supabase status -o env` (local) o del panel de
+# Supabase (nube). Nunca van en un archivo versionado.
+export SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=...
+
+npm run admin socios                        # quiénes hay y qué actividad tienen
+npm run admin socio ana@ejemplo.com         # todo de una persona
+npm run admin planes                        # todos los planes generados
+npm run admin resumen                       # números del gimnasio
+npm run admin tabla set_logs reps=10        # consulta cruda de cualquier tabla
+npm run admin socio ana@ejemplo.com -- --json
+```
+
+`socio` muestra lo que respondió en el onboarding (objetivo, frecuencia,
+nivel), peso y altura, cribado de salud, restricciones, planes con su avance,
+entrenamientos con sus series, récords, propuestas del motor y molestias
+reportadas.
+
+**Por qué un script y no una pantalla.** La RLS solo le abre `profiles` a un
+admin: de otro socio, la app puede leer el nombre y poco más. Todo lo demás
+está cerrado a `user_id = auth.uid()`, y `pain_reports` y `health_screenings`
+lo están por decisión de producto, no por olvido — son datos de salud que no
+se comparten con el gimnasio. Este script corre con la `service_role` en la
+máquina de quien la tiene: salta la RLS por diseño, es solo lectura, y no
+expone ninguna superficie nueva a internet. Abrirle esos datos al panel web
+requiere ampliar las políticas primero, que es una decisión de privacidad.
 
 ## Estructura
 
