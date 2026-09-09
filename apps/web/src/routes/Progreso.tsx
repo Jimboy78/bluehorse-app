@@ -9,6 +9,7 @@ import { MisPlanes } from '../components/MisPlanes.tsx';
 import { Progreso as ProgresoBody } from '../components/Progreso.tsx';
 import { Card, SectionLabel, Skeleton } from '../components/ui/index.ts';
 import { useProposalHistory } from '../lib/adaptation.ts';
+import { useAuth } from '../lib/auth/AuthProvider.tsx';
 import { fadeUp, listContainer, listItem } from '../lib/motion.ts';
 import { useSubstitutionInsights } from '../lib/substitution-insights.ts';
 
@@ -55,9 +56,15 @@ export function Progreso() {
  * ocupada a cierta hora, o un ejercicio que en la práctica no funciona.
  */
 function SubstitutionInsightsSection() {
+  const { status } = useAuth();
   const insights = useSubstitutionInsights();
 
-  if (!insights.data || insights.data.length === 0) return null;
+  // La query está `enabled: status === 'signed-in'`: sin este chequeo, con
+  // Supabase sin configurar (`status === 'unconfigured'`) queda deshabilitada
+  // para siempre y `isPending` nunca se resuelve — la trampa que ya documenta
+  // CLAUDE.md, y que acá `!insights.data` disimulaba (siempre "sin datos",
+  // nunca un spinner colgado) sin dejar de ser el mismo bug de fondo.
+  if (status !== 'signed-in' || !insights.data || insights.data.length === 0) return null;
 
   return (
     <section className="flex flex-col gap-2.5">
@@ -127,7 +134,16 @@ function formatResolvedDate(iso: string): string {
  * (regla dura 4), así que se muestra tal cual, sin resolver `target_ref`.
  */
 function ProposalHistorySection() {
+  const { status } = useAuth();
   const history = useProposalHistory();
+
+  // Chequear `status` ANTES que `isPending`: la query está deshabilitada
+  // (`enabled: status === 'signed-in'`) mientras no haya sesión, y una query
+  // deshabilitada se queda en `isPending: true` para siempre — sin este
+  // chequeo, con Supabase sin configurar esta sección mostraba un esqueleto
+  // de carga que nunca se resolvía. Regla ya documentada en CLAUDE.md,
+  // repetida acá por no aplicarla también a las secciones nuevas.
+  if (status !== 'signed-in') return null;
 
   if (history.isPending) {
     return (
