@@ -1,10 +1,11 @@
-import { Check, Plus, Ruler, Scale, TrendingDown, TrendingUp, X } from 'lucide-react';
+import { Plus, Ruler, Scale, TrendingDown, TrendingUp } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { type FormEvent, useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
 import { useBodyMetrics, useRecordBodyMetric, weightChange } from '../lib/body-metrics.ts';
 import { spring } from '../lib/motion.ts';
-import { Button, Card, Field, fieldClass, Notice, SectionLabel, Skeleton } from './ui/index.ts';
+import { BodyMetricsForm } from './BodyMetricsForm.tsx';
+import { Button, Card, Notice, SectionLabel, Skeleton } from './ui/index.ts';
 
 /**
  * TUS DATOS
@@ -50,13 +51,13 @@ export function MisDatos() {
     );
   }
 
-  if (metrics.isError || !metrics.data?.latest) return null;
+  if (metrics.isError || !metrics.data) return null;
 
   const { latest, history } = metrics.data;
   const cambio = weightChange(history);
 
-  async function handleSubmit(weightKg: number) {
-    await record.mutateAsync({ weightKg, heightCm: null });
+  async function handleSubmit(input: { weightKg: number | null; heightCm: number | null }) {
+    await record.mutateAsync(input);
     setAdding(false);
   }
 
@@ -69,14 +70,14 @@ export function MisDatos() {
           <Metric
             icon={<Scale size={14} aria-hidden="true" />}
             label="Peso"
-            value={latest.weightKg === null ? '—' : `${latest.weightKg}`}
+            value={latest?.weightKg == null ? '—' : `${latest.weightKg}`}
             unit="kg"
           />
           <span className="h-8 w-px bg-line" aria-hidden="true" />
           <Metric
             icon={<Ruler size={14} aria-hidden="true" />}
             label="Altura"
-            value={latest.heightCm === null ? '—' : `${Math.round(latest.heightCm)}`}
+            value={latest?.heightCm == null ? '—' : `${Math.round(latest.heightCm)}`}
             unit="cm"
           />
 
@@ -88,7 +89,7 @@ export function MisDatos() {
               onClick={() => setAdding(true)}
             >
               <Plus size={14} aria-hidden="true" />
-              Pesarme
+              {latest ? 'Pesarme' : 'Cargar'}
             </Button>
           )}
         </div>
@@ -97,7 +98,11 @@ export function MisDatos() {
             recomposición quiere que baje y quien busca hipertrofia quiere que
             suba, así que va en el color neutro de la marca en los dos casos. */}
         <p className="flex flex-wrap items-center gap-x-1.5 text-xs text-slate">
-          <span>Última medición: {formatDate(latest.recordedAt)}</span>
+          <span>
+            {latest
+              ? `Última medición: ${formatDate(latest.recordedAt)}`
+              : 'Todavía no cargaste tu peso ni tu altura.'}
+          </span>
           {cambio && (
             <span className="flex items-center gap-1 text-brand">
               ·
@@ -121,10 +126,11 @@ export function MisDatos() {
               transition={spring.settle}
               className="overflow-hidden"
             >
-              <WeightForm
+              <BodyMetricsForm
+                currentHeightCm={latest?.heightCm ?? null}
                 busy={record.isPending}
                 onCancel={() => setAdding(false)}
-                onSubmit={(kg) => void handleSubmit(kg)}
+                onSubmit={(input) => void handleSubmit(input)}
               />
             </motion.div>
           )}
@@ -162,83 +168,5 @@ function Metric({
         <span className="ml-0.5 text-sm font-medium text-slate-dim">{unit}</span>
       </span>
     </div>
-  );
-}
-
-/** Un campo y dos botones. Registrar un peso no merece una pantalla propia. */
-function WeightForm({
-  busy,
-  onCancel,
-  onSubmit,
-}: {
-  readonly busy: boolean;
-  readonly onCancel: () => void;
-  readonly onSubmit: (weightKg: number) => void;
-}) {
-  const [value, setValue] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    const kg = Number(value);
-    // Los mismos límites que el `check` de la tabla: si el formulario deja
-    // pasar algo que el insert rechaza, el socio ve un error de Postgres.
-    if (!Number.isFinite(kg) || kg < 25 || kg > 350) {
-      setError('Ingresá un peso entre 25 y 350 kg.');
-      return;
-    }
-    setError(null);
-    onSubmit(kg);
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-2.5 border-t border-line pt-3">
-      <Field label="¿Cuánto pesás hoy?" htmlFor="nuevo-peso">
-        <div className="relative">
-          {/* El foco va al campo apenas aparece: el campo aparece porque la
-              persona tocó "Pesarme", así que ya pidió escribir acá. Por `ref`
-              y no por `autoFocus` — el atributo también roba el foco cuando el
-              formulario se rehidrata, que no es lo mismo. */}
-          <input
-            ref={inputRef}
-            id="nuevo-peso"
-            type="number"
-            inputMode="decimal"
-            step="0.1"
-            min={25}
-            max={350}
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            placeholder="78"
-            className={`${fieldClass} pr-10`}
-          />
-          <span className="pointer-events-none absolute inset-y-0 right-3 grid place-items-center text-xs font-medium text-slate-dim">
-            kg
-          </span>
-        </div>
-      </Field>
-
-      {error && (
-        <p role="alert" className="text-xs text-orange">
-          {error}
-        </p>
-      )}
-
-      <div className="flex gap-2">
-        <Button variant="quiet" size="sm" onClick={onCancel} disabled={busy}>
-          <X size={14} aria-hidden="true" />
-          Cancelar
-        </Button>
-        <Button type="submit" variant="primary" size="sm" className="flex-1" disabled={busy}>
-          <Check size={14} aria-hidden="true" />
-          Guardar
-        </Button>
-      </div>
-    </form>
   );
 }

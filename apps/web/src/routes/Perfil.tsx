@@ -9,6 +9,7 @@ import {
   HeartPulse,
   Mail,
   MapPin,
+  Pencil,
   Ruler,
   Scale,
   Shield,
@@ -19,10 +20,11 @@ import {
   Trash2,
   User,
 } from 'lucide-react';
-import { motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { AppShell } from '../components/AppShell.tsx';
+import { BodyMetricsForm } from '../components/BodyMetricsForm.tsx';
 import {
   Button,
   Card,
@@ -33,7 +35,7 @@ import {
   Skeleton,
 } from '../components/ui/index.ts';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
-import { useBodyMetrics } from '../lib/body-metrics.ts';
+import { useBodyMetrics, useRecordBodyMetric } from '../lib/body-metrics.ts';
 import { useScreeningState } from '../lib/health-screening.ts';
 import {
   BODY_REGION_LABELS,
@@ -42,7 +44,7 @@ import {
   GOAL_LABELS,
   SEX_LABELS,
 } from '../lib/labels.ts';
-import { breathing, fadeUp, listContainer, listItem } from '../lib/motion.ts';
+import { breathing, fadeUp, listContainer, listItem, spring, tappable } from '../lib/motion.ts';
 import { countByRegion, usePainHistory } from '../lib/pain-history.ts';
 import type { ConstraintDetail } from '../lib/profile.ts';
 import { useClearConstraint, useConstraints, useProfileDetail } from '../lib/profile.ts';
@@ -281,66 +283,120 @@ function PersonalDataCard({
   readonly profile: NonNullable<ReturnType<typeof useProfileDetail>['data']>;
 }) {
   const metrics = useBodyMetrics();
+  const record = useRecordBodyMetric();
   const latest = metrics.data?.latest;
+  const [editing, setEditing] = useState(false);
+
+  async function handleSubmit(input: { weightKg: number | null; heightCm: number | null }) {
+    await record.mutateAsync(input);
+    setEditing(false);
+  }
 
   return (
     <section className="flex flex-col gap-2.5">
       <SectionLabel icon={<User size={13} aria-hidden="true" />}>Tus datos</SectionLabel>
-      <Card className="grid grid-cols-2 gap-4 p-4 sm:grid-cols-4">
-        <IconStat
-          icon={<Cake size={14} aria-hidden="true" />}
-          label="Edad"
-          value={profile.age !== null ? `${profile.age} años` : '—'}
-        />
-        <IconStat
-          icon={<Dumbbell size={14} aria-hidden="true" />}
-          label="Nivel"
-          value={EXPERIENCE_LABELS[profile.experienceLevel]}
-        />
-        <IconStat
-          icon={<User size={14} aria-hidden="true" />}
-          label="Sexo"
-          value={SEX_LABELS[profile.sex]}
-        />
-        <IconStat
-          icon={<Calendar size={14} aria-hidden="true" />}
-          label="Socio desde"
-          value={formatDate(profile.memberSince)}
-        />
-        {metrics.isPending ? (
-          <>
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-          </>
-        ) : (
-          <>
-            <IconStat
-              icon={<Scale size={14} aria-hidden="true" />}
-              label="Peso"
-              value={
-                latest?.weightKg !== null && latest?.weightKg !== undefined
-                  ? `${latest.weightKg} kg`
-                  : '—'
-              }
-            />
-            <IconStat
-              icon={<Ruler size={14} aria-hidden="true" />}
-              label="Altura"
-              value={
-                latest?.heightCm !== null && latest?.heightCm !== undefined
-                  ? `${Math.round(latest.heightCm)} cm`
-                  : '—'
-              }
-            />
-          </>
+      <Card className="flex flex-col gap-3 p-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <IconStat
+            icon={<Cake size={14} aria-hidden="true" />}
+            label="Edad"
+            value={profile.age !== null ? `${profile.age} años` : '—'}
+          />
+          <IconStat
+            icon={<Dumbbell size={14} aria-hidden="true" />}
+            label="Nivel"
+            value={EXPERIENCE_LABELS[profile.experienceLevel]}
+          />
+          <IconStat
+            icon={<User size={14} aria-hidden="true" />}
+            label="Sexo"
+            value={SEX_LABELS[profile.sex]}
+          />
+          <IconStat
+            icon={<Calendar size={14} aria-hidden="true" />}
+            label="Socio desde"
+            value={formatDate(profile.memberSince)}
+          />
+          {metrics.isPending ? (
+            <>
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </>
+          ) : (
+            <>
+              <IconStat
+                icon={<Scale size={14} aria-hidden="true" />}
+                label="Peso"
+                value={
+                  latest?.weightKg !== null && latest?.weightKg !== undefined
+                    ? `${latest.weightKg} kg`
+                    : '—'
+                }
+              />
+              <IconStat
+                icon={<Ruler size={14} aria-hidden="true" />}
+                label="Altura"
+                value={
+                  latest?.heightCm !== null && latest?.heightCm !== undefined
+                    ? `${Math.round(latest.heightCm)} cm`
+                    : '—'
+                }
+              />
+            </>
+          )}
+        </div>
+
+        {/* Editar acá y no mandando a Progreso. El texto que había antes
+            ("actualizar peso y altura en Progreso") era un viaje a una
+            pantalla que, si nunca habías cargado una medición, no mostraba
+            ningún formulario: `MisDatos` se ocultaba entero sin datos. O sea
+            que quien no cargó peso y altura en el onboarding no tenía ninguna
+            forma de cargarlos después, en toda la app. */}
+        <div className="flex items-center justify-between gap-3 border-t border-line/60 pt-3">
+          <span className="text-[0.7rem] text-slate-dim">
+            {latest
+              ? 'Tu peso cambia: podés volver a medirte'
+              : 'Todavía no cargaste peso ni altura'}
+          </span>
+          {!editing && (
+            <motion.button
+              type="button"
+              {...tappable}
+              onClick={() => setEditing(true)}
+              aria-label="Editar peso y altura"
+              title="Editar peso y altura"
+              className="grid size-9 shrink-0 place-items-center rounded-full border border-line text-slate transition-colors hover:border-brand hover:text-brand"
+            >
+              <Pencil size={14} aria-hidden="true" />
+            </motion.button>
+          )}
+        </div>
+
+        <AnimatePresence initial={false}>
+          {editing && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={spring.settle}
+              className="overflow-hidden"
+            >
+              <BodyMetricsForm
+                currentHeightCm={latest?.heightCm ?? null}
+                busy={record.isPending}
+                onCancel={() => setEditing(false)}
+                onSubmit={(input) => void handleSubmit(input)}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {record.isError && (
+          <Notice tone="error" role="alert">
+            No se pudo guardar la medición. Probá de nuevo.
+          </Notice>
         )}
       </Card>
-      <Link
-        to="/progreso"
-        className="self-start text-[0.7rem] font-medium text-brand underline decoration-dotted underline-offset-4"
-      >
-        Actualizar peso y altura en Progreso
-      </Link>
     </section>
   );
 }

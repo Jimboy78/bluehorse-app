@@ -96,6 +96,10 @@ export function Hoy() {
   if (restored.data && restoredFor !== activePlanSessionId) {
     setRestoredFor(activePlanSessionId);
     setHechasPorItem(restored.data.doneByItem);
+    // La carga también: sin esto, volver a la sesión reseteaba el número al
+    // del plan (nulo en la primera sesión de cualquier estación) y la serie
+    // siguiente se registraba sin carga, con el dato sentado en la base.
+    setCargaPorItem(restored.data.loadByItem);
   }
 
   if (status !== 'signed-in' || plan.isPending || plan.isError || plan.data?.kind !== 'active') {
