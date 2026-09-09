@@ -26,12 +26,15 @@ import { onboardingUnavailable } from '../lib/onboarding.ts';
 import {
   useCreateEquipment,
   useCreateExercise,
+  useCreateSubstitution,
   useDeleteEquipment,
   useDeleteExercise,
+  useDeleteSubstitution,
   useEquipmentList,
   useEquipmentUsage,
   useExerciseList,
   useProfileRole,
+  useSubstitutionList,
   useUpdateEquipment,
   useUpdateExercise,
 } from '../lib/panel.ts';
@@ -75,6 +78,7 @@ export function Panel() {
 
       <EquipmentSection gymId={gymId} />
       <ExerciseSection gymId={gymId} />
+      <SubstitutionSection gymId={gymId} />
     </main>
   );
 }
@@ -1082,5 +1086,216 @@ function SavedNotice({ saved }: { saved: { name: string; updated: boolean } | nu
         <strong className="font-semibold">{saved.name}</strong>.
       </span>
     </motion.p>
+  );
+}
+
+// ==================================================================== sustituciones
+
+/**
+ * Equivalencias cargadas a mano entre dos ejercicios ya existentes. Sirven
+ * para dos cosas: forzar una equivalencia que el cálculo automático por
+ * patrón y músculos no ve (dos máquinas distintas que en Blue Horse trabajan
+ * igual), o bajar una que el cálculo automático sobreestima. El motor las
+ * prioriza sobre el cálculo propio en las tres pantallas de "cambiar
+ * ejercicio" (Hoy, la vista previa del plan, Explorar).
+ */
+function SubstitutionSection({ gymId }: { gymId: string | null }) {
+  const exerciseList = useExerciseList(gymId);
+  const substitutionList = useSubstitutionList(gymId);
+  const createSubstitution = useCreateSubstitution(gymId);
+  const deleteSubstitution = useDeleteSubstitution(gymId);
+
+  const [exerciseId, setExerciseId] = useState('');
+  const [substituteId, setSubstituteId] = useState('');
+  const [equivalence, setEquivalence] = useState('0.8');
+  const [note, setNote] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  const exerciseById = new Map((exerciseList.data ?? []).map((e) => [e.id, e]));
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setSaved(false);
+
+    if (!exerciseId || !substituteId) {
+      setError('Elegí los dos ejercicios.');
+      return;
+    }
+    if (exerciseId === substituteId) {
+      setError('Un ejercicio no puede ser reemplazo de sí mismo.');
+      return;
+    }
+    const value = Number(equivalence);
+    if (Number.isNaN(value) || value < 0 || value > 1) {
+      setError('La equivalencia va de 0 a 1.');
+      return;
+    }
+
+    try {
+      await createSubstitution.mutateAsync({
+        exerciseId,
+        substituteId,
+        equivalence: value,
+        note: note.trim() || null,
+      });
+      setSaved(true);
+      setExerciseId('');
+      setSubstituteId('');
+      setEquivalence('0.8');
+      setNote('');
+    } catch {
+      setError('No se pudo guardar. Puede que ya exista esta pareja, o revisá tu conexión.');
+    }
+  }
+
+  return (
+    <motion.section
+      variants={fadeUp}
+      initial="hidden"
+      animate="visible"
+      className="flex flex-col gap-4"
+    >
+      <SectionLabel>Sustituciones curadas</SectionLabel>
+
+      <form onSubmit={handleSubmit} className={cardClass('default', 'flex flex-col gap-4 p-5')}>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label="Ejercicio" htmlFor="sub-exercise">
+            <select
+              id="sub-exercise"
+              value={exerciseId}
+              onChange={(e) => setExerciseId(e.target.value)}
+              className={fieldClass}
+            >
+              <option value="">Elegir…</option>
+              {(exerciseList.data ?? []).map((ex) => (
+                <option key={ex.id} value={ex.id}>
+                  {ex.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          <Field label="Reemplazo" htmlFor="sub-substitute">
+            <select
+              id="sub-substitute"
+              value={substituteId}
+              onChange={(e) => setSubstituteId(e.target.value)}
+              className={fieldClass}
+            >
+              <option value="">Elegir…</option>
+              {(exerciseList.data ?? []).map((ex) => (
+                <option key={ex.id} value={ex.id}>
+                  {ex.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label="Equivalencia (0 a 1)" htmlFor="sub-equivalence">
+            <input
+              id="sub-equivalence"
+              type="number"
+              min="0"
+              max="1"
+              step="0.05"
+              value={equivalence}
+              onChange={(e) => setEquivalence(e.target.value)}
+              className={fieldClass}
+            />
+          </Field>
+
+          <Field label="Nota (opcional)" htmlFor="sub-note">
+            <input
+              id="sub-note"
+              type="text"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Misma demanda en cuádriceps y glúteo"
+              className={fieldClass}
+            />
+          </Field>
+        </div>
+
+        {error && (
+          <Notice tone="error" role="alert">
+            {error}
+          </Notice>
+        )}
+        {saved && (
+          <p role="status" className="flex items-center gap-2 text-sm text-brand">
+            <Check size={15} aria-hidden="true" />
+            Se guardó la equivalencia.
+          </p>
+        )}
+
+        <Button
+          type="submit"
+          variant="primary"
+          disabled={createSubstitution.isPending || onboardingUnavailable}
+        >
+          {createSubstitution.isPending ? (
+            <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+          ) : (
+            <Plus size={16} aria-hidden="true" />
+          )}
+          Cargar equivalencia
+        </Button>
+      </form>
+
+      <SectionLabel>
+        {substitutionList.data
+          ? `${substitutionList.data.length} equivalencias cargadas`
+          : onboardingUnavailable
+            ? 'sin datos: falta configurar Supabase'
+            : 'Cargando…'}
+      </SectionLabel>
+
+      <div className="flex flex-col gap-2">
+        {substitutionList.data?.length === 0 && (
+          <p className="text-sm text-slate">
+            Ninguna todavía: sin equivalencias cargadas a mano, el motor sigue calculando por patrón
+            de movimiento y músculos compartidos, como siempre.
+          </p>
+        )}
+        {substitutionList.data?.map((sub) => (
+          <Card
+            key={`${sub.exerciseId}-${sub.substituteId}`}
+            className="flex items-center gap-3 px-4 py-3"
+          >
+            <div className="flex min-w-0 flex-1 flex-col">
+              <span className="truncate text-sm">
+                <strong className="font-semibold">
+                  {exerciseById.get(sub.exerciseId)?.name ?? 'Ejercicio borrado'}
+                </strong>{' '}
+                ↔{' '}
+                <strong className="font-semibold">
+                  {exerciseById.get(sub.substituteId)?.name ?? 'Ejercicio borrado'}
+                </strong>
+              </span>
+              {sub.note && <span className="truncate text-xs text-slate">{sub.note}</span>}
+            </div>
+            <span className="shrink-0 font-display text-xs font-semibold tabular-nums text-brand">
+              {Math.round(sub.equivalence * 100)}%
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() =>
+                deleteSubstitution.mutateAsync({
+                  exerciseId: sub.exerciseId,
+                  substituteId: sub.substituteId,
+                })
+              }
+            >
+              <Trash2 size={12} aria-hidden="true" />
+            </Button>
+          </Card>
+        ))}
+      </div>
+    </motion.section>
   );
 }

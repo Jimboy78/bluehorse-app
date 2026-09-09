@@ -3,7 +3,12 @@ import type { ExerciseFormInput } from '../routes/panel/exercise-schemas.ts';
 import type { EquipmentFormInput } from '../routes/panel/schemas.ts';
 import { useAuth } from './auth/AuthProvider.tsx';
 import { fetchExercises } from './catalog.ts';
-import { equipmentRowSchema, toDomainEquipment } from './mappers/catalog.ts';
+import {
+  equipmentRowSchema,
+  substitutionRowSchema,
+  toDomainEquipment,
+  toDomainSubstitution,
+} from './mappers/catalog.ts';
 import { toEquipmentInsert } from './mappers/equipment-form.ts';
 import { toExerciseEquipmentInserts, toExerciseInsert } from './mappers/exercise-form.ts';
 import { requireSupabase } from './supabase.ts';
@@ -357,6 +362,90 @@ export function useDeleteExercise(gymId: string | null) {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['exercise-list', gymId] });
+      void queryClient.invalidateQueries({ queryKey: ['gym-catalog', gymId] });
+    },
+  });
+}
+
+// ==================================================================== sustituciones
+
+/**
+ * Equivalencias curadas a mano para "cambiar ejercicio". Hasta hace poco el
+ * motor las ignoraba por completo porque nada las consultaba (ver commit que
+ * arregló `fetchGymCatalog`); ahora que el motor las prioriza sobre el
+ * cálculo automático por patrón y músculos, hacía falta una forma de
+ * cargarlas sin pasar por SQL a mano.
+ */
+export function useSubstitutionList(gymId: string | null) {
+  const exerciseList = useExerciseList(gymId);
+
+  return useQuery({
+    queryKey: ['substitution-list', gymId, exerciseList.data?.map((e) => e.id)],
+    enabled: !!gymId && exerciseList.isSuccess,
+    queryFn: async () => {
+      const client = requireSupabase();
+      const ownedIds = new Set((exerciseList.data ?? []).map((e) => e.id));
+
+      const { data, error } = await client
+        .from('exercise_substitutions')
+        .select('exercise_id, substitute_id, equivalence, note');
+      if (error) throw error;
+
+      return (data ?? [])
+        .map((raw) => substitutionRowSchema.parse(raw))
+        .filter((row) => ownedIds.has(row.exercise_id) && ownedIds.has(row.substitute_id))
+        .map(toDomainSubstitution);
+    },
+  });
+}
+
+export function useCreateSubstitution(gymId: string | null) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: {
+      exerciseId: string;
+      substituteId: string;
+      equivalence: number;
+      note: string | null;
+    }) => {
+      const client = requireSupabase();
+      const { error } = await client.from('exercise_substitutions').insert({
+        exercise_id: input.exerciseId,
+        substitute_id: input.substituteId,
+        equivalence: input.equivalence,
+        note: input.note,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['substitution-list', gymId] });
+      void queryClient.invalidateQueries({ queryKey: ['gym-catalog', gymId] });
+    },
+  });
+}
+
+export function useDeleteSubstitution(gymId: string | null) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      exerciseId,
+      substituteId,
+    }: {
+      exerciseId: string;
+      substituteId: string;
+    }) => {
+      const client = requireSupabase();
+      const { error } = await client
+        .from('exercise_substitutions')
+        .delete()
+        .eq('exercise_id', exerciseId)
+        .eq('substitute_id', substituteId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['substitution-list', gymId] });
       void queryClient.invalidateQueries({ queryKey: ['gym-catalog', gymId] });
     },
   });
