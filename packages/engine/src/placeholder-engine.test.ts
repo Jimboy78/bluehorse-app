@@ -527,4 +527,53 @@ describe('findSubstitutes', () => {
       options.filter((o) => o.exerciseId !== 'ex-press-maquina').every((o) => !o.curated),
     ).toBe(true);
   });
+
+  it('usa la nota del staff como motivo cuando existe, en vez del texto genérico', () => {
+    const gym = buildGym();
+    const gymConNota = {
+      ...gym,
+      substitutions: [
+        {
+          exerciseId: 'ex-press',
+          substituteId: 'ex-press-maquina',
+          equivalence: 0.95,
+          note: 'Misma demanda en pecho y hombro, sin comprometer la muñeca.',
+        },
+      ],
+    };
+
+    const options = engine.findSubstitutes({
+      context,
+      item: { exerciseId: 'ex-press', equipmentId: 'eq-press' },
+      gym: gymConNota,
+      constraints: [],
+      unavailableEquipmentIds: ['eq-press'],
+      ruleset: V0_PLACEHOLDER,
+    });
+
+    const curada = options.find((o) => o.exerciseId === 'ex-press-maquina');
+    expect(curada?.reason).toBe('Misma demanda en pecho y hombro, sin comprometer la muñeca.');
+  });
+
+  it('sin nota, la equivalencia curada cae al texto genérico de "cargado a mano"', () => {
+    const gym = buildGym();
+    const gymSinNota = {
+      ...gym,
+      substitutions: [
+        { exerciseId: 'ex-press', substituteId: 'ex-press-maquina', equivalence: 0.95, note: null },
+      ],
+    };
+
+    const options = engine.findSubstitutes({
+      context,
+      item: { exerciseId: 'ex-press', equipmentId: 'eq-press' },
+      gym: gymSinNota,
+      constraints: [],
+      unavailableEquipmentIds: ['eq-press'],
+      ruleset: V0_PLACEHOLDER,
+    });
+
+    const curada = options.find((o) => o.exerciseId === 'ex-press-maquina');
+    expect(curada?.reason).toContain('cargado a mano');
+  });
 });

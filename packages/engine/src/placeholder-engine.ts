@@ -9,6 +9,7 @@ import type {
   MuscleGroup,
   Profile,
   SetLog,
+  SubstitutionEdge,
   UserConstraint,
   UserGoal,
 } from '@bh/domain';
@@ -667,10 +668,14 @@ function findSubstitutes(input: FindSubstitutesInput): readonly SubstituteOption
   const blocked = new Set(unavailableEquipmentIds);
   if (item.equipmentId) blocked.add(item.equipmentId);
 
+  // Se guarda la fila entera, no solo `equivalence`: `note` es lo que el
+  // staff escribió para explicar POR QUÉ dos ejercicios son equivalentes
+  // (`/panel`, `useCreateSubstitution`), y hasta acá se leía de la base y se
+  // tiraba sin usar — el reemplazo llegaba con el mismo texto genérico que
+  // uno calculado automáticamente, perdiendo la única razón de cargarlo a
+  // mano en vez de dejar que `scoreEquivalence` lo calcule solo.
   const explicit = new Map(
-    gym.substitutions
-      .filter((s) => s.exerciseId === original.id)
-      .map((s) => [s.substituteId, s.equivalence]),
+    gym.substitutions.filter((s) => s.exerciseId === original.id).map((s) => [s.substituteId, s]),
   );
 
   const options: SubstituteOption[] = [];
@@ -680,7 +685,8 @@ function findSubstitutes(input: FindSubstitutesInput): readonly SubstituteOption
     if (isBlocked(candidate, constraints)) continue;
     if (!hasUsableEquipment(candidate, gym, [...blocked])) continue;
 
-    const equivalence = explicit.get(candidate.id) ?? scoreEquivalence(original, candidate, cfg);
+    const curatedEdge = explicit.get(candidate.id);
+    const equivalence = curatedEdge?.equivalence ?? scoreEquivalence(original, candidate, cfg);
     if (equivalence < cfg.minEquivalence) continue;
 
     const equipment = firstAvailableEquipment(candidate, equipmentById, blocked);
@@ -688,16 +694,24 @@ function findSubstitutes(input: FindSubstitutesInput): readonly SubstituteOption
       exerciseId: candidate.id,
       equipmentId: equipment?.id ?? null,
       equivalence: Math.round(equivalence * 100) / 100,
-      reason: explicit.has(candidate.id)
-        ? `Reemplazo equivalente cargado a mano para ${original.name}.`
-        : `Mismo patrón de movimiento y músculos parecidos que ${original.name}.`,
-      curated: explicit.has(candidate.id),
+      reason: substituteReason(original.name, curatedEdge),
+      curated: !!curatedEdge,
     });
   }
 
   return options
     .sort((a, b) => b.equivalence - a.equivalence || a.exerciseId.localeCompare(b.exerciseId))
     .slice(0, cfg.maxOptions);
+}
+
+/**
+ * La nota que escribió el staff manda sobre el texto genérico: es la única
+ * razón de cargar una equivalencia a mano en vez de dejar que
+ * `scoreEquivalence` la calcule sola.
+ */
+function substituteReason(originalName: string, curatedEdge: SubstitutionEdge | undefined): string {
+  if (!curatedEdge) return `Mismo patrón de movimiento y músculos parecidos que ${originalName}.`;
+  return curatedEdge.note ?? `Reemplazo equivalente cargado a mano para ${originalName}.`;
 }
 
 // ------------------------------------------------------------------ helpers

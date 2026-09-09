@@ -298,7 +298,7 @@ function AlternativesPanel({
                   </span>
                 </span>
                 {option.curated && (
-                  <span title="Equivalencia cargada a mano, no calculada">
+                  <span title={option.reason}>
                     <PenLine size={12} className="shrink-0 text-brand" aria-hidden="true" />
                   </span>
                 )}
