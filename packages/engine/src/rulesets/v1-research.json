@@ -1112,6 +1112,10 @@
       ],
       "note": "A partir de los 60 la ventana medida es 70-79% del 1RM en series de 7 a 9 repeticiones. No es menos carga que a los 40: es la carga que se midió en esta edad, y bajarla no da más seguridad ni menos caídas. Si hay fragilidad, dolor o una lesión declarada, eso manda por encima de la edad.",
       "confidence": "medium"
+    },
+    "experienceLevel": {
+      "noDoseEffectNote": "Para este objetivo tu nivel decide qué ejercicios entran al plan por la técnica que piden, pero no cambia las series ni las repeticiones. La evidencia que mide la dosis solo distingue entre entrenado y no entrenado, así que afinar más sería inventarlo.",
+      "confidence": "medium"
     }
   },
   "safety": {

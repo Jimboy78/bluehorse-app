@@ -334,6 +334,21 @@ const modifiersSchema = z.object({
    * (p < 0,01), y no compra seguridad: la alta intensidad no muestra más
    * eventos adversos ni más caídas. Ver `docs/research/08-edad.md`.
    */
+  /**
+   * Qué decir cuando el nivel declarado no cambia la dosis del objetivo elegido.
+   *
+   * Se le pregunta al socio con cuatro tarjetas, pero en varios objetivos el
+   * `byLevel` está vacío y los cuatro niveles reciben la misma prescripción. La
+   * mejor evidencia dosis-respuesta (67 estudios) solo distingue entrenado de no
+   * entrenado, así que no hay con qué llenarlos sin inventar. Lo que sí
+   * corresponde es no presentarlo como individualizado: ver `docs/research/10`.
+   */
+  experienceLevel: z
+    .object({
+      noDoseEffectNote: z.string().min(1),
+      confidence: z.enum(CONFIDENCE_LEVELS),
+    })
+    .optional(),
   olderAdults: z
     .object({
       fromAge: z.number().int().min(40).max(100),
@@ -532,6 +547,19 @@ export function resolveParams(ruleset: Ruleset, goal: Goal, level: ExperienceLev
     weeklyVolume: override.weeklyVolume ?? base.weeklyVolume,
     detraining: override.detraining ?? base.detraining,
   };
+}
+
+/**
+ * `true` cuando los cuatro niveles reciben exactamente la misma dosis para este
+ * objetivo, o sea que el nivel declarado no individualiza nada.
+ *
+ * No alcanza con mirar si falta el `byLevel` del nivel de este socio: lo que
+ * importa es si el objetivo diferencia a alguien. Un `byLevel` vacío significa
+ * que no, y uno que solo define otros niveles sí diferencia — pero a otros.
+ */
+export function levelChangesDose(ruleset: Ruleset, goal: Goal): boolean {
+  const byLevel = ruleset.prescription[goal]?.byLevel;
+  return byLevel !== undefined && Object.keys(byLevel).length > 0;
 }
 
 /** `true` cuando lo generado no debe presentarse como consejo real. */

@@ -32,7 +32,7 @@ import type {
 } from './contract.ts';
 import { createRng, pickDeterministic } from './rng.ts';
 import type { GoalParams, PainRule, Ruleset, SlotRole } from './ruleset.ts';
-import { detrainingMultiplier, isPlaceholder, resolveParams } from './ruleset.ts';
+import { detrainingMultiplier, isPlaceholder, levelChangesDose, resolveParams } from './ruleset.ts';
 
 /**
  * EL MOTOR — la mecánica. El contenido vive en el ruleset.
@@ -63,6 +63,12 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
 
   const goal = primaryGoal(user.goals);
   const basePar = resolveParams(ruleset, goal.goal, user.profile.experienceLevel);
+  // Se le piden cuatro niveles al socio y en varios objetivos los cuatro dan la
+  // misma dosis. Regla dura 4: si el plan no se individualiza, el plan lo dice.
+  const levelNote = ruleset.modifiers?.experienceLevel;
+  if (levelNote && !levelChangesDose(ruleset, goal.goal)) {
+    warnings.push(levelNote.noDoseEffectNote);
+  }
   const byAge = applyAgeModifier(basePar, ruleset, user.profile, goal.goal, context.now, warnings);
   const sport = resolveSport(ruleset, goal, warnings);
   const params = applySportVolume(byAge, sport, warnings);

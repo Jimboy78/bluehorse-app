@@ -13,14 +13,14 @@ Medido contando usos reales en `packages/engine/src/`, no leyendo la documentaci
 
 | Entrada | ¿La usa? | Estado |
 |---|---|---|
-| `experienceLevel` | sí | pendiente |
+| `experienceLevel` | sí | ✅ **auditado** — `10-nivel-de-experiencia.md` |
 | `goal` | sí | pendiente |
 | `birthDate` (edad) | sí | ✅ **auditado** — `08-edad.md` |
 | `sport` | sí | auditado en `06`; queda como dato, sin promesas |
 | `seasonPhase` | sí | auditado en `06` |
 | día de partido | sí | auditado en `07`; falta el marcador de énfasis excéntrico |
 | `constraints` (dolor / lesión) | sí | ✅ **auditado** — `09-dolor-y-lesiones.md` |
-| `sessionsPerWeekTarget` | sí | pendiente |
+| `sessionsPerWeekTarget` | sí | pendiente — **prioridad alta**, ver brecha de frecuencia en `10` |
 | `baselines` | sí | pendiente |
 | `daysSinceLastSession` | sí | pendiente |
 | `sex` | **no (0 usos)** | pendiente — decidir si se saca del formulario |
@@ -88,9 +88,36 @@ incompleto. `referIf` ya se emite; los otros dos siguen pendientes.
 - 5 tests nuevos, 296 en verde. Los tests viejos usaban severidad 1 y 4, **salteando justo el 3**
   que era el caso en disputa; por eso el cambio de umbral no rompió nada.
 
-### Próxima: nivel de experiencia (`experienceLevel`)
+### 3 · Nivel de experiencia — cerrada el 2026-09-09
 
-Es el parámetro con más peso en la prescripción —define series, repeticiones, intensidad, descanso
-y paso de progresión para los cuatro niveles— y su fuente en `04` es **ACSM 2009 sin DOI**, la misma
-que ya falló en la iteración de edad. Además hay que revisar cómo se declara el nivel: si lo elige
-el socio sin anclas, es el mismo problema que tenía la escala de dolor.
+`docs/research/10-nivel-de-experiencia.md`. Acá no hacía falta buscar papers para encontrar lo
+principal: alcanzó con medir el ruleset contra sí mismo.
+
+- **En 3 de 6 objetivos el nivel no cambia absolutamente nada.** En `power`, `endurance` y `cardio`
+  el `byLevel` está vacío: los cuatro niveles reciben la misma prescripción palabra por palabra.
+  En `recomposition` solo se separa el principiante. Solo `strength` e `hypertrophy` diferencian los
+  cuatro.
+- **El nivel `novice` no existe en ninguna investigación del proyecto** — cero ocurrencias en los
+  doce documentos de `docs/research/`. Se agregó al enum y se le inventaron valores. Se conserva
+  porque sacarlo obliga a migrar datos de socios, pero queda marcado.
+- **La mejor evidencia dosis-respuesta solo distingue dos estados.** Pelland 2025 (67 estudios,
+  2058 participantes, DOI 10.1007/s40279-025-02344-w) usa el estado de entrenamiento como covariable
+  **binaria**: entrenado / no entrenado. Cuatro escalones son plausibles, no medidos.
+- **No hay forma objetiva de determinar el nivel.** El modelo de referencia (DOI
+  10.1519/SSC.0000000000000627) pide **cinco** parámetros — tiempo ininterrumpido, desentrenamiento,
+  experiencia previa, técnica y nivel de fuerza — y el onboarding captura tres de forma difusa, con
+  autoevaluación. Los dos más objetivos (técnica y fuerza) son los que quedan librados al criterio
+  del socio.
+- **Lo que sí quedó confirmado:** `weeklyVolume.optimalSetsPerMuscle: [6, 12]` cae justo sobre las
+  medianas observadas (6 series/semana para fuerza, 10,5 para hipertrofia). Es de lo poco que esta
+  auditoría encontró bien puesto.
+- Se agregó `modifiers.experienceLevel.noDoseEffectNote`: cuando el nivel no cambia la dosis, el
+  plan lo dice (regla dura 4). 4 tests nuevos, 300 en verde.
+
+### Próxima: frecuencia (`sessionsPerWeekTarget`)
+
+Pelland deja una brecha concreta y accionable: la frecuencia semanal tiene efecto sobre la **fuerza**
+(probabilidad posterior 100 %, con rendimientos decrecientes) pero es **compatible con nulo** para
+hipertrofia. El motor hoy deja que el socio elija la frecuencia y no le dice nada de eso. Además
+hay que revisar cómo se elige la plantilla cuando la frecuencia pedida no tiene una que la cubra:
+`pickTemplate` ya emite una advertencia de fallback que conviene auditar.

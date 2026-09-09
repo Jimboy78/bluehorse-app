@@ -1,4 +1,12 @@
-import type { Equipment, Exercise, Plan, Profile, SetLog, UserGoal } from '@bh/domain';
+import type {
+  Equipment,
+  Exercise,
+  ExperienceLevel,
+  Plan,
+  Profile,
+  SetLog,
+  UserGoal,
+} from '@bh/domain';
 import { describe, expect, it } from 'vitest';
 import type { EngineContext, GymSnapshot, UserSnapshot } from './contract.ts';
 import { V1_RESEARCH } from './index.ts';
@@ -755,5 +763,55 @@ describe('el ruleset de investigación', () => {
   it('sigue siendo determinista: misma semilla, mismo plan', () => {
     const input = { context, user: buildUser(), gym: buildGym(), ruleset: V1_RESEARCH };
     expect(exerciseIdsOf(input)).toEqual(exerciseIdsOf(input));
+  });
+});
+
+// ---------------------------------------------------------------- nivel
+
+describe('nivel de experiencia', () => {
+  const planCon = (level: ExperienceLevel, goal: UserGoal['goal']) =>
+    engine.generatePlan({
+      context,
+      user: buildUser({
+        profile: { ...baseProfile, experienceLevel: level },
+        goals: [goalOf(goal)],
+      }),
+      gym: buildGym(),
+      ruleset: V1_RESEARCH,
+    });
+
+  const dosisDe = (level: ExperienceLevel, goal: UserGoal['goal']) =>
+    planCon(level, goal)
+      .sessions.flatMap((s) => s.items)
+      .map((i) => `${i.targetSets}x${i.targetRepsMin}-${i.targetRepsMax}/${i.restSeconds}`)
+      .join(',');
+
+  const nota = V1_RESEARCH.modifiers?.experienceLevel?.noDoseEffectNote;
+
+  // Regla dura 4: no se puede presentar como individualizado algo que no lo es.
+  // En `power` los cuatro niveles reciben la misma prescripción, palabra por
+  // palabra, porque `byLevel` está vacío. Ver `docs/research/10`.
+  it('avisa cuando el nivel no cambia la dosis del objetivo', () => {
+    if (!nota) throw new Error('El ruleset no tiene la nota de nivel.');
+    expect(planCon('beginner', 'power').warnings).toContain(nota);
+  });
+
+  it('no avisa cuando el nivel sí cambia la dosis', () => {
+    if (!nota) throw new Error('El ruleset no tiene la nota de nivel.');
+    expect(planCon('beginner', 'strength').warnings).not.toContain(nota);
+  });
+
+  // El aviso tiene que ser verdadero: si aparece, las dosis deben coincidir de
+  // verdad entre niveles. Si algún día se llena el `byLevel` de `power` y nadie
+  // saca el aviso, este test lo caza.
+  it('cuando avisa, los cuatro niveles reciben de verdad la misma dosis', () => {
+    const dosis = new Set(
+      (['beginner', 'novice', 'intermediate', 'advanced'] as const).map((l) => dosisDe(l, 'power')),
+    );
+    expect(dosis.size).toBe(1);
+  });
+
+  it('en fuerza los niveles sí se diferencian entre sí', () => {
+    expect(dosisDe('beginner', 'strength')).not.toBe(dosisDe('advanced', 'strength'));
   });
 });
