@@ -170,6 +170,13 @@ export function Hoy() {
 
   async function handleRestFinish(actualSeconds: number, actual: SetActual) {
     if (item && restingIndex !== null) {
+      // Lo que se registró manda sobre lo que se había anotado antes. En el
+      // descanso se puede corregir la carga (es el momento en que se sabe con
+      // qué se hizo de verdad), y sin esto la fila seguía mostrando el número
+      // de antes: la base decía 65 y la pantalla 60, y la serie siguiente
+      // heredaba el equivocado.
+      const key = `${item.id}:${restingIndex}`;
+      setCargaPorSerie((mapa) => ({ ...mapa, [key]: actual.load }));
       await markSetDone(item, restingIndex, actualSeconds, actual);
     }
     setRestingIndex(null);
