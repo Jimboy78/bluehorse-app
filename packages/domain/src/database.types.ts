@@ -297,6 +297,7 @@ export type Database = {
           id: string
           is_active: boolean
           is_compound: boolean
+          is_explosive: boolean
           is_unilateral: boolean
           media_url: string | null
           modality: Database["public"]["Enums"]["exercise_modality"]
@@ -313,6 +314,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_compound?: boolean
+          is_explosive?: boolean
           is_unilateral?: boolean
           media_url?: string | null
           modality?: Database["public"]["Enums"]["exercise_modality"]
@@ -329,6 +331,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_compound?: boolean
+          is_explosive?: boolean
           is_unilateral?: boolean
           media_url?: string | null
           modality?: Database["public"]["Enums"]["exercise_modality"]
@@ -1072,6 +1075,7 @@ export type Database = {
           id: string
           is_active: boolean
           priority: number
+          season_phase: Database["public"]["Enums"]["season_phase"]
           session_minutes_target: number
           sessions_per_week_target: number
           sport: string | null
@@ -1083,6 +1087,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           priority?: number
+          season_phase?: Database["public"]["Enums"]["season_phase"]
           session_minutes_target?: number
           sessions_per_week_target: number
           sport?: string | null
@@ -1094,6 +1099,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           priority?: number
+          season_phase?: Database["public"]["Enums"]["season_phase"]
           session_minutes_target?: number
           sessions_per_week_target?: number
           sport?: string | null
@@ -1258,6 +1264,7 @@ export type Database = {
         | "swap_exercise"
         | "volume_change"
       ruleset_source: "placeholder" | "research"
+      season_phase: "preseason" | "in_season" | "off_season" | "none"
       session_feel: "easy" | "right" | "hard"
       session_status: "pending" | "in_progress" | "completed" | "skipped"
       sex: "female" | "male" | "other" | "undisclosed"
@@ -1476,6 +1483,7 @@ export const Constants = {
         "volume_change",
       ],
       ruleset_source: ["placeholder", "research"],
+      season_phase: ["preseason", "in_season", "off_season", "none"],
       session_feel: ["easy", "right", "hard"],
       session_status: ["pending", "in_progress", "completed", "skipped"],
       sex: ["female", "male", "other", "undisclosed"],

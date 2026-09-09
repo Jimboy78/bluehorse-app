@@ -15,6 +15,7 @@ import type {
 } from '@bh/domain';
 import { EXPERIENCE_LEVELS, nextLoad, snapToEquipment } from '@bh/domain';
 import type {
+  AdjustSessionInput,
   FindSubstitutesInput,
   GeneratePlanInput,
   GymSnapshot,
@@ -22,6 +23,7 @@ import type {
   PrescriptionEngine,
   ProposalBlueprint,
   ReviewProgressInput,
+  SessionAdjustment,
   SessionBlueprint,
   SessionItemBlueprint,
   SubstituteOption,
@@ -46,6 +48,7 @@ export function createPlaceholderEngine(): PrescriptionEngine {
     generatePlan,
     reviewProgress,
     findSubstitutes,
+    adjustSession: adjustForMatchDay,
   };
 }
 
@@ -58,7 +61,9 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
 
   const goal = primaryGoal(user.goals);
   const basePar = resolveParams(ruleset, goal.goal, user.profile.experienceLevel);
-  const params = applyAgeModifier(basePar, ruleset, user.profile, context.now, warnings);
+  const byAge = applyAgeModifier(basePar, ruleset, user.profile, context.now, warnings);
+  const sport = resolveSport(ruleset, goal, warnings);
+  const params = applySportVolume(byAge, sport, warnings);
   const template = pickTemplate(ruleset, goal, warnings);
   const placeholder = isPlaceholder(ruleset);
 
@@ -114,6 +119,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
         setsByMuscle,
         level: user.profile.experienceLevel,
         selection: ruleset.selection,
+        emphasis: sport?.emphasis ?? [],
         rng,
       });
       if (!exercise) {
@@ -273,6 +279,90 @@ function applyAgeModifier(
     primary: adjust(params.primary),
     secondary: adjust(params.secondary),
     isolation: adjust(params.isolation),
+  };
+}
+
+// ------------------------------------------------------------------ deporte
+
+/** El deporte del socio resuelto contra el catálogo del ruleset. */
+interface ResolvedSport {
+  readonly label: string;
+  readonly emphasis: readonly MuscleGroup[];
+  /** Multiplicador de volumen: categoría × momento de la temporada. */
+  readonly volumeMultiplier: number;
+  readonly hasMatches: boolean;
+  readonly notes: readonly string[];
+}
+
+/**
+ * Traduce el deporte y el momento de la temporada del socio a lo que el motor
+ * puede usar. Devuelve `null` cuando no hay nada que aplicar, que es el caso de
+ * la mayoría de los socios.
+ *
+ * Si el deporte guardado no está en el catálogo, avisa en vez de ignorarlo en
+ * silencio: es la señal de que alguien quedó con un valor viejo de cuando el
+ * campo era texto libre.
+ */
+function resolveSport(ruleset: Ruleset, goal: UserGoal, warnings: string[]): ResolvedSport | null {
+  const block = ruleset.sports;
+  if (!block) return null;
+
+  const entry = goal.sport ? block.catalog.find((s) => s.id === goal.sport) : undefined;
+  if (goal.sport && !entry) {
+    warnings.push(
+      `El deporte "${goal.sport}" no está en el catálogo del ruleset ${ruleset.version}, así que no se usó para armar el plan.`,
+    );
+    return null;
+  }
+
+  const category = entry ? block.categories[entry.category] : undefined;
+  const phase = block.seasonPhases[goal.seasonPhase];
+  // Se toma el MÁS ESTRICTO, no el producto. Los dos contestan la misma
+  // pregunta —cuánto menos hoy— así que manda el que más recorta. Multiplicarlos
+  // daba 0,8 × 0,5 = 0,4 para un corredor en temporada, un recorte que ninguna
+  // de las dos fuentes respalda y que dejaba ejercicios de una sola serie.
+  const multiplier = Math.min(category?.volumeMultiplier ?? 1, phase?.volumeMultiplier ?? 1);
+
+  const notes: string[] = [];
+  if (category && category.volumeMultiplier !== 1) notes.push(category.note);
+  if (phase && phase.volumeMultiplier !== 1) notes.push(phase.note);
+
+  return {
+    label: entry?.label ?? 'sin deporte',
+    emphasis: entry?.emphasis ?? [],
+    volumeMultiplier: multiplier,
+    hasMatches: category?.hasMatches ?? false,
+    notes,
+  };
+}
+
+/**
+ * Aplica el multiplicador de volumen del deporte y la temporada. Toca SOLO las
+ * series: la intensidad y las repeticiones no se mueven, que es justo lo que
+ * dice la literatura de tapering —bajar volumen, mantener intensidad— y lo que
+ * el nulo de pesado-vs-liviano obliga a respetar.
+ *
+ * Nunca baja de una serie: media serie no existe, y un ejercicio con cero
+ * series es un ejercicio que no está.
+ */
+function applySportVolume(
+  params: GoalParams,
+  sport: ResolvedSport | null,
+  warnings: string[],
+): GoalParams {
+  if (!sport || sport.volumeMultiplier === 1) return sport ? params : params;
+
+  const scale = (role: GoalParams['primary']): GoalParams['primary'] => ({
+    ...role,
+    sets: Math.max(1, Math.round(role.sets * sport.volumeMultiplier)),
+  });
+
+  warnings.push(...sport.notes);
+  return {
+    ...params,
+    primary: scale(params.primary),
+    secondary: scale(params.secondary),
+    isolation: scale(params.isolation),
   };
 }
 
@@ -453,6 +543,69 @@ function ageAt(birthDate: string, now: string): number | null {
   const monthDiff = at.getUTCMonth() - born.getUTCMonth();
   if (monthDiff < 0 || (monthDiff === 0 && at.getUTCDate() < born.getUTCDate())) age -= 1;
   return age;
+}
+
+// ------------------------------------------------------------------ día de partido
+
+/**
+ * Ajusta la sesión de hoy según dónde cae respecto del partido.
+ *
+ * **No entra en `generatePlan` a propósito.** El plan es una cola ordenada sin
+ * fechas: cuál sesión toca hoy se sabe recién hoy, y si el partido se pospone
+ * el plan no tiene que regenerarse. El socio lo declara al empezar la sesión.
+ *
+ * Baja volumen, nunca intensidad ni repeticiones: es lo que hace la literatura
+ * de tapering, y el nulo de pesado-vs-liviano no deja tocar la carga.
+ */
+function adjustForMatchDay(input: AdjustSessionInput): SessionAdjustment {
+  const rule = input.ruleset.sports?.matchDay?.[input.state];
+  if (!rule) return { items: input.items, note: null, changed: false };
+
+  const exerciseById = new Map(input.gym.exercises.map((e) => [e.id, e]));
+  const dropped: string[] = [];
+  let scaled = 0;
+  const items: SessionItemBlueprint[] = [];
+
+  for (const item of input.items) {
+    const exercise = exerciseById.get(item.exerciseId);
+    // El cardio no se prescribe en series: escalarlo por un multiplicador de
+    // volumen de sala no significa nada. Se deja como está.
+    if (!exercise || item.targetDurationSeconds !== null) {
+      items.push(item);
+      continue;
+    }
+
+    if (rule.avoidExplosive && exercise.isExplosive) {
+      dropped.push(exercise.name);
+      continue;
+    }
+
+    const multiplier = isLowerBody(exercise)
+      ? rule.lowerBodyVolumeMultiplier
+      : rule.upperBodyVolumeMultiplier;
+
+    // Cero es "hoy esto no se hace": se saca en vez de mostrarlo vacío. Es lo
+    // que pasa con la pierna el mismo día del partido.
+    if (multiplier === 0) {
+      dropped.push(exercise.name);
+      continue;
+    }
+
+    // Redondeo, no truncamiento: con el volumen ya bajado por la temporada un
+    // ejercicio queda en 2 series, y truncar 2 × 0,5 hacia abajo lo borraba del
+    // plan. El recorte del partido baja volumen, no saca ejercicios.
+    const targetSets = Math.max(1, Math.round(item.targetSets * multiplier));
+    if (targetSets !== item.targetSets) scaled += 1;
+    items.push(targetSets === item.targetSets ? item : { ...item, targetSets });
+  }
+
+  const changed = dropped.length > 0 || scaled > 0;
+  const detail = dropped.length > 0 ? ` Hoy se sacan: ${dropped.join(', ')}.` : '';
+  return { items, note: changed ? `${rule.note}${detail}` : null, changed };
+}
+
+function isLowerBody(exercise: Exercise): boolean {
+  return exercise.primaryMuscles.some((m) => LOWER_BODY_MUSCLES.includes(m));
 }
 
 // ------------------------------------------------------------------ adaptación
@@ -827,6 +980,13 @@ interface ChooseExerciseInput {
   readonly setsByMuscle: ReadonlyMap<MuscleGroup, number>;
   readonly level: ExperienceLevel;
   readonly selection: Ruleset['selection'];
+  /**
+   * Músculos del gesto del deporte. Solo desempata entre ejercicios que ya
+   * pasaron todo lo demás: el deporte no cambia la dosis, porque cargas
+   * pesadas y livianas dan el mismo rendimiento deportivo (SMD −0,03,
+   * I² = 0%). Vacío si no practica ninguno.
+   */
+  readonly emphasis: readonly MuscleGroup[];
   readonly rng: () => number;
 }
 
@@ -941,7 +1101,26 @@ function chooseExercise(input: ChooseExerciseInput): Exercise | undefined {
     eligible = preferRanked(eligible, volumeOf, floor);
   }
 
-  // 7. Y entre los que quedaron igual de buenos, uno que no esté ya en OTRA
+  // 7. Los músculos del gesto del deporte, si practica alguno.
+  //
+  //    Va acá y no antes a propósito: es un desempate entre ejercicios que ya
+  //    son buenos, nunca un cambio de dosis. Entrenar fuerza transfiere al
+  //    deporte con efecto grande (SMD 1,16), pero cargas pesadas y livianas
+  //    dan lo mismo (SMD −0,03, IC −0,38 a 0,31, I² = 0%) y la especificidad
+  //    direccional está refutada (22 estudios, 578 participantes). Lo único
+  //    que queda es elegir el ejercicio que toca el músculo del gesto cuando
+  //    hay varios equivalentes.
+  //
+  //    Y es blanda: si el énfasis dejara el slot con menos opciones que el
+  //    piso, se saltea. Un futbolista no puede terminar con el mismo plan que
+  //    todos los otros futbolistas — eso es el problema que acabamos de
+  //    arreglar, y el deporte no lo puede reintroducir.
+  if (input.emphasis.length > 0) {
+    const emphasized = new Set(input.emphasis);
+    eligible = preferSoft(eligible, (e) => e.primaryMuscles.some((m) => emphasized.has(m)));
+  }
+
+  // 8. Y entre los que quedaron igual de buenos, uno que no esté ya en OTRA
   //    sesión de este mismo plan.
   //
   //    `used` evita repetir dentro de una sesión, pero se reinicia en cada

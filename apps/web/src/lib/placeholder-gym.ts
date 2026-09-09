@@ -46,6 +46,7 @@ function exercise(id: string, name: string, over: Partial<Exercise> = {}): Exerc
     modality: 'reps_weight',
     isCompound: true,
     isUnilateral: false,
+    isExplosive: false,
     skillLevel: 'beginner',
     cues: null,
     equipmentIds: [],
@@ -140,6 +141,7 @@ const placeholderProfile: Profile = {
 const placeholderGoal: UserGoal = {
   goal: 'hypertrophy',
   sport: null,
+  seasonPhase: 'none',
   priority: 1,
   sessionsPerWeekTarget: 3,
   sessionMinutesTarget: 60,

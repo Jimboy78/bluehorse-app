@@ -5,7 +5,12 @@ create table user_goals (
   user_id uuid not null references profiles (id) on delete cascade,
   goal training_goal not null,
   /* Deporte que practica, si el objetivo es de transferencia. */
+  -- Id de una entrada de `sports.catalog` del ruleset, no texto libre: un
+  -- string suelto no se puede mapear y el motor lo ignoraría en silencio.
   sport text,
+  -- Momento de la temporada. Mueve volumen, nunca selección ni intensidad.
+  -- Solo se le pregunta a quien compite; el resto queda en 'none'.
+  season_phase season_phase not null default 'none',
   priority smallint not null default 1,
   sessions_per_week_target smallint not null check (sessions_per_week_target between 1 and 7),
   session_minutes_target smallint not null default 60 check (session_minutes_target between 15 and 180),

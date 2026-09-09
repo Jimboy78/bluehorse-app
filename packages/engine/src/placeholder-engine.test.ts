@@ -39,6 +39,7 @@ function exercise(id: string, name: string, over: Partial<Exercise> = {}): Exerc
     modality: 'reps_weight',
     isCompound: true,
     isUnilateral: false,
+    isExplosive: false,
     skillLevel: 'beginner',
     cues: null,
     equipmentIds: [],
@@ -147,6 +148,7 @@ function buildUser(over: Partial<UserSnapshot> = {}): UserSnapshot {
   const goal: UserGoal = {
     goal: 'hypertrophy',
     sport: null,
+    seasonPhase: 'none',
     priority: 1,
     sessionsPerWeekTarget: 3,
     sessionMinutesTarget: 60,
@@ -772,5 +774,210 @@ describe('findSubstitutes', () => {
 
     const curada = options.find((o) => o.exerciseId === 'ex-press-maquina');
     expect(curada?.reason).toContain('cargado a mano');
+  });
+});
+
+describe('deporte, temporada y día de partido', () => {
+  const conDeporte: Ruleset = {
+    ...V0_PLACEHOLDER,
+    selection: { minPoolSize: 3, levelTolerance: 1, confidence: 'low' },
+    sports: {
+      categories: {
+        local_gesture: { label: 'Gesto', hasMatches: true, volumeMultiplier: 1, note: 'gesto' },
+        global_endurance: {
+          label: 'Resistencia',
+          hasMatches: false,
+          volumeMultiplier: 0.8,
+          note: 'resistencia',
+        },
+        strength_contact: {
+          label: 'Fuerza',
+          hasMatches: true,
+          volumeMultiplier: 1,
+          note: 'fuerza',
+        },
+        recreational: { label: 'Nada', hasMatches: false, volumeMultiplier: 1, note: 'nada' },
+      },
+      catalog: [
+        { id: 'boxeo', label: 'Boxeo', category: 'local_gesture', emphasis: ['front_delts'] },
+        { id: 'running', label: 'Running', category: 'global_endurance', emphasis: [] },
+      ],
+      seasonPhases: {
+        preseason: { label: 'Pre', volumeMultiplier: 1, note: 'pre' },
+        in_season: { label: 'En temporada', volumeMultiplier: 0.5, note: 'en temporada' },
+        off_season: { label: 'Off', volumeMultiplier: 1, note: 'off' },
+        none: { label: 'No compite', volumeMultiplier: 1, note: 'no compite' },
+      },
+      matchDay: {
+        normal: {
+          label: 'Normal',
+          lowerBodyVolumeMultiplier: 1,
+          upperBodyVolumeMultiplier: 1,
+          avoidExplosive: false,
+          note: 'normal',
+        },
+        day_after: {
+          label: 'Ayer',
+          lowerBodyVolumeMultiplier: 0.5,
+          upperBodyVolumeMultiplier: 1,
+          avoidExplosive: true,
+          note: 'jugaste ayer',
+        },
+        two_days_after: {
+          label: 'Anteayer',
+          lowerBodyVolumeMultiplier: 0.8,
+          upperBodyVolumeMultiplier: 1,
+          avoidExplosive: true,
+          note: 'anteayer',
+        },
+        day_before: {
+          label: 'Mañana',
+          lowerBodyVolumeMultiplier: 0.5,
+          upperBodyVolumeMultiplier: 1,
+          avoidExplosive: true,
+          note: 'jugás mañana',
+        },
+        match_day: {
+          label: 'Hoy',
+          lowerBodyVolumeMultiplier: 0,
+          upperBodyVolumeMultiplier: 0.5,
+          avoidExplosive: true,
+          note: 'jugás hoy',
+        },
+      },
+      confidence: 'low',
+    },
+  };
+
+  const userCon = (sport: string | null, seasonPhase: 'none' | 'in_season') => {
+    const base = buildUser();
+    const goal = base.goals[0];
+    if (!goal) throw new Error('El usuario de prueba no tiene objetivo.');
+    return buildUser({ goals: [{ ...goal, sport, seasonPhase }] });
+  };
+
+  const totalSeries = (items: readonly { targetSets: number }[]) =>
+    items.reduce((a, i) => a + i.targetSets, 0);
+
+  const planCon = (sport: string | null, phase: 'none' | 'in_season') =>
+    engine.generatePlan({
+      context,
+      user: userCon(sport, phase),
+      gym: buildGym(),
+      ruleset: conDeporte,
+    });
+
+  it('el momento de la temporada baja el volumen', () => {
+    const enTemporada = totalSeries(planCon('boxeo', 'in_season').sessions.flatMap((s) => s.items));
+    const fuera = totalSeries(planCon('boxeo', 'none').sessions.flatMap((s) => s.items));
+    expect(enTemporada).toBeLessThan(fuera);
+  });
+
+  // El nulo de pesado-vs-liviano (SMD -0,03, I² = 0%) no deja que el deporte
+  // toque la carga ni las repeticiones: solo puede mover series y selección.
+  it('el deporte no cambia repeticiones ni RIR', () => {
+    const firma = (sport: string | null) =>
+      planCon(sport, 'none')
+        .sessions.flatMap((s) => s.items)
+        .map((i) => `${i.targetRepsMin}-${i.targetRepsMax}/${i.targetRir}`)
+        .join(',');
+    expect(firma('boxeo')).toBe(firma(null));
+  });
+
+  it('un deporte que el ruleset no conoce avisa en vez de ignorarse en silencio', () => {
+    const plan = planCon('quidditch', 'none');
+    expect(plan.warnings.some((w) => w.includes('quidditch'))).toBe(true);
+  });
+
+  describe('adjustSession', () => {
+    const items = () => {
+      const primera = planCon('boxeo', 'none').sessions[0];
+      if (!primera) throw new Error('El plan de prueba no tiene sesiones.');
+      return primera.items;
+    };
+
+    it('un día normal no toca nada', () => {
+      const original = items();
+      const out = engine.adjustSession({
+        items: original,
+        gym: buildGym(),
+        state: 'normal',
+        ruleset: conDeporte,
+      });
+      expect(out.changed).toBe(false);
+      expect(out.note).toBeNull();
+      expect(totalSeries(out.items)).toBe(totalSeries(original));
+    });
+
+    it('el día después del partido recorta, y no menos que dos días después', () => {
+      const original = items();
+      const gym = buildGym();
+      const ayer = engine.adjustSession({
+        items: original,
+        gym,
+        state: 'day_after',
+        ruleset: conDeporte,
+      });
+      const anteayer = engine.adjustSession({
+        items: original,
+        gym,
+        state: 'two_days_after',
+        ruleset: conDeporte,
+      });
+
+      expect(totalSeries(ayer.items)).toBeLessThan(totalSeries(original));
+      expect(totalSeries(ayer.items)).toBeLessThanOrEqual(totalSeries(anteayer.items));
+      expect(ayer.note).toContain('jugaste ayer');
+    });
+
+    it('el día del partido saca la pierna y deja el resto liviano', () => {
+      const gym = buildGym();
+      const out = engine.adjustSession({
+        items: items(),
+        gym,
+        state: 'match_day',
+        ruleset: conDeporte,
+      });
+
+      const pierna = new Set(
+        gym.exercises
+          .filter((e) =>
+            e.primaryMuscles.some((m) => ['quads', 'hamstrings', 'glutes', 'calves'].includes(m)),
+          )
+          .map((e) => e.id),
+      );
+      expect(out.items.some((i) => pierna.has(i.exerciseId))).toBe(false);
+      expect(out.items.length).toBeGreaterThan(0);
+    });
+
+    it('saca el trabajo explosivo cuando la regla lo pide', () => {
+      const gym = buildGym();
+      const conSalto: GymSnapshot = {
+        ...gym,
+        exercises: gym.exercises.map((e) =>
+          e.id === 'ex-prensa' ? { ...e, isExplosive: true } : e,
+        ),
+      };
+      const out = engine.adjustSession({
+        items: items(),
+        gym: conSalto,
+        state: 'day_after',
+        ruleset: conDeporte,
+      });
+      expect(out.items.some((i) => i.exerciseId === 'ex-prensa')).toBe(false);
+    });
+
+    // Un ruleset viejo, sin bloque `sports`, no puede romper la sesión de hoy.
+    it('sin bloque de deportes en el ruleset, no cambia nada', () => {
+      const original = items();
+      const out = engine.adjustSession({
+        items: original,
+        gym: buildGym(),
+        state: 'day_after',
+        ruleset: V0_PLACEHOLDER,
+      });
+      expect(out.changed).toBe(false);
+      expect(out.items).toBe(original);
+    });
   });
 });

@@ -11,7 +11,10 @@
   ],
   "planning": {
     "sessionsAhead": 8,
-    "rotationWeeks": [4, 8]
+    "rotationWeeks": [
+      4,
+      8
+    ]
   },
   "prescription": {
     "strength": {
@@ -23,7 +26,10 @@
           "repsMax": 5,
           "rirTarget": 3,
           "restSeconds": 180,
-          "intensityPct1RM": [85, 100]
+          "intensityPct1RM": [
+            85,
+            100
+          ]
         },
         "secondary": {
           "sets": 3,
@@ -31,7 +37,10 @@
           "repsMax": 8,
           "rirTarget": 3,
           "restSeconds": 120,
-          "intensityPct1RM": [75, 85]
+          "intensityPct1RM": [
+            75,
+            85
+          ]
         },
         "isolation": {
           "sets": 2,
@@ -39,7 +48,10 @@
           "repsMax": 10,
           "rirTarget": 3,
           "restSeconds": 90,
-          "intensityPct1RM": [60, 75]
+          "intensityPct1RM": [
+            60,
+            75
+          ]
         },
         "progression": {
           "stepPctUpperBody": 1.25,
@@ -47,7 +59,10 @@
           "triggerRirAtLeast": 4,
           "consecutiveSessions": 2
         },
-        "regression": { "stepPct": 7.5, "missedRepsSessions": 2 },
+        "regression": {
+          "stepPct": 7.5,
+          "missedRepsSessions": 2
+        },
         "deload": {
           "stallSessions": 3,
           "absenceDays": 10,
@@ -57,14 +72,29 @@
         },
         "weeklyVolume": {
           "minSetsPerMuscle": 4,
-          "optimalSetsPerMuscle": [6, 12],
+          "optimalSetsPerMuscle": [
+            6,
+            12
+          ],
           "maxSetsPerMuscle": 15,
-          "sessionsPerMusclePerWeek": [2, 3]
+          "sessionsPerMusclePerWeek": [
+            2,
+            3
+          ]
         },
         "detraining": [
-          { "days": 10, "loadMultiplier": 1 },
-          { "days": 30, "loadMultiplier": 0.85 },
-          { "days": 90, "loadMultiplier": 0.7 }
+          {
+            "days": 10,
+            "loadMultiplier": 1
+          },
+          {
+            "days": 30,
+            "loadMultiplier": 0.85
+          },
+          {
+            "days": 90,
+            "loadMultiplier": 0.7
+          }
         ]
       },
       "byLevel": {
@@ -75,7 +105,10 @@
             "repsMax": 8,
             "rirTarget": 3,
             "restSeconds": 210,
-            "intensityPct1RM": [60, 70]
+            "intensityPct1RM": [
+              60,
+              70
+            ]
           },
           "secondary": {
             "sets": 2,
@@ -83,7 +116,10 @@
             "repsMax": 10,
             "rirTarget": 3,
             "restSeconds": 150,
-            "intensityPct1RM": [55, 70]
+            "intensityPct1RM": [
+              55,
+              70
+            ]
           },
           "isolation": {
             "sets": 2,
@@ -91,7 +127,10 @@
             "repsMax": 12,
             "rirTarget": 3,
             "restSeconds": 105,
-            "intensityPct1RM": [45, 60]
+            "intensityPct1RM": [
+              45,
+              60
+            ]
           },
           "progression": {
             "stepPctUpperBody": 5,
@@ -107,7 +146,10 @@
             "repsMax": 6,
             "rirTarget": 3,
             "restSeconds": 180,
-            "intensityPct1RM": [75, 85]
+            "intensityPct1RM": [
+              75,
+              85
+            ]
           },
           "progression": {
             "stepPctUpperBody": 5,
@@ -123,7 +165,10 @@
             "repsMax": 5,
             "rirTarget": 2,
             "restSeconds": 240,
-            "intensityPct1RM": [85, 100]
+            "intensityPct1RM": [
+              85,
+              100
+            ]
           },
           "secondary": {
             "sets": 3,
@@ -131,7 +176,10 @@
             "repsMax": 8,
             "rirTarget": 2,
             "restSeconds": 156,
-            "intensityPct1RM": [75, 85]
+            "intensityPct1RM": [
+              75,
+              85
+            ]
           }
         }
       }
@@ -145,7 +193,10 @@
           "repsMax": 12,
           "rirTarget": 1,
           "restSeconds": 120,
-          "intensityPct1RM": [65, 80]
+          "intensityPct1RM": [
+            65,
+            80
+          ]
         },
         "secondary": {
           "sets": 3,
@@ -153,7 +204,10 @@
           "repsMax": 15,
           "rirTarget": 2,
           "restSeconds": 90,
-          "intensityPct1RM": [60, 75]
+          "intensityPct1RM": [
+            60,
+            75
+          ]
         },
         "isolation": {
           "sets": 2,
@@ -161,7 +215,10 @@
           "repsMax": 15,
           "rirTarget": 2,
           "restSeconds": 60,
-          "intensityPct1RM": [40, 60]
+          "intensityPct1RM": [
+            40,
+            60
+          ]
         },
         "progression": {
           "stepPctUpperBody": 1.25,
@@ -169,7 +226,10 @@
           "triggerRirAtLeast": 2,
           "consecutiveSessions": 2
         },
-        "regression": { "stepPct": 10, "missedRepsSessions": 2 },
+        "regression": {
+          "stepPct": 10,
+          "missedRepsSessions": 2
+        },
         "deload": {
           "stallSessions": 3,
           "absenceDays": 10,
@@ -179,14 +239,29 @@
         },
         "weeklyVolume": {
           "minSetsPerMuscle": 6,
-          "optimalSetsPerMuscle": [10, 20],
+          "optimalSetsPerMuscle": [
+            10,
+            20
+          ],
           "maxSetsPerMuscle": 24,
-          "sessionsPerMusclePerWeek": [2, 3]
+          "sessionsPerMusclePerWeek": [
+            2,
+            3
+          ]
         },
         "detraining": [
-          { "days": 10, "loadMultiplier": 1 },
-          { "days": 30, "loadMultiplier": 0.85 },
-          { "days": 90, "loadMultiplier": 0.7 }
+          {
+            "days": 10,
+            "loadMultiplier": 1
+          },
+          {
+            "days": 30,
+            "loadMultiplier": 0.85
+          },
+          {
+            "days": 90,
+            "loadMultiplier": 0.7
+          }
         ]
       },
       "byLevel": {
@@ -197,7 +272,10 @@
             "repsMax": 12,
             "rirTarget": 3,
             "restSeconds": 150,
-            "intensityPct1RM": [50, 70]
+            "intensityPct1RM": [
+              50,
+              70
+            ]
           },
           "secondary": {
             "sets": 2,
@@ -205,7 +283,10 @@
             "repsMax": 15,
             "rirTarget": 3,
             "restSeconds": 105,
-            "intensityPct1RM": [45, 65]
+            "intensityPct1RM": [
+              45,
+              65
+            ]
           },
           "isolation": {
             "sets": 2,
@@ -213,7 +294,10 @@
             "repsMax": 15,
             "rirTarget": 3,
             "restSeconds": 75,
-            "intensityPct1RM": [35, 55]
+            "intensityPct1RM": [
+              35,
+              55
+            ]
           },
           "progression": {
             "stepPctUpperBody": 5,
@@ -229,7 +313,10 @@
             "repsMax": 12,
             "rirTarget": 2,
             "restSeconds": 120,
-            "intensityPct1RM": [60, 75]
+            "intensityPct1RM": [
+              60,
+              75
+            ]
           },
           "progression": {
             "stepPctUpperBody": 5,
@@ -245,7 +332,10 @@
             "repsMax": 12,
             "rirTarget": 1,
             "restSeconds": 156,
-            "intensityPct1RM": [70, 85]
+            "intensityPct1RM": [
+              70,
+              85
+            ]
           },
           "secondary": {
             "sets": 4,
@@ -253,7 +343,10 @@
             "repsMax": 15,
             "rirTarget": 1,
             "restSeconds": 117,
-            "intensityPct1RM": [65, 80]
+            "intensityPct1RM": [
+              65,
+              80
+            ]
           }
         }
       }
@@ -268,7 +361,10 @@
           "repsMax": 3,
           "rirTarget": null,
           "restSeconds": 240,
-          "intensityPct1RM": [30, 60]
+          "intensityPct1RM": [
+            30,
+            60
+          ]
         },
         "secondary": {
           "sets": 3,
@@ -276,7 +372,10 @@
           "repsMax": 5,
           "rirTarget": null,
           "restSeconds": 180,
-          "intensityPct1RM": [30, 60]
+          "intensityPct1RM": [
+            30,
+            60
+          ]
         },
         "isolation": {
           "sets": 2,
@@ -284,7 +383,10 @@
           "repsMax": 3,
           "rirTarget": null,
           "restSeconds": 120,
-          "intensityPct1RM": [30, 60]
+          "intensityPct1RM": [
+            30,
+            60
+          ]
         },
         "progression": {
           "stepPctUpperBody": 1.25,
@@ -292,7 +394,10 @@
           "triggerRirAtLeast": 2,
           "consecutiveSessions": 2
         },
-        "regression": { "stepPct": 7.5, "missedRepsSessions": 2 },
+        "regression": {
+          "stepPct": 7.5,
+          "missedRepsSessions": 2
+        },
         "deload": {
           "stallSessions": 3,
           "absenceDays": 10,
@@ -302,14 +407,29 @@
         },
         "weeklyVolume": {
           "minSetsPerMuscle": 3,
-          "optimalSetsPerMuscle": [6, 8],
+          "optimalSetsPerMuscle": [
+            6,
+            8
+          ],
           "maxSetsPerMuscle": 10,
-          "sessionsPerMusclePerWeek": [2, 3]
+          "sessionsPerMusclePerWeek": [
+            2,
+            3
+          ]
         },
         "detraining": [
-          { "days": 10, "loadMultiplier": 1 },
-          { "days": 30, "loadMultiplier": 0.85 },
-          { "days": 90, "loadMultiplier": 0.7 }
+          {
+            "days": 10,
+            "loadMultiplier": 1
+          },
+          {
+            "days": 30,
+            "loadMultiplier": 0.85
+          },
+          {
+            "days": 90,
+            "loadMultiplier": 0.7
+          }
         ]
       }
     },
@@ -323,7 +443,10 @@
           "repsMax": 12,
           "rirTarget": 1,
           "restSeconds": 120,
-          "intensityPct1RM": [65, 80]
+          "intensityPct1RM": [
+            65,
+            80
+          ]
         },
         "secondary": {
           "sets": 3,
@@ -331,7 +454,10 @@
           "repsMax": 15,
           "rirTarget": 2,
           "restSeconds": 90,
-          "intensityPct1RM": [60, 75]
+          "intensityPct1RM": [
+            60,
+            75
+          ]
         },
         "isolation": {
           "sets": 2,
@@ -339,7 +465,10 @@
           "repsMax": 15,
           "rirTarget": 2,
           "restSeconds": 60,
-          "intensityPct1RM": [40, 60]
+          "intensityPct1RM": [
+            40,
+            60
+          ]
         },
         "progression": {
           "stepPctUpperBody": 1.25,
@@ -347,7 +476,10 @@
           "triggerRirAtLeast": 2,
           "consecutiveSessions": 2
         },
-        "regression": { "stepPct": 10, "missedRepsSessions": 2 },
+        "regression": {
+          "stepPct": 10,
+          "missedRepsSessions": 2
+        },
         "deload": {
           "stallSessions": 3,
           "absenceDays": 10,
@@ -357,14 +489,29 @@
         },
         "weeklyVolume": {
           "minSetsPerMuscle": 6,
-          "optimalSetsPerMuscle": [10, 20],
+          "optimalSetsPerMuscle": [
+            10,
+            20
+          ],
           "maxSetsPerMuscle": 24,
-          "sessionsPerMusclePerWeek": [2, 3]
+          "sessionsPerMusclePerWeek": [
+            2,
+            3
+          ]
         },
         "detraining": [
-          { "days": 10, "loadMultiplier": 1 },
-          { "days": 30, "loadMultiplier": 0.85 },
-          { "days": 90, "loadMultiplier": 0.7 }
+          {
+            "days": 10,
+            "loadMultiplier": 1
+          },
+          {
+            "days": 30,
+            "loadMultiplier": 0.85
+          },
+          {
+            "days": 90,
+            "loadMultiplier": 0.7
+          }
         ]
       },
       "byLevel": {
@@ -375,7 +522,10 @@
             "repsMax": 12,
             "rirTarget": 3,
             "restSeconds": 150,
-            "intensityPct1RM": [50, 70]
+            "intensityPct1RM": [
+              50,
+              70
+            ]
           },
           "progression": {
             "stepPctUpperBody": 5,
@@ -404,7 +554,10 @@
           "repsMax": 15,
           "rirTarget": 2,
           "restSeconds": 60,
-          "intensityPct1RM": [40, 60]
+          "intensityPct1RM": [
+            40,
+            60
+          ]
         },
         "secondary": {
           "sets": 3,
@@ -412,7 +565,10 @@
           "repsMax": 15,
           "rirTarget": 2,
           "restSeconds": 45,
-          "intensityPct1RM": [40, 60]
+          "intensityPct1RM": [
+            40,
+            60
+          ]
         },
         "isolation": {
           "sets": 2,
@@ -420,7 +576,10 @@
           "repsMax": 15,
           "rirTarget": 2,
           "restSeconds": 45,
-          "intensityPct1RM": [35, 55]
+          "intensityPct1RM": [
+            35,
+            55
+          ]
         },
         "progression": {
           "stepPctUpperBody": 1.25,
@@ -428,7 +587,10 @@
           "triggerRirAtLeast": 3,
           "consecutiveSessions": 2
         },
-        "regression": { "stepPct": 10, "missedRepsSessions": 2 },
+        "regression": {
+          "stepPct": 10,
+          "missedRepsSessions": 2
+        },
         "deload": {
           "stallSessions": 3,
           "absenceDays": 10,
@@ -438,14 +600,29 @@
         },
         "weeklyVolume": {
           "minSetsPerMuscle": 6,
-          "optimalSetsPerMuscle": [10, 16],
+          "optimalSetsPerMuscle": [
+            10,
+            16
+          ],
           "maxSetsPerMuscle": 20,
-          "sessionsPerMusclePerWeek": [2, 3]
+          "sessionsPerMusclePerWeek": [
+            2,
+            3
+          ]
         },
         "detraining": [
-          { "days": 10, "loadMultiplier": 0.9 },
-          { "days": 30, "loadMultiplier": 0.8 },
-          { "days": 90, "loadMultiplier": 0.65 }
+          {
+            "days": 10,
+            "loadMultiplier": 0.9
+          },
+          {
+            "days": 30,
+            "loadMultiplier": 0.8
+          },
+          {
+            "days": 90,
+            "loadMultiplier": 0.65
+          }
         ]
       }
     },
@@ -459,7 +636,10 @@
           "repsMax": 12,
           "rirTarget": 3,
           "restSeconds": 90,
-          "intensityPct1RM": [60, 75]
+          "intensityPct1RM": [
+            60,
+            75
+          ]
         },
         "secondary": {
           "sets": 2,
@@ -467,7 +647,10 @@
           "repsMax": 15,
           "rirTarget": 3,
           "restSeconds": 60,
-          "intensityPct1RM": [55, 70]
+          "intensityPct1RM": [
+            55,
+            70
+          ]
         },
         "isolation": {
           "sets": 2,
@@ -475,7 +658,10 @@
           "repsMax": 15,
           "rirTarget": 3,
           "restSeconds": 45,
-          "intensityPct1RM": [40, 60]
+          "intensityPct1RM": [
+            40,
+            60
+          ]
         },
         "progression": {
           "stepPctUpperBody": 1.25,
@@ -483,7 +669,10 @@
           "triggerRirAtLeast": 4,
           "consecutiveSessions": 2
         },
-        "regression": { "stepPct": 10, "missedRepsSessions": 2 },
+        "regression": {
+          "stepPct": 10,
+          "missedRepsSessions": 2
+        },
         "deload": {
           "stallSessions": 3,
           "absenceDays": 10,
@@ -493,48 +682,378 @@
         },
         "weeklyVolume": {
           "minSetsPerMuscle": 0,
-          "optimalSetsPerMuscle": [4, 10],
+          "optimalSetsPerMuscle": [
+            4,
+            10
+          ],
           "maxSetsPerMuscle": 12,
-          "sessionsPerMusclePerWeek": [2, 3]
+          "sessionsPerMusclePerWeek": [
+            2,
+            3
+          ]
         },
         "detraining": [
-          { "days": 10, "loadMultiplier": 0.9 },
-          { "days": 30, "loadMultiplier": 0.8 },
-          { "days": 90, "loadMultiplier": 0.65 }
+          {
+            "days": 10,
+            "loadMultiplier": 0.9
+          },
+          {
+            "days": 30,
+            "loadMultiplier": 0.8
+          },
+          {
+            "days": 90,
+            "loadMultiplier": 0.65
+          }
         ]
       }
     }
+  },
+  "sports": {
+    "categories": {
+      "local_gesture": {
+        "label": "Gesto explosivo (patear, lanzar, golpear)",
+        "hasMatches": true,
+        "volumeMultiplier": 1,
+        "note": "Es donde el trabajo de sala más transfiere: velocidad de patada y de lanzamiento mejoran con efecto grande (SMD 1,59; IC 0,88-2,29). El plan no cambia de dosis, pero prioriza los musculos del gesto cuando hay varios ejercicios equivalentes."
+      },
+      "global_endurance": {
+        "label": "Resistencia (correr, nadar, pedalear)",
+        "hasMatches": false,
+        "volumeMultiplier": 0.8,
+        "note": "Es donde menos transfiere: sobre rendimiento global el efecto no llega a ser significativo (SMD 0,49; IC -0,11 a 1,09). La sala suma, pero no a costa del entrenamiento propio del deporte, asi que el volumen baja un poco."
+      },
+      "strength_contact": {
+        "label": "Fuerza y contacto",
+        "hasMatches": true,
+        "volumeMultiplier": 1,
+        "note": "La fuerza es el deporte mismo: no hay nada que recortar ni que sesgar."
+      },
+      "recreational": {
+        "label": "Recreativo o sin deporte",
+        "hasMatches": false,
+        "volumeMultiplier": 1,
+        "note": "El plan no se modifica."
+      }
+    },
+    "catalog": [
+      {
+        "id": "futbol",
+        "label": "Futbol",
+        "category": "local_gesture",
+        "emphasis": [
+          "quads",
+          "hamstrings",
+          "glutes",
+          "obliques"
+        ]
+      },
+      {
+        "id": "futsal",
+        "label": "Futsal",
+        "category": "local_gesture",
+        "emphasis": [
+          "quads",
+          "hamstrings",
+          "glutes",
+          "obliques"
+        ]
+      },
+      {
+        "id": "tenis",
+        "label": "Tenis",
+        "category": "local_gesture",
+        "emphasis": [
+          "obliques",
+          "front_delts",
+          "rear_delts",
+          "forearms"
+        ]
+      },
+      {
+        "id": "padel",
+        "label": "Padel",
+        "category": "local_gesture",
+        "emphasis": [
+          "obliques",
+          "front_delts",
+          "rear_delts",
+          "forearms"
+        ]
+      },
+      {
+        "id": "voley",
+        "label": "Voley",
+        "category": "local_gesture",
+        "emphasis": [
+          "quads",
+          "glutes",
+          "front_delts",
+          "abs"
+        ]
+      },
+      {
+        "id": "handball",
+        "label": "Handball",
+        "category": "local_gesture",
+        "emphasis": [
+          "obliques",
+          "front_delts",
+          "triceps"
+        ]
+      },
+      {
+        "id": "basquet",
+        "label": "Basquet",
+        "category": "local_gesture",
+        "emphasis": [
+          "quads",
+          "glutes",
+          "calves"
+        ]
+      },
+      {
+        "id": "boxeo",
+        "label": "Boxeo",
+        "category": "local_gesture",
+        "emphasis": [
+          "obliques",
+          "front_delts",
+          "rear_delts"
+        ]
+      },
+      {
+        "id": "kickboxing",
+        "label": "Kickboxing",
+        "category": "local_gesture",
+        "emphasis": [
+          "obliques",
+          "front_delts",
+          "quads"
+        ]
+      },
+      {
+        "id": "beisbol",
+        "label": "Beisbol",
+        "category": "local_gesture",
+        "emphasis": [
+          "obliques",
+          "front_delts",
+          "forearms"
+        ]
+      },
+      {
+        "id": "hockey",
+        "label": "Hockey",
+        "category": "local_gesture",
+        "emphasis": [
+          "obliques",
+          "quads",
+          "glutes"
+        ]
+      },
+      {
+        "id": "golf",
+        "label": "Golf",
+        "category": "local_gesture",
+        "emphasis": [
+          "obliques",
+          "forearms",
+          "rear_delts"
+        ]
+      },
+      {
+        "id": "running",
+        "label": "Running",
+        "category": "global_endurance",
+        "emphasis": []
+      },
+      {
+        "id": "trail",
+        "label": "Trail running",
+        "category": "global_endurance",
+        "emphasis": []
+      },
+      {
+        "id": "ciclismo",
+        "label": "Ciclismo",
+        "category": "global_endurance",
+        "emphasis": []
+      },
+      {
+        "id": "natacion",
+        "label": "Natacion",
+        "category": "global_endurance",
+        "emphasis": []
+      },
+      {
+        "id": "triatlon",
+        "label": "Triatlon",
+        "category": "global_endurance",
+        "emphasis": []
+      },
+      {
+        "id": "remo",
+        "label": "Remo",
+        "category": "global_endurance",
+        "emphasis": []
+      },
+      {
+        "id": "rugby",
+        "label": "Rugby",
+        "category": "strength_contact",
+        "emphasis": []
+      },
+      {
+        "id": "mma",
+        "label": "MMA",
+        "category": "strength_contact",
+        "emphasis": []
+      },
+      {
+        "id": "judo",
+        "label": "Judo",
+        "category": "strength_contact",
+        "emphasis": []
+      },
+      {
+        "id": "lucha",
+        "label": "Lucha",
+        "category": "strength_contact",
+        "emphasis": []
+      },
+      {
+        "id": "escalada",
+        "label": "Escalada",
+        "category": "strength_contact",
+        "emphasis": []
+      },
+      {
+        "id": "crossfit",
+        "label": "CrossFit",
+        "category": "strength_contact",
+        "emphasis": []
+      },
+      {
+        "id": "halterofilia",
+        "label": "Halterofilia",
+        "category": "strength_contact",
+        "emphasis": []
+      },
+      {
+        "id": "ninguno",
+        "label": "Ninguno / recreativo",
+        "category": "recreational",
+        "emphasis": []
+      }
+    ],
+    "seasonPhases": {
+      "preseason": {
+        "label": "Pretemporada",
+        "volumeMultiplier": 1,
+        "note": "Sin partidos encima, es el momento de acumular: el plan va completo."
+      },
+      "in_season": {
+        "label": "En temporada",
+        "volumeMultiplier": 0.5,
+        "note": "Se baja el volumen a la mitad para llegar entero a los partidos, manteniendo la intensidad. Ojo: esto se repite como consenso firme y no lo es. La unica comparacion directa in-season es de 16 personas, con diferencias despreciables (ES -0,04 a 0,04) y certeza calificada como muy baja por los propios revisores."
+      },
+      "off_season": {
+        "label": "Fuera de temporada",
+        "volumeMultiplier": 1,
+        "note": "Sin competencia: el plan va completo."
+      },
+      "none": {
+        "label": "No compito",
+        "volumeMultiplier": 1,
+        "note": "El plan no se modifica."
+      }
+    },
+    "matchDay": {
+      "normal": {
+        "label": "Dia normal",
+        "lowerBodyVolumeMultiplier": 1,
+        "upperBodyVolumeMultiplier": 1,
+        "avoidExplosive": false,
+        "note": "A las 72 horas de un partido el rendimiento ya volvio del todo. Sesion completa."
+      },
+      "day_after": {
+        "label": "Jugue ayer",
+        "lowerBodyVolumeMultiplier": 0.5,
+        "upperBodyVolumeMultiplier": 1,
+        "avoidExplosive": true,
+        "note": "Es el peor momento: a las 24 horas el sprint es lo mas caido (ES -0,97) y el dolor muscular sigue alto. Se recorta la pierna a la mitad y se saca lo explosivo; el tren superior va completo, porque el dano se concentra abajo."
+      },
+      "two_days_after": {
+        "label": "Jugue anteayer",
+        "lowerBodyVolumeMultiplier": 0.8,
+        "upperBodyVolumeMultiplier": 1,
+        "avoidExplosive": true,
+        "note": "A las 48 horas el salto ya se recupero pero el sprint todavia no (ES -0,75). Se puede volver a cargar la pierna, pero no hacer trabajo explosivo."
+      },
+      "day_before": {
+        "label": "Juego manana",
+        "lowerBodyVolumeMultiplier": 0.5,
+        "upperBodyVolumeMultiplier": 1,
+        "avoidExplosive": true,
+        "note": "No hay evidencia directa para esto: es criterio de practica. Se evita dejar la pierna cansada para el partido."
+      },
+      "match_day": {
+        "label": "Juego hoy",
+        "lowerBodyVolumeMultiplier": 0,
+        "upperBodyVolumeMultiplier": 0.5,
+        "avoidExplosive": true,
+        "note": "No hay evidencia directa para esto: es criterio de practica. Nada de pierna, y el resto liviano."
+      }
+    },
+    "confidence": "low",
+    "confidenceNote": "Lo que esta bien sostenido es que el deporte NO cambia la dosis (SMD -0,03, I²=0%) y que despues de un partido el rendimiento tarda 72 horas en volver (26 estudios, 465 jugadoras). Lo que es criterio de practica, y por eso todo el bloque va como BAJA: que musculos prioriza cada deporte, cuanto exactamente recortar cada dia, y todo lo previo al partido. Ademas la evidencia es de futbol competitivo con partidos completos: aplicarsela a alguien que juega los sabados es una extrapolacion."
   },
   "cardio": {
     "zones": [
       {
         "zone": 1,
         "label": "Muy suave",
-        "hrPercentMax": [55, 72],
+        "hrPercentMax": [
+          55,
+          72
+        ],
         "feels": "Podés mantener una conversación entera sin quedarte sin aire."
       },
       {
         "zone": 2,
         "label": "Cómodo",
-        "hrPercentMax": [67, 82],
+        "hrPercentMax": [
+          67,
+          82
+        ],
         "feels": "Hablás en frases cortas. Es el ritmo en el que se hace casi todo el volumen."
       },
       {
         "zone": 3,
         "label": "Incómodo",
-        "hrPercentMax": [82, 87],
+        "hrPercentMax": [
+          82,
+          87
+        ],
         "feels": "Contestás con pocas palabras y ya te cuesta."
       },
       {
         "zone": 4,
         "label": "Exigente",
-        "hrPercentMax": [87, 92],
+        "hrPercentMax": [
+          87,
+          92
+        ],
         "feels": "No podés hablar. Sostenerlo cuesta y se siente."
       },
       {
         "zone": 5,
         "label": "Máximo",
-        "hrPercentMax": [92, 100],
+        "hrPercentMax": [
+          92,
+          100
+        ],
         "feels": "A fondo. Solo se sostiene unos segundos."
       }
     ],
@@ -563,7 +1082,11 @@
         "type": "interval",
         "intensityZone": 4,
         "durationMinutes": null,
-        "interval": { "workMinutes": 4, "restMinutes": 3, "reps": 4 },
+        "interval": {
+          "workMinutes": 4,
+          "restMinutes": 3,
+          "reps": 4
+        },
         "confidence": "medium"
       }
     ],
@@ -664,8 +1187,12 @@
       {
         "bodyRegion": "lower_back",
         "severityAtLeast": 3,
-        "avoidPatterns": ["hinge"],
-        "avoidMuscles": ["lower_back"],
+        "avoidPatterns": [
+          "hinge"
+        ],
+        "avoidMuscles": [
+          "lower_back"
+        ],
         "keepDoing": "Trabajo de core y glúteos en posición neutra, y caminar. Lo que no conviene es quedarse quieto del todo.",
         "referIf": "El dolor pasa dos semanas sin mejorar, empeora tras 48 horas de reposo, o aparece hormigueo, debilidad en las piernas o fiebre.",
         "confidence": "low"
@@ -673,7 +1200,9 @@
       {
         "bodyRegion": "knee",
         "severityAtLeast": 3,
-        "avoidPatterns": ["lunge"],
+        "avoidPatterns": [
+          "lunge"
+        ],
         "avoidMuscles": [],
         "keepDoing": "Bicicleta, elíptico y sentadillas parciales controladas. El movimiento de bajo impacto ayuda más que el reposo.",
         "referIf": "Hubo un chasquido, la rodilla se traba o se hincha, o sentís que se va de lugar.",
@@ -682,8 +1211,13 @@
       {
         "bodyRegion": "knee",
         "severityAtLeast": 4,
-        "avoidPatterns": ["lunge", "squat"],
-        "avoidMuscles": ["quads"],
+        "avoidPatterns": [
+          "lunge",
+          "squat"
+        ],
+        "avoidMuscles": [
+          "quads"
+        ],
         "keepDoing": "Trabajo de tren superior y core, y cardio sin impacto si no duele.",
         "referIf": "Hubo un chasquido, la rodilla se traba o se hincha, o sentís que se va de lugar.",
         "confidence": "low"
@@ -691,8 +1225,12 @@
       {
         "bodyRegion": "shoulder",
         "severityAtLeast": 3,
-        "avoidPatterns": ["vertical_push"],
-        "avoidMuscles": ["front_delts"],
+        "avoidPatterns": [
+          "vertical_push"
+        ],
+        "avoidMuscles": [
+          "front_delts"
+        ],
         "keepDoing": "Trabajo de escápula y rotadores con poca carga, y remo suave. Nada por encima de la cabeza.",
         "referIf": "El dolor baja por el brazo con hormigueo, hay debilidad marcada, o la articulación se hinchó después de un esfuerzo.",
         "confidence": "low"
@@ -701,7 +1239,9 @@
         "bodyRegion": "wrist",
         "severityAtLeast": 3,
         "avoidPatterns": [],
-        "avoidMuscles": ["forearms"],
+        "avoidMuscles": [
+          "forearms"
+        ],
         "keepDoing": "Todo lo que no cargue la muñeca en flexión o extensión forzada. Los agarres neutros suelen molestar menos.",
         "referIf": "Hay hinchazón, la muñeca hace ruido al moverla, o hay hormigueo en el pulgar y el índice.",
         "confidence": "low"
@@ -709,8 +1249,12 @@
       {
         "bodyRegion": "neck",
         "severityAtLeast": 3,
-        "avoidPatterns": ["vertical_push"],
-        "avoidMuscles": ["traps"],
+        "avoidPatterns": [
+          "vertical_push"
+        ],
+        "avoidMuscles": [
+          "traps"
+        ],
         "keepDoing": "Movilidad cervical suave y remo manteniendo el cuello alineado.",
         "referIf": "Aparecen mareos, náuseas, visión borrosa u hormigueo en los brazos.",
         "confidence": "low"
@@ -747,19 +1291,43 @@
     {
       "id": "full_body_ab",
       "label": "Cuerpo completo A/B",
-      "goals": ["hypertrophy", "strength", "power", "recomposition", "endurance"],
-      "sessionsPerWeek": [2, 3],
+      "goals": [
+        "hypertrophy",
+        "strength",
+        "power",
+        "recomposition",
+        "endurance"
+      ],
+      "sessionsPerWeek": [
+        2,
+        3
+      ],
       "sessions": [
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
           "estimatedMinutes": 55,
           "slots": [
-            { "pattern": "squat", "role": "primary" },
-            { "pattern": "horizontal_push", "role": "primary" },
-            { "pattern": "horizontal_pull", "role": "secondary" },
-            { "pattern": "vertical_push", "role": "secondary" },
-            { "pattern": "core", "role": "isolation" }
+            {
+              "pattern": "squat",
+              "role": "primary"
+            },
+            {
+              "pattern": "horizontal_push",
+              "role": "primary"
+            },
+            {
+              "pattern": "horizontal_pull",
+              "role": "secondary"
+            },
+            {
+              "pattern": "vertical_push",
+              "role": "secondary"
+            },
+            {
+              "pattern": "core",
+              "role": "isolation"
+            }
           ]
         },
         {
@@ -767,11 +1335,26 @@
           "focus": "Cuerpo completo · tracción",
           "estimatedMinutes": 55,
           "slots": [
-            { "pattern": "hinge", "role": "primary" },
-            { "pattern": "vertical_pull", "role": "primary" },
-            { "pattern": "lunge", "role": "secondary" },
-            { "pattern": "horizontal_pull", "role": "secondary" },
-            { "pattern": "isolation", "role": "isolation" }
+            {
+              "pattern": "hinge",
+              "role": "primary"
+            },
+            {
+              "pattern": "vertical_pull",
+              "role": "primary"
+            },
+            {
+              "pattern": "lunge",
+              "role": "secondary"
+            },
+            {
+              "pattern": "horizontal_pull",
+              "role": "secondary"
+            },
+            {
+              "pattern": "isolation",
+              "role": "isolation"
+            }
           ]
         }
       ]
@@ -779,19 +1362,41 @@
     {
       "id": "upper_lower",
       "label": "Torso / pierna",
-      "goals": ["hypertrophy", "strength", "recomposition"],
-      "sessionsPerWeek": [4, 6],
+      "goals": [
+        "hypertrophy",
+        "strength",
+        "recomposition"
+      ],
+      "sessionsPerWeek": [
+        4,
+        6
+      ],
       "sessions": [
         {
           "label": "Torso A",
           "focus": "Torso · empuje",
           "estimatedMinutes": 60,
           "slots": [
-            { "pattern": "horizontal_push", "role": "primary" },
-            { "pattern": "vertical_pull", "role": "primary" },
-            { "pattern": "vertical_push", "role": "secondary" },
-            { "pattern": "horizontal_pull", "role": "secondary" },
-            { "pattern": "isolation", "role": "isolation" }
+            {
+              "pattern": "horizontal_push",
+              "role": "primary"
+            },
+            {
+              "pattern": "vertical_pull",
+              "role": "primary"
+            },
+            {
+              "pattern": "vertical_push",
+              "role": "secondary"
+            },
+            {
+              "pattern": "horizontal_pull",
+              "role": "secondary"
+            },
+            {
+              "pattern": "isolation",
+              "role": "isolation"
+            }
           ]
         },
         {
@@ -799,10 +1404,22 @@
           "focus": "Tren inferior",
           "estimatedMinutes": 60,
           "slots": [
-            { "pattern": "squat", "role": "primary" },
-            { "pattern": "hinge", "role": "primary" },
-            { "pattern": "lunge", "role": "secondary" },
-            { "pattern": "core", "role": "isolation" }
+            {
+              "pattern": "squat",
+              "role": "primary"
+            },
+            {
+              "pattern": "hinge",
+              "role": "primary"
+            },
+            {
+              "pattern": "lunge",
+              "role": "secondary"
+            },
+            {
+              "pattern": "core",
+              "role": "isolation"
+            }
           ]
         },
         {
@@ -810,10 +1427,22 @@
           "focus": "Torso · tracción",
           "estimatedMinutes": 60,
           "slots": [
-            { "pattern": "horizontal_pull", "role": "primary" },
-            { "pattern": "horizontal_push", "role": "primary" },
-            { "pattern": "vertical_pull", "role": "secondary" },
-            { "pattern": "isolation", "role": "isolation" }
+            {
+              "pattern": "horizontal_pull",
+              "role": "primary"
+            },
+            {
+              "pattern": "horizontal_push",
+              "role": "primary"
+            },
+            {
+              "pattern": "vertical_pull",
+              "role": "secondary"
+            },
+            {
+              "pattern": "isolation",
+              "role": "isolation"
+            }
           ]
         },
         {
@@ -821,10 +1450,22 @@
           "focus": "Tren inferior · cadena posterior",
           "estimatedMinutes": 60,
           "slots": [
-            { "pattern": "hinge", "role": "primary" },
-            { "pattern": "squat", "role": "secondary" },
-            { "pattern": "lunge", "role": "secondary" },
-            { "pattern": "core", "role": "isolation" }
+            {
+              "pattern": "hinge",
+              "role": "primary"
+            },
+            {
+              "pattern": "squat",
+              "role": "secondary"
+            },
+            {
+              "pattern": "lunge",
+              "role": "secondary"
+            },
+            {
+              "pattern": "core",
+              "role": "isolation"
+            }
           ]
         }
       ]
@@ -832,16 +1473,30 @@
     {
       "id": "cardio_base",
       "label": "Base aeróbica",
-      "goals": ["cardio", "endurance", "recomposition"],
-      "sessionsPerWeek": [3, 5],
+      "goals": [
+        "cardio",
+        "endurance",
+        "recomposition"
+      ],
+      "sessionsPerWeek": [
+        3,
+        5
+      ],
       "sessions": [
         {
           "label": "Continuo",
           "focus": "Aeróbico continuo",
           "estimatedMinutes": 50,
           "slots": [
-            { "pattern": "cardio", "role": "primary", "cardioSessionId": "continuo_z2" },
-            { "pattern": "core", "role": "isolation" }
+            {
+              "pattern": "cardio",
+              "role": "primary",
+              "cardioSessionId": "continuo_z2"
+            },
+            {
+              "pattern": "core",
+              "role": "isolation"
+            }
           ]
         },
         {
@@ -849,8 +1504,15 @@
           "focus": "Intervalos",
           "estimatedMinutes": 40,
           "slots": [
-            { "pattern": "cardio", "role": "primary", "cardioSessionId": "intervalos_4x4" },
-            { "pattern": "core", "role": "isolation" }
+            {
+              "pattern": "cardio",
+              "role": "primary",
+              "cardioSessionId": "intervalos_4x4"
+            },
+            {
+              "pattern": "core",
+              "role": "isolation"
+            }
           ]
         },
         {
@@ -858,10 +1520,22 @@
           "focus": "Fuerza general",
           "estimatedMinutes": 45,
           "slots": [
-            { "pattern": "squat", "role": "secondary" },
-            { "pattern": "horizontal_pull", "role": "secondary" },
-            { "pattern": "horizontal_push", "role": "secondary" },
-            { "pattern": "core", "role": "isolation" }
+            {
+              "pattern": "squat",
+              "role": "secondary"
+            },
+            {
+              "pattern": "horizontal_pull",
+              "role": "secondary"
+            },
+            {
+              "pattern": "horizontal_push",
+              "role": "secondary"
+            },
+            {
+              "pattern": "core",
+              "role": "isolation"
+            }
           ]
         }
       ]

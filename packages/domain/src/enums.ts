@@ -19,6 +19,52 @@ export type ExperienceLevel = (typeof EXPERIENCE_LEVELS)[number];
 export const SEXES = ['female', 'male', 'other', 'undisclosed'] as const;
 export type Sex = (typeof SEXES)[number];
 
+/**
+ * Cómo se comporta el plan según el deporte. No es una taxonomía de deportes:
+ * es la única partición que la evidencia sostiene (`docs/research/06`), según
+ * qué limita el rendimiento en ese deporte.
+ *
+ * Un deporte suelto no cambia nada del plan; su categoría sí. Dos deportes con
+ * la misma categoría y el mismo énfasis son el mismo deporte para el motor.
+ */
+export const SPORT_CATEGORIES = [
+  /** Gesto local: patada, lanzamiento, golpe. Donde más transfiere la sala. */
+  'local_gesture',
+  /** Rendimiento global: correr, nadar, pedalear. Donde menos transfiere. */
+  'global_endurance',
+  /** La fuerza y el contacto son el deporte mismo. */
+  'strength_contact',
+  /** Recreativo o sin deporte: el plan no se modifica. */
+  'recreational',
+] as const;
+export type SportCategory = (typeof SPORT_CATEGORIES)[number];
+
+/**
+ * Momento de la temporada. Cambia el volumen, no la selección. `none` es quien
+ * no compite, que es la mayoría de los socios.
+ */
+export const SEASON_PHASES = ['preseason', 'in_season', 'off_season', 'none'] as const;
+export type SeasonPhase = (typeof SEASON_PHASES)[number];
+
+/**
+ * Dónde cae el día de hoy respecto del partido. Lo declara el socio al entrar,
+ * no se deduce de un calendario: el plan es una cola sin fechas.
+ *
+ * Los estados son los que la evidencia separa de verdad
+ * (`docs/research/07`): a las 24 h el sprint y el salto están caídos; a las
+ * 48 h el salto ya volvió y el sprint no; a las 72 h está todo normal.
+ */
+export const MATCH_DAY_STATES = [
+  'normal',
+  /** Jugó ayer (~24 h). Es el peor momento. */
+  'day_after',
+  /** Jugó anteayer (~48 h). Ya se puede cargar pierna, pero no explosivo. */
+  'two_days_after',
+  'day_before',
+  'match_day',
+] as const;
+export type MatchDayState = (typeof MATCH_DAY_STATES)[number];
+
 /** Patrones de movimiento. Es el vocabulario que comparten el research y el catálogo. */
 export const MOVEMENT_PATTERNS = [
   'squat',

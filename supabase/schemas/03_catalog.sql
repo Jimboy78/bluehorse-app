@@ -52,6 +52,10 @@ create table exercises (
   modality exercise_modality not null default 'reps_weight',
   is_compound boolean not null default false,
   is_unilateral boolean not null default false,
+  -- Salto, lanzamiento, pliometría: lo que se hace a máxima velocidad. Se saca
+  -- en los días cercanos a un partido, porque a las 48 h el sprint sigue caído
+  -- (ES -0,75) aunque el salto ya se haya recuperado. Ver docs/research/07.
+  is_explosive boolean not null default false,
   skill_level experience_level not null default 'beginner',
   /* Indicaciones de ejecución, en castellano. */
   cues text,

@@ -132,6 +132,7 @@ for (const item of catalog.exercises) {
     secondary_muscles: item.secondaryMuscles ?? [],
     modality: item.modality,
     is_compound: item.isCompound,
+    is_explosive: item.isExplosive ?? false,
     is_unilateral: item.isUnilateral,
     skill_level: item.skillLevel,
     cues: item.cues ?? null,

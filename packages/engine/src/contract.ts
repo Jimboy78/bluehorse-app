@@ -5,6 +5,7 @@ import type {
   Id,
   LoadReading,
   LoadUnit,
+  MatchDayState,
   Plan,
   PlanSessionItem,
   Profile,
@@ -157,6 +158,22 @@ export interface GeneratePlanInput {
   readonly daysSinceLastSession?: number | null;
 }
 
+export interface AdjustSessionInput {
+  /** Los ítems de la sesión que toca hoy, tal como quedaron guardados. */
+  readonly items: readonly SessionItemBlueprint[];
+  readonly gym: GymSnapshot;
+  /** Lo que el socio declaró al empezar: no se deduce de ningún calendario. */
+  readonly state: MatchDayState;
+  readonly ruleset: Ruleset;
+}
+
+export interface SessionAdjustment {
+  readonly items: readonly SessionItemBlueprint[];
+  /** Qué se cambió y por qué, en castellano. `null` si no cambió nada. */
+  readonly note: string | null;
+  readonly changed: boolean;
+}
+
 export interface ReviewProgressInput {
   readonly context: EngineContext;
   readonly user: UserSnapshot;
@@ -193,4 +210,11 @@ export interface PrescriptionEngine {
 
   /** Máquina ocupada: qué otra cosa hacer ahora mismo con lo que está libre. */
   findSubstitutes(input: FindSubstitutesInput): readonly SubstituteOption[];
+
+  /**
+   * Ajusta la sesión de hoy por el día de partido. Aparte de `generatePlan`
+   * porque el plan no tiene fechas: esto se resuelve al empezar la sesión, con
+   * lo que el socio declara en ese momento.
+   */
+  adjustSession(input: AdjustSessionInput): SessionAdjustment;
 }

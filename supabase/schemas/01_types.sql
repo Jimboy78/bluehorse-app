@@ -11,6 +11,9 @@ create type experience_level as enum ('beginner', 'novice', 'intermediate', 'adv
 
 create type sex as enum ('female', 'male', 'other', 'undisclosed');
 
+-- Momento de la temporada. Espejo de SEASON_PHASES en packages/domain.
+create type season_phase as enum ('preseason', 'in_season', 'off_season', 'none');
+
 create type movement_pattern as enum (
   'squat', 'hinge', 'lunge', 'horizontal_push', 'horizontal_pull',
   'vertical_push', 'vertical_pull', 'carry', 'core', 'isolation', 'cardio'

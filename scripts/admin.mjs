@@ -807,6 +807,7 @@ async function simular(cuantos = '20') {
         {
           goal,
           sport: null,
+          seasonPhase: 'none',
           priority: 1,
           sessionsPerWeekTarget: frecuencia,
           sessionMinutesTarget: 60,
@@ -1181,6 +1182,7 @@ async function snapshotDe(id) {
         secondaryMuscles: e.secondary_muscles,
         modality: e.modality,
         isCompound: e.is_compound,
+        isExplosive: e.is_explosive,
         isUnilateral: e.is_unilateral,
         skillLevel: e.skill_level,
         cues: e.cues,
@@ -1193,6 +1195,142 @@ async function snapshotDe(id) {
 
 // ---------------------------------------------------------------- despacho
 
+/**
+ * Genera el MISMO plan variando una sola cosa por vez y muestra en qué cambia.
+ *
+ * Es la contraparte de `simular`: aquella mide la demanda agregada del
+ * gimnasio, esta aísla el efecto de una variable. Sirve para contestar la
+ * pregunta que importa antes de darle esto a un socio: ¿el deporte cambia algo
+ * de verdad, o son todos el mismo plan con otro nombre?
+ *
+ * Todo lo demás queda fijo —perfil, objetivo, semilla— así que cualquier
+ * diferencia que aparezca la produjo la variable, no el azar.
+ */
+async function deportes(modoFase = 'in_season') {
+  const [perfil] = await pick('profiles', 'id, gym_id');
+  if (!perfil) throw new Error('No hay ningún perfil cargado.');
+
+  const { createPlaceholderEngine, V1_RESEARCH } = await import('../packages/engine/src/index.ts');
+  const base = await snapshotDe(perfil.id);
+  const motorReal = createPlaceholderEngine();
+  const bloque = V1_RESEARCH.sports;
+  if (!bloque) throw new Error('El ruleset activo no tiene bloque `sports`.');
+
+  const SEMILLA = 4242;
+  const arma = (sport, seasonPhase) =>
+    motorReal.generatePlan({
+      context: { now: new Date().toISOString(), seed: SEMILLA },
+      user: {
+        ...base.user,
+        profile: { ...base.user.profile, experienceLevel: 'intermediate' },
+        goals: [
+          {
+            goal: 'hypertrophy',
+            sport,
+            seasonPhase,
+            priority: 1,
+            sessionsPerWeekTarget: 3,
+            sessionMinutesTarget: 60,
+          },
+        ],
+        constraints: [],
+        baselines: [],
+      },
+      gym: base.gym,
+      ruleset: V1_RESEARCH,
+    });
+
+  const resumen = (plan) => {
+    const items = plan.sessions.flatMap((x) => x.items);
+    return {
+      ejercicios: new Set(items.map((i) => i.exerciseId)),
+      series: items.reduce((a, i) => a + i.targetSets, 0),
+    };
+  };
+
+  const refPlan = arma(null, 'none');
+  const ref = resumen(refPlan);
+
+  if (asJson) {
+    const salida = bloque.catalog.map((d) => {
+      const r = resumen(arma(d.id, 'none'));
+      return {
+        deporte: d.id,
+        categoria: d.category,
+        seriesTotales: r.series,
+        distintos: [...r.ejercicios].filter((e) => !ref.ejercicios.has(e)).length,
+      };
+    });
+    console.log(JSON.stringify({ referencia: { series: ref.series }, deportes: salida }, null, 2));
+    return;
+  }
+
+  console.log(`\nEFECTO DEL DEPORTE · mismo socio, mismo objetivo, misma semilla (${SEMILLA})`);
+  console.log(`Referencia sin deporte: ${ref.ejercicios.size} ejercicios, ${ref.series} series.\n`);
+
+  console.table(
+    bloque.catalog.map((d) => {
+      const plan = arma(d.id, 'none');
+      const r = resumen(plan);
+      const distintos = [...r.ejercicios].filter((e) => !ref.ejercicios.has(e));
+      return {
+        deporte: d.label,
+        categoría: d.category,
+        series: r.series,
+        'Δ series': r.series - ref.series,
+        'ejercicios distintos': distintos.length,
+        cambia: distintos.length > 0 || r.series !== ref.series ? 'sí' : 'NO',
+      };
+    }),
+  );
+
+  // Deportes que producen exactamente el mismo plan son el mismo deporte para
+  // el motor. Que existan no está mal —el socio quiere verse en la lista— pero
+  // conviene saber cuáles son y no venderlos como distintos.
+  const huella = new Map();
+  for (const d of bloque.catalog) {
+    const r = resumen(arma(d.id, 'none'));
+    const k = `${[...r.ejercicios].sort().join('|')}#${r.series}`;
+    huella.set(k, [...(huella.get(k) ?? []), d.label]);
+  }
+  const iguales = [...huella.values()].filter((g) => g.length > 1);
+  console.log(
+    `\n  Planes realmente distintos: ${huella.size} de ${bloque.catalog.length} deportes.`,
+  );
+  for (const g of iguales) console.log(`   · mismo plan: ${g.join(', ')}`);
+
+  console.log('\nEFECTO DE LA TEMPORADA (fútbol, para aislar la fase)');
+  console.table(
+    Object.keys(bloque.seasonPhases).map((fase) => {
+      const r = resumen(arma('futbol', fase));
+      return { fase, series: r.series, 'Δ vs sin deporte': r.series - ref.series };
+    }),
+  );
+
+  console.log('\nEFECTO DEL DÍA DE PARTIDO (primera sesión, fútbol en temporada)');
+  const enTemporada = arma('futbol', modoFase);
+  const primera = enTemporada.sessions[0];
+  console.table(
+    Object.keys(bloque.matchDay).map((estado) => {
+      const ajuste = motorReal.adjustSession({
+        items: primera.items,
+        gym: base.gym,
+        state: estado,
+        ruleset: V1_RESEARCH,
+      });
+      return {
+        estado,
+        ejercicios: ajuste.items.length,
+        series: ajuste.items.reduce((a, i) => a + i.targetSets, 0),
+        cambió: ajuste.changed ? 'sí' : 'no',
+      };
+    }),
+  );
+  console.log(
+    `\n  La sesión sin ajustar tiene ${primera.items.length} ejercicios y ${primera.items.reduce((a, i) => a + i.targetSets, 0)} series.`,
+  );
+}
+
 const comandos = {
   socios,
   socio: () => socio(rest[0] ?? ''),
@@ -1203,6 +1341,7 @@ const comandos = {
   receta: () => receta(rest[0] ?? ''),
   avisos,
   simular: () => simular(rest[0] ?? '20'),
+  deportes: () => deportes(rest[0] ?? 'in_season'),
   sql: () => sql(...rest),
   motor: () => motor(rest[0] ?? ''),
   sembrar: () => sembrar(rest.join(' ') || undefined),
@@ -1224,6 +1363,7 @@ Analizar el motor (anónimo: sin nombres, sin salud):
   receta <#>                  qué prescribió una ruta: ejercicios, volumen, avisos
   avisos                      qué le viene avisando el motor a los planes
   simular [n]                 si entran n socios, cuánta demanda cae en cada estación
+  deportes                    qué cambia en el plan según deporte, temporada y día de partido
 
 Solo contra la base LOCAL (escriben o corren SQL suelto):
   sql "<select ...>"          consulta libre de solo lectura

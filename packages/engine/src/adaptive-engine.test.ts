@@ -48,6 +48,7 @@ function exercise(id: string, name: string, over: Partial<Exercise> = {}): Exerc
     modality: 'reps_weight',
     isCompound: true,
     isUnilateral: false,
+    isExplosive: false,
     skillLevel: 'beginner',
     cues: null,
     equipmentIds: [],
@@ -152,7 +153,14 @@ const baseProfile: Profile = {
 };
 
 function goalOf(goal: UserGoal['goal'], sessionsPerWeekTarget = 3): UserGoal {
-  return { goal, sport: null, priority: 1, sessionsPerWeekTarget, sessionMinutesTarget: 60 };
+  return {
+    goal,
+    sport: null,
+    seasonPhase: 'none' as const,
+    priority: 1,
+    sessionsPerWeekTarget,
+    sessionMinutesTarget: 60,
+  };
 }
 
 function buildUser(over: Partial<UserSnapshot> = {}): UserSnapshot {

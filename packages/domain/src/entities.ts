@@ -10,6 +10,7 @@ import type {
   MuscleGroup,
   ProposalStatus,
   ProposalType,
+  SeasonPhase,
   SessionStatus,
   Sex,
 } from './enums.ts';
@@ -56,6 +57,11 @@ export interface Exercise {
   readonly modality: Modality;
   readonly isCompound: boolean;
   readonly isUnilateral: boolean;
+  /**
+   * Salto, lanzamiento, pliometría: lo que se hace a máxima velocidad. Se saca
+   * los días cercanos a un partido — ver `docs/research/07`.
+   */
+  readonly isExplosive: boolean;
   readonly skillLevel: ExperienceLevel;
   /** Indicaciones de ejecución, en castellano. */
   readonly cues: string | null;
@@ -85,8 +91,17 @@ export interface Profile {
 
 export interface UserGoal {
   readonly goal: Goal;
-  /** Deporte que practica, si el objetivo es de transferencia. Texto libre por ahora. */
+  /**
+   * Deporte que practica. Es el `id` de una entrada de `sports.catalog` del
+   * ruleset, no texto libre: un string suelto no se puede mapear a nada y el
+   * motor lo ignoraría en silencio. `null` si no practica ninguno.
+   */
   readonly sport: string | null;
+  /**
+   * Momento de la temporada. Cambia el volumen, nunca la selección. Solo se le
+   * pregunta a quien compite; el resto queda en `none`.
+   */
+  readonly seasonPhase: SeasonPhase;
   readonly priority: number;
   readonly sessionsPerWeekTarget: number;
   readonly sessionMinutesTarget: number;

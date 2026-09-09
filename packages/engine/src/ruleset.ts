@@ -3,9 +3,12 @@ import {
   BODY_REGIONS,
   EXPERIENCE_LEVELS,
   GOALS,
+  MATCH_DAY_STATES,
   MOVEMENT_PATTERNS,
   MUSCLE_GROUPS,
   RULESET_SOURCES,
+  SEASON_PHASES,
+  SPORT_CATEGORIES,
 } from '@bh/domain';
 import { z } from 'zod';
 
@@ -23,6 +26,8 @@ import { z } from 'zod';
  *   rotation                                      → 03-progresion-descarga
  *   byLevel                                       → 04-individualizacion-seguridad
  *   safety                                        → 04 parte D + 05-seguridad-reforzada
+ *   sports (catálogo, categorías, temporada)      → 06-deporte-y-temporada
+ *   sports.matchDay                               → 07-dias-pre-y-post-partido
  */
 
 export const SLOT_ROLES = ['primary', 'secondary', 'isolation'] as const;
@@ -295,6 +300,80 @@ const modifiersSchema = z.object({
     .optional(),
 });
 
+/**
+ * Deporte, momento de la temporada y día de partido.
+ *
+ * La regla que ordena todo el bloque, y que sale de `06`: **el deporte NO toca
+ * la dosis**. Cargas pesadas y livianas dan lo mismo en rendimiento deportivo
+ * (SMD −0,03, IC −0,38 a 0,31, I² = 0%), así que un deporte solo puede sesgar
+ * QUÉ ejercicio se elige entre los equivalentes. Lo que sí mueve volumen es la
+ * temporada y el día de partido, que son otra cosa.
+ */
+const sportsSchema = z.object({
+  /**
+   * Qué hace cada categoría. `hasMatches` decide si al socio se le pregunta
+   * siquiera por el partido: un corredor tiene carreras esporádicas, no
+   * partidos semanales, y preguntarle sería ruido.
+   */
+  categories: z.record(
+    z.enum(SPORT_CATEGORIES),
+    z.object({
+      label: z.string().min(1),
+      hasMatches: z.boolean(),
+      /** Multiplicador sobre las series de sala. 1 = el plan no cambia. */
+      volumeMultiplier: z.number().min(0.1).max(1),
+      note: z.string().min(1),
+    }),
+  ),
+  /**
+   * El catálogo que ve el socio. Ancho a propósito, pero cada entrada aporta
+   * solo `category` y `emphasis`: si dos deportes coinciden en los dos, son el
+   * mismo deporte para el motor. Hay un test que lo verifica.
+   */
+  catalog: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        label: z.string().min(1),
+        category: z.enum(SPORT_CATEGORIES),
+        /** Músculos del gesto, para desempatar la selección. Nunca la dosis. */
+        emphasis: z.array(z.enum(MUSCLE_GROUPS)),
+      }),
+    )
+    .min(1),
+  seasonPhases: z.record(
+    z.enum(SEASON_PHASES),
+    z.object({
+      label: z.string().min(1),
+      volumeMultiplier: z.number().min(0.1).max(1.5),
+      note: z.string().min(1),
+    }),
+  ),
+  /**
+   * Ajuste de la sesión de hoy según el partido. No entra en `generatePlan`:
+   * el plan es una cola sin fechas, y esto lo declara el socio al entrar.
+   */
+  matchDay: z.record(
+    z.enum(MATCH_DAY_STATES),
+    z.object({
+      label: z.string().min(1),
+      /** Multiplicador de series sobre los ejercicios de tren inferior. */
+      lowerBodyVolumeMultiplier: z.number().min(0).max(1),
+      /** Multiplicador sobre el resto. El daño se concentra abajo. */
+      upperBodyVolumeMultiplier: z.number().min(0).max(1),
+      /**
+       * Saca el trabajo explosivo. A las 48 h el salto ya se recuperó pero el
+       * sprint no: se puede cargar pierna, no hacer saltos.
+       */
+      avoidExplosive: z.boolean(),
+      /** Qué se le dice al socio y por qué. Se muestra tal cual. */
+      note: z.string().min(1),
+    }),
+  ),
+  confidence: z.enum(CONFIDENCE_LEVELS),
+  confidenceNote: z.string().min(1).optional(),
+});
+
 export const rulesetSchema = z.object({
   version: z.string().min(1),
   source: z.enum(RULESET_SOURCES),
@@ -345,6 +424,7 @@ export const rulesetSchema = z.object({
       confidenceNote: z.string().min(1).optional(),
     })
     .optional(),
+  sports: sportsSchema.optional(),
   cardio: cardioSchema.optional(),
   safety: safetySchema.optional(),
   modifiers: modifiersSchema.optional(),
