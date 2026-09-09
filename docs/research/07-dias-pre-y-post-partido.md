@@ -4,6 +4,11 @@
 antes.** Esa asimetría es el resultado principal y define el diseño: lo que se puede prescribir con
 respaldo es qué hacer los días *posteriores*; lo previo es casi todo consenso.
 
+**Y el respaldo está en QUÉ ejercicio, no en cuántas series.** El daño lo produce la contracción
+excéntrica, que es un mecanismo establecido; el recorte de volumen se apoya en un solo estudio de
+16 personas. La sección "Qué TIPO de ejercicio" es la más aplicable de todo el documento y se
+agregó en una segunda vuelta, después de que la primera contestara la pregunta con peor evidencia.
+
 Hecha el 9 de septiembre de 2026, con los papers abiertos y leídos. Continúa
 `06-deporte-y-temporada.md`.
 
@@ -104,6 +109,119 @@ justifica como distintos:
 Que el salto se recupere a las 48 h y el sprint no es lo que separa "ayer" de "anteayer": a las
 48 h se puede volver a cargar tren inferior, pero no trabajo explosivo.
 
+## Qué TIPO de ejercicio, no cuánto volumen
+
+Ampliación del 9 de septiembre de 2026. La primera vuelta de esta investigación contestó "cuánto
+recortar" y esa resultó ser la pregunta con peor respaldo (un estudio, n = 16, certeza muy baja).
+**La pregunta de qué ejercicio hacer tiene mejor evidencia que la de cuántas series.**
+
+### El daño lo produce la contracción excéntrica — CONFIANZA ALTA (mecanismo)
+
+Lo que deja a alguien dolorido y con la fuerza caída durante días no es el volumen: son las
+contracciones **excéntricas**, la fase en que el músculo frena una carga alargándose. Es un
+mecanismo establecido, no una correlación.
+
+Consecuencia directa y aplicable: los ejercicios de énfasis excéntrico —curl nórdico, peso muerto
+rumano con bajada lenta, zancadas profundas, cualquier negativa controlada— **suman daño encima del
+que ya dejó el partido**. Los concéntricos y los de máquina, con la fase de bajada asistida o corta,
+no.
+
+Un partido de fútbol ya es, en sí mismo, una sesión excéntrica: frenadas, cambios de dirección,
+desaceleraciones.
+
+**Este es el hallazgo que más cambia el diseño**: cerca de un partido conviene cambiar *qué*
+ejercicio se hace, no solo bajarle las series.
+
+> Muscle Damage Induced by Eccentric Exercise, Recovery and Adaptations (2023), en Springer.
+> DOI 10.1007/978-3-031-44270-4_8
+
+### El dolor NO mide el daño — CONFIANZA ALTA
+
+Metaanálisis de **141 estudios** de ejercicio excéntrico de tren inferior: la caída de la
+contracción voluntaria máxima está **pobremente asociada** al dolor muscular, y también pobremente
+correlacionada con la creatina quinasa.
+
+Es la segunda vez que aparece lo mismo en esta investigación (la primera fue la CK a las 72 h).
+**Preguntarle al socio "¿te duele?" no sirve para saber si está recuperado.** Un socio sin dolor
+puede tener la fuerza caída, y uno dolorido puede estar bien. La decisión se toma por los días
+transcurridos, que es lo que sí tiene curso temporal medido.
+
+### La recuperación activa hace sentir mejor, no recuperar más rápido — CONFIANZA MEDIA
+
+Metaanálisis de 99 estudios y 1188 participantes sobre técnicas de recuperación. Recuperación
+activa (movimiento suave) contra recuperación pasiva:
+
+| Desenlace | Efecto | |
+|---|---|---|
+| Dolor muscular | **SMD = −0,94** (IC 95% −1,61 a −0,28) | 90 sujetos, 8 grupos |
+| Fatiga percibida | SMD = 0,64 (IC −0,43 a 1,70) | **no significativo** |
+| Creatina quinasa | — | **sin efecto** |
+| Marcadores inflamatorios | — | **sin efecto** |
+
+Los autores aclaran que el impacto "es significativo solo durante un período corto después del
+ejercicio".
+
+La lectura honesta: la sesión suave del día después **te hace sentir menos dolorido, y no acelera la
+recuperación real**. Eso no la invalida —sentirse mejor tiene valor y sostiene la adherencia— pero
+no se le puede vender al socio como que se recupera antes.
+
+*Limitaciones declaradas:* posible sesgo de publicación; imposible cegar a los participantes, así
+que no se descarta efecto placebo; calidad heterogénea; no se evaluaron desenlaces de rendimiento.
+
+> Dupuy et al. (2018), Frontiers in Physiology. DOI 10.3389/fphys.2018.00403
+
+### El día ANTES no hay que bajar los brazos — CONFIANZA BAJA, pero da vuelta la intuición
+
+Esto contradice lo que asumí en la primera vuelta. Existe el "priming": una sesión corta el día
+antes puede **mejorar** el rendimiento del día siguiente, en vez de perjudicarlo.
+
+Metaanálisis multinivel, 18 estudios y 46 tamaños de efecto:
+
+- Efecto global: **g = 0,232 (IC 95% 0,092 a 0,372; p = 0,002)** — chico pero significativo.
+- A ≥6 h: g = 0,288 (IC 0,086 a 0,490; p = 0,007).
+- Fuerza y potencia: g = 0,212 (IC 0,097 a 0,326).
+- Velocidad y agilidad: g = 0,377 (IC −0,025 a 0,778) — el más grande, pero cruza el cero.
+- Rendimiento específico del deporte: g = 0,075 (IC −0,117 a 0,268) — **no significativo**, y es
+  justamente el desenlace que más nos importaría.
+
+Lo que funciona mejor es trabajo **explosivo y corto**, no volumen.
+
+**Pero la certeza es BAJA por GRADE**, y el dato que lo define: el **intervalo de predicción va de
+−0,265 a 0,730**. Traducido, en un contexto nuevo el efecto podría perfectamente ser negativo. Los
+propios autores recomiendan probarlo en un día de entrenamiento antes de usarlo en una competencia
+que importe.
+
+**Consecuencia:** "el día antes no entrenes" no tiene respaldo. Lo defendible es una sesión **corta,
+sin énfasis excéntrico y sin volumen alto** — que es neutra en la peor lectura y levemente positiva
+en la mejor.
+
+> Does delayed exercise-based priming improve subsequent athletic performance? A systematic review
+> and multilevel meta-analysis. DOI 10.1371/journal.pone.0354720
+
+### Lo que hace el fútbol profesional — CONSENSO, no evidencia
+
+Relevamiento de la programación semanal en clubes europeos: el trabajo excéntrico de isquiotibiales
+se concentra en **MD−4 y MD−3**, o sea lo más lejos posible del partido en ambas direcciones. Los
+propios autores dicen que **no hay consenso fuerte** sobre el momento óptimo: es práctica de
+gremio, no resultado experimental. Coincide con el mecanismo excéntrico, que es lo que le da algo
+de peso.
+
+> Weekly Programming of Hamstring-Related Training Contents in European Professional Soccer (2024),
+> Sports. DOI 10.3390/sports12030073
+
+### Resumen aplicable
+
+| Día | Qué cambia el TIPO de ejercicio | Confianza |
+|---|---|---|
+| **Jugué ayer** | Sin énfasis excéntrico; tren superior y máquinas; movimiento suave si quiere | MEDIA (mecanismo ALTA, aplicación BAJA) |
+| **Jugué anteayer** | Se puede cargar pierna; todavía sin excéntrico marcado ni explosivo | MEDIA |
+| **Juego mañana** | Corto y explosivo, sin excéntrico. NO "no entrenes" | BAJA |
+| **Juego hoy** | Nada de pierna | BAJA, criterio de práctica |
+
+Y lo que **no** se puede decidir: por el dolor que reporte el socio. Dos metaanálisis independientes
+en esta misma investigación muestran que el dolor y la creatina quinasa no siguen al rendimiento.
+
+
 ## Lo que esta investigación NO cubre
 
 - **Socios recreativos.** Todo lo de arriba es fútbol competitivo con partidos completos. Alguien
@@ -116,3 +234,6 @@ Que el salto se recupere a las 48 h y el sprint no es lo que separa "ayer" de "a
 - **Cuánto exactamente bajar.** Ninguna fuente da un multiplicador de volumen para MD+1. Lo que hay
   es la dirección, no la magnitud: cualquier número concreto que se ponga en el ruleset es criterio
   de práctica y va como BAJA.
+- **Qué ejercicio es excéntrico y cuánto.** El mecanismo está claro, pero no hay una clasificación
+  publicada que diga, ejercicio por ejercicio, cuánto énfasis excéntrico tiene. Marcar el catálogo
+  es criterio nuestro y va declarado como tal.
