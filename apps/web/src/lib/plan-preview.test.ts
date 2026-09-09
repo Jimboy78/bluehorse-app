@@ -116,6 +116,7 @@ const prensa: SubstituteOption = {
   equipmentId: 'eq-2',
   equivalence: 0.9,
   reason: 'Mismo patrón.',
+  curated: false,
 };
 
 describe('toPreview', () => {
@@ -202,6 +203,7 @@ describe('swapPreviewItem', () => {
       equipmentId: 'eq-2',
       equivalence: 0.5,
       reason: 'Lo que haya.',
+      curated: false,
     });
     expect(fila(dos, 0, 0).swapped).toBe(true);
     expect(fila(dos, 0, 1).swapped).toBe(true);

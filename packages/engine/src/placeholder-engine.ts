@@ -691,6 +691,7 @@ function findSubstitutes(input: FindSubstitutesInput): readonly SubstituteOption
       reason: explicit.has(candidate.id)
         ? `Reemplazo equivalente cargado a mano para ${original.name}.`
         : `Mismo patrón de movimiento y músculos parecidos que ${original.name}.`,
+      curated: explicit.has(candidate.id),
     });
   }
 

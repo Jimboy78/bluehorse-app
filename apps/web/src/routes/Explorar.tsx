@@ -1,6 +1,6 @@
 import type { Exercise, MuscleGroup } from '@bh/domain';
 import type { SubstituteOption } from '@bh/engine';
-import { AlertCircle, ChevronDown, Compass, MapPin } from 'lucide-react';
+import { AlertCircle, ChevronDown, Compass, MapPin, PenLine } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useMemo, useState } from 'react';
 import { AppShell } from '../components/AppShell.tsx';
@@ -297,6 +297,11 @@ function AlternativesPanel({
                     {equipment?.locationNote ?? muscleSummary(alt?.primaryMuscles ?? [])}
                   </span>
                 </span>
+                {option.curated && (
+                  <span title="Equivalencia cargada a mano, no calculada">
+                    <PenLine size={12} className="shrink-0 text-brand" aria-hidden="true" />
+                  </span>
+                )}
                 <span className="shrink-0 font-display text-xs font-semibold tabular-nums text-brand">
                   {Math.round(option.equivalence * 100)}%
                 </span>

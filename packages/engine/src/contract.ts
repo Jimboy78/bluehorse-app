@@ -125,6 +125,14 @@ export interface SubstituteOption {
   /** 0..1. Cuánto se parece al ejercicio original. */
   readonly equivalence: number;
   readonly reason: string;
+  /**
+   * `true` cuando la equivalencia salió de `gym.substitutions` (cargada a
+   * mano en `/panel`), `false` cuando la calculó `scoreEquivalence` por
+   * patrón de movimiento y músculos compartidos. Aparte de `reason` (que ya
+   * lo dice en texto) para que la UI pueda distinguirlo sin parsear el
+   * string en castellano.
+   */
+  readonly curated: boolean;
 }
 
 // ------------------------------------------------------------------ entradas

@@ -501,4 +501,30 @@ describe('findSubstitutes', () => {
 
     expect(options.map((o) => o.exerciseId)).not.toContain('ex-press-maquina');
   });
+
+  it('marca `curated` en la opción que viene de gym.substitutions, no en las calculadas', () => {
+    const gym = buildGym();
+    const gymConSustitucion = {
+      ...gym,
+      substitutions: [
+        { exerciseId: 'ex-press', substituteId: 'ex-press-maquina', equivalence: 0.95, note: null },
+      ],
+    };
+
+    const options = engine.findSubstitutes({
+      context,
+      item: { exerciseId: 'ex-press', equipmentId: 'eq-press' },
+      gym: gymConSustitucion,
+      constraints: [],
+      unavailableEquipmentIds: ['eq-press'],
+      ruleset: V0_PLACEHOLDER,
+    });
+
+    const curada = options.find((o) => o.exerciseId === 'ex-press-maquina');
+    expect(curada?.curated).toBe(true);
+    expect(curada?.equivalence).toBe(0.95);
+    expect(
+      options.filter((o) => o.exerciseId !== 'ex-press-maquina').every((o) => !o.curated),
+    ).toBe(true);
+  });
 });

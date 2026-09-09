@@ -6,6 +6,7 @@ import {
   Clock,
   Info,
   Layers,
+  PenLine,
   Repeat2,
   Shuffle,
   Sparkles,
@@ -439,6 +440,11 @@ function SwapPanel({
                     {equipment?.locationNote ?? muscleSummary(exercise?.primaryMuscles ?? [])}
                   </span>
                 </span>
+                {option.curated && (
+                  <span title="Equivalencia cargada a mano, no calculada">
+                    <PenLine size={12} className="shrink-0 text-brand" aria-hidden="true" />
+                  </span>
+                )}
                 <span className="shrink-0 font-display text-xs font-semibold tabular-nums text-brand">
                   {Math.round(option.equivalence * 100)}%
                 </span>
