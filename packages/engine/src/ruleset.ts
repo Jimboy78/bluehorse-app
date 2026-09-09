@@ -321,6 +321,30 @@ export const rulesetSchema = z.object({
     }),
   ),
   templates: z.array(templateSchema).min(1),
+  /**
+   * Cómo se elige el ejercicio de cada slot entre los que sirven. No cambia la
+   * dosis (series, reps, RIR): cambia cuál de los ejercicios válidos toca.
+   */
+  selection: z
+    .object({
+      /**
+       * Cuántos ejercicios tiene que dejar disponibles un slot antes de que una
+       * preferencia blanda pueda seguir achicando. Con un pool más chico que
+       * esto, todos los socios del mismo perfil terminan en el mismo ejercicio
+       * —y en la misma máquina— aunque el catálogo tenga alternativas.
+       */
+      minPoolSize: z.number().int().min(1).max(10),
+      /**
+       * Cuántos niveles por debajo del suyo se le pueden proponer a la persona.
+       * Hacia arriba no hay tolerancia: eso lo sigue tapando el filtro de
+       * seguridad, que nunca propone un ejercicio que exija más técnica de la
+       * que tiene.
+       */
+      levelTolerance: z.number().int().min(0).max(3),
+      confidence: z.enum(CONFIDENCE_LEVELS),
+      confidenceNote: z.string().min(1).optional(),
+    })
+    .optional(),
   cardio: cardioSchema.optional(),
   safety: safetySchema.optional(),
   modifiers: modifiersSchema.optional(),

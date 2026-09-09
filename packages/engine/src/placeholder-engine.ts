@@ -104,16 +104,18 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
     const items: SessionItemBlueprint[] = [];
 
     for (const slot of tplSession.slots) {
-      const exercise = chooseExercise(
-        slot.pattern,
-        slot.role,
-        usableExercises,
+      const exercise = chooseExercise({
+        pattern: slot.pattern,
+        role: slot.role,
+        pool: usableExercises,
         used,
         usedInPlan,
         rotateAway,
         setsByMuscle,
+        level: user.profile.experienceLevel,
+        selection: ruleset.selection,
         rng,
-      );
+      });
       if (!exercise) {
         warnings.push(
           `No hay ningún ejercicio disponible para el patrón "${slot.pattern}" en ${tplSession.label}. Falta equipamiento en el catálogo, está todo bloqueado por restricciones, o no hay nada de tu nivel para ese patrón.`,
@@ -134,7 +136,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
           role: slot.role,
           cardioSessionId: slot.cardioSessionId,
           orderIndex: items.length,
-          equipment: firstAvailableEquipment(exercise, equipmentById),
+          equipment: pickEquipment(exercise, equipmentById, rng),
           roleParams,
           baselineLoad: user.baselines.find((b) => b.exerciseId === exercise.id)?.load ?? null,
           comeback,
@@ -775,29 +777,85 @@ function hasUsableEquipment(
   );
 }
 
+function availableEquipment(
+  exercise: Exercise,
+  equipmentById: ReadonlyMap<Id, Equipment>,
+  blocked: ReadonlySet<Id> = new Set(),
+): Equipment[] {
+  const out: Equipment[] = [];
+  for (const id of exercise.equipmentIds) {
+    const equipment = equipmentById.get(id);
+    if (equipment?.isActive && !blocked.has(id)) out.push(equipment);
+  }
+  return out;
+}
+
 function firstAvailableEquipment(
   exercise: Exercise,
   equipmentById: ReadonlyMap<Id, Equipment>,
   blocked: ReadonlySet<Id> = new Set(),
 ): Equipment | undefined {
-  for (const id of exercise.equipmentIds) {
-    const equipment = equipmentById.get(id);
-    if (equipment?.isActive && !blocked.has(id)) return equipment;
-  }
-  return undefined;
+  return availableEquipment(exercise, equipmentById, blocked)[0];
 }
 
-function chooseExercise(
-  pattern: MovementPattern,
-  role: SlotRole,
-  pool: readonly Exercise[],
-  used: ReadonlySet<Id>,
-  usedInPlan: ReadonlySet<Id>,
-  rotateAway: ReadonlySet<Id>,
-  setsByMuscle: ReadonlyMap<MuscleGroup, number>,
+/**
+ * Cuál de las estaciones que sirven para este ejercicio se le asigna. Las
+ * estaciones de un mismo ejercicio son intercambiables por definición —si no lo
+ * fueran, serían ejercicios distintos—, así que acá no hay ninguna decisión de
+ * prescripción: elegir siempre la primera no hacía el plan mejor, solo mandaba
+ * a todo el gimnasio a la misma máquina.
+ *
+ * Es lo que hacía que "Dorsalera al pecho" y "Dorsalera con agarre neutro",
+ * dos ejercicios distintos apuntando a las mismas dos estaciones, cayeran
+ * siempre en el mismo Lat Pulldown.
+ */
+function pickEquipment(
+  exercise: Exercise,
+  equipmentById: ReadonlyMap<Id, Equipment>,
   rng: () => number,
-): Exercise | undefined {
-  const candidates = pool
+): Equipment | undefined {
+  return pickDeterministic(availableEquipment(exercise, equipmentById), rng);
+}
+
+interface ChooseExerciseInput {
+  readonly pattern: MovementPattern;
+  readonly role: SlotRole;
+  readonly pool: readonly Exercise[];
+  readonly used: ReadonlySet<Id>;
+  readonly usedInPlan: ReadonlySet<Id>;
+  readonly rotateAway: ReadonlySet<Id>;
+  readonly setsByMuscle: ReadonlyMap<MuscleGroup, number>;
+  readonly level: ExperienceLevel;
+  readonly selection: Ruleset['selection'];
+  readonly rng: () => number;
+}
+
+/**
+ * Se queda con los mejores según `score` (más bajo es mejor), abriendo de a
+ * escalones completos hasta juntar al menos `floor` opciones. Nunca parte un
+ * empate: si el escalón que cruza el piso tiene cinco ejercicios, entran los
+ * cinco. Es la versión gradual de "quedate con el mejor": conserva el orden de
+ * preferencia sin dejar el slot con una única opción.
+ */
+function preferRanked(
+  list: readonly Exercise[],
+  score: (e: Exercise) => number,
+  floor: number,
+): readonly Exercise[] {
+  if (list.length <= floor) return list;
+  const tiers = [...new Set(list.map(score))].sort((a, b) => a - b);
+
+  const kept: Exercise[] = [];
+  for (const tier of tiers) {
+    kept.push(...list.filter((e) => score(e) === tier));
+    if (kept.length >= floor) break;
+  }
+  return kept;
+}
+
+function chooseExercise(input: ChooseExerciseInput): Exercise | undefined {
+  const { pattern, role, used, usedInPlan, rotateAway, setsByMuscle, selection, rng } = input;
+  const candidates = input.pool
     .filter((e) => e.pattern === pattern && !used.has(e.id))
     .sort((a, b) => a.name.localeCompare(b.name, 'es'));
   if (candidates.length === 0) return undefined;
@@ -809,8 +867,20 @@ function chooseExercise(
     return kept.length > 0 ? kept : list;
   };
 
+  // Igual que `prefer`, pero además se saltea si dejaría el slot con menos
+  // opciones que el piso del ruleset. Un pool de una sola opción no es una
+  // elección: es el mismo ejercicio —y la misma máquina— para todos los socios
+  // del mismo perfil, aunque el catálogo tenga alternativas equivalentes.
+  const floor = selection?.minPoolSize ?? 1;
+  const preferSoft = (list: readonly Exercise[], keep: (e: Exercise) => boolean) => {
+    const kept = list.filter(keep);
+    if (kept.length === 0) return list;
+    if (list.length > floor && kept.length < floor) return list;
+    return kept;
+  };
+
   // 1. Rotar respecto del plan anterior.
-  let eligible = prefer(candidates, (e) => !rotateAway.has(e.id));
+  let eligible = preferSoft(candidates, (e) => !rotateAway.has(e.id));
 
   // 2. Fuera del cardio, uno que se mida en repeticiones. El ruleset prescribe
   //    series, repeticiones y RIR: nada de eso aplica a una plancha, que se
@@ -830,22 +900,45 @@ function chooseExercise(
   // 4. Los compuestos antes que los aislados.
   eligible = prefer(eligible, (e) => e.isCompound);
 
-  // 5. La variante más exigente que la persona puede hacer. Mandar a alguien
-  //    avanzado a hacer sentadilla goblet con kettlebell a 1-5 repeticiones es
-  //    absurdo: no hay kettlebell que aguante esa carga. La versión más
-  //    demandante del patrón es también la que se puede cargar de verdad.
+  // 5. Cerca del nivel de la persona, con la tolerancia que fija el ruleset.
+  //
+  //    Antes acá se colapsaba al nivel MÁS ALTO del pool, con el argumento de
+  //    que a un avanzado no se le manda una sentadilla goblet a 1-5
+  //    repeticiones porque no hay kettlebell que aguante esa carga. El
+  //    argumento vale para el extremo, pero el filtro era mucho más duro que
+  //    eso: a un socio intermedio le dejaba UN solo ejercicio de sentadilla
+  //    —el rack libre— con prensa, Smith y hack disponibles y sin usar. Todos
+  //    los intermedios del gimnasio terminaban en la misma máquina.
+  //
+  //    Y no compraba nada a cambio: máquina, peso libre y polea dan la misma
+  //    hipertrofia (Haugen 2023). "La variante más exigente" no tiene ningún
+  //    ensayo detrás — por eso el bloque va con `confidence: "low"`.
+  //
+  //    Hacia arriba no se aflojó nada: `isWithinSkillLevel` sigue sin proponer
+  //    un ejercicio que exija más técnica de la que la persona tiene.
   if (role !== 'isolation') {
-    const topLevel = Math.max(...eligible.map((e) => EXPERIENCE_LEVELS.indexOf(e.skillLevel)));
-    eligible = prefer(eligible, (e) => EXPERIENCE_LEVELS.indexOf(e.skillLevel) === topLevel);
+    const tolerance = selection?.levelTolerance;
+    if (tolerance !== undefined) {
+      const own = EXPERIENCE_LEVELS.indexOf(input.level);
+      eligible = preferSoft(
+        eligible,
+        (e) => own - EXPERIENCE_LEVELS.indexOf(e.skillLevel) <= tolerance,
+      );
+    }
   } else {
     // 6. En el aislado, el músculo que menos trabajo lleva. Es el único slot
     //    libre para equilibrar: sin esto el plan podía cerrar con más glúteo
     //    —que ya viene de sentadilla, bisagra y zancada— y dejar el tríceps sin
     //    tocar en toda la semana.
+    //
+    //    Se abre por escalones hasta llegar al piso del ruleset en vez de
+    //    quedarse solo con el mínimo exacto. Quedarse con el mínimo dejaba el
+    //    slot de `core` con un único ejercicio —todos apuntan a abdominales, así
+    //    que el "menos trabajado" siempre empataba en el mismo— y mandaba al
+    //    80% del gimnasio al mismo aparato de crunch.
     const volumeOf = (e: Exercise) =>
       Math.min(...e.primaryMuscles.map((m) => setsByMuscle.get(m) ?? 0));
-    const leastWorked = Math.min(...eligible.map(volumeOf));
-    eligible = prefer(eligible, (e) => volumeOf(e) === leastWorked);
+    eligible = preferRanked(eligible, volumeOf, floor);
   }
 
   // 7. Y entre los que quedaron igual de buenos, uno que no esté ya en OTRA

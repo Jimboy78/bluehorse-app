@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { EngineContext, GymSnapshot, UserSnapshot } from './contract.ts';
 import { V0_PLACEHOLDER } from './index.ts';
 import { createPlaceholderEngine } from './placeholder-engine.ts';
+import type { Ruleset } from './ruleset.ts';
 
 const GYM_ID = '00000000-0000-4000-8000-000000000001';
 const USER_ID = '00000000-0000-4000-8000-000000000002';
@@ -233,6 +234,114 @@ describe('generatePlan · variedad entre sesiones', () => {
     const [a, b] = plan.sessions;
     expect(a?.items.some((i) => i.exerciseId === 'ex-remo')).toBe(true);
     expect(b?.items.some((i) => i.exerciseId === 'ex-remo')).toBe(true);
+  });
+});
+
+describe('generatePlan · variedad entre socios', () => {
+  const conSeleccion: Ruleset = {
+    ...V0_PLACEHOLDER,
+    selection: { minPoolSize: 3, levelTolerance: 1, confidence: 'low' },
+  };
+
+  /** Tres sentadillas cargables, una por nivel, cada una en su propia estación. */
+  function gymConTresSentadillas(): GymSnapshot {
+    const gym = buildGym();
+    return {
+      ...gym,
+      equipment: [
+        ...gym.equipment,
+        equipment('eq-smith', 'Máquina Smith'),
+        equipment('eq-hack', 'Sentadilla hack'),
+      ],
+      exercises: [
+        ...gym.exercises,
+        exercise('ex-smith', 'Sentadilla en Smith', {
+          skillLevel: 'novice',
+          equipmentIds: ['eq-smith'],
+        }),
+        exercise('ex-hack', 'Sentadilla hack', {
+          skillLevel: 'intermediate',
+          equipmentIds: ['eq-hack'],
+        }),
+      ],
+    };
+  }
+
+  function sentadillasElegidas(gym: GymSnapshot, ruleset: Ruleset): Set<string> {
+    const elegidas = new Set<string>();
+    // Cada socio genera su plan con su propia semilla. Con una sola semilla no
+    // se puede distinguir "el motor varía" de "esta semilla tuvo suerte".
+    for (let seed = 1; seed <= 12; seed += 1) {
+      const plan = engine.generatePlan({
+        context: { ...context, seed },
+        user: buildUser(),
+        gym,
+        ruleset,
+      });
+      for (const item of plan.sessions.flatMap((s) => s.items)) {
+        if (['ex-prensa', 'ex-smith', 'ex-hack'].includes(item.exerciseId)) {
+          elegidas.add(item.exerciseId);
+        }
+      }
+    }
+    return elegidas;
+  }
+
+  // Antes se colapsaba al nivel MÁS ALTO del pool: todo socio intermedio recibía
+  // la única sentadilla `intermediate` y las otras dos no se usaban nunca. En el
+  // gimnasio real eso mandaba al 60% de los socios al mismo rack.
+  it('no manda a todos los socios del mismo nivel al mismo ejercicio', () => {
+    const elegidas = sentadillasElegidas(gymConTresSentadillas(), conSeleccion);
+    expect(elegidas.size).toBeGreaterThan(1);
+  });
+
+  // Hacia arriba la tolerancia no afloja nada: proponerle a un principiante un
+  // ejercicio que exige más técnica de la que tiene es justo lo que el filtro de
+  // seguridad existe para evitar.
+  it('nunca propone un ejercicio por encima del nivel de la persona', () => {
+    for (let seed = 1; seed <= 12; seed += 1) {
+      const plan = engine.generatePlan({
+        context: { ...context, seed },
+        user: buildUser({
+          profile: { ...buildUser().profile, experienceLevel: 'beginner' },
+        }),
+        gym: gymConTresSentadillas(),
+        ruleset: conSeleccion,
+      });
+      const ids = plan.sessions.flatMap((s) => s.items).map((i) => i.exerciseId);
+      expect(ids, `semilla ${seed}`).not.toContain('ex-smith');
+      expect(ids, `semilla ${seed}`).not.toContain('ex-hack');
+    }
+  });
+
+  // Las estaciones de un mismo ejercicio son intercambiables, pero se elegía
+  // siempre la primera de la lista: dos ejercicios distintos que comparten
+  // estaciones caían los dos en la misma máquina. Era la causa del 87% de
+  // socios con el mismo Lat Pulldown en el plan.
+  it('reparte entre las estaciones que sirven para el mismo ejercicio', () => {
+    const gym = buildGym();
+    const conDosDorsaleras: GymSnapshot = {
+      ...gym,
+      equipment: [...gym.equipment, equipment('eq-dorsalera-2', 'Dual Lat Pulldown')],
+      exercises: gym.exercises.map((e) =>
+        e.id === 'ex-dorsalera' ? { ...e, equipmentIds: ['eq-dorsalera', 'eq-dorsalera-2'] } : e,
+      ),
+    };
+
+    const estaciones = new Set<string | null>();
+    for (let seed = 1; seed <= 12; seed += 1) {
+      const plan = engine.generatePlan({
+        context: { ...context, seed },
+        user: buildUser(),
+        gym: conDosDorsaleras,
+        ruleset: conSeleccion,
+      });
+      for (const item of plan.sessions.flatMap((s) => s.items)) {
+        if (item.exerciseId === 'ex-dorsalera') estaciones.add(item.equipmentId);
+      }
+    }
+
+    expect(estaciones.size).toBeGreaterThan(1);
   });
 });
 
