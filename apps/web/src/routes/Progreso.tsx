@@ -1,6 +1,6 @@
 import type { AdaptationProposal, LoadUnit } from '@bh/domain';
 import { formatLoad } from '@bh/domain';
-import { ArrowRight, Check, ChevronRight, Compass, History, X } from 'lucide-react';
+import { ArrowRight, Check, ChevronRight, Compass, History, Repeat, X } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router';
 import { AppShell } from '../components/AppShell.tsx';
@@ -10,6 +10,7 @@ import { Progreso as ProgresoBody } from '../components/Progreso.tsx';
 import { Card, SectionLabel, Skeleton } from '../components/ui/index.ts';
 import { useProposalHistory } from '../lib/adaptation.ts';
 import { fadeUp, listContainer, listItem } from '../lib/motion.ts';
+import { useSubstitutionInsights } from '../lib/substitution-insights.ts';
 
 /**
  * Pantalla "Progreso": la contracara de "Hoy" — lo que ya se hizo, no lo que
@@ -41,8 +42,40 @@ export function Progreso() {
       <MisPlanes />
       <ExplorarLink />
       <ProgresoBody />
+      <SubstitutionInsightsSection />
       <ProposalHistorySection />
     </AppShell>
+  );
+}
+
+/**
+ * Qué sustituís más seguido. `session_events` graba cada cambio desde que
+ * existe "Cambiar ejercicio" (`logSubstitution`), pero hasta acá nadie lo
+ * leía. Si algo se repite mucho, suele decir algo: una máquina siempre
+ * ocupada a cierta hora, o un ejercicio que en la práctica no funciona.
+ */
+function SubstitutionInsightsSection() {
+  const insights = useSubstitutionInsights();
+
+  if (!insights.data || insights.data.length === 0) return null;
+
+  return (
+    <section className="flex flex-col gap-2.5">
+      <SectionLabel icon={<Repeat size={13} aria-hidden="true" />}>Lo que más cambiás</SectionLabel>
+      <Card className="flex flex-col divide-y divide-line/70 p-0">
+        {insights.data.map((insight) => (
+          <div
+            key={insight.exerciseId}
+            className="flex items-center justify-between gap-3 px-4 py-3"
+          >
+            <span className="truncate text-sm">{insight.exerciseName}</span>
+            <span className="shrink-0 font-display text-xs font-semibold tabular-nums text-slate-dim">
+              {insight.count} {insight.count === 1 ? 'vez' : 'veces'}
+            </span>
+          </div>
+        ))}
+      </Card>
+    </section>
   );
 }
 
