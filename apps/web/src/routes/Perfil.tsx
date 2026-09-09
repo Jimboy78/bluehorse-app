@@ -25,6 +25,7 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { AppShell } from '../components/AppShell.tsx';
 import { BodyMetricsForm } from '../components/BodyMetricsForm.tsx';
+import { ProfileForm } from '../components/ProfileForm.tsx';
 import {
   Button,
   Card,
@@ -47,7 +48,12 @@ import {
 import { breathing, fadeUp, listContainer, listItem, spring, tappable } from '../lib/motion.ts';
 import { countByRegion, usePainHistory } from '../lib/pain-history.ts';
 import type { ConstraintDetail } from '../lib/profile.ts';
-import { useClearConstraint, useConstraints, useProfileDetail } from '../lib/profile.ts';
+import {
+  useClearConstraint,
+  useConstraints,
+  useProfileDetail,
+  useUpdateProfile,
+} from '../lib/profile.ts';
 import { isStandaloneDisplay } from '../lib/use-install-prompt.ts';
 
 /**
@@ -277,6 +283,39 @@ function Stat({ label, value }: { readonly label: string; readonly value: string
 
 // ------------------------------------------------------------- datos físicos
 
+/** Peso y altura, o los huecos que dejan si nunca se cargaron. */
+function BodyStats({
+  pending,
+  latest,
+}: {
+  readonly pending: boolean;
+  readonly latest: { weightKg: number | null; heightCm: number | null } | null;
+}) {
+  if (pending) {
+    return (
+      <>
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <IconStat
+        icon={<Scale size={14} aria-hidden="true" />}
+        label="Peso"
+        value={latest?.weightKg == null ? '—' : `${latest.weightKg} kg`}
+      />
+      <IconStat
+        icon={<Ruler size={14} aria-hidden="true" />}
+        label="Altura"
+        value={latest?.heightCm == null ? '—' : `${Math.round(latest.heightCm)} cm`}
+      />
+    </>
+  );
+}
+
 function PersonalDataCard({
   profile,
 }: {
@@ -284,12 +323,22 @@ function PersonalDataCard({
 }) {
   const metrics = useBodyMetrics();
   const record = useRecordBodyMetric();
+  const updateProfile = useUpdateProfile();
   const latest = metrics.data?.latest;
-  const [editing, setEditing] = useState(false);
+  // Dos formularios distintos porque son dos gestos distintos: el peso se
+  // vuelve a medir (agrega una fila al historial) y el perfil se corrige
+  // (pisa la fila que ya está). Un solo formulario con todo mezclado invitaría
+  // a "confirmar" un peso viejo cada vez que alguien cambia su nombre.
+  const [editing, setEditing] = useState<'none' | 'metrics' | 'profile'>('none');
 
   async function handleSubmit(input: { weightKg: number | null; heightCm: number | null }) {
     await record.mutateAsync(input);
-    setEditing(false);
+    setEditing('none');
+  }
+
+  async function handleProfileSubmit(edit: Parameters<typeof updateProfile.mutateAsync>[0]) {
+    await updateProfile.mutateAsync(edit);
+    setEditing('none');
   }
 
   return (
@@ -317,33 +366,7 @@ function PersonalDataCard({
             label="Socio desde"
             value={formatDate(profile.memberSince)}
           />
-          {metrics.isPending ? (
-            <>
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-            </>
-          ) : (
-            <>
-              <IconStat
-                icon={<Scale size={14} aria-hidden="true" />}
-                label="Peso"
-                value={
-                  latest?.weightKg !== null && latest?.weightKg !== undefined
-                    ? `${latest.weightKg} kg`
-                    : '—'
-                }
-              />
-              <IconStat
-                icon={<Ruler size={14} aria-hidden="true" />}
-                label="Altura"
-                value={
-                  latest?.heightCm !== null && latest?.heightCm !== undefined
-                    ? `${Math.round(latest.heightCm)} cm`
-                    : '—'
-                }
-              />
-            </>
-          )}
+          <BodyStats pending={metrics.isPending} latest={latest ?? null} />
         </div>
 
         {/* Editar acá y no mandando a Progreso. El texto que había antes
@@ -352,28 +375,32 @@ function PersonalDataCard({
             ningún formulario: `MisDatos` se ocultaba entero sin datos. O sea
             que quien no cargó peso y altura en el onboarding no tenía ninguna
             forma de cargarlos después, en toda la app. */}
-        <div className="flex items-center justify-between gap-3 border-t border-line/60 pt-3">
-          <span className="text-[0.7rem] text-slate-dim">
-            {latest
-              ? 'Tu peso cambia: podés volver a medirte'
-              : 'Todavía no cargaste peso ni altura'}
-          </span>
-          {!editing && (
+        {editing === 'none' && (
+          <div className="flex flex-wrap items-center gap-2 border-t border-line/60 pt-3">
+            <span className="min-w-0 flex-1 text-[0.7rem] text-slate-dim">
+              {latest
+                ? 'Tu peso cambia: podés volver a medirte'
+                : 'Todavía no cargaste peso ni altura'}
+            </span>
+            <Button variant="ghost" size="sm" onClick={() => setEditing('metrics')}>
+              <Scale size={14} aria-hidden="true" />
+              {latest ? 'Pesarme' : 'Cargar peso'}
+            </Button>
             <motion.button
               type="button"
               {...tappable}
-              onClick={() => setEditing(true)}
-              aria-label="Editar peso y altura"
-              title="Editar peso y altura"
+              onClick={() => setEditing('profile')}
+              aria-label="Editar mis datos"
+              title="Editar nombre, fecha de nacimiento, sexo y nivel"
               className="grid size-9 shrink-0 place-items-center rounded-full border border-line text-slate transition-colors hover:border-brand hover:text-brand"
             >
               <Pencil size={14} aria-hidden="true" />
             </motion.button>
-          )}
-        </div>
+          </div>
+        )}
 
         <AnimatePresence initial={false}>
-          {editing && (
+          {editing !== 'none' && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
@@ -381,12 +408,26 @@ function PersonalDataCard({
               transition={spring.settle}
               className="overflow-hidden"
             >
-              <BodyMetricsForm
-                currentHeightCm={latest?.heightCm ?? null}
-                busy={record.isPending}
-                onCancel={() => setEditing(false)}
-                onSubmit={(input) => void handleSubmit(input)}
-              />
+              {editing === 'metrics' ? (
+                <BodyMetricsForm
+                  currentHeightCm={latest?.heightCm ?? null}
+                  busy={record.isPending}
+                  onCancel={() => setEditing('none')}
+                  onSubmit={(input) => void handleSubmit(input)}
+                />
+              ) : (
+                <ProfileForm
+                  current={{
+                    displayName: profile.displayName,
+                    birthDate: profile.birthDate,
+                    sex: profile.sex,
+                    experienceLevel: profile.experienceLevel,
+                  }}
+                  busy={updateProfile.isPending}
+                  onCancel={() => setEditing('none')}
+                  onSubmit={(edit) => void handleProfileSubmit(edit)}
+                />
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -394,6 +435,11 @@ function PersonalDataCard({
         {record.isError && (
           <Notice tone="error" role="alert">
             No se pudo guardar la medición. Probá de nuevo.
+          </Notice>
+        )}
+        {updateProfile.isError && (
+          <Notice tone="error" role="alert">
+            No se pudieron guardar tus datos. Probá de nuevo.
           </Notice>
         )}
       </Card>

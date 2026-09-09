@@ -228,3 +228,55 @@ export function useClearConstraint() {
     },
   });
 }
+
+/** Lo que el socio puede cambiar de su propio perfil. */
+export interface ProfileEdit {
+  readonly displayName: string;
+  readonly birthDate: string | null;
+  readonly sex: Sex;
+  readonly experienceLevel: ExperienceLevel;
+}
+
+/**
+ * Editar el propio perfil.
+ *
+ * **No incluye `role` ni `gym_id` a propósito**, y no alcanza con no mandarlos
+ * desde acá: la política de RLS comprueba quién edita, no qué columnas toca, así
+ * que el que frena de verdad la promoción a admin es el trigger
+ * `profiles_guard_privileges` (ver `supabase/schemas/02_gyms.sql`). Esta
+ * interfaz es la segunda barrera, no la primera.
+ *
+ * `experienceLevel` cambia lo que el motor prescribe, así que se invalida
+ * también el plan: dejar el plan viejo en pantalla después de cambiar el nivel
+ * mostraría números que ya no son los que el motor daría.
+ */
+export function useUpdateProfile() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, ProfileEdit>({
+    mutationFn: async (edit) => {
+      if (!user) throw new Error('No hay sesión activa.');
+      const nombre = edit.displayName.trim();
+      if (!nombre) throw new Error('El nombre no puede quedar vacío.');
+
+      const client = requireSupabase();
+      const { error } = await client
+        .from('profiles')
+        .update({
+          display_name: nombre,
+          birth_date: edit.birthDate,
+          sex: edit.sex,
+          experience_level: edit.experienceLevel,
+        })
+        .eq('id', user.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['profile-detail', user?.id] });
+      // La edad y el nivel entran al motor. Ver `docs/research/08-edad.md` y
+      // `docs/research/10-nivel-de-experiencia.md`.
+      void queryClient.invalidateQueries({ queryKey: ['plan'] });
+    },
+  });
+}
