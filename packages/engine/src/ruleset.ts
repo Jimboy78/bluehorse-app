@@ -391,6 +391,17 @@ const modifiersSchema = z.object({
     .object({
       withLoad: z.string().min(1),
       withoutLoad: z.string().min(1),
+      /**
+       * Lo aeróbico se pierde por otra vía y mucho más rápido que la fuerza, así
+       * que el aviso de sala no le sirve a quien vuelve a hacer cardio: le habla
+       * de tendones y le dice que no perdió nada. Se emite además del otro
+       * cuando el plan trae cardio. Usa `{dias}`. Ver `docs/research/19`.
+       *
+       * No hay multiplicador que lo acompañe a propósito: los tamaños de efecto
+       * medidos son SMD sobre atletas, no porcentajes de duración ni de
+       * intensidad, y convertirlos en un recorte sería inventarlo.
+       */
+      cardioNote: z.string().min(1),
       confidence: z.enum(CONFIDENCE_LEVELS),
     })
     .optional(),

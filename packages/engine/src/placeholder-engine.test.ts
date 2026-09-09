@@ -1044,3 +1044,81 @@ describe('lesión declarada contra dolor de arrastre', () => {
     expect(JSON.stringify(planCon('injury', 2))).toEqual(JSON.stringify(planCon('pain', 2)));
   });
 });
+
+/**
+ * Desentrenamiento aeróbico. Ver `docs/research/19-desentrenamiento-aerobico.md`.
+ *
+ * `detraining` solo ajustaba la carga de sala, y el aviso de vuelta hablaba de
+ * fuerza y tendones — a alguien cuyo plan son 40 minutos de cinta le decía que
+ * no había perdido nada, que es lo contrario de lo que pasa con lo aeróbico.
+ */
+describe('volver al cardio después de una pausa', () => {
+  const engine = createPlaceholderEngine();
+
+  function gymConCardio(): GymSnapshot {
+    const gym = buildGym();
+    return {
+      ...gym,
+      equipment: [...gym.equipment, equipment('eq-cinta', 'Cinta', { load: { unit: 'none' } })],
+      exercises: [
+        ...gym.exercises,
+        exercise('ex-cinta', 'Cinta de correr', {
+          pattern: 'cardio',
+          primaryMuscles: ['quads'],
+          modality: 'time',
+          equipmentIds: ['eq-cinta'],
+        }),
+      ],
+    };
+  }
+
+  const objetivoCardio: UserGoal = {
+    goal: 'cardio',
+    sport: null,
+    seasonPhase: 'none',
+    priority: 1,
+    sessionsPerWeekTarget: 3,
+    sessionMinutesTarget: 60,
+  };
+
+  const nota = V1_RESEARCH.modifiers?.detraining?.cardioNote as string;
+
+  function plan(dias: number | undefined, goal: UserGoal = objetivoCardio) {
+    return engine.generatePlan({
+      context,
+      user: buildUser({ goals: [goal] }),
+      gym: gymConCardio(),
+      ruleset: V1_RESEARCH,
+      ...(dias === undefined ? {} : { daysSinceLastSession: dias }),
+    });
+  }
+
+  it('avisa que lo aeróbico se perdió, y no solo que la fuerza se conserva', () => {
+    const avisos = plan(400).warnings;
+    expect(avisos.some((w) => w.startsWith('Pasaron 400 días, y con el cardio'))).toBe(true);
+  });
+
+  it('el aviso sale desde el primer escalón, no recién en el último', () => {
+    // El primer escalón de `cardio` son 10 días. No se inventa un umbral nuevo:
+    // se reusa el que el objetivo ya define.
+    expect(plan(10).warnings).toContain(nota.replace('{dias}', '10'));
+  });
+
+  it('por debajo del primer escalón no se avisa', () => {
+    expect(plan(5).warnings.some((w) => w.includes('con el cardio la historia'))).toBe(false);
+  });
+
+  it('sin pausa declarada no se avisa nada de cardio', () => {
+    expect(plan(undefined).warnings.some((w) => w.includes('con el cardio la historia'))).toBe(
+      false,
+    );
+  });
+
+  it('un plan sin cardio no recibe el aviso de cardio', () => {
+    const hipertrofia: UserGoal = { ...objetivoCardio, goal: 'hypertrophy' };
+    const avisos = plan(400, hipertrofia).warnings;
+    expect(avisos.some((w) => w.includes('con el cardio la historia'))).toBe(false);
+    // Pero el de sala sí, que es el que le corresponde.
+    expect(avisos.some((w) => w.includes('tendones'))).toBe(true);
+  });
+});

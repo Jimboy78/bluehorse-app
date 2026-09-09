@@ -1128,6 +1128,7 @@
     "detraining": {
       "withLoad": "Pasaron {dias} días desde tu última sesión, así que arrancamos con un {recorte}% menos de carga. No es que hayas perdido fuerza: la fuerza se conserva bastante más de lo que la gente cree. Lo que se ablanda en una pausa son los tendones, y por eso hoy podés levantar más de lo que tu tendón está en condiciones de aguantar. Un par de semanas y volvés a donde estabas.",
       "withoutLoad": "Pasaron {dias} días desde tu última sesión. Arrancá más liviano de lo que venías haciendo, aunque te dé para más. No es que hayas perdido fuerza: la fuerza se conserva bastante más de lo que la gente cree. Lo que se ablanda en una pausa son los tendones, y por eso hoy podés levantar más de lo que tu tendón está en condiciones de aguantar. Un par de semanas y volvés a donde estabas.",
+      "cardioNote": "Pasaron {dias} días, y con el cardio la historia es distinta que con la sala: lo aeróbico se va rápido. La caída del VO2max después de un cese es significativa ya en pausas cortas, y más grande todavía en las largas. Así que las primeras vueltas vas a llegar más agitado al mismo ritmo que antes, y eso es esperable, no es que estés peor de lo que pensabas. Volvé por el lado del tiempo antes que por el de la intensidad: sostené los minutos en zona cómoda unas semanas y recién después empujá el ritmo. Un dato para no angustiarse: pasado el primer mes, la evidencia no distingue si estuviste tres meses o un año.",
       "confidence": "low"
     }
   },

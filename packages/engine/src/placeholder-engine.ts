@@ -184,7 +184,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
     });
   }
 
-  warnings.push(...comebackWarnings(sessions, ruleset, daysAway, comeback));
+  warnings.push(...comebackWarnings(sessions, ruleset, daysAway, comeback, params));
   warnings.push(...weeklyVolumeWarnings(sessions, template, gym, params, goal));
   warnings.push(...interferenceWarnings(sessions, gym, ruleset));
 
@@ -257,17 +257,34 @@ function comebackWarnings(
   ruleset: Ruleset,
   daysSinceLastSession: number | null,
   multiplier: number,
+  params: GoalParams,
 ): string[] {
   const rule = ruleset.modifiers?.detraining;
-  if (!rule || daysSinceLastSession === null || multiplier >= 1) return [];
+  if (!rule || daysSinceLastSession === null) return [];
 
-  const conCarga = sessions.some((s) => s.items.some((i) => i.targetLoad !== null));
-  const texto = conCarga ? rule.withLoad : rule.withoutLoad;
-  return [
-    texto
-      .replace('{dias}', String(daysSinceLastSession))
-      .replace('{recorte}', String(Math.round((1 - multiplier) * 100))),
-  ];
+  const out: string[] = [];
+
+  if (multiplier < 1) {
+    const conCarga = sessions.some((s) => s.items.some((i) => i.targetLoad !== null));
+    const texto = conCarga ? rule.withLoad : rule.withoutLoad;
+    out.push(
+      texto
+        .replace('{dias}', String(daysSinceLastSession))
+        .replace('{recorte}', String(Math.round((1 - multiplier) * 100))),
+    );
+  }
+
+  // El aviso de cardio va por su cuenta y arranca antes: el recorte de sala
+  // recién muerde a los 30 días, y para entonces lo aeróbico hace rato que
+  // cayó. El umbral es el escalón más chico que el objetivo ya define — no uno
+  // nuevo —, y coincide con lo que `docs/research/03` documenta.
+  const primerEscalon = Math.min(...params.detraining.map((step) => step.days));
+  const hayCardio = sessions.some((s) => s.items.some((i) => i.targetDurationSeconds !== null));
+  if (hayCardio && daysSinceLastSession >= primerEscalon) {
+    out.push(rule.cardioNote.replace('{dias}', String(daysSinceLastSession)));
+  }
+
+  return out;
 }
 
 /**
