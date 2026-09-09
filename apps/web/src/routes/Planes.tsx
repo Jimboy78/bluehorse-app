@@ -336,6 +336,13 @@ function PlanesBody({
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Armar otro sin tener que terminar el que está en curso: es la misma
+          acción que ofrece la pantalla vacía, disponible siempre. El que
+          estaba activo pasa a guardados, no se pierde. */}
+      <section className="flex flex-col gap-2.5">
+        <NuevoPlan hayActivo={activo !== null} />
+      </section>
+
       {activo && (
         <section className="flex flex-col gap-2.5">
           <SectionLabel icon={<Sparkles size={13} className="text-brand" aria-hidden="true" />}>
@@ -413,7 +420,7 @@ function SinPlanes() {
  * onboarding y del equipamiento real. Poner un nombre no cambia ni un número
  * del entrenamiento.
  */
-function NuevoPlan() {
+function NuevoPlan({ hayActivo = false }: { readonly hayActivo?: boolean }) {
   const generate = useGeneratePlan();
   const [abierto, setAbierto] = useState(false);
   const [nombre, setNombre] = useState('');
@@ -421,13 +428,14 @@ function NuevoPlan() {
   if (!abierto) {
     return (
       <Button
-        variant="primary"
-        size="lg"
+        variant={hayActivo ? 'ghost' : 'primary'}
+        size={hayActivo ? 'md' : 'lg'}
+        className={hayActivo ? 'self-start' : ''}
         disabled={generate.isPending || onboardingUnavailable}
         onClick={() => setAbierto(true)}
       >
         <Plus size={16} aria-hidden="true" />
-        Armar un plan
+        {hayActivo ? 'Armar otro plan' : 'Armar mi plan'}
       </Button>
     );
   }
@@ -447,6 +455,13 @@ function NuevoPlan() {
           className={fieldClass}
         />
       </label>
+
+      {hayActivo && (
+        <p className="text-left text-xs leading-relaxed text-slate">
+          El nuevo pasa a ser el de hoy y el que tenías queda guardado, en la sesión donde lo
+          dejaste. Las cargas que ya venías usando se arrastran al nuevo.
+        </p>
+      )}
       <div className="flex gap-2">
         <Button
           variant="quiet"

@@ -230,7 +230,35 @@ export function useGeneratePlan() {
         daysSinceLastSession: await daysSinceLastSession(client, user.id),
       });
 
-      return persistBlueprint(client, user.id, gymId, blueprint, userSnapshot.goals[0], name);
+      // Con un plan activo, insertar otro `active` choca contra el índice
+      // único de `plans` — el plan nuevo ni se creaba. Antes no se notaba
+      // porque esto solo corría cuando el socio no tenía ninguno; desde que
+      // se puede armar un plan desde la pantalla de Planes, teniendo otro, es
+      // el camino normal.
+      const previousId = await activePlanId(client, user.id);
+      const carried = previousId ? await carriedLoads(client, previousId) : new Map();
+      await setPlanStatus(client, previousId, 'archived');
+
+      try {
+        const planId = await persistBlueprint(
+          client,
+          user.id,
+          gymId,
+          blueprint,
+          userSnapshot.goals[0],
+          name,
+        );
+        // Las cargas que la app ya aprendió no se tiran al armar un plan
+        // nuevo: sin esto, cada plan arranca en "sin carga previa" en todas
+        // las estaciones y se pierde lo que la persona venía levantando.
+        await applyCarriedLoads(client, planId, carried);
+        return planId;
+      } catch (error) {
+        // Si el plan nuevo no llegó a quedar, se devuelve el anterior a
+        // activo: quedarse sin ninguno es peor que no haber creado el nuevo.
+        await setPlanStatus(client, previousId, 'active');
+        throw error;
+      }
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['active-plan', user?.id] });
