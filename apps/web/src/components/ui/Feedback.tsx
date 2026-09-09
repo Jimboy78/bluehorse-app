@@ -1,6 +1,7 @@
-import { motion } from 'motion/react';
-import type { ReactNode } from 'react';
-import { fadeUp } from '../../lib/motion.ts';
+import { AnimatePresence, motion } from 'motion/react';
+import { type ReactNode, useEffect, useState } from 'react';
+import { duration, ease, fadeUp } from '../../lib/motion.ts';
+import { BrandMark } from './Brand.tsx';
 import { Card } from './Card.tsx';
 
 /**
@@ -20,11 +21,48 @@ export function Spinner({ size = 24, className = '' }: { size?: number; classNam
   );
 }
 
-/** Carga a pantalla completa: cambio de ruta, guard resolviendo la sesión. */
+/**
+ * Carga a pantalla completa: cambio de ruta, guard resolviendo la sesión.
+ *
+ * Dos decisiones que se notan más de lo que parece:
+ *
+ * 1. **No aparece antes de los 250 ms.** Casi todas estas cargas terminan en
+ *    menos que eso, y un spinner que entra y sale en 80 ms se lee como un
+ *    parpadeo: la pantalla "salta" sin que se entienda por qué. Si no llega a
+ *    mostrarse, mejor.
+ * 2. **Es la marca, no un anillo genérico.** Es lo primero que se ve al abrir
+ *    la app instalada, antes que cualquier contenido. El anillo del isotipo
+ *    late; el resto queda quieto, así que se lee como respiración y no como
+ *    una animación de carga más.
+ */
 export function PageLoader({ label = 'Cargando…' }: { label?: string }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const id = setTimeout(() => setVisible(true), 250);
+    return () => clearTimeout(id);
+  }, []);
+
   return (
     <div role="status" className="grid min-h-dvh place-items-center">
-      <Spinner size={26} />
+      <AnimatePresence>
+        {visible && (
+          <motion.span
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{
+              opacity: [0.55, 1, 0.55],
+              scale: 1,
+              transition: {
+                opacity: { duration: 1.6, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' },
+                scale: { duration: duration.base, ease: ease.out },
+              },
+            }}
+            exit={{ opacity: 0, transition: { duration: duration.instant } }}
+          >
+            <BrandMark size={38} />
+          </motion.span>
+        )}
+      </AnimatePresence>
       <span className="sr-only">{label}</span>
     </div>
   );

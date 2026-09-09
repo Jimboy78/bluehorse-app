@@ -30,12 +30,25 @@ export interface TodaySession {
   readonly items: readonly TodaySessionItem[];
   readonly warnings: readonly string[];
   readonly isPlaceholder: boolean;
+  /**
+   * Si la consulta del catálogo ya terminó. Mientras no terminó, `isPlaceholder`
+   * dice `true` porque hay que mostrar algo — pero eso es un supuesto, no un
+   * hecho, y avisar "el catálogo no está cargado" mientras se está cargando es
+   * asustar por nada: el cartel aparecía medio segundo en CADA entrada a la app
+   * y después desaparecía solo.
+   */
+  readonly catalogKnown: boolean;
 }
 
 export function useTodaySession(): TodaySession | null {
-  const { user } = useAuth();
+  const { user, status } = useAuth();
   const profile = useProfileStatus();
   const catalog = useGymCatalog(profile.data?.gymId ?? null);
+  // Sin sesión la consulta queda deshabilitada y nunca resuelve, así que "ya
+  // sabemos" es: hay respuesta, o falló, o directamente no hay a quién
+  // preguntarle (ver la trampa de `enabled: false` en CLAUDE.md).
+  const catalogKnown =
+    status !== 'signed-in' || catalog.isSuccess || catalog.isError || !profile.data?.gymId;
 
   return useMemo(() => {
     // Sin Supabase configurado, sin sesión, o mientras se resuelve la consulta
@@ -79,6 +92,7 @@ export function useTodaySession(): TodaySession | null {
       items,
       warnings: plan.warnings,
       isPlaceholder,
+      catalogKnown,
     };
-  }, [user?.id, catalog.data]);
+  }, [user?.id, catalog.data, catalogKnown]);
 }

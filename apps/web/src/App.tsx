@@ -29,9 +29,7 @@ import { useTodaySession } from './lib/use-today-session.ts';
  */
 export function App() {
   const { user } = useAuth();
-  const todaySession = useTodaySession();
   const activeGoal = useActiveGoal();
-  const showsPlaceholderCatalog = todaySession?.isPlaceholder ?? true;
   // Solo alimentan el panel "Estado del esqueleto", que es dev-only: no tiene
   // sentido pedirle esto a Supabase en cada carga de la app de un socio real.
   const connection = useQuery({
@@ -59,22 +57,7 @@ export function App() {
     <AppShell>
       <ServiceWorkerUpdate />
 
-      {(showsPlaceholderContent || showsPlaceholderCatalog) && (
-        <Notice tone="warn" icon={<Info size={16} aria-hidden="true" />}>
-          <strong className="font-semibold">Vista previa con datos de ejemplo.</strong>
-          {showsPlaceholderContent && (
-            <>
-              {' '}
-              El ruleset activo es{' '}
-              <code className="rounded bg-amber/15 px-1 font-mono text-xs text-amber">
-                {activeRuleset.version}
-              </code>
-              .
-            </>
-          )}
-          {showsPlaceholderCatalog && ' El catálogo de Blue Horse todavía no está cargado.'}
-        </Notice>
-      )}
+      <PlaceholderNotice />
 
       <EvidenceNotice goal={activeGoal.data ?? null} />
 
@@ -159,6 +142,40 @@ function describeQueue(health: OutboxHealth | undefined): string {
  * Aviso de versión nueva. Discreto y arriba de todo, pero sin recargar solo:
  * hacerlo en medio de una serie borraría lo que la persona estaba cargando.
  */
+/**
+ * "Esto que estás viendo es de ejemplo": ruleset provisorio o catálogo sin
+ * cargar.
+ *
+ * La parte del catálogo solo se afirma cuando SE SABE que falta. Mientras la
+ * consulta viaja, `isPlaceholder` dice `true` porque hay que mostrar algo — y
+ * eso hacía aparecer el cartel medio segundo en cada entrada a la app, para
+ * después desaparecer solo. Un aviso que va y viene se lee como que algo se
+ * rompió, que es exactamente lo contrario de lo que este aviso quiere decir.
+ */
+function PlaceholderNotice() {
+  const todaySession = useTodaySession();
+  const sinCatalogo = (todaySession?.catalogKnown ?? false) && todaySession?.isPlaceholder === true;
+
+  if (!showsPlaceholderContent && !sinCatalogo) return null;
+
+  return (
+    <Notice tone="warn" icon={<Info size={16} aria-hidden="true" />}>
+      <strong className="font-semibold">Vista previa con datos de ejemplo.</strong>
+      {showsPlaceholderContent && (
+        <>
+          {' '}
+          El ruleset activo es{' '}
+          <code className="rounded bg-amber/15 px-1 font-mono text-xs text-amber">
+            {activeRuleset.version}
+          </code>
+          .
+        </>
+      )}
+      {sinCatalogo && ' El catálogo de Blue Horse todavía no está cargado.'}
+    </Notice>
+  );
+}
+
 /**
  * Aviso cuando el objetivo del socio se apoya en evidencia floja.
  *

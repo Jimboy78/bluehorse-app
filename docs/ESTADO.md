@@ -1,6 +1,102 @@
 # Estado del trabajo
 
-## Última actualización: 8 de septiembre de 2026 (cuarta sesión: cloud, aislamiento, multi-plan)
+## Última actualización: 8 de septiembre de 2026 (quinta sesión: UX/UI, previa del plan, datos del cuerpo)
+
+Sesión de pulido, no de funcionalidad nueva. El pedido fue textual: "el tema de que sea todo muy
+inmediato, no hay spinners… hay muchas decisiones que ni siquiera te hacen una pequeña
+confirmación… quiero que al finalizar todas las preguntas te haga una preview del plan".
+
+### Vista previa del plan antes de guardarlo
+
+Hasta acá, terminar el onboarding generaba el plan y lo guardaba en el mismo gesto: la persona
+apretaba "Empezar" y aparecía en "Hoy" con una rutina que nunca había visto. Si algún ejercicio no
+le servía, se enteraba parada frente a la máquina.
+
+El motor es puro, así que armar el plan no cuesta nada y no toca la base. `lib/plan-preview.ts`
+parte el gesto en dos: `useBuildPlanPreview()` arma el blueprint en memoria, `useConfirmPlan()` lo
+guarda por el mismo camino que ya existía (`persistBlueprint`, extraído de `useGeneratePlan` para
+que no haya dos formas de escribir un plan). En el medio, `components/PlanPreview.tsx` lo muestra:
+sesiones plegables, avisos del motor, y por ejercicio el patrón, los músculos, el descanso y las
+indicaciones de ejecución del catálogo.
+
+Se puede cambiar QUÉ ejercicio, nunca CUÁNTO (regla dura 3): el reemplazo hereda series,
+repeticiones, RIR y descanso del que sale, igual que la sustitución por máquina ocupada. Las
+alternativas salen de `engine.findSubstitutes()`, el mismo que resuelve "máquina ocupada" — no hay
+una segunda lógica de equivalencia. "No me lo propongas más" inserta un `avoid_exercise` en
+`user_constraints`, que es de donde el motor ya lee.
+
+**El cambio vale para toda la cola.** La cola repite la sesión A cuatro veces: cambiar la sentadilla
+en la primera y dejarla en las otras tres no es lo que nadie quiso decir con "cambialo". Lo
+encontramos probando en el navegador, no con tests.
+
+Si armar la previa falla, el socio no queda trabado: entra a la app y "Hoy" le ofrece generar el
+plan, que es el camino que ya existía.
+
+### Peso y altura
+
+No se preguntaban en ningún lado. Van a **`body_metrics`** (nueva), append-only como
+`user_baselines`: en recomposición corporal la serie de mediciones ES el dato, y pisarla con un
+UPDATE la borraría. RLS con select/insert/delete y **sin update** — la serie no se reescribe, se
+corrige borrando la fila equivocada. Ni el staff las ve: son datos de salud, mismo criterio que el
+cribado.
+
+Se ven y se actualizan desde Progreso (`components/MisDatos.tsx`). La vigente no es la última fila
+sino la última que trae cada campo: registrar un peso suelto no "borra" la altura en pantalla.
+
+Lo que **no** hace es calcular un IMC ni decir si el peso está bien — sería una afirmación de salud
+sin nada del research atrás. La flecha de tendencia dice para dónde se movió, no si eso es bueno:
+quien busca recomposición quiere que baje y quien busca hipertrofia quiere que suba.
+
+El onboarding pasó de 4 pasos a 5: el nivel de experiencia se separó a su pantalla propia porque
+"Principiante / Novato / Intermedio / Avanzado" eran cuatro palabras sueltas sin ninguna pista, y
+ese dato decide qué ejercicios entran al plan.
+
+### Confirmar antes de lo que no se deshace
+
+Nuevo `components/ui/ConfirmDialog.tsx`: hoja que sube desde abajo, `Escape` cancela, el foco entra
+y vuelve. No es `window.confirm` porque ese aparece pegado arriba, fuera del alcance del pulgar, con
+la tipografía del sistema, y bloquea el hilo (ninguna animación sigue corriendo detrás).
+
+Se usa en: cerrar sesión (estaba a un dedo del logo y te echaba sin decir nada), cerrar sesión con
+series sin sincronizar, terminar una sesión con series sin hacer, desmarcar una serie ya registrada
+(borra el registro), y cambiar el plan del día.
+
+### Movimiento y señales
+
+- **Un ícono por patrón de movimiento** (`ui/PatternIcon.tsx`) en vez de la misma mancuerna cinco
+  veces. El criterio es la dirección de la carga, que es lo único que se lee a 18 px. Y el músculo
+  que se trabaja abajo del nombre: "Remo sentado" y "Jalón al pecho" eran dos nombres, no dos cosas.
+- **Íconos por objetivo** en el onboarding: seis opciones apiladas, todas grises, se leían como un
+  bloque de texto.
+- **"Armando tu plan"**: el rato entre confirmar y ver el plan era invisible.
+- **`PageLoader` no aparece antes de los 250 ms** y es la marca latiendo, no un anillo genérico.
+  Casi todas esas cargas terminan antes; un spinner que entra y sale en 80 ms se lee como que la
+  pantalla saltó.
+- **Transición al cambiar de sección** (`AppShell` con `key` por ruta): "Hoy" y "Progreso" se
+  reemplazaban en el mismo frame.
+
+### Dos bugs encontrados probando en el navegador
+
+1. **El aviso "el catálogo no está cargado" aparecía medio segundo en CADA entrada** y después
+   desaparecía solo: `isPlaceholder` arranca en `true` mientras la consulta viaja. Ahora solo se
+   afirma cuando se sabe (`catalogKnown`). Un cartel que va y viene se lee como que algo se rompió.
+2. **`exercises.movement_pattern` no existe**, la columna es `pattern`. La query de `useActivePlan`
+   fallaba y la pantalla se quedaba en el esqueleto para siempre.
+
+### Trampa para la próxima
+
+**Las animaciones de `motion` no corren en una pestaña que no está visible.** Chrome congela
+`requestAnimationFrame`, y con `AnimatePresence mode="wait"` eso deja la pantalla vieja montada
+esperando una salida que nunca termina. Verificando con el navegador automatizado parecía un bug del
+wizard (el paso 5 no montaba, la cabecera decía "Paso 5 de 5" y abajo seguía el 4): era la pestaña
+en segundo plano. Se comprueba con `document.visibilityState`.
+
+### Estado
+
+`npm run check` en verde: 220 tests. `body_metrics` aplicada al proyecto cloud
+(`supabase db push`), verificada con RLS activa. Deploy en `https://bluehorse-app.vercel.app`.
+
+## 8 de septiembre de 2026 (cuarta sesión: cloud, aislamiento, multi-plan)
 
 ### En producción, por fin
 

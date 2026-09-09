@@ -1,11 +1,12 @@
-import type { LoadUnit } from '@bh/domain';
+import type { AdaptationProposal, LoadUnit } from '@bh/domain';
 import { formatLoad } from '@bh/domain';
 import { AlertCircle, ArrowRight, Check, Sparkles, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
+import { useState } from 'react';
 import { usePendingProposals, useResolveProposal } from '../lib/adaptation.ts';
 import { showsPlaceholderContent } from '../lib/engine.ts';
 import { fadeUp, listContainer, listItem } from '../lib/motion.ts';
-import { Button, Card, Notice, SectionLabel } from './ui/index.ts';
+import { Button, Card, Notice, SectionLabel, Spinner } from './ui/index.ts';
 
 /**
  * "El motor propone, el usuario confirma" — nunca al revés. Aceptar una
@@ -20,6 +21,15 @@ import { Button, Card, Notice, SectionLabel } from './ui/index.ts';
 export function Proposals() {
   const proposals = usePendingProposals();
   const resolve = useResolveProposal();
+  // Cuál se está resolviendo, para que el anillo salga en el botón que se
+  // tocó. Antes los dos quedaban deshabilitados y ninguno decía nada: con
+  // señal mala eso son tres segundos en los que parece que no pasó nada.
+  const [resolving, setResolving] = useState<{ id: string; accept: boolean } | null>(null);
+
+  function handleResolve(proposal: AdaptationProposal, accept: boolean) {
+    setResolving({ id: proposal.id, accept });
+    resolve.mutate({ proposal, accept }, { onSettled: () => setResolving(null) });
+  }
 
   // Que el motor falle no puede verse igual que "no tiene nada para
   // proponer". Un zod roto en el historial dejaba esta pantalla en blanco y
@@ -82,9 +92,13 @@ export function Proposals() {
                     size="md"
                     className="flex-1"
                     disabled={resolve.isPending}
-                    onClick={() => resolve.mutate({ proposal, accept: true })}
+                    onClick={() => handleResolve(proposal, true)}
                   >
-                    <Check size={15} aria-hidden="true" />
+                    {resolving?.id === proposal.id && resolving.accept ? (
+                      <Spinner size={15} />
+                    ) : (
+                      <Check size={15} aria-hidden="true" />
+                    )}
                     Aceptar
                   </Button>
                   <Button
@@ -92,9 +106,13 @@ export function Proposals() {
                     size="md"
                     className="flex-1"
                     disabled={resolve.isPending}
-                    onClick={() => resolve.mutate({ proposal, accept: false })}
+                    onClick={() => handleResolve(proposal, false)}
                   >
-                    <X size={15} aria-hidden="true" />
+                    {resolving?.id === proposal.id && !resolving.accept ? (
+                      <Spinner size={15} />
+                    ) : (
+                      <X size={15} aria-hidden="true" />
+                    )}
                     Rechazar
                   </Button>
                 </div>
