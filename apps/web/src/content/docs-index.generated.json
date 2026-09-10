@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-10T18:42:30.415Z",
+ "generatedAt": "2026-09-10T18:43:51.208Z",
  "docs": [
   {
    "id": "metodo",
@@ -87,7 +87,7 @@
    "titulo": "Nivel de experiencia: cuatro opciones que a veces no cambian nada",
    "resumen": "El nivel es lo primero que se le pregunta al socio después de la edad, con cuatro tarjetas y un texto que dice que decide qué ejercicios entran al plan. Es el parámetro con más superficie aparente en toda la prescripción: define series,…",
    "archivo": "10-nivel-de-experiencia.md",
-   "bloques": 35
+   "bloques": 36
   },
   {
    "id": "11-frecuencia-semanal",

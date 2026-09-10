@@ -1173,4 +1173,53 @@ describe('lo que el ruleset afirma de sí mismo', () => {
     // los mismos números.
     expect(distintos.join('\n')).toBe('');
   });
+
+  /**
+   * Un `byLevel` a medio llenar no se ve: se ve como el default.
+   *
+   * Es lo que pasó con `recomposition` —le faltaban slots sueltos y
+   * `resolveParams` los completaba con la dosis de intermedio sin que nada
+   * avisara—, y lo que hizo que `10-nivel-de-experiencia.md` lo midiera como
+   * "2 de 4" mientras `12-objetivo.md` lo daba por "idéntico a hipertrofia".
+   *
+   * `10` documenta la forma que sí es deliberada: `beginner` redefine los tres
+   * roles, `novice` solo el primario y la progresión, `advanced` el primario y
+   * el secundario sin progresión propia. Un objetivo o no diferencia por nivel
+   * —y entonces el plan lo avisa— o diferencia con esa forma. Cualquier otra
+   * combinación es un copiado incompleto.
+   */
+  const FORMA_POR_NIVEL: Record<string, readonly string[]> = {
+    beginner: ['primary', 'secondary', 'isolation', 'progression'],
+    novice: ['primary', 'progression'],
+    advanced: ['primary', 'secondary'],
+  };
+
+  /** Qué tiene de raro la forma del `byLevel` de un objetivo, si tiene algo. */
+  function* formasRaras(objetivo: string, byLevel: Record<string, object> | undefined) {
+    for (const [nivel, esperados] of Object.entries(FORMA_POR_NIVEL)) {
+      const override = byLevel?.[nivel];
+      if (!override) {
+        yield objetivo + ': le falta el nivel "' + nivel + '"';
+        continue;
+      }
+      const tiene = Object.keys(override).sort().join(',');
+      const quiere = [...esperados].sort().join(',');
+      if (tiene !== quiere) {
+        yield objetivo + '.' + nivel + ': define [' + tiene + '], la forma es [' + quiere + ']';
+      }
+    }
+  }
+
+  it('los objetivos que diferencian por nivel usan todos la misma forma', () => {
+    const raros: string[] = [];
+
+    for (const [objetivo, bloque] of Object.entries(V1_RESEARCH.prescription)) {
+      const byLevel = bloque.byLevel as Record<string, object> | undefined;
+      // Sin `byLevel` el nivel no cambia la dosis, y de eso ya avisa el plan.
+      if (!byLevel || Object.keys(byLevel).length === 0) continue;
+      raros.push(...formasRaras(objetivo, byLevel));
+    }
+
+    expect(raros.join('\n')).toBe('');
+  });
 });

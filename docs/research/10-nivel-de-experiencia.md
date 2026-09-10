@@ -26,7 +26,7 @@ roles) que produce cada nivel:
 |---|---|---|
 | `strength` | 4 de 4 | |
 | `hypertrophy` | 4 de 4 | |
-| `recomposition` | 2 de 4 | novato, intermedio y avanzado son idénticos |
+| `recomposition` | ~~2 de 4~~ **4 de 4** | corregido el 10/09/2026, ver abajo |
 | `power` | **1 de 4** | **el nivel no cambia nada** |
 | `endurance` | **1 de 4** | **el nivel no cambia nada** |
 | `cardio` | **1 de 4** | **el nivel no cambia nada** |
@@ -37,6 +37,20 @@ alguien con diez años de gimnasio reciben la misma prescripción, palabra por p
 Y en los dos objetivos donde sí diferencia, la diferenciación es despareja: `novice` solo redefine
 `primary` y la progresión —sus ejercicios secundarios y de aislamiento son los del **intermedio**—,
 y `advanced` no define progresión propia.
+
+> **Corrección del 10 de septiembre de 2026.** La fila de `recomposition` decía "2 de 4", y era la
+> medición correcta de lo que había. Lo que nadie reconcilió es que `12-objetivo.md` afirmaba en la
+> misma época que `recomposition` es **idéntico a hipertrofia**, que da 4 de 4. Las dos cosas no
+> podían ser ciertas: este documento estaba midiendo un `byLevel` a medio copiar y el otro estaba
+> mirando solo la fila del `default`.
+>
+> Se resolvió a favor de lo que promete la nota del propio ruleset —"los números son los de
+> hipertrofia"— copiando su `byLevel`. La recomposición ahora diferencia igual que la hipertrofia, y
+> el detalle de lo que recibía cada nivel está en `12-objetivo.md`.
+>
+> El resto de este párrafo sigue vigente: `novice` redefine solo `primary` y la progresión, y
+> `advanced` no define progresión propia. Eso es igual en los tres objetivos que diferencian, así
+> que es la forma establecida y no un descuido.
 
 **Esto no es necesariamente un error de prescripción, pero sí de honestidad.** Se le presenta al
 socio una decisión de cuatro opciones como si individualizara el plan, y en la mitad de los casos
