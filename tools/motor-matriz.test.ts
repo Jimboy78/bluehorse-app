@@ -1199,13 +1199,13 @@ describe('lo que el ruleset afirma de sí mismo', () => {
     for (const [nivel, esperados] of Object.entries(FORMA_POR_NIVEL)) {
       const override = byLevel?.[nivel];
       if (!override) {
-        yield objetivo + ': le falta el nivel "' + nivel + '"';
+        yield `${objetivo}: le falta el nivel "${nivel}"`;
         continue;
       }
       const tiene = Object.keys(override).sort().join(',');
       const quiere = [...esperados].sort().join(',');
       if (tiene !== quiere) {
-        yield objetivo + '.' + nivel + ': define [' + tiene + '], la forma es [' + quiere + ']';
+        yield `${objetivo}.${nivel}: define [${tiene}], la forma es [${quiere}]`;
       }
     }
   }
