@@ -254,9 +254,40 @@ export function correrContraDocs(nombre = 'v1-research') {
    * vez que alguien pregunta de dónde sale un número.
    */
   const conTabla = new Set(filas.map((f) => f.objetivo));
+
+  /**
+   * Un objetivo puede verificarse sin tabla propia si el ruleset declara que
+   * sus números son los de otro objetivo que sí la tiene. Es el caso de
+   * `recomposition`, cuya nota dice "Los números son los de hipertrofia": se
+   * comprueba comparando los dos bloques, no leyendo un documento.
+   *
+   * Se chequea acá en vez de darlo por sentado, porque durante un tiempo esa
+   * nota fue falsa en tres de los cuatro niveles y nadie lo vio: el `byLevel`
+   * estaba a medio copiar (ver `12-objetivo.md`).
+   */
+  function equivaleA(goal, otro) {
+    const a = ruleset.prescription?.[goal];
+    const b = ruleset.prescription?.[otro];
+    if (!a || !b) return false;
+    return (
+      JSON.stringify(a.default) === JSON.stringify(b.default) &&
+      JSON.stringify(a.byLevel) === JSON.stringify(b.byLevel)
+    );
+  }
+
+  const POR_EQUIVALENCIA = { recomposition: 'hypertrophy' };
+
   const sinRespaldo = Object.keys(ruleset.prescription ?? {})
     .filter((goal) => !conTabla.has(goal))
-    .map((goal) => hallazgo(goal, null, 'sus números salen de prosa, no de una tabla comparable'));
+    .map((goal) => {
+      const espejo = POR_EQUIVALENCIA[goal];
+      if (!espejo) {
+        return hallazgo(goal, null, 'sus números salen de prosa, no de una tabla comparable');
+      }
+      if (equivaleA(goal, espejo)) return null;
+      return hallazgo(goal, null, `dice ser idéntico a ${espejo} y no lo es`);
+    })
+    .filter((h) => h !== null);
 
   return [
     chequeo('el ruleset dice otra cosa que el documento', filas.length, fuera),
