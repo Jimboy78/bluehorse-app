@@ -2,7 +2,7 @@ import { AlertCircle, CalendarDays, Flame, TrendingUp } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { ReactNode } from 'react';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
-import { GYM_TZ } from '../lib/gym-time.ts';
+import { claveComoTexto, GYM_TZ } from '../lib/gym-time.ts';
 import type { WeeklyVolumePoint } from '../lib/mappers/progress.ts';
 import { useProgress } from '../lib/progress.ts';
 import { ExerciseEvolution } from './ExerciseEvolution.tsx';
@@ -195,7 +195,7 @@ function WeeklyVolumeChart({ points }: { points: readonly WeeklyVolumePoint[] })
                 key={point.weekStart}
                 className="flex-1 text-center font-mono text-[0.55rem] leading-none text-slate-dim"
               >
-                {formatDate(point.weekStart)}
+                {claveComoTexto(point.weekStart)}
               </span>
             ))}
           </div>

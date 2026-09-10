@@ -62,3 +62,24 @@ export function diasEntre(a: string, b: string): number {
   const mb = new Date(`${b}T00:00:00Z`).getTime();
   return Math.round((ma - mb) / 86_400_000);
 }
+
+/**
+ * Una clave `YYYY-MM-DD` como texto para mostrar, sin volver a pasar por
+ * ninguna zona.
+ *
+ * `new Date('2026-09-07')` se parsea como medianoche **UTC**, así que
+ * formatearla en la zona del gimnasio (UTC−3) retrocede un día: el gráfico de
+ * volumen semanal etiquetaba "6 sept" —un domingo— la semana que arranca el
+ * lunes 7. Con `2026-01-01` cambiaba hasta el año: mostraba "31 dic".
+ *
+ * La clave ya es una fecha de calendario: no queda nada que convertir, solo
+ * que escribir. Por eso se arma la fecha por partes y se formatea sin
+ * `timeZone` — es el único camino en el que entra y sale el mismo día.
+ */
+const DIA_Y_MES = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'short' });
+
+export function claveComoTexto(claveDeDia: string): string {
+  const [año, mes, dia] = claveDeDia.split('-').map(Number);
+  if (!año || !mes || !dia) return claveDeDia;
+  return DIA_Y_MES.format(new Date(año, mes - 1, dia));
+}

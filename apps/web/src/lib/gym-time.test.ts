@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { diaDelGimnasio, diasEntre, lunesDeLaSemana } from './gym-time.ts';
+import { claveComoTexto, diaDelGimnasio, diasEntre, lunesDeLaSemana } from './gym-time.ts';
 
 /**
  * Arroyo Seco está en UTC−3, y un gimnasio se llena a la noche: la franja
@@ -45,5 +45,26 @@ describe('diasEntre', () => {
 
   it('el mismo día da 0', () => {
     expect(diasEntre('2026-09-08', '2026-09-08')).toBe(0);
+  });
+});
+
+describe('claveComoTexto', () => {
+  it('no retrocede un día al mostrar una clave de calendario', () => {
+    // `new Date('2026-09-07')` es medianoche UTC; formateada en UTC−3 daba
+    // "6 sept" — un domingo etiquetando la semana que empieza el lunes 7.
+    expect(claveComoTexto('2026-09-07')).toBe('7 sept');
+  });
+
+  it('no se lleva puesto el año en el primero de enero', () => {
+    // El caso peor del mismo error: mostraba "31 dic" del año anterior.
+    expect(claveComoTexto('2026-01-01')).toBe('1 ene');
+  });
+
+  it('un lunes de fin de mes se muestra como ese lunes', () => {
+    expect(claveComoTexto('2026-08-31')).toBe('31 ago');
+  });
+
+  it('una clave rota se muestra tal cual en vez de inventar una fecha', () => {
+    expect(claveComoTexto('cualquier cosa')).toBe('cualquier cosa');
   });
 });
