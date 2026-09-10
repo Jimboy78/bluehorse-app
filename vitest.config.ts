@@ -31,6 +31,23 @@ export default defineConfig({
         },
       },
       {
+        // La matriz del motor: corre el motor real sobre el catálogo real para
+        // una tanda de perfiles, chequea las invariantes de las reglas duras y
+        // escribe `tools/reportes/` para poder comparar dos rulesets.
+        //
+        // Es un proyecto de vitest y no un script suelto porque el motor es
+        // TypeScript y Node 22.3 no lo importa sin transpilar — y porque estas
+        // invariantes tienen que correr en `npm run check`, no cuando alguien
+        // se acuerde de correrlas.
+        resolve: { alias },
+        test: {
+          name: 'tools',
+          root: './tools',
+          environment: 'node',
+          include: ['*.test.ts'],
+        },
+      },
+      {
         resolve: { alias },
         test: {
           name: 'web',

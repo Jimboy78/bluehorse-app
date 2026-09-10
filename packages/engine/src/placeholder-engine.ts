@@ -630,15 +630,19 @@ function weeklyVolumeWarnings(
     ([muscle, sets]) => targeted.has(muscle) && sets > 0 && sets < minSetsPerMuscle,
   );
 
+  // "Con 1 sesiones por semana" — lo leía un socio que eligió entrenar una vez
+  // por semana, que es una opción válida del onboarding.
+  const frecuencia = `Con ${sesiones(perWeek)} por semana`;
+
   const warnings: string[] = [];
   if (over.length > 0) {
     warnings.push(
-      `Con ${perWeek} sesiones por semana, estos músculos pasan las ${maxSetsPerMuscle} series semanales que la evidencia marca como techo útil: ${list(over)}. Más volumen ahí no rinde más.`,
+      `${frecuencia}, estos músculos pasan las ${maxSetsPerMuscle} series semanales que la evidencia marca como techo útil: ${list(over)}. Más volumen ahí no rinde más.`,
     );
   }
   if (under.length > 0) {
     warnings.push(
-      `Con ${perWeek} sesiones por semana, estos músculos quedan abajo de las ${minSetsPerMuscle} series semanales mínimas: ${list(under)}. Sumar una sesión más por semana los cubre.`,
+      `${frecuencia}, estos músculos quedan abajo de las ${minSetsPerMuscle} series semanales mínimas: ${list(under)}. Sumar una sesión más por semana los cubre.`,
     );
   }
 
@@ -1058,7 +1062,7 @@ function pickTemplate(ruleset: Ruleset, goal: UserGoal, warnings: string[]) {
   const fallback = forGoal[0] ?? ruleset.templates[0];
   if (!fallback) throw new Error(`El ruleset ${ruleset.version} no tiene ninguna plantilla.`);
   warnings.push(
-    `Ninguna plantilla cubre ${goal.sessionsPerWeekTarget} sesiones por semana para el objetivo "${goal.goal}". Se usó "${fallback.label}".`,
+    `Ninguna plantilla cubre ${sesiones(goal.sessionsPerWeekTarget)} por semana para ${goalLabel(goal.goal)}. Se usó "${fallback.label}".`,
   );
   return fallback;
 }
@@ -1360,6 +1364,35 @@ const REGION_LABELS: Readonly<Record<BodyRegion, string>> = {
 
 function regionLabel(region: BodyRegion): string {
   return REGION_LABELS[region] ?? 'la zona que marcaste';
+}
+
+/**
+ * El objetivo en castellano.
+ *
+ * Los `warnings` del motor se muestran tal cual en la tarjeta del plan, así
+ * que un `goal.goal` interpolado crudo le dejaba al socio `el objetivo
+ * "hypertrophy"`: el identificador interno, en inglés y entrecomillado.
+ *
+ * Va acá al lado de `muscleLabel` y `regionLabel` y no se importa de
+ * `apps/web/src/lib/labels.ts` porque la flecha de dependencias va en un solo
+ * sentido: el motor no conoce la app.
+ */
+const GOAL_LABELS: Readonly<Record<Goal, string>> = {
+  strength: 'fuerza',
+  hypertrophy: 'hipertrofia',
+  power: 'potencia',
+  cardio: 'cardio',
+  endurance: 'resistencia',
+  recomposition: 'recomposición corporal',
+};
+
+function goalLabel(goal: Goal): string {
+  return GOAL_LABELS[goal] ?? goal;
+}
+
+/** "1 sesión" / "3 sesiones". Un socio puede elegir entrenar una vez por semana. */
+function sesiones(cantidad: number): string {
+  return cantidad === 1 ? '1 sesión' : `${cantidad} sesiones`;
 }
 
 function baselineToTarget(

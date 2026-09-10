@@ -33,6 +33,25 @@ npm run docs         # publica docs/research/ en la app. Correr al tocar un docu
 npm run sources      # resuelve los DOIs citados contra Crossref
 ```
 
+```bash
+npm run qa           # datos y codigo sin usar + el ruleset contra si mismo
+npm run qa base      # invariantes de las reglas duras contra la base local (necesita Docker)
+npm run qa diff a b  # que cambia entre dos rulesets, sin la prosa
+npm run qa:motor     # el motor sobre 13 perfiles -> tools/reportes/
+```
+
+`qa` imprime **solo lo que esta mal**: un barrido que mira 22 tablas y no encuentra nada son dos
+renglones. Con `--json` sale una linea de JSON para encadenar.
+
+`qa:motor` corre el motor real contra el catalogo real y escribe el plan de cada perfil. **Ese
+reporte se commitea**: es deterministico, asi que tocar un numero del ruleset aparece en el diff
+del commit como "la sentadilla paso de 4x6-12 a 3x6-12", que es la revision que un cambio de
+prescripcion merece. Para comparar dos corridas sueltas, `npm run qa motor-diff a.json b.json`.
+
+Las tres cosas que ya encontraron y no se veian leyendo codigo: una serie duplicada en la base,
+`database.types.ts` generado y sin importar (el cliente aceptaba tablas inventadas), y que
+`sessionMinutesTarget` viaja del onboarding al motor y el motor no lo lee.
+
 `docs` y `sources` generan lo que muestran `/documentacion` y `/evidencia`. Si se edita un archivo
 de `docs/research/` y no se regenera, la app sigue mostrando la versión vieja como si fuera toda la
 investigación que hay — `apps/web/src/content/docs.test.ts` frena eso.
