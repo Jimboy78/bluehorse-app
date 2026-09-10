@@ -90,6 +90,13 @@ export function pendingCount(ownerId: string): Promise<number> {
 
 export interface OutboxHealth {
   readonly pending: number;
+  /**
+   * Cuántas de esas son series. El resto son el `workout_log` de la sesión,
+   * borrados, récords: cosas reales, pero que nadie llamaría "una serie". Sin
+   * separarlas, el aviso de la pantalla contaba tres pendientes y decía "3
+   * series" cuando eran dos series y el registro de la sesión.
+   */
+  readonly sets: number;
   /** Cuántos ya fallaron al menos una vez: eso no es falta de señal. */
   readonly failing: number;
   /** El error del que más viene fallando, para saber por qué está trabado. */
@@ -111,7 +118,12 @@ export async function outboxHealth(ownerId: string): Promise<OutboxHealth> {
     (peor, i) => (peor === null || i.attempts > peor.attempts ? i : peor),
     null,
   );
-  return { pending: items.length, failing: failing.length, worstError: worst?.lastError ?? null };
+  return {
+    pending: items.length,
+    sets: items.filter((i) => i.kind === 'set_log').length,
+    failing: failing.length,
+    worstError: worst?.lastError ?? null,
+  };
 }
 
 /**

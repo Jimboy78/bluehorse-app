@@ -106,6 +106,14 @@ antes de hacerlo.
   está configurado (la query queda deshabilitada y nunca resuelve). **Todo componente que dependa
   de una query gateada por sesión chequea `status !== 'signed-in'` primero — no solo los `RequireX`,
   cualquier pantalla que lea datos del socio.**
+- **Sin señal, TanStack Query no falla: pausa.** El `networkMode` por defecto es `'online'`, así que
+  con `navigator.onLine === false` la query no se ejecuta y queda en `isPending` para siempre. Toda
+  pantalla que dibuja un esqueleto mientras `isPending` lo dibuja hasta que vuelva la señal, y el
+  `isError` que esas pantallas sí manejan nunca llega a correr. Medido en el navegador: "Progreso"
+  sin señal eran ocho esqueletos y ningún mensaje. Por eso el cliente usa
+  `networkMode: 'offlineFirst'`. Y una query que **no** toca la red (leer la cola de IndexedDB, por
+  ejemplo) va con `networkMode: 'always'`: si no, la falta de señal apaga justo el aviso que existe
+  para avisar de la falta de señal.
 - **`supabase db diff` no lee `schema_paths` desde la CLI ≥ 2.116.** El comando correcto es
   `npm run db:sync` (`supabase db schema declarative sync --apply`). Y esa sincronización rechaza
   `INSERT` sobre tablas de sistema (`storage.buckets`, etc.): los inserts van en `seed.sql`, las

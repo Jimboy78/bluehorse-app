@@ -3,6 +3,25 @@ import { QueryClient } from '@tanstack/react-query';
 /**
  * Lecturas del servidor. Las escrituras del entrenamiento NO pasan por acá:
  * van a la cola de `outbox.ts`, que sobrevive a que se cierre la app.
+ *
+ * SIN SEÑAL, UNA QUERY NO SE QUEDA ESPERANDO
+ *
+ * Por defecto TanStack Query usa `networkMode: 'online'`: cuando
+ * `navigator.onLine` es `false`, **pausa** la query en vez de ejecutarla. Una
+ * query pausada queda en `isPending` para siempre, así que toda pantalla que
+ * dibuja un esqueleto mientras `isPending` dibuja ese esqueleto hasta que
+ * vuelva la señal. Medido en el navegador: sin señal, "Progreso" quedaba con
+ * ocho esqueletos y ningún mensaje, y el `isError` que esas pantallas sí
+ * manejan no llegaba a correr nunca — porque la query no falla, no arranca.
+ *
+ * Es la misma trampa de `enabled: false` que documenta CLAUDE.md, con otra
+ * causa: una promesa que no resuelve ni rechaza es una pantalla que promete
+ * algo que nunca va a llegar.
+ *
+ * `offlineFirst` la deja intentar. Si hay caché, se ve la caché; si no, el
+ * `fetch` falla y la pantalla dice que falló, que es la verdad. Además es lo
+ * correcto para una PWA con service worker: la respuesta puede estar cacheada
+ * y no hacer falta red en absoluto.
  */
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -12,6 +31,7 @@ export const queryClient = new QueryClient({
       gcTime: 30 * 60 * 1000,
       refetchOnWindowFocus: false,
       retry: 2,
+      networkMode: 'offlineFirst',
     },
   },
 });

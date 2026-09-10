@@ -30,7 +30,7 @@ import { type OutboxHealth, outboxHealth } from './outbox.ts';
 
 export type SyncState =
   | { readonly kind: 'al-dia' }
-  | { readonly kind: 'esperando'; readonly pendientes: number }
+  | { readonly kind: 'esperando'; readonly pendientes: number; readonly series: number }
   | {
       readonly kind: 'trabado';
       readonly pendientes: number;
@@ -51,12 +51,19 @@ export function estadoDeSincronia(health: OutboxHealth | undefined): SyncState {
       error: health.worstError,
     };
   }
-  return { kind: 'esperando', pendientes: health.pending };
+  return { kind: 'esperando', pendientes: health.pending, series: health.sets };
 }
 
-/** "1 serie" / "3 series". Sin esto el aviso decía "1 series". */
-export function seriesPendientes(n: number): string {
-  return n === 1 ? '1 serie' : `${n} series`;
+/**
+ * Cómo nombrar lo que está esperando. Cuenta series, no filas: la cola
+ * también lleva el `workout_log` de la sesión y algún borrado, y decir "3
+ * series" cuando son dos series y el registro de la sesión es un número
+ * inventado, aunque sea uno chiquito.
+ */
+export function loQueEspera(series: number, total: number): string {
+  if (series === 1) return '1 serie';
+  if (series > 1) return `${series} series`;
+  return total === 1 ? '1 cambio' : `${total} cambios`;
 }
 
 /**
@@ -80,7 +87,19 @@ export function useSyncState(): SyncState {
     enabled: status === 'signed-in' && !!user,
     queryFn: () => outboxHealth(user?.id as string),
     refetchInterval: 3000,
+    // El intervalo se pausa con la pantalla apagada o la app en segundo plano,
+    // que es exactamente cuando la cola se vacía sola (`startAutoFlush`
+    // reintenta al volver la señal). Sin esto, al volver a mirar el teléfono
+    // el aviso seguía diciendo "2 series esperando" con la cola ya vacía.
+    // El resto de la app tiene `refetchOnWindowFocus: false` porque son
+    // consultas al servidor; esta lee IndexedDB y no cuesta nada.
+    refetchOnWindowFocus: true,
     retry: false,
+    // Esta query no toca la red: lee IndexedDB. Sin esto TanStack la pausaba
+    // junto con las demás cuando `navigator.onLine` es `false` — o sea, el
+    // aviso que existe para decir "estás sin señal" era lo primero que la
+    // falta de señal apagaba.
+    networkMode: 'always',
   });
 
   if (status !== 'signed-in') return AL_DIA;

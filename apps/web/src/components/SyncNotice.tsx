@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
 import { flush } from '../lib/outbox.ts';
 import { sendOutboxItem } from '../lib/session-log.ts';
-import { seriesPendientes, useSyncState } from '../lib/sync-state.ts';
+import { loQueEspera, useSyncState } from '../lib/sync-state.ts';
 import { Button, Notice } from './ui/index.ts';
 
 /**
@@ -29,8 +29,8 @@ export function SyncNotice() {
   if (estado.kind === 'esperando') {
     return (
       <Notice tone="info" role="status" icon={<CloudOff size={16} aria-hidden="true" />}>
-        {seriesPendientes(estado.pendientes)} esperando señal. Están guardadas en este teléfono, así
-        que no se pierden — pero los números de abajo todavía no las cuentan.
+        {loQueEspera(estado.series, estado.pendientes)} esperando señal. Está guardado en este
+        teléfono, así que no se pierde — pero los números de abajo todavía no lo cuentan.
       </Notice>
     );
   }
@@ -53,9 +53,9 @@ export function SyncNotice() {
     <Notice tone="warn" role="alert" icon={<TriangleAlert size={16} aria-hidden="true" />}>
       <span className="flex flex-col gap-2">
         <span>
-          {seriesPendientes(estado.pendientes)} sin guardar, y {estado.fallando} ya falló al
-          intentarlo. Eso no es falta de señal: hay algo que no se puede guardar. Los números de
-          abajo no las cuentan.
+          {estado.pendientes === 1 ? '1 registro' : `${estado.pendientes} registros`} sin guardar, y{' '}
+          {estado.fallando} ya falló al intentarlo. Eso no es falta de señal: hay algo que no se
+          puede guardar. Los números de abajo no lo cuentan.
         </span>
         {/* El error crudo, no una traducción tranquilizadora: es lo único que
             sirve para saber por qué está trabado. */}
