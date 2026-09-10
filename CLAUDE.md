@@ -114,14 +114,18 @@ antes de hacerlo.
   `networkMode: 'offlineFirst'`. Y una query que **no** toca la red (leer la cola de IndexedDB, por
   ejemplo) va con `networkMode: 'always'`: si no, la falta de señal apaga justo el aviso que existe
   para avisar de la falta de señal.
-- **Una lectura de Supabase puede no volver nunca, y eso es peor que un error.** Con el servidor
-  inalcanzable, supabase-js espera a renovar el token antes de mandar la consulta y esa espera puede
-  no terminar: la promesa no resuelve ni rechaza, TanStack la deja en `isPending` para siempre y
-  `retry` no entra porque no hay rechazo. Medido con el gateway apagado: la raíz de la app se quedó
-  más de un minuto en "Cargando…" —el guard `RequireScreening`— mientras un `fetch` suelto contra
-  ese mismo servidor fallaba en dos segundos. Toda lectura que tape una pantalla entera va envuelta
-  en `conPlazo()` (`lib/con-plazo.ts`): pasado el plazo rechaza, y a partir de ahí es un error como
-  cualquier otro.
+- **Una lectura de Supabase tarda muchísimo en fallar, y eso se acumula.** Con el servidor
+  inalcanzable, supabase-js espera a renovar el token antes de mandar la consulta: medido con el
+  gateway apagado, una lectura tarda **16,5 s** en devolver error, mientras un `fetch` suelto contra
+  ese mismo servidor falla en dos. Con reintentos son casi cincuenta segundos por consulta, y los
+  guards de ruta van en fila: la raíz de la app se quedó más de un minuto en "Cargando…". Toda
+  lectura que tape una pantalla entera va envuelta en `conPlazo()` (`lib/con-plazo.ts`), y el
+  `retry` global no reintenta un `PlazoVencido`: si no volvió en ocho segundos, no va a volver en
+  los próximos ocho.
+- **Para medir tiempos en el navegador, la pestaña tiene que estar a la vista.** Chrome estrangula
+  los timers de una pestaña oculta: medido acá, un `setTimeout` de 1500 ms tardó 11 s. Cualquier
+  cosa que dependa de un plazo (`conPlazo`, los reintentos de TanStack, el `refetchInterval`) se
+  mide mal en una pestaña de fondo, y se termina "arreglando" un problema que no existe.
 - **`supabase db diff` no lee `schema_paths` desde la CLI ≥ 2.116.** El comando correcto es
   `npm run db:sync` (`supabase db schema declarative sync --apply`). Y esa sincronización rechaza
   `INSERT` sobre tablas de sistema (`storage.buckets`, etc.): los inserts van en `seed.sql`, las

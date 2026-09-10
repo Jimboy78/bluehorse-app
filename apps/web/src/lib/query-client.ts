@@ -10,19 +10,27 @@ import { PlazoVencido } from './con-plazo.ts';
  * Por defecto TanStack Query usa `networkMode: 'online'`: cuando
  * `navigator.onLine` es `false`, **pausa** la query en vez de ejecutarla. Una
  * query pausada queda en `isPending` para siempre, así que toda pantalla que
- * dibuja un esqueleto mientras `isPending` dibuja ese esqueleto hasta que
- * vuelva la señal. Medido en el navegador: sin señal, "Progreso" quedaba con
- * ocho esqueletos y ningún mensaje, y el `isError` que esas pantallas sí
- * manejan no llegaba a correr nunca — porque la query no falla, no arranca.
+ * dibuja un esqueleto mientras `isPending` lo dibuja hasta que vuelva la
+ * señal. Medido en el navegador: sin señal, "Progreso" quedaba con ocho
+ * esqueletos y ningún mensaje, y el `isError` que esas pantallas sí manejan no
+ * llegaba a correr nunca — porque la query no falla, no arranca.
+ *
+ * `offlineFirst` tampoco alcanzaba: deja pasar el primer intento, pero si ese
+ * falla vuelve a pausar los reintentos. Medido con el servidor apagado y
+ * `navigator.onLine` en `true`: la consulta del guard de onboarding quedó en
+ * `fetchStatus: 'paused'` con un fallo encima, y la app no abrió nunca. Un
+ * guard de ruta tapa la app entera: tiene que llegar a una decisión siempre,
+ * aunque la decisión sea "falló".
+ *
+ * Con `'always'` la query se ejecuta igual y falla como cualquier otra. Cada
+ * lectura que tapa una pantalla va envuelta en `conPlazo()`, así que un
+ * intento no puede durar para siempre; y la pantalla muestra el error, que es
+ * la verdad. Las escrituras del entrenamiento no dependen de esto: van a la
+ * cola de `outbox.ts`, que sí espera a que vuelva la señal.
  *
  * Es la misma trampa de `enabled: false` que documenta CLAUDE.md, con otra
  * causa: una promesa que no resuelve ni rechaza es una pantalla que promete
  * algo que nunca va a llegar.
- *
- * `offlineFirst` la deja intentar. Si hay caché, se ve la caché; si no, el
- * `fetch` falla y la pantalla dice que falló, que es la verdad. Además es lo
- * correcto para una PWA con service worker: la respuesta puede estar cacheada
- * y no hacer falta red en absoluto.
  */
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,7 +44,7 @@ export const queryClient = new QueryClient({
       // ocho. Con tres intentos, un guard de ruta tardaba casi medio minuto en
       // rendirse, y son dos guards en fila.
       retry: (intentos, error) => !(error instanceof PlazoVencido) && intentos < 2,
-      networkMode: 'offlineFirst',
+      networkMode: 'always',
     },
   },
 });
