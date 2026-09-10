@@ -1961,3 +1961,141 @@ describe('lo que ACSM sostiene del ruleset', () => {
     }
   });
 });
+
+/**
+ * EL AVISO DE VOLUMEN SEMANAL
+ *
+ * `weeklyVolumeWarnings` es de las pocas piezas del motor que mira el plan
+ * entero y no un ítem, y no tenía cobertura sobre la diversidad: los tests que
+ * había son escenarios armados a mano. Acá se recalcula la cuenta sobre los 33
+ * perfiles y se exige que el aviso aparezca **exactamente** cuando la cuenta lo
+ * pide — ni de más, que sería ruido, ni de menos, que sería callarse un plan
+ * fuera de banda.
+ *
+ * El motor avisa y no corrige, a propósito: corregir la plantilla desde el
+ * código sería escribir contenido fuera del ruleset (regla dura 3).
+ */
+describe('el aviso de volumen semanal', () => {
+  /** La misma cuenta que hace el motor: la semana que el socio dijo que va a hacer. */
+  function volumenDe(perfil: Perfil) {
+    const plan = planDe(perfil, V1_RESEARCH);
+    const plantilla = V1_RESEARCH.templates.find((t) => t.id === plan.templateId);
+    // El motor acota por arriba con la plantilla y nunca sube el número: medir
+    // una semana que el socio no va a hacer apagaba el aviso justo para quien va
+    // menos veces (`11-frecuencia-semanal.md`).
+    const porSemana = Math.min(perfil.sesiones, plantilla?.sessionsPerWeek[1] ?? perfil.sesiones);
+    const series = new Map<MuscleGroup, number>();
+    const apuntados = new Set<MuscleGroup>();
+
+    for (const item of plan.sessions.slice(0, porSemana).flatMap((s) => s.items)) {
+      const ex = gym.exercises.find((e) => e.id === item.exerciseId);
+      if (!ex) continue;
+      for (const m of ex.primaryMuscles) {
+        series.set(m, (series.get(m) ?? 0) + item.targetSets);
+        // El piso se mide solo donde hay un compuesto: dos series de curl no son
+        // un bíceps sub-dosificado, son trabajo incidental.
+        if (ex.isCompound) apuntados.add(m);
+      }
+    }
+    return { avisos: plan.warnings, series, apuntados };
+  }
+
+  /** Los músculos por debajo de un piso dado, con la regla del motor. */
+  function pordebajoDe(
+    series: Map<MuscleGroup, number>,
+    apuntados: Set<MuscleGroup>,
+    piso: number,
+  ) {
+    return [...series.entries()].filter(([m, s]) => apuntados.has(m) && s > 0 && s < piso);
+  }
+
+  /** Los músculos fuera de banda de un perfil, con la regla del motor. */
+  function fueraDeBanda(perfil: Perfil) {
+    const { avisos, series, apuntados } = volumenDe(perfil);
+    const { minSetsPerMuscle, maxSetsPerMuscle } = resolveParams(
+      V1_RESEARCH,
+      perfil.goal ?? 'hypertrophy',
+      perfil.nivel,
+    ).weeklyVolume;
+    return {
+      avisos,
+      pasados: [...series.entries()].filter(([, s]) => s > maxSetsPerMuscle),
+      cortos: pordebajoDe(series, apuntados, minSetsPerMuscle),
+    };
+  }
+
+  /** Qué le falta o le sobra al aviso de un lado, si algo. */
+  function* quejasDeUnLado(
+    quien: string,
+    lado: string,
+    fuera: [MuscleGroup, number][],
+    aviso: string | undefined,
+  ) {
+    if (fuera.length > 0 !== (aviso !== undefined)) {
+      yield `${quien}: aviso de ${lado} ${aviso ? 'de más' : 'faltante'}`;
+      return;
+    }
+    // Cada aviso nombra el músculo con su cuenta: sin eso no se puede actuar.
+    for (const [musculo, series] of fuera) {
+      if (!aviso?.includes(`(${series})`)) {
+        yield `${quien}: el ${lado} no dice ${musculo} (${series})`;
+      }
+    }
+  }
+
+  it('aparece exactamente cuando la cuenta lo pide, en las dos direcciones', () => {
+    const problemas: string[] = [];
+    let conAlgo = 0;
+
+    for (const perfil of PERFILES) {
+      const { avisos, pasados, cortos } = fueraDeBanda(perfil);
+      if (pasados.length > 0 || cortos.length > 0) conAlgo += 1;
+
+      const deTecho = avisos.find((a) => a.includes('techo útil'));
+      const dePiso = avisos.find((a) => a.includes('series semanales mínimas'));
+      problemas.push(...quejasDeUnLado(perfil.nombre, 'techo', pasados, deTecho));
+      problemas.push(...quejasDeUnLado(perfil.nombre, 'piso', cortos, dePiso));
+    }
+
+    expect(problemas.join('\n')).toBe('');
+    // Sin esto el test pasa en verde si ningún perfil se sale de banda nunca.
+    expect(conAlgo, 'ningún perfil quedó fuera de banda: el test no midió nada').toBeGreaterThan(
+      10,
+    );
+  });
+
+  /**
+   * POR QUÉ EL AVISO NO USA `optimalSetsPerMuscle`
+   *
+   * El ruleset guarda tres números de volumen y el motor lee dos. El tercero,
+   * `optimalSetsPerMuscle`, está declarado como deuda en
+   * `ruleset-consumo.test.ts`: escrito y consumido por nadie.
+   *
+   * Tentador conectarlo, porque es el que coincide con ACSM 2026 (≥10 series
+   * semanales para hipertrofia, plateau en ~18-20). Este test mide qué pasaría:
+   * con la banda óptima el aviso de piso le sale a **32 de los 33 perfiles**. Un
+   * aviso que le sale a casi todo el mundo no informa nada; es tapar la evidencia
+   * con ruido en vez de con silencio, que es la regla dura 4 al revés.
+   *
+   * Así que la deuda se queda, y el motivo queda medido acá en vez de supuesto.
+   * Lo que sí es una decisión del dueño es que la banda que **sí** se lee —6 a 24
+   * series en hipertrofia— es más ancha que la evidencia por los dos lados. Ver
+   * `26-acsm-2026.md`.
+   */
+  it('con la banda óptima el aviso de piso le saldría a casi todos', () => {
+    const sinPiso: string[] = [];
+
+    for (const perfil of PERFILES) {
+      const { series, apuntados } = volumenDe(perfil);
+      const [optimoDesde] = resolveParams(V1_RESEARCH, perfil.goal ?? 'hypertrophy', perfil.nivel)
+        .weeklyVolume.optimalSetsPerMuscle;
+      if (pordebajoDe(series, apuntados, optimoDesde).length === 0) sinPiso.push(perfil.nombre);
+    }
+
+    // El único que se salva es un plan de fuerza de tres días: su piso óptimo es
+    // 6 y ningún músculo que reciba un compuesto queda debajo. Los dos que sí
+    // quedan cortos —abdominales y femorales— no los apunta ningún compuesto, y
+    // el motor no cuenta el trabajo incidental como sub-dosificación.
+    expect(sinPiso).toEqual(['mayor de 60 · fuerza']);
+  });
+});

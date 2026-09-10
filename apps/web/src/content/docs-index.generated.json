@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-10T23:40:15.544Z",
+ "generatedAt": "2026-09-10T23:46:10.872Z",
  "docs": [
   {
    "id": "metodo",
@@ -215,7 +215,7 @@
    "titulo": "El position stand que reemplaza al que sostiene medio motor",
    "resumen": "Revisión del 10 de septiembre de 2026. Salió de auditar 03-progresion-descarga.md, que tiene tres filas marcadas SIN VERIFICAR o CITA MAL APLICADA y una cita fabricada. Buscando una fuente real para reemplazarlas apareció algo más grande…",
    "archivo": "26-acsm-2026.md",
-   "bloques": 68
+   "bloques": 70
   },
   {
    "id": "auditoria",

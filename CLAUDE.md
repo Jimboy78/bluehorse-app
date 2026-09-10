@@ -215,3 +215,12 @@ antes de hacerlo.
 
 Los procedimientos largos están en skills, no acá: `cambiar-esquema`, `activar-ruleset`,
 `cargar-catalogo`. Para revisar cambios antes de commitear existe el agente `revisor`.
+
+- **`tools/motor-matriz.test.ts` escribe un artefacto que se commitea.** Genera
+  `tools/reportes/motor-v1-research.json` en cada corrida, así que **la última corrida antes de
+  commitear tiene que ser con el motor sano**. Falsificar rompiendo el motor —que es el método de
+  este proyecto— deja el reporte escrito por la versión rota si no se vuelve a correr después de
+  restaurar. Pasó: se commiteó un reporte con 77 líneas de avisos que el motor sano no emite, porque
+  el último corte de la tanda contaba el trabajo incidental como sub-dosificación. `git add -A` no
+  tiene forma de saberlo. Después de cualquier tanda de falsificación, **correr la matriz una vez más
+  y mirar `git diff tools/reportes/`** antes de commitear.
