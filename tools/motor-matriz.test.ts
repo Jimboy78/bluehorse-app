@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type {
+  BodyRegion,
   Equipment,
   EquipmentCategory,
   Exercise,
@@ -11,6 +12,9 @@ import type {
   MovementPattern,
   MuscleGroup,
   Profile,
+  SeasonPhase,
+  UserBaseline,
+  UserConstraint,
   UserGoal,
 } from '@bh/domain';
 import type { GymSnapshot, PlanBlueprint, Ruleset, UserSnapshot } from '@bh/engine';
@@ -116,6 +120,39 @@ interface Perfil {
   readonly nacimiento: string;
   readonly sesiones: number;
   readonly minutos: number;
+  /** Deporte del catálogo del ruleset (`sports.catalog[].id`). */
+  readonly deporte?: string;
+  readonly fase?: SeasonPhase;
+  /** Lesiones y molestias declaradas: es lo que activa el bloque `safety`. */
+  readonly limitaciones?: readonly UserConstraint[];
+  /** Días desde la última sesión. `null` = nunca entrenó; `undefined` = no se pasa. */
+  readonly diasSinEntrenar?: number | null;
+  /** Cargas conocidas, para que el motor pueda proponer un `targetLoad`. */
+  readonly cargas?: readonly UserBaseline[];
+}
+
+/**
+ * Una carga conocida en la prensa.
+ *
+ * Sin ningún baseline el motor no tiene contra qué calcular un `targetLoad` y
+ * sale `null` en todos los ítems — que es lo correcto (regla 6: no se inventa
+ * una carga), pero deja sin probar el recorte por desentrenamiento, que es
+ * justamente un porcentaje sobre una carga.
+ */
+const BASE_PRENSA: UserBaseline = {
+  exerciseId: 'ex-prensa-de-piernas',
+  source: 'declared',
+  load: { value: 80, unit: 'kg' },
+  reps: 10,
+  recordedAt: '2026-06-01T10:00:00.000Z',
+};
+
+function molestia(
+  bodyRegion: BodyRegion,
+  severity: number,
+  type: UserConstraint['type'] = 'pain',
+): UserConstraint {
+  return { type, bodyRegion, exerciseId: null, equipmentId: null, severity };
 }
 
 /**
@@ -232,11 +269,204 @@ const PERFILES: readonly Perfil[] = [
     sesiones: 5,
     minutos: 75,
   },
+
+  // ---------------------------------------------------------------- deportes
+  // Las cuatro categorías del ruleset, cada una con la fase de temporada que
+  // más la cambia. `emphasis` de cada deporte tiene que verse en la selección.
+  {
+    nombre: 'fútbol · pretemporada',
+    goal: 'strength',
+    nivel: 'intermediate',
+    nacimiento: '1999-04-12',
+    sesiones: 3,
+    minutos: 60,
+    deporte: 'futbol',
+    fase: 'preseason',
+  },
+  {
+    nombre: 'fútbol · en temporada',
+    goal: 'strength',
+    nivel: 'intermediate',
+    nacimiento: '1999-04-12',
+    sesiones: 2,
+    minutos: 45,
+    deporte: 'futbol',
+    fase: 'in_season',
+  },
+  {
+    nombre: 'tenis · en temporada',
+    goal: 'power',
+    nivel: 'advanced',
+    nacimiento: '1997-01-09',
+    sesiones: 3,
+    minutos: 60,
+    deporte: 'tenis',
+    fase: 'in_season',
+  },
+  {
+    nombre: 'pádel · recreativo',
+    goal: 'recomposition',
+    nivel: 'beginner',
+    nacimiento: '1983-10-25',
+    sesiones: 2,
+    minutos: 45,
+    deporte: 'padel',
+    fase: 'none',
+  },
+  {
+    nombre: 'vóley · fuera de temporada',
+    goal: 'hypertrophy',
+    nivel: 'intermediate',
+    nacimiento: '2001-06-30',
+    sesiones: 4,
+    minutos: 70,
+    deporte: 'voley',
+    fase: 'off_season',
+  },
+
+  // ------------------------------------------------------- dolor y lesiones
+  // El bloque `safety` es de los que declara evidencia floja, así que es
+  // justamente donde más importa mirar qué sale.
+  {
+    nombre: 'lumbalgia leve',
+    goal: 'hypertrophy',
+    nivel: 'intermediate',
+    nacimiento: '1991-02-17',
+    sesiones: 3,
+    minutos: 60,
+    limitaciones: [molestia('lower_back', 2)],
+  },
+  {
+    nombre: 'lumbalgia que no deja',
+    goal: 'hypertrophy',
+    nivel: 'intermediate',
+    nacimiento: '1991-02-17',
+    sesiones: 3,
+    minutos: 60,
+    limitaciones: [molestia('lower_back', 5)],
+  },
+  {
+    nombre: 'hombro lesionado',
+    goal: 'strength',
+    nivel: 'advanced',
+    nacimiento: '1989-08-03',
+    sesiones: 4,
+    minutos: 70,
+    limitaciones: [molestia('shoulder', 4, 'injury')],
+  },
+  {
+    nombre: 'rodilla lesionada',
+    goal: 'strength',
+    nivel: 'intermediate',
+    nacimiento: '1994-11-11',
+    sesiones: 3,
+    minutos: 60,
+    limitaciones: [molestia('knee', 4, 'injury')],
+  },
+  {
+    nombre: 'dos zonas a la vez',
+    goal: 'hypertrophy',
+    nivel: 'novice',
+    nacimiento: '1987-05-19',
+    sesiones: 3,
+    minutos: 60,
+    limitaciones: [molestia('knee', 3), molestia('shoulder', 3)],
+  },
+  {
+    nombre: 'mayor de 60 con rodilla',
+    goal: 'strength',
+    nivel: 'beginner',
+    nacimiento: '1959-03-08',
+    sesiones: 2,
+    minutos: 45,
+    limitaciones: [molestia('knee', 3)],
+  },
+
+  // ------------------------------------------------------- volver de una pausa
+  // `modifiers.detraining` recorta la carga por días de ausencia. Los bordes
+  // importan: el recorte tiene que ser monótono y no aparecer de golpe.
+  {
+    nombre: 'nunca entrenó',
+    goal: 'hypertrophy',
+    nivel: 'beginner',
+    nacimiento: '1998-09-14',
+    sesiones: 3,
+    minutos: 60,
+    diasSinEntrenar: null,
+  },
+  {
+    nombre: 'volvió a la semana',
+    goal: 'hypertrophy',
+    nivel: 'intermediate',
+    nacimiento: '1995-12-01',
+    sesiones: 3,
+    minutos: 60,
+    diasSinEntrenar: 7,
+    cargas: [BASE_PRENSA],
+  },
+  {
+    nombre: 'volvió al mes',
+    goal: 'hypertrophy',
+    nivel: 'intermediate',
+    nacimiento: '1995-12-01',
+    sesiones: 3,
+    minutos: 60,
+    diasSinEntrenar: 30,
+    cargas: [BASE_PRENSA],
+  },
+  {
+    nombre: 'volvió a los tres meses',
+    goal: 'hypertrophy',
+    nivel: 'intermediate',
+    nacimiento: '1995-12-01',
+    sesiones: 3,
+    minutos: 60,
+    diasSinEntrenar: 90,
+    cargas: [BASE_PRENSA],
+  },
+  {
+    nombre: 'volvió al año',
+    goal: 'hypertrophy',
+    nivel: 'intermediate',
+    nacimiento: '1995-12-01',
+    sesiones: 3,
+    minutos: 60,
+    diasSinEntrenar: 365,
+    cargas: [BASE_PRENSA],
+  },
+
+  // ------------------------------------------------------ el borde de los 60
+  // `modifiers.olderAdults.fromAge` es 60. Un umbral con una fecha de
+  // nacimiento adentro es donde se esconden los errores de un día.
+  {
+    nombre: 'justo antes de 60',
+    goal: 'strength',
+    nivel: 'intermediate',
+    nacimiento: '1966-09-11',
+    sesiones: 3,
+    minutos: 60,
+  },
+  {
+    nombre: 'justo cumplidos 60',
+    goal: 'strength',
+    nivel: 'intermediate',
+    nacimiento: '1966-09-09',
+    sesiones: 3,
+    minutos: 60,
+  },
+  {
+    nombre: 'ochenta años',
+    goal: 'strength',
+    nivel: 'beginner',
+    nacimiento: '1946-01-20',
+    sesiones: 2,
+    minutos: 40,
+  },
 ];
 
 function socioDe(p: Perfil): UserSnapshot {
   const profile: Profile = {
-    id: `user-${p.goal}-${p.nivel}`,
+    id: `user-${p.nombre.replace(/\s+/g, '-')}`,
     gymId: GYM_ID,
     displayName: p.nombre,
     birthDate: p.nacimiento,
@@ -245,13 +475,18 @@ function socioDe(p: Perfil): UserSnapshot {
   };
   const goal: UserGoal = {
     goal: p.goal,
-    sport: null,
-    seasonPhase: 'none',
+    sport: p.deporte ?? null,
+    seasonPhase: p.fase ?? 'none',
     priority: 1,
     sessionsPerWeekTarget: p.sesiones,
     sessionMinutesTarget: p.minutos,
   };
-  return { profile, goals: [goal], constraints: [], baselines: [] };
+  return {
+    profile,
+    goals: [goal],
+    constraints: p.limitaciones ?? [],
+    baselines: p.cargas ?? [],
+  };
 }
 
 const engine = createPlaceholderEngine();
@@ -263,6 +498,7 @@ function planDe(p: Perfil, ruleset: Ruleset): PlanBlueprint {
     user: socioDe(p),
     gym,
     ruleset,
+    ...(p.diasSinEntrenar === undefined ? {} : { daysSinceLastSession: p.diasSinEntrenar }),
   });
 }
 
@@ -319,6 +555,17 @@ function* quejasDe(item: ItemResumido): Generator<string> {
   // minutos. Se reconoce porque trae duración, no porque el descanso sea 0 —
   // así una serie de sala con descanso 0 sigue siendo un error.
   if (item.duracionSeg === null && item.descanso <= 0) yield `descanso ${item.descanso}`;
+}
+
+const CACHE = new Map<string, ReturnType<typeof resumir>>();
+
+/** El plan resumido de un perfil, calculado una sola vez. */
+function reporteDe(p: Perfil) {
+  const previo = CACHE.get(p.nombre);
+  if (previo) return previo;
+  const nuevo = resumir(planDe(p, V1_RESEARCH));
+  CACHE.set(p.nombre, nuevo);
+  return nuevo;
 }
 
 describe('matriz del motor', () => {
@@ -423,7 +670,7 @@ describe('matriz del motor', () => {
         if (sesion.minutos > perfil.minutos * 1.25) desbordes.add(perfil.nombre);
       }
     }
-    expect([...desbordes]).toEqual(['frecuencia mínima']);
+    expect([...desbordes].sort()).toEqual(['frecuencia mínima', 'ochenta años']);
   });
 });
 
@@ -456,5 +703,148 @@ describe('los avisos del motor', () => {
   it('sigue diciendo "3 sesiones" en plural', () => {
     const plan = planDe({ ...unaVezPorSemana, sesiones: 3 }, V1_RESEARCH);
     expect(plan.warnings.some((a) => a.includes('3 sesiones'))).toBe(true);
+  });
+});
+
+/**
+ * REGLA 3, VERIFICADA DE PUNTA A PUNTA
+ *
+ * `qa docs` compara el ruleset contra las tablas de `docs/research/`: ahí se ve
+ * que el número documentado llegó bien al JSON. Lo que eso NO prueba es que el
+ * número del JSON sea el que termina en el plan del socio.
+ *
+ * Esto cierra ese eslabón: cada combinación de series, repeticiones, RIR y
+ * descanso que sale en un plan tiene que existir tal cual en algún bloque del
+ * ruleset para ese objetivo. Si el motor promedia, redondea o mete un default
+ * propio, no va a encontrarse en ninguna parte y aparece acá.
+ *
+ * Es la única forma de que "ningún número de entrenamiento vive en el código"
+ * sea una afirmación verificada y no una intención.
+ */
+
+/**
+ * REGLA 3, VERIFICADA DE PUNTA A PUNTA
+ *
+ * `npm run qa docs` compara el ruleset contra las tablas de `docs/research/`:
+ * ahí se ve que el número documentado llegó bien al JSON. Lo que eso no prueba
+ * es que el número del JSON sea el que termina en el plan del socio.
+ *
+ * Esto cierra ese eslabón. En vez de comparar contra el bloque crudo —que da
+ * 280 falsos positivos, porque los modificadores existen justamente para
+ * transformarlo— se reconstruye la cadena documentada:
+ *
+ *   1. la prescripción del nivel (`byLevel.<nivel>`), o `default` si no hay
+ *   2. la ventana de repeticiones de mayores (`modifiers.olderAdults`), si la
+ *      edad la alcanza y el objetivo está en `appliesToGoals`
+ *   3. el multiplicador de volumen de la fase de temporada (`sports.seasonPhases`)
+ *
+ * Si el plan no coincide con eso, el motor puso un número que no sale del
+ * ruleset por ningún camino documentado, y ahí sí hay algo que mirar.
+ *
+ * Los tres grupos que la primera versión marcó como inventados y resultaron
+ * correctos, cada uno con su respaldo:
+ *
+ * - `RIR null` en potencia — `rirTarget` es `null` en el ruleset, y la nota
+ *   dice por qué: "la potencia se regula por velocidad, no por repeticiones
+ *   en reserva".
+ * - Series a la mitad en fútbol y tenis en temporada — `volumeMultiplier: 0.5`.
+ * - `7-9` repeticiones pasados los 60 — `olderAdults.repsWindow`.
+ */
+describe('los números del plan salen del ruleset', () => {
+  const reglas = V1_RESEARCH as unknown as {
+    prescription: Record<string, { default?: Ranura; byLevel?: Record<string, Ranura> }>;
+    modifiers?: {
+      olderAdults?: { fromAge: number; repsWindow: [number, number]; appliesToGoals: string[] };
+    };
+    sports?: { seasonPhases?: Record<string, { volumeMultiplier: number }> };
+  };
+
+  type Slot = {
+    sets: number;
+    repsMin: number;
+    repsMax: number;
+    rirTarget: number | null;
+    restSeconds: number;
+  };
+  type Ranura = Record<string, Slot>;
+
+  function edadDe(nacimiento: string): number {
+    const nace = new Date(nacimiento);
+    const hoy = new Date(AHORA);
+    let años = hoy.getUTCFullYear() - nace.getUTCFullYear();
+    const mes = hoy.getUTCMonth() - nace.getUTCMonth();
+    if (mes < 0 || (mes === 0 && hoy.getUTCDate() < nace.getUTCDate())) años--;
+    return años;
+  }
+
+  /** La ventana de repeticiones de mayores, si a este perfil le corresponde. */
+  function ventanaDeMayores(p: Perfil): [number, number] | null {
+    const mayores = reglas.modifiers?.olderAdults;
+    if (!mayores) return null;
+    if (edadDe(p.nacimiento) < mayores.fromAge) return null;
+    if (!mayores.appliesToGoals.includes(p.goal)) return null;
+    return mayores.repsWindow;
+  }
+
+  /** Todas las firmas que el ruleset permite para este perfil, con los modificadores puestos. */
+  function firmasPermitidas(p: Perfil): Set<string> {
+    const bloque = reglas.prescription[p.goal];
+    const familias = [bloque?.byLevel?.[p.nivel], bloque?.default].filter(Boolean) as Ranura[];
+    const ventana = ventanaDeMayores(p);
+
+    const multiplicador = reglas.sports?.seasonPhases?.[p.fase ?? 'none']?.volumeMultiplier ?? 1;
+
+    const firmas = new Set<string>();
+    for (const familia of familias) {
+      for (const slot of Object.values(familia)) {
+        if (typeof slot?.sets !== 'number') continue;
+        for (const firma of firmasDeUnSlot(slot, ventana, multiplicador)) firmas.add(firma);
+      }
+    }
+    return firmas;
+  }
+
+  /**
+   * Las firmas que admite una ranura sola, con los modificadores puestos.
+   *
+   * Se emiten las **dos** formas de redondear medio set (`ceil` y `floor`)
+   * porque el ruleset no dice cuál usar, y afirmar una sería convertir el test
+   * en una regla sobre algo que la investigación no decide. Lo que vigila es
+   * que las series salgan de multiplicar el valor del ruleset, no de un
+   * default escondido en el motor.
+   */
+  function firmasDeUnSlot(
+    slot: Slot,
+    ventana: [number, number] | null,
+    multiplicador: number,
+  ): string[] {
+    const repsMin = ventana ? ventana[0] : slot.repsMin;
+    const repsMax = ventana ? ventana[1] : slot.repsMax;
+    const posibles = [Math.ceil(slot.sets * multiplicador), Math.floor(slot.sets * multiplicador)];
+    return posibles
+      .filter((sets) => sets > 0)
+      .map((sets) => `${sets}×${repsMin}-${repsMax} RIR ${slot.rirTarget} d${slot.restSeconds}s`);
+  }
+
+  /** Lo que este perfil recibió y el ruleset no explica por ningún camino. */
+  function sinExplicacion(perfil: Perfil): string[] {
+    const permitidas = firmasPermitidas(perfil);
+    if (permitidas.size === 0) return []; // objetivo sin bloque de sala (cardio)
+
+    const sueltos: string[] = [];
+    for (const sesion of reporteDe(perfil).sesiones) {
+      for (const item of sesion.items) {
+        // El cardio continuo se prescribe por tiempo y zona, no por series.
+        if (item.duracionSeg !== null) continue;
+        const firma = `${item.series}×${item.reps} RIR ${item.rir} d${item.descanso}s`;
+        if (!permitidas.has(firma)) sueltos.push(`${perfil.nombre} · ${item.ejercicio}: ${firma}`);
+      }
+    }
+    return sueltos;
+  }
+
+  it('cada prescripción de sala se explica por el ruleset', () => {
+    const inexplicables = PERFILES.flatMap(sinExplicacion);
+    expect([...new Set(inexplicables)]).toEqual([]);
   });
 });

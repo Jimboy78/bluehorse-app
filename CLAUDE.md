@@ -37,6 +37,7 @@ npm run sources      # resuelve los DOIs citados contra Crossref
 npm run qa           # datos y codigo sin usar + el ruleset contra si mismo
 npm run qa base      # invariantes de las reglas duras contra la base local (necesita Docker)
 npm run qa diff a b  # que cambia entre dos rulesets, sin la prosa
+npm run qa docs      # el ruleset contra las tablas de docs/research/
 npm run qa:motor     # el motor sobre 13 perfiles -> tools/reportes/
 ```
 

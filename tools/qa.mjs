@@ -24,6 +24,7 @@
 import { argv, exit } from 'node:process';
 import { imprimir } from './lib/reporte.mjs';
 import { correrBase, correrGymId } from './qa-base.mjs';
+import { correrContraDocs } from './qa-docs.mjs';
 import { correrMotorDiff } from './qa-motor.mjs';
 import { correrMuerto } from './qa-muerto.mjs';
 import { correrConfianza, correrConsumo, correrDiff } from './qa-ruleset.mjs';
@@ -82,6 +83,11 @@ switch (comando) {
     break;
   }
 
+  case 'docs':
+    titulo = 'El ruleset contra la investigacion';
+    chequeos = correrContraDocs(args[1]);
+    break;
+
   case 'gym-id':
     titulo = 'Regla 5: gym_id en toda tabla de negocio';
     chequeos = correrGymId();
@@ -109,7 +115,7 @@ switch (comando) {
 
   case 'todo':
     titulo = 'Diagnóstico';
-    chequeos = [...correrMuerto(), ...correrConsumo(), ...correrConfianza()];
+    chequeos = [...correrMuerto(), ...correrConsumo(), ...correrConfianza(), ...correrContraDocs()];
     break;
 
   case 'todo-con-base':
