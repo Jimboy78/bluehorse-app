@@ -1,6 +1,7 @@
 import type { Goal } from '@bh/domain';
-import { ChevronDown, Info } from 'lucide-react';
+import { ArrowRight, ChevronDown, Info } from 'lucide-react';
 import { useId, useState } from 'react';
+import { Link } from 'react-router';
 import { activeRuleset } from '../lib/engine.ts';
 import { Notice } from './ui/index.ts';
 
@@ -19,11 +20,20 @@ import { Notice } from './ui/index.ts';
  * tiene algo escrito. Ver `docs/research/12-objetivo.md`.
  *
  * **Por qué el detalle va plegado.** Las notas van de 279 a 432 caracteres y
- * esto vive arriba de todo en la pantalla de inicio: en un teléfono se comía
- * media pantalla, todos los días, con un texto que ya se leyó. Lo que se pliega
- * es la explicación; el encabezado que avisa que la evidencia es floja queda
- * siempre a la vista, que es lo que la regla dura 4 exige. Esconder la
- * advertencia sería otra cosa.
+ * esto vive arriba de todo en la pantalla de inicio. Medido en el navegador a
+ * ancho de iPhone 12, con la nota de `cardio` (la más larga): abierto son
+ * 326 px de los ~690 útiles, el **47 % de la pantalla**, todos los días, con un
+ * texto que ya se leyó. Plegado son 70 px, el 10 %.
+ *
+ * Lo que se pliega es la explicación; el encabezado que avisa que la evidencia
+ * es floja queda siempre a la vista, que es lo que la regla dura 4 exige.
+ * Esconder la advertencia sería otra cosa.
+ *
+ * Y el desplegable no es el único lugar donde vive la nota: abajo del texto va
+ * el enlace a `/evidencia`, apuntando a este objetivo, donde está la misma nota
+ * con espacio y los papers debajo. Un aviso que solo se puede leer en dos
+ * renglones apretados arriba del plan no es evidencia mostrada, es evidencia
+ * mencionada.
  */
 export function EvidenceNotice({ goal }: { readonly goal: Goal | null }) {
   const [abierto, setAbierto] = useState(false);
@@ -53,9 +63,16 @@ export function EvidenceNotice({ goal }: { readonly goal: Goal | null }) {
           className={`ml-auto shrink-0 transition-transform ${abierto ? 'rotate-180' : ''}`}
         />
       </button>
-      <p id={detalleId} hidden={!abierto} className="mt-1.5">
-        {block.confidenceNote}
-      </p>
+      <div id={detalleId} hidden={!abierto} className="mt-1.5 flex flex-col gap-2">
+        <p>{block.confidenceNote}</p>
+        <Link
+          to={`/evidencia?objetivo=${goal}`}
+          className="flex items-center gap-1.5 self-start text-xs font-semibold text-brand underline-offset-4 hover:underline"
+        >
+          Ver las fuentes de este objetivo
+          <ArrowRight size={13} aria-hidden="true" />
+        </Link>
+      </div>
     </Notice>
   );
 }

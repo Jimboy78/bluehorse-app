@@ -1,4 +1,4 @@
-import { GOALS } from '@bh/domain';
+import type { Goal } from '@bh/domain';
 import {
   BookOpen,
   ExternalLink,
@@ -9,10 +9,12 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useId, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { AppShell } from '../components/AppShell.tsx';
 import { Card, Chip, Notice, SectionLabel } from '../components/ui/index.ts';
 import catalogo from '../content/sources.generated.json' with { type: 'json' };
 import { activeRuleset } from '../lib/engine.ts';
+import { objetivoDeLaUrl, ordenDeObjetivos } from '../lib/evidence-link.ts';
 import { GOAL_LABELS } from '../lib/labels.ts';
 import { fadeUp, listContainer, listItem } from '../lib/motion.ts';
 
@@ -35,6 +37,13 @@ import { fadeUp, listContainer, listItem } from '../lib/motion.ts';
  *
  * Lo que NO hace esta pantalla es interpretar los papers. Muestra qué se usó y
  * lleva al original; el socio que quiera leerlo, lo lee.
+ *
+ * Se puede entrar apuntando a un objetivo (`/evidencia?objetivo=cardio`): el
+ * aviso que "Hoy" muestra arriba del plan enlaza acá con el objetivo del socio.
+ * Ese aviso trae la nota de confianza recortada en un desplegable, porque
+ * abierto se come casi la mitad de la pantalla de un teléfono —medido: 326 px
+ * de 690 útiles—. Acá la misma nota tiene todo el espacio que necesita, y
+ * abajo están los papers.
  */
 
 const CONFIDENCE_META = {
@@ -62,6 +71,8 @@ export function Evidencia() {
   const [busqueda, setBusqueda] = useState('');
   const [tema, setTema] = useState<string | null>(null);
   const buscadorId = useId();
+  const [params] = useSearchParams();
+  const destacado = objetivoDeLaUrl(params.get('objetivo'));
 
   const temas = useMemo(
     () =>
@@ -110,7 +121,7 @@ export function Evidencia() {
         </Card>
       </motion.section>
 
-      <ConfianzaPorObjetivo />
+      <ConfianzaPorObjetivo destacado={destacado} />
 
       <section className="flex flex-col gap-2.5">
         <SectionLabel>Las fuentes ({catalogo.sources.length})</SectionLabel>
@@ -173,8 +184,25 @@ export function Evidencia() {
   );
 }
 
-/** El nivel de confianza que el ruleset declara para cada objetivo. */
-function ConfianzaPorObjetivo() {
+/**
+ * El nivel de confianza que el ruleset declara para cada objetivo.
+ *
+ * `destacado` es el objetivo por el que se entró desde el aviso de "Hoy". Su
+ * tarjeta se marca **y se pone primera**. Sin eso, quien toca "ver las fuentes
+ * de este objetivo" aterriza arriba de una lista de seis y tiene que buscar el
+ * suyo, que es la mitad del viaje otra vez.
+ *
+ * **Reordenar y no desplazar la pantalla.** El primer intento fue un
+ * `scrollIntoView` en un efecto, y no funcionó: medido, la página quedaba en
+ * `scrollY` 0 con la tarjeta de cardio a 718 px del borde —abajo del pliegue
+ * de cualquier teléfono—, porque el desplazamiento compite con la restauración
+ * de scroll de la navegación. La misma llamada desde la consola, con la
+ * pantalla ya quieta, sí funciona; o sea que es una carrera, y ganarla
+ * dependería de adivinar cuándo. Poner la tarjeta primera no depende de nada.
+ */
+function ConfianzaPorObjetivo({ destacado }: { readonly destacado: Goal | null }) {
+  const orden = ordenDeObjetivos(destacado);
+
   return (
     <section className="flex flex-col gap-2.5">
       <SectionLabel>Qué tan firme es cada objetivo</SectionLabel>
@@ -184,15 +212,17 @@ function ConfianzaPorObjetivo() {
         animate="visible"
         className="flex flex-col gap-2"
       >
-        {GOALS.map((goal) => {
+        {orden.map((goal) => {
           const bloque = activeRuleset.prescription[goal];
           if (!bloque) return null;
           const meta = CONFIDENCE_META[bloque.confidence];
           const Icono = meta.icon;
 
+          const esElSuyo = goal === destacado;
+
           return (
             <motion.li key={goal} variants={listItem}>
-              <Card className="flex flex-col gap-1.5 p-3.5">
+              <Card tone={esElSuyo ? 'brand' : 'default'} className="flex flex-col gap-1.5 p-3.5">
                 <div className="flex items-center gap-2">
                   <Icono size={15} aria-hidden="true" className={`shrink-0 ${meta.className}`} />
                   <span className="font-display text-sm font-semibold uppercase tracking-tight text-ink">
