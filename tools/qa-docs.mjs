@@ -177,6 +177,47 @@ function comparaPar(donde, fila, enElRuleset, documentados) {
   return hallazgo(donde, fila.archivo, `doc ${da}-${db}, ruleset ${a}-${b}`);
 }
 
+/**
+ * DOCUMENTOS QUE PRESCRIBEN Y NO CITAN NADA
+ *
+ * `qa docs` compara el ruleset contra la tabla, y puede dar 100 % de
+ * coincidencia sobre una tabla que no cita ninguna fuente. Eso es peor que una
+ * diferencia: es una transcripción fiel de algo que no se puede verificar.
+ *
+ * Medido: `01-fuerza-hipertrofia-potencia.md` tiene **51 filas de tabla y cero
+ * DOIs**, y es el documento que respalda las 36 prescripciones centrales —cada
+ * serie, repetición, RIR y descanso de fuerza, hipertrofia y potencia—. Su
+ * línea de "Fuentes" es prosa terminada en "etc.", aunque afirma citar
+ * "autor, año, publicación y DOI/PMID". `05-seguridad-reforzada.md` está
+ * igual, con 21 filas y ninguna cita.
+ *
+ * La consecuencia es de la regla dura 4 y se ve en pantalla:
+ * `scripts/build-sources.mjs` arma `/evidencia` resolviendo los DOIs citados,
+ * así que un socio que entra a comprobar de dónde sale su plan encuentra 51
+ * papers y **ninguno** detrás de sus series y repeticiones.
+ *
+ * El DOI se busca en el texto entero y no solo en las tablas: en los
+ * documentos que sí citan, la referencia va en un bloque `>` debajo de la
+ * tabla, no adentro de la celda.
+ */
+function documentosSinCitar() {
+  const hallazgos = [];
+  let mirados = 0;
+
+  for (const archivo of readdirSync(DOCS).filter((f) => /^\d/.test(f) && f.endsWith('.md'))) {
+    const texto = readFileSync(join(DOCS, archivo), 'utf8');
+    const filas = texto.split('\n').filter((l) => l.startsWith('| **')).length;
+    if (filas === 0) continue;
+
+    mirados++;
+    const dois = new Set(texto.match(/10\.\d{4,9}\/[^\s)"',]+/g) ?? []);
+    if (dois.size === 0) {
+      hallazgos.push(hallazgo(archivo, null, `${filas} filas de tabla, ninguna fuente citada`));
+    }
+  }
+  return chequeo('documentos que prescriben sin citar ninguna fuente', mirados, hallazgos);
+}
+
 export function correrContraDocs(nombre = 'v1-research') {
   const ruleset = leerRuleset(nombre);
   const filas = filasDocumentadas();
@@ -220,6 +261,7 @@ export function correrContraDocs(nombre = 'v1-research') {
   return [
     chequeo('el ruleset dice otra cosa que el documento', filas.length, fuera),
     chequeo('elegido dentro del rango de la evidencia', filas.length, dentroDelRango),
+    documentosSinCitar(),
     chequeo('parámetros con evidencia declarada BAJA', filas.length, flojas),
     chequeo(
       'objetivos sin tabla que verificar',

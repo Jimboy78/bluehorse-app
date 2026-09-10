@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-10T01:01:00.500Z",
+ "generatedAt": "2026-09-10T18:17:50.847Z",
  "docs": [
   {
    "id": "metodo",
@@ -176,6 +176,14 @@
    "resumen": "Hueco abierto en 08-edad.md. El ruleset le aplicaba a todo mayor de 60 la recomendación pensada para adultos frágiles —menos carga, más repeticiones, más descanso— y eso resultó mal: en mayores sanos la carga alta es superior y no produc…",
    "archivo": "21-fragilidad.md",
    "bloques": 30
+  },
+  {
+   "id": "22-carga-de-potencia",
+   "orden": 22,
+   "titulo": "La carga de potencia no es un rango: depende del ejercicio",
+   "resumen": "Revisión del 10 de septiembre de 2026. Salió de correr la matriz del motor (npm run qa:motor) sobre el catálogo real y mirar qué recibe un socio que elige el objetivo \"Potencia / explosividad\".",
+   "archivo": "22-carga-de-potencia.md",
+   "bloques": 34
   },
   {
    "id": "auditoria",

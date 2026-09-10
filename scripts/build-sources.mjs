@@ -18,6 +18,7 @@
 
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { exit } from 'node:process';
 import { fileURLToPath } from 'node:url';
 
 const raiz = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -49,6 +50,7 @@ const TEMAS = {
   19: 'Desentrenamiento aeróbico',
   20: 'Arranque sin test',
   21: 'Fragilidad',
+  22: 'Carga de potencia',
 };
 
 // El `]` y el `(` cierran un enlace de markdown: sin ellos, un DOI escrito como
@@ -94,8 +96,19 @@ function recolectar() {
   const porDoi = new Map();
 
   for (const archivo of readdirSync(researchDir).filter((f) => f.endsWith('.md'))) {
+    // Un documento numerado sin entrada en TEMAS se salteaba en silencio: sus
+    // DOIs no llegaban a `/evidencia` y el resumen final igual decía "51
+    // resueltas", el mismo número de antes. La única señal era que el conteo no
+    // se movía, que es justo lo que nadie mira. Ahora frena.
     const tema = TEMAS[archivo.slice(0, 2)];
-    if (!tema) continue;
+    if (!tema) {
+      if (/^\d\d-/.test(archivo)) {
+        console.error(`Falta el tema de "${archivo}" en TEMAS (scripts/build-sources.mjs).`);
+        console.error('Sin eso sus fuentes no aparecen en /evidencia.');
+        exit(1);
+      }
+      continue;
+    }
 
     const { vivos, descartados } = doisDe(readFileSync(join(researchDir, archivo), 'utf8'));
 
