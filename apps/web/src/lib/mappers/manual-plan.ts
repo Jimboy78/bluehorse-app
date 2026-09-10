@@ -1,5 +1,6 @@
 import type { LoadReading, LoadUnit } from '@bh/domain';
 import { LOAD_UNITS } from '@bh/domain';
+import type { Json } from '@bh/domain/database.types';
 import { z } from 'zod';
 import type { PlanSessionItemInsertRow } from './plan.ts';
 
@@ -73,9 +74,9 @@ export interface ManualPlanInsertRow {
   readonly ruleset_version: null;
   readonly template_id: null;
   readonly name: string;
-  readonly goal_snapshot: Record<string, unknown>;
+  readonly goal_snapshot: Json;
   readonly status: 'archived';
-  readonly warnings: readonly string[];
+  readonly warnings: string[];
   readonly origin: 'manual';
 }
 

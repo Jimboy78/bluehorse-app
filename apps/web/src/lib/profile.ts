@@ -78,23 +78,23 @@ export function useProfileDetail() {
       const gym = Array.isArray(rawGym) ? (rawGym[0] ?? null) : rawGym;
 
       return {
-        displayName: profile.display_name as string,
+        displayName: profile.display_name,
         email: user?.email ?? null,
         role: profile.role as ProfileDetail['role'],
-        birthDate: profile.birth_date as string | null,
-        age: yearsSince(profile.birth_date as string | null),
+        birthDate: profile.birth_date,
+        age: yearsSince(profile.birth_date),
         sex: profile.sex as Sex,
         experienceLevel: profile.experience_level as ExperienceLevel,
-        memberSince: profile.created_at as string,
+        memberSince: profile.created_at,
         onboarded: profile.onboarded_at !== null,
         gym: gym ? { name: gym.name, address: gym.address } : null,
         goal: goalRow
           ? {
               goal: goalRow.goal as Goal,
-              sport: goalRow.sport as string | null,
-              sessionsPerWeekTarget: goalRow.sessions_per_week_target as number,
-              sessionMinutesTarget: goalRow.session_minutes_target as number,
-              startedAt: goalRow.started_at as string,
+              sport: goalRow.sport,
+              sessionsPerWeekTarget: goalRow.sessions_per_week_target,
+              sessionMinutesTarget: goalRow.session_minutes_target,
+              startedAt: goalRow.started_at,
             }
           : null,
       };

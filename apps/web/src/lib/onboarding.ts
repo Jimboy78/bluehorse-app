@@ -31,7 +31,7 @@ export function useProfileStatus() {
       );
 
       if (error) throw error;
-      return { onboarded: data.onboarded_at !== null, gymId: data.gym_id as string };
+      return { onboarded: data.onboarded_at !== null, gymId: data.gym_id };
     },
   });
 }
@@ -71,7 +71,7 @@ export function useCompleteOnboarding() {
       // sin ningún peso registrado y sin ninguna pantalla para cargarlo.
       const { error: metricError } = await client
         .from('body_metrics')
-        .insert(toBodyMetricInsert(user.id, profileRow.gym_id as string, input));
+        .insert(toBodyMetricInsert(user.id, profileRow.gym_id, input));
       if (metricError) throw metricError;
 
       const { error: profileError } = await client

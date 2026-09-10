@@ -58,12 +58,12 @@ export function useScreeningState() {
       // Un cribado hecho con otro ruleset no sirve: las preguntas pueden haber
       // cambiado, y lo que se guardó son respuestas a las preguntas de entonces.
       const sameRuleset = data.ruleset_version === activeRuleset.version;
-      const accepted = data.disclaimer_accepted_at as string | null;
+      const accepted = data.disclaimer_accepted_at;
 
       return {
         required: true,
         answered: sameRuleset,
-        cleared: sameRuleset && (data.cleared as boolean),
+        cleared: sameRuleset && data.cleared,
         needsDisclaimer: !accepted || isDisclaimerStale(accepted, safety.disclaimerRenewMonths),
       };
     },

@@ -57,11 +57,11 @@ export function useCreateManualPlan() {
 
       const { data, error } = await client
         .from('plans')
-        .insert(toManualPlanInsert(user.id, profile.gym_id as string, name))
+        .insert(toManualPlanInsert(user.id, profile.gym_id, name))
         .select('id')
         .single();
       if (error) throw error;
-      return data.id as string;
+      return data.id;
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['plans', user?.id] });
@@ -76,7 +76,7 @@ async function usedSessionIndexes(client: SupabaseClient, planId: string): Promi
     .select('sequence_index')
     .eq('plan_id', planId);
   if (error) throw error;
-  return (data ?? []).map((row) => row.sequence_index as number);
+  return (data ?? []).map((row) => row.sequence_index);
 }
 
 async function usedItemIndexes(client: SupabaseClient, sessionId: string): Promise<number[]> {
@@ -85,7 +85,7 @@ async function usedItemIndexes(client: SupabaseClient, sessionId: string): Promi
     .select('order_index')
     .eq('plan_session_id', sessionId);
   if (error) throw error;
-  return (data ?? []).map((row) => row.order_index as number);
+  return (data ?? []).map((row) => row.order_index);
 }
 
 export function useAddManualSession(planId: string | null) {
@@ -105,7 +105,7 @@ export function useAddManualSession(planId: string | null) {
         .select('id')
         .single();
       if (error) throw error;
-      return data.id as string;
+      return data.id;
     },
     onSuccess: () => invalidatePlan(queryClient, user?.id, planId),
   });
@@ -235,11 +235,11 @@ export function useManualPlan(planId: string | null) {
       if (!plan) return null;
 
       return {
-        id: plan.id as string,
-        name: (plan.name as string | null) ?? null,
+        id: plan.id,
+        name: plan.name ?? null,
         status: plan.status as 'active' | 'archived',
         origin: plan.origin as 'engine' | 'manual',
-        sessions: await fetchManualSessions(client, plan.id as string),
+        sessions: await fetchManualSessions(client, plan.id),
       };
     },
   });
@@ -272,13 +272,13 @@ async function fetchManualSessions(
   const bySession = groupItems(items ?? []);
 
   return sessions.map((s) => ({
-    id: s.id as string,
-    sequenceIndex: s.sequence_index as number,
-    label: s.label as string,
-    focus: s.focus as string,
-    estimatedMinutes: s.estimated_minutes as number,
+    id: s.id,
+    sequenceIndex: s.sequence_index,
+    label: s.label,
+    focus: s.focus,
+    estimatedMinutes: s.estimated_minutes,
     status: s.status as ManualPlanSession['status'],
-    items: bySession.get(s.id as string) ?? [],
+    items: bySession.get(s.id) ?? [],
   }));
 }
 

@@ -123,7 +123,7 @@ export function useRecordBodyMetric() {
 
       const { error } = await client.from('body_metrics').insert({
         user_id: user.id,
-        gym_id: profileRow.gym_id as string,
+        gym_id: profileRow.gym_id,
         weight_kg: input.weightKg,
         height_cm: input.heightCm,
       });

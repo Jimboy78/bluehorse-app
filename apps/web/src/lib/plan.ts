@@ -149,9 +149,7 @@ async function persistSessions(
     .select('id, sequence_index');
   if (sessionsError) throw sessionsError;
 
-  const sessionIdBySequence = new Map(
-    (sessionRows ?? []).map((s) => [s.sequence_index, s.id as string]),
-  );
+  const sessionIdBySequence = new Map((sessionRows ?? []).map((s) => [s.sequence_index, s.id]));
 
   for (const session of sessions) {
     const sessionId = sessionIdBySequence.get(session.sequenceIndex);
@@ -196,13 +194,13 @@ export async function persistBlueprint(
   if (planError) throw planError;
 
   try {
-    await persistSessions(client, plan.id as string, blueprint.sessions);
+    await persistSessions(client, plan.id, blueprint.sessions);
   } catch (error) {
     await client.from('plans').delete().eq('id', plan.id);
     throw error;
   }
 
-  return plan.id as string;
+  return plan.id;
 }
 
 /**
@@ -369,7 +367,7 @@ async function daysSinceLastSession(
 
   if (error || !data?.started_at) return null;
 
-  const last = Date.parse(data.started_at as string);
+  const last = Date.parse(data.started_at);
   if (Number.isNaN(last)) return null;
   return Math.floor((Date.now() - last) / 86_400_000);
 }
@@ -391,7 +389,7 @@ async function planExerciseIds(client: SupabaseClient, planId: string): Promise<
     );
   if (itemsError || !items) return [];
 
-  return [...new Set(items.map((i) => i.exercise_id as string))];
+  return [...new Set(items.map((i) => i.exercise_id))];
 }
 
 export interface PlanSummary {
@@ -466,14 +464,14 @@ export function usePlans() {
       const counts = countSessionsByPlan(sessions ?? []);
 
       return plans.map((p) => {
-        const bucket = counts.get(p.id as string) ?? { total: 0, completed: 0, next: null };
+        const bucket = counts.get(p.id) ?? { total: 0, completed: 0, next: null };
         return {
-          id: p.id as string,
-          templateId: (p.template_id as string | null) ?? null,
-          name: (p.name as string | null) ?? null,
+          id: p.id,
+          templateId: p.template_id ?? null,
+          name: p.name ?? null,
           status: p.status as 'active' | 'archived',
-          generatedAt: p.generated_at as string,
-          rulesetVersion: (p.ruleset_version as string | null) ?? null,
+          generatedAt: p.generated_at,
+          rulesetVersion: p.ruleset_version ?? null,
           origin: p.origin as PlanOrigin,
           totalSessions: bucket.total,
           completedSessions: bucket.completed,
@@ -500,12 +498,12 @@ interface SessionBucket {
  * complejidad del hook por encima del límite del linter.
  */
 function countSessionsByPlan(
-  sessions: readonly { plan_id: unknown; status: unknown; label: unknown }[],
+  sessions: readonly { plan_id: string; status: string; label: string }[],
 ): Map<string, SessionBucket> {
   const counts = new Map<string, SessionBucket>();
 
   for (const row of sessions) {
-    const planId = row.plan_id as string;
+    const planId = row.plan_id;
     const bucket = counts.get(planId) ?? { total: 0, completed: 0, next: null };
     // Las filas vienen ordenadas por `sequence_index`: la primera pendiente
     // que aparece es la que tocaría si se retoma este plan.
@@ -513,7 +511,7 @@ function countSessionsByPlan(
     counts.set(planId, {
       total: bucket.total + 1,
       completed: bucket.completed + (row.status === 'completed' ? 1 : 0),
-      next: isNextPending ? (row.label as string) : bucket.next,
+      next: isNextPending ? row.label : bucket.next,
     });
   }
 
@@ -582,14 +580,14 @@ export function usePlanSessions(planId: string | null) {
       }
 
       return sessions.map((s) => ({
-        id: s.id as string,
-        sequenceIndex: s.sequence_index as number,
-        label: s.label as string,
-        focus: s.focus as string,
-        estimatedMinutes: s.estimated_minutes as number,
+        id: s.id,
+        sequenceIndex: s.sequence_index,
+        label: s.label,
+        focus: s.focus,
+        estimatedMinutes: s.estimated_minutes,
         status: s.status as PlanSessionSummary['status'],
-        completedAt: s.completed_at as string | null,
-        exercises: bySession.get(s.id as string) ?? [],
+        completedAt: s.completed_at,
+        exercises: bySession.get(s.id) ?? [],
       }));
     },
   });
@@ -705,7 +703,7 @@ async function activePlanId(client: SupabaseClient, userId: string): Promise<str
     .eq('status', 'active')
     .maybeSingle();
   if (error) throw error;
-  return (data?.id as string) ?? null;
+  return data?.id ?? null;
 }
 
 /** No-op si no había plan previo: el primer plan de alguien no archiva nada. */
@@ -757,7 +755,7 @@ async function applyCarriedLoads(
     .select('id')
     .eq('plan_id', planId);
   if (error) throw error;
-  const sessionIds = (sessions ?? []).map((s) => s.id as string);
+  const sessionIds = (sessions ?? []).map((s) => s.id);
   if (sessionIds.length === 0) return;
 
   for (const [exerciseId, load] of carried) {
@@ -887,7 +885,7 @@ export function useActivePlan() {
 
       return {
         kind: 'active',
-        planId: plan.id as string,
+        planId: plan.id,
         planOrigin: plan.origin as PlanOrigin,
         session: activeSession,
         planWarnings: (plan.warnings as string[] | null) ?? [],

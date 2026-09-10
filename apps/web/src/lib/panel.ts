@@ -33,7 +33,7 @@ export function useProfileRole() {
         .eq('id', user?.id as string)
         .single();
       if (error) throw error;
-      return { role: data.role as 'member' | 'staff' | 'admin', gymId: data.gym_id as string };
+      return { role: data.role as 'member' | 'staff' | 'admin', gymId: data.gym_id };
     },
   });
 }

@@ -68,7 +68,7 @@ export function useSubstitutionInsights() {
         .in('id', topIds);
       if (exerciseError) throw exerciseError;
 
-      const nameById = new Map((exerciseRows ?? []).map((e) => [e.id as string, e.name as string]));
+      const nameById = new Map((exerciseRows ?? []).map((e) => [e.id, e.name]));
 
       return topIds.map((id) => ({
         exerciseId: id,

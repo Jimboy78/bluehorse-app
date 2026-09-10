@@ -1,3 +1,4 @@
+import type { Database } from '@bh/domain/database.types';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '@supabase/supabase-js';
 import { env } from './env.ts';
@@ -9,8 +10,8 @@ import { env } from './env.ts';
  * La clave anon es pública a propósito. Quien controla el acceso es RLS.
  * La service_role nunca entra acá: va en Edge Functions.
  */
-export const supabase: SupabaseClient | null = env
-  ? createClient(env.VITE_SUPABASE_URL, env.VITE_SUPABASE_ANON_KEY, {
+export const supabase: SupabaseClient<Database> | null = env
+  ? createClient<Database>(env.VITE_SUPABASE_URL, env.VITE_SUPABASE_ANON_KEY, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
@@ -19,7 +20,7 @@ export const supabase: SupabaseClient | null = env
     })
   : null;
 
-export function requireSupabase(): SupabaseClient {
+export function requireSupabase(): SupabaseClient<Database> {
   if (!supabase) {
     throw new Error(
       'Supabase no está configurado. Copiá .env.example a .env y completá las variables.',

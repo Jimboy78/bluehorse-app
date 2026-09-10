@@ -86,7 +86,7 @@ async function generateProposals(
     .select('id')
     .eq('user_id', userId);
   if (workoutError) throw workoutError;
-  const workoutLogIds = (workoutRows ?? []).map((w) => w.id as string);
+  const workoutLogIds = (workoutRows ?? []).map((w) => w.id);
   if (workoutLogIds.length === 0) return [];
 
   const { data: setRows, error: setError } = await client
@@ -163,7 +163,7 @@ async function applyLoadChange(
     .eq('status', 'pending');
   if (sessionsError) throw sessionsError;
 
-  const pendingSessionIds = (pendingSessions ?? []).map((s) => s.id as string);
+  const pendingSessionIds = (pendingSessions ?? []).map((s) => s.id);
   if (pendingSessionIds.length === 0) return;
 
   // La unidad va junto con el número, siempre. Guardar `target_load` sin
