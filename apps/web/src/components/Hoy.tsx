@@ -29,6 +29,7 @@ import { RestTimer } from './RestTimer.tsx';
 import { SessionClose } from './SessionClose.tsx';
 import { SetRow } from './SetRow.tsx';
 import { SubstitutePicker } from './SubstitutePicker.tsx';
+import { UltimaVez } from './UltimaVez.tsx';
 import {
   Button,
   buttonClass,
@@ -251,6 +252,7 @@ export function Hoy() {
             original={original}
             userId={user?.id}
             gymId={profile.data?.gymId ?? null}
+            workoutLogId={workoutLogId}
             showingSubstitutes={showingSubstitutes}
             restingIndex={restingIndex}
             seriesHechas={seriesHechas}
@@ -596,6 +598,7 @@ function ExerciseDetail({
   original,
   userId,
   gymId,
+  workoutLogId,
   showingSubstitutes,
   restingIndex,
   seriesHechas,
@@ -612,6 +615,8 @@ function ExerciseDetail({
   original: ActiveSessionItem | undefined;
   userId: string | undefined;
   gymId: string | null;
+  /** El registro de HOY, para no contar la sesión en curso como "la vez pasada". */
+  workoutLogId: string | null;
   showingSubstitutes: boolean;
   restingIndex: number | null;
   seriesHechas: number[];
@@ -718,6 +723,11 @@ function ExerciseDetail({
           animate="visible"
           className="flex flex-col gap-2.5"
         >
+          {/* Lo que el plan propone está arriba; esto es lo que pasó la vez
+              pasada. Dos cosas distintas, mostradas como dos cosas distintas
+              (regla dura 7). */}
+          <UltimaVez exerciseId={item.exerciseId} workoutLogId={workoutLogId} />
+
           {/* Cada serie con su carga: se anota ANTES de hacerla, ahí mismo.
               En la primera sesión de cualquier estación el plan llega sin
               número (no hay con qué calcularlo sin inventarlo), y hasta hace
