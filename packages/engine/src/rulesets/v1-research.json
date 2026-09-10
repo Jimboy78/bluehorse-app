@@ -1003,7 +1003,7 @@
         "lowerBodyVolumeMultiplier": 0,
         "upperBodyVolumeMultiplier": 0.5,
         "avoidExplosive": true,
-        "note": "No hay evidencia directa para esto: es criterio de practica. Nada de pierna, y el resto liviano."
+        "note": "Nada de pierna y el resto liviano es criterio de practica, no evidencia. El unico metaanalisis que mira el dia de la competencia apunta al reves: una sesion corta, de volumen bajo y explosiva, con 6 horas o mas hasta el partido, da un efecto chico pero positivo (g 0,232; certeza baja). No se aplica porque ese beneficio depende del margen de horas y la app no pregunta cuantas faltan; y sobre el rendimiento propio del deporte el efecto ni siquiera es significativo (g 0,075; certeza muy baja)."
       }
     },
     "confidence": "low",

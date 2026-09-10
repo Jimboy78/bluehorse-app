@@ -104,7 +104,7 @@ justifica como distintos:
 | **Ayer jugué** (24 h) | Sprint −0,97, salto −0,42, dolor 1,00 | ALTA |
 | **Anteayer jugué** (48 h) | Sprint −0,75; salto ya recuperado | ALTA |
 | **Juego mañana** (−24 h) | Sin evidencia directa; consenso de no cargar pierna | BAJA |
-| **Juego hoy** | Sin evidencia directa | BAJA |
+| **Juego hoy** | Metaanálisis de priming: g = 0,232 con ≥ 6 h de margen, certeza baja | BAJA |
 
 Que el salto se recupere a las 48 h y el sprint no es lo que separa "ayer" de "anteayer": a las
 48 h se puede volver a cargar tren inferior, pero no trabajo explosivo.
@@ -170,33 +170,67 @@ que no se descarta efecto placebo; calidad heterogénea; no se evaluaron desenla
 
 > Dupuy et al. (2018), Frontiers in Physiology. DOI 10.3389/fphys.2018.00403
 
-### El día ANTES no hay que bajar los brazos — CONFIANZA BAJA, pero da vuelta la intuición
+### El priming es del día del partido, no del día antes — CORRECCIÓN del 10 de septiembre de 2026
 
-Esto contradice lo que asumí en la primera vuelta. Existe el "priming": una sesión corta el día
-antes puede **mejorar** el rendimiento del día siguiente, en vez de perjudicarlo.
+La segunda vuelta puso este hallazgo en la fila equivocada: lo escribió bajo "el día antes". Se abrió
+el **texto completo** del metaanálisis (Europe PMC, acceso abierto) y el propio trabajo dice de qué
+habla, varias veces:
 
-Metaanálisis multinivel, 18 estudios y 46 tamaños de efecto:
+> "Delayed priming asks a different, more applied **match-day** question: whether an activation
+> session completed **hours before** performance can still support later readiness."
+>
+> "Delayed exercise-based priming can be used as a practical **competition-day strategy** when
+> embedded in planned preparation windows."
+>
+> "In the available evidence, effects were directionally more favorable when the **recovery interval
+> was at least 6 h** and when outcomes were explosive or speed-related."
 
-- Efecto global: **g = 0,232 (IC 95% 0,092 a 0,372; p = 0,002)** — chico pero significativo.
-- A ≥6 h: g = 0,288 (IC 0,086 a 0,490; p = 0,007).
-- Fuerza y potencia: g = 0,212 (IC 0,097 a 0,326).
-- Velocidad y agilidad: g = 0,377 (IC −0,025 a 0,778) — el más grande, pero cruza el cero.
-- Rendimiento específico del deporte: g = 0,075 (IC −0,117 a 0,268) — **no significativo**, y es
-  justamente el desenlace que más nos importaría.
+La sesión y el partido caen **el mismo día**, separados por horas. No es entrenar la víspera.
+Llevarlo a "juego mañana" era extrapolar de horas a un día entero.
 
-Lo que funciona mejor es trabajo **explosivo y corto**, no volumen.
+**Sobre el día antes:** vuelve a quedar sin evidencia directa, que es lo que decía la primera vuelta.
+"El día antes no entrenes" sigue sin respaldo, pero su reemplazo tampoco lo tiene. Esa fila queda
+como criterio de práctica y no se mueve.
 
-**Pero la certeza es BAJA por GRADE**, y el dato que lo define: el **intervalo de predicción va de
-−0,265 a 0,730**. Traducido, en un contexto nuevo el efecto podría perfectamente ser negativo. Los
-propios autores recomiendan probarlo en un día de entrenamiento antes de usarlo en una competencia
-que importe.
+**Sobre el día del partido:** ahí sí hay un metaanálisis, y apunta al revés de lo que se asumía.
 
-**Consecuencia:** "el día antes no entrenes" no tiene respaldo. Lo defendible es una sesión **corta,
-sin énfasis excéntrico y sin volumen alto** — que es neutra en la peor lectura y levemente positiva
-en la mejor.
+| Análisis | k | m | g | IC 95% | Certeza GRADE |
+|---|---|---|---|---|---|
+| Rendimiento global | 18 | 46 | **0,232** | 0,092 a 0,372 (p = 0,002) | Baja |
+| Solo intervalos ≥ 6 h | 12 | 32 | **0,288** | 0,086 a 0,490 (p = 0,007) | Baja |
+| Fuerza y potencia | 17 | 26 | 0,212 | 0,097 a 0,326 | Baja |
+| Velocidad y agilidad | 7 | 9 | 0,377 | −0,025 a 0,778 | **Muy baja** |
+| Rendimiento específico del deporte | 8 | 11 | 0,075 | −0,117 a 0,268 | **Muy baja** |
 
-> Does delayed exercise-based priming improve subsequent athletic performance? A systematic review
-> and multilevel meta-analysis. DOI 10.1371/journal.pone.0354720
+Qué tipo de sesión, según el mismo trabajo:
+
+> "**Low-volume** resistance, sprint, or **ballistic stimuli** may increase motor-unit recruitment
+> efficiency, neural drive, muscle-tendon stiffness, and readiness for explosive force production."
+>
+> "Exploratory subgroup estimates were most consistently positive for explosive or speed-related
+> outcomes and for sprint-based priming protocols."
+
+Y el límite que ponen los autores, que es el que decide qué hacemos con esto:
+
+> "Because the certainty of evidence is low and effects vary across contexts, delayed priming should
+> be implemented with athlete-specific monitoring **rather than as a universal competition-day
+> prescription**."
+
+Lo defendible: una sesión **corta, de volumen bajo, explosiva, con al menos 6 h hasta el partido** es
+en promedio levemente positiva para fuerza y potencia. Lo que **no** es defendible es prometerle al
+socio que va a jugar mejor — el desenlace específico del deporte da g = 0,075, con el intervalo
+cruzando el cero y certeza **muy baja**, y es justo el que le importa.
+
+**Y hay un impedimento antes que el de producto: la app no pregunta cuántas horas faltan.** El
+estado `match_day` sabe que hoy se juega, no si el socio entrena ocho horas antes o una. Todo el
+beneficio medido está condicionado a ese margen. Sin ese dato no hay forma de aplicarlo sin
+inventarlo, así que el ruleset **no se cambia** y su nota pasa a decir esto en vez de "no hay
+evidencia directa", que era falso.
+
+> Wang Z, Li H, Xia W, Jin Z, Fu S, Nie Z. *Does delayed exercise-based priming improve subsequent
+> athletic performance? A systematic review and multilevel meta-analysis.* PLOS One. 2026.
+> DOI 10.1371/journal.pone.0354720 — **verificado: texto completo leído en Europe PMC (PMC13422850,
+> PMID 42531227); las cinco filas de la tabla salen de su Tabla 3**
 
 ### Lo que hace el fútbol profesional — CONSENSO, no evidencia
 
@@ -215,8 +249,8 @@ de peso.
 |---|---|---|
 | **Jugué ayer** | Sin énfasis excéntrico; tren superior y máquinas; movimiento suave si quiere | MEDIA (mecanismo ALTA, aplicación BAJA) |
 | **Jugué anteayer** | Se puede cargar pierna; todavía sin excéntrico marcado ni explosivo | MEDIA |
-| **Juego mañana** | Corto y explosivo, sin excéntrico. NO "no entrenes" | BAJA |
-| **Juego hoy** | Nada de pierna | BAJA, criterio de práctica |
+| **Juego mañana** | Sin evidencia directa. Criterio de práctica: no dejar la pierna cansada | BAJA |
+| **Juego hoy** | Con ≥ 6 h de margen, corto y explosivo es levemente positivo. Sin saber cuántas horas faltan, no se aplica | BAJA |
 
 Y lo que **no** se puede decidir: por el dolor que reporte el socio. Dos metaanálisis independientes
 en esta misma investigación muestran que el dolor y la creatina quinasa no siguen al rendimiento.

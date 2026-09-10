@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-10T18:17:50.847Z",
+ "generatedAt": "2026-09-10T18:32:32.256Z",
  "docs": [
   {
    "id": "metodo",
@@ -63,7 +63,7 @@
    "titulo": "Días pre y post partido",
    "resumen": "¿Importa dónde cae el entrenamiento respecto del partido? Sí, pero muchísimo más después que antes. Esa asimetría es el resultado principal y define el diseño: lo que se puede prescribir con respaldo es qué hacer los días posteriores; lo…",
    "archivo": "07-dias-pre-y-post-partido.md",
-   "bloques": 63
+   "bloques": 69
   },
   {
    "id": "08-edad",
@@ -183,7 +183,7 @@
    "titulo": "La carga de potencia no es un rango: depende del ejercicio",
    "resumen": "Revisión del 10 de septiembre de 2026. Salió de correr la matriz del motor (npm run qa:motor) sobre el catálogo real y mirar qué recibe un socio que elige el objetivo \"Potencia / explosividad\".",
    "archivo": "22-carga-de-potencia.md",
-   "bloques": 34
+   "bloques": 35
   },
   {
    "id": "auditoria",

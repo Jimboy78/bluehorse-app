@@ -105,9 +105,16 @@ externa que ajustar.
 
 Ahí se cierra el círculo con el otro hallazgo. El selector prefiere `reps_weight` en el ejercicio
 principal —"toda la progresión se mide en kilos"—, que es correcto para fuerza e hipertrofia. Con
-ocho ejercicios de patrón squat cargables disponibles, esa preferencia deja afuera a los tres
-explosivos **siempre**. El resultado es un plan de potencia hecho de ejercicios no explosivos, al
-que se le aplica una banda de intensidad pensada para ejercicios explosivos.
+ocho ejercicios de patrón squat cargables disponibles, esa preferencia los deja afuera del slot
+principal. El resultado es un plan de potencia hecho de ejercicios no explosivos, al que se le
+aplica una banda de intensidad pensada para ejercicios explosivos.
+
+**Corrección del 10 de septiembre de 2026.** La primera versión de este párrafo decía que la
+preferencia deja afuera a los tres explosivos *siempre*. Se midió sobre los 32 perfiles de la matriz
+y es más matizado: **un** plan recibe uno —vóley, fuera de temporada, "Salto al cajón" en la sesión
+de pierna—, y **ningún plan de potencia recibe ninguno**. La afirmación fuerte era la del slot
+principal; la de "nunca entran a ningún plan" no se sostiene y quedó anotada con un test que vigila
+que siga entrando al menos uno (`tools/motor-matriz.test.ts`).
 
 ## Veredicto sobre lo que había
 

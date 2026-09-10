@@ -9,6 +9,7 @@ import type {
   ExperienceLevel,
   Goal,
   LoadUnit,
+  MatchDayState,
   MovementPattern,
   MuscleGroup,
   Profile,
@@ -892,6 +893,214 @@ describe('el aviso de potencia sin explosivos', () => {
   it('no avisa en objetivos que no son potencia', () => {
     for (const perfil of PERFILES.filter((p) => p.goal !== 'power')) {
       expect(avisaDeExplosivos(perfil)).toBe(false);
+    }
+  });
+});
+
+/**
+ * EL DÍA DEL PARTIDO: EL MÉTODO QUE NADIE LLAMA
+ *
+ * `adjustSession` es el único método del contrato que la matriz no ejercitaba, y
+ * el único que hoy **ningún socio puede alcanzar**: `MatchDayState` vive en el
+ * enum del dominio y en el motor, y no aparece ni en `apps/web` ni en el
+ * esquema de la base. Nadie pregunta "¿jugaste ayer?", así que los cinco
+ * estados que `07-dias-pre-y-post-partido.md` justifica con siete fuentes no
+ * llegan a la pantalla.
+ *
+ * Se cubre igual, y por eso mismo: cuando se cablee, tiene que salir bien de
+ * entrada. Lo que se verifica es la regla 3 aplicada al ajuste — cada serie que
+ * sale se explica por el multiplicador del ruleset, no por un número del código.
+ */
+describe('el ajuste por día de partido', () => {
+  const ESTADOS = Object.keys(V1_RESEARCH.sports?.matchDay ?? {}) as MatchDayState[];
+
+  // Anatomía, no prescripción: el motor tiene la misma lista y no la exporta.
+  // Se repite acá a propósito — si alguien le agrega o le saca un músculo allá,
+  // este test empieza a fallar en vez de quedarse mirando otra cosa.
+  const PIERNA: readonly MuscleGroup[] = ['quads', 'hamstrings', 'glutes', 'calves'];
+
+  function esDePierna(ex: Exercise): boolean {
+    return ex.primaryMuscles.some((m) => PIERNA.includes(m));
+  }
+
+  /**
+   * TODAS las sesiones del plan, no la más cargada.
+   *
+   * La primera versión de esto miraba solo la sesión con más ítems, y con eso
+   * sacarle `avoidExplosive` al motor entero no rompía nada: el único
+   * explosivo que hoy entra a un plan cae en "Pierna B" del perfil de vóley,
+   * que no es la sesión más grande. Un test que mira una sesión por perfil deja
+   * pasar justo lo que aparece en las otras.
+   */
+  function sesionesDe(p: Perfil) {
+    return planDe(p, V1_RESEARCH).sessions;
+  }
+
+  function ajustar(p: Perfil, state: MatchDayState) {
+    return sesionesDe(p).map((sesion) => ({
+      label: sesion.label,
+      antes: sesion.items,
+      salida: engine.adjustSession({ items: sesion.items, gym, state, ruleset: V1_RESEARCH }),
+    }));
+  }
+
+  it('el ruleset declara los cinco estados que el documento justifica', () => {
+    // Si alguien agrega un estado sin documento detrás, o saca uno que el
+    // documento sostiene, esto lo dice antes de que llegue a un plan.
+    expect([...ESTADOS].sort()).toEqual(
+      ['day_after', 'day_before', 'match_day', 'normal', 'two_days_after'].sort(),
+    );
+  });
+
+  it('un día normal no toca nada', () => {
+    for (const perfil of PERFILES) {
+      for (const { label, antes, salida } of ajustar(perfil, 'normal')) {
+        expect(salida.changed, `${perfil.nombre}/${label}`).toBe(false);
+        expect(salida.note, `${perfil.nombre}/${label}`).toBeNull();
+        expect(salida.items, `${perfil.nombre}/${label}`).toEqual(antes);
+      }
+    }
+  });
+
+  it('cada serie que sale se explica por el multiplicador del ruleset', () => {
+    const sinExplicar: string[] = [];
+
+    for (const perfil of PERFILES) {
+      for (const state of ESTADOS) {
+        const regla = V1_RESEARCH.sports?.matchDay?.[state];
+        if (!regla) continue;
+        for (const { antes, salida } of ajustar(perfil, state)) {
+          const porId = new Map(salida.items.map((i) => [i.exerciseId, i]));
+
+          for (const item of antes) {
+            const ex = gym.exercises.find((e) => e.id === item.exerciseId);
+            const despues = porId.get(item.exerciseId);
+            if (!ex) continue;
+
+            // El cardio se prescribe por tiempo: un multiplicador de series no
+            // significa nada sobre él y tiene que salir intacto.
+            if (item.targetDurationSeconds !== null) {
+              expect(despues, `${perfil.nombre}/${state}/${ex.name}`).toEqual(item);
+              continue;
+            }
+
+            const mult = esDePierna(ex)
+              ? regla.lowerBodyVolumeMultiplier
+              : regla.upperBodyVolumeMultiplier;
+            const fuera = (regla.avoidExplosive && ex.isExplosive) || mult === 0;
+
+            if (fuera) {
+              if (despues !== undefined) {
+                sinExplicar.push(`${perfil.nombre}/${state}: ${ex.name} tendría que salir y quedó`);
+              }
+              continue;
+            }
+            if (despues === undefined) {
+              sinExplicar.push(
+                `${perfil.nombre}/${state}: ${ex.name} salió sin regla que lo saque`,
+              );
+              continue;
+            }
+            const esperado = Math.max(1, Math.round(item.targetSets * mult));
+            if (despues.targetSets !== esperado) {
+              sinExplicar.push(
+                `${perfil.nombre}/${state}: ${ex.name} ${item.targetSets}→${despues.targetSets}, el ruleset da ${esperado}`,
+              );
+            }
+          }
+        }
+      }
+    }
+
+    expect(sinExplicar.join('\n')).toBe('');
+  });
+
+  /**
+   * LA REGLA DE LO EXPLOSIVO SE PROBÓ SOLA, Y CASI NO SE PRUEBA
+   *
+   * Se le sacó `avoidExplosive` al motor entero y los 32 perfiles siguieron
+   * pasando. La causa no era que ningún plan traiga explosivos —uno los trae—
+   * sino que el test miraba una sola sesión por perfil, y el único explosivo
+   * que hoy entra cae en "Pierna B" del perfil de vóley. Con eso corregido, la
+   * cobertura pende de **un** ítem de **un** perfil: si el catálogo o el
+   * selector se mueven un poco, la regla vuelve a quedar sin probar y nada
+   * avisa.
+   *
+   * Por eso van los dos tests: uno arma el caso a mano, para que la rama esté
+   * cubierta pase lo que pase, y el otro vigila que siga habiendo al menos un
+   * plan real donde la regla haga algo.
+   */
+  it('saca lo explosivo cuando el estado lo pide', () => {
+    const explosivo = gym.exercises.find((e) => e.isExplosive);
+    expect(explosivo).toBeDefined();
+    if (!explosivo) return;
+
+    const base = sesionesDe(PERFILES[0])[0].items[0];
+    const item = { ...base, exerciseId: explosivo.id };
+
+    for (const state of ESTADOS) {
+      const regla = V1_RESEARCH.sports?.matchDay?.[state];
+      if (!regla) continue;
+      const salida = engine.adjustSession({ items: [item], gym, state, ruleset: V1_RESEARCH });
+      expect(salida.items.length, state).toBe(regla.avoidExplosive ? 0 : 1);
+      if (regla.avoidExplosive) expect(salida.note, state).toContain(explosivo.name);
+    }
+  });
+
+  it('algún plan real todavía trae un explosivo sobre el que la regla actúe', () => {
+    const conExplosivo = PERFILES.filter((perfil) =>
+      sesionesDe(perfil).some((s) =>
+        s.items.some((i) => gym.exercises.find((e) => e.id === i.exerciseId)?.isExplosive),
+      ),
+    ).map((perfil) => perfil.nombre);
+
+    // Hoy es exactamente uno, y no es de potencia: los tres explosivos del
+    // gimnasio son de peso corporal y el selector prefiere `reps_weight` en el
+    // slot principal (ver `22-carga-de-potencia.md`). Que sea uno solo es el
+    // hallazgo, no el requisito — el test pide que no sea cero.
+    expect(conExplosivo.length, 'ningún plan trae explosivos').toBeGreaterThan(0);
+  });
+
+  it('recorta la pierna al menos tanto como el tren superior', () => {
+    // La asimetría es el resultado principal del documento: el daño se
+    // concentra abajo. Si algún estado recortara más arriba que abajo, el
+    // ruleset estaría diciendo lo contrario que su propia fuente.
+    for (const state of ESTADOS) {
+      const regla = V1_RESEARCH.sports?.matchDay?.[state];
+      if (!regla) continue;
+      expect(regla.lowerBodyVolumeMultiplier, state).toBeLessThanOrEqual(
+        regla.upperBodyVolumeMultiplier,
+      );
+    }
+  });
+
+  it('ningún estado deja la sesión vacía salvo el del partido', () => {
+    for (const perfil of PERFILES) {
+      for (const state of ESTADOS) {
+        if (state === 'match_day') continue;
+        for (const { label, salida } of ajustar(perfil, state)) {
+          expect(salida.items.length, `${perfil.nombre}/${state}/${label}`).toBeGreaterThan(0);
+        }
+      }
+    }
+  });
+
+  it('cuando cambia algo lo explica, y lo que saca lo nombra', () => {
+    for (const perfil of PERFILES) {
+      for (const state of ESTADOS) {
+        for (const { label, antes, salida } of ajustar(perfil, state)) {
+          if (!salida.changed) continue;
+          expect(salida.note, `${perfil.nombre}/${state}/${label}`).toBeTruthy();
+
+          const sacados = antes.filter(
+            (i) => !salida.items.some((o) => o.exerciseId === i.exerciseId),
+          );
+          for (const item of sacados) {
+            const nombre = gym.exercises.find((e) => e.id === item.exerciseId)?.name;
+            if (nombre) expect(salida.note, `${perfil.nombre}/${state}/${label}`).toContain(nombre);
+          }
+        }
+      }
     }
   });
 });
