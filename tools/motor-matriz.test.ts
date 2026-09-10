@@ -8,20 +8,24 @@ import type {
   Exercise,
   ExperienceLevel,
   Goal,
+  LoadReading,
   LoadUnit,
   MatchDayState,
   MovementPattern,
   MuscleGroup,
+  Plan,
   Profile,
   SeasonPhase,
+  SetLog,
   UserBaseline,
   UserConstraint,
   UserGoal,
 } from '@bh/domain';
-import { MUSCLE_GROUPS } from '@bh/domain';
+import { MUSCLE_GROUPS, nextLoad, snapToEquipment } from '@bh/domain';
 import type {
   GymSnapshot,
   PlanBlueprint,
+  ProposalBlueprint,
   Ruleset,
   SessionItemBlueprint,
   UserSnapshot,
@@ -82,15 +86,18 @@ function construirGimnasio(): GymSnapshot {
     locationNote: null,
     setupNotes: null,
     // El rango real de cada estación todavía no está medido in situ: `load_min`,
-    // `load_max` y `load_increment` siguen en null en la base. Se pasa lo mismo
-    // acá para que la matriz refleje lo que el motor ve hoy, no un gimnasio ideal.
-    load: {
-      unit: e.load_unit as LoadUnit,
-      min: null,
-      max: null,
-      increment: null,
-      levels: null,
-    },
+    // `load_max` y `load_increment` siguen en null en la base. La matriz refleja
+    // eso, pero **como lo refleja la app**: `toDomainEquipment` arma el spec con
+    // spread condicional, así que una columna nula deja la clave AUSENTE, no en
+    // `null`.
+    //
+    // No es lo mismo, y la diferencia se comía la carga entera. `snapToEquipment`
+    // pregunta `spec.max !== undefined`, y `null` pasa ese filtro: con `max:
+    // null` hacía `Math.min(41, null)`, que es `Math.min(41, 0)` = 0. Medido:
+    // con 40 kg anotados, el motor proponía "subir" de 40 a 0. En la app no
+    // pasa; pasaba solo acá, o sea que toda conclusión de la matriz sobre carga
+    // se sacaba contra un gimnasio que no existe.
+    load: { unit: e.load_unit as LoadUnit },
     quantity: e.quantity,
     isActive: true,
   }));
@@ -1532,5 +1539,220 @@ describe('los ejercicios equivalentes', () => {
     // en `25`. Si llega a cero, esa sección quedó vieja.
     expect(rescatados.length, 'la sustitución no rescata a nadie').toBeGreaterThan(0);
     expect(new Set([...enPlanes, ...comoEquivalente]).size).toBeGreaterThan(enPlanes.size);
+  });
+});
+
+/**
+ * LA ADAPTACIÓN, SOBRE TODOS LOS PERFILES
+ *
+ * `reviewProgress` tiene cobertura buena en `adaptive-engine.test.ts`, pero de
+ * escenarios armados a mano: un socio, un ejercicio, un historial. Lo que
+ * faltaba es lo que la matriz ya hace con `generatePlan` — pasarle la
+ * diversidad entera y verificar que **cada número que propone sale del
+ * ruleset**, que es la regla dura 3 aplicada a la adaptación.
+ *
+ * El historial se fabrica para disparar cada regla a propósito: no se mide si
+ * el motor decide bien *cuándo* proponer (eso está en los escenarios), sino que
+ * cuando propone, el número sea el que el ruleset manda para ESE objetivo, ESE
+ * nivel y ESE tren.
+ */
+describe('la adaptación sobre todos los perfiles', () => {
+  const AYER = '2026-09-09T12:00:00.000Z';
+
+  function planDeSocio(perfil: Perfil): Plan {
+    return {
+      id: `plan-${perfil.nombre}`,
+      userId: 'socio',
+      gymId: GYM_ID,
+      rulesetVersion: V1_RESEARCH.version,
+      generatedAt: AYER,
+      status: 'active',
+    };
+  }
+
+  /**
+   * La carga con la que se simula que viene entrenando.
+   *
+   * **No sale del plan**: ningún ítem trae `targetLoad`, porque las 58
+   * estaciones siguen sin su rango medido (`load_min`/`load_max` en null, ver
+   * CLAUDE.md). En la app la carga la anota el socio al registrar la serie, que
+   * es exactamente lo que se simula acá.
+   *
+   * La primera versión de estos tests la sacaba de `item.targetLoad` y pasaba
+   * en verde sin ejercitar nada: los 33 perfiles entraban por un `continue`.
+   */
+  const CARGA_ANOTADA: LoadReading = { value: 40, unit: 'kg' };
+
+  /** Series inventadas para un ejercicio, todas iguales, con el RIR pedido. */
+  function historial(item: SessionItemBlueprint, rir: number, reps: number, cuantas: number) {
+    return Array.from({ length: cuantas }, (_, i) => ({
+      id: `set-${i}`,
+      workoutLogId: `log-${i}`,
+      planSessionItemId: null,
+      exerciseId: item.exerciseId,
+      equipmentId: item.equipmentId,
+      load: CARGA_ANOTADA,
+      loadKg: CARGA_ANOTADA.value,
+      reps,
+      repsTarget: item.targetRepsMax,
+      rir,
+      durationSeconds: null,
+      distanceMeters: null,
+      restPrescribedSeconds: item.restSeconds,
+      restActualSeconds: item.restSeconds,
+      isWarmup: false,
+      completedAt: AYER,
+      clientId: `c-${i}`,
+    })) as SetLog[];
+  }
+
+  /** El primer ítem de sala del plan, que es sobre lo que se adapta. */
+  function itemDeSala(perfil: Perfil): SessionItemBlueprint | undefined {
+    return planDe(perfil, V1_RESEARCH)
+      .sessions.flatMap((s) => s.items)
+      .find((i) => i.targetDurationSeconds === null && i.equipmentId !== null);
+  }
+
+  function revisar(perfil: Perfil, history: SetLog[]) {
+    return engine.reviewProgress({
+      context: { now: AHORA, seed: 42 },
+      user: socioDe(perfil),
+      gym,
+      plan: planDeSocio(perfil),
+      history,
+      resolvedProposals: [],
+      ruleset: V1_RESEARCH,
+    });
+  }
+
+  /** Músculos que el motor agrupa como tren inferior, para el paso de progresión. */
+  const PIERNA: readonly MuscleGroup[] = ['quads', 'hamstrings', 'glutes', 'calves'];
+
+  /** El ejercicio, la estación y los parámetros de un perfil. Null si no aplica. */
+  function contextoDe(perfil: Perfil) {
+    const item = itemDeSala(perfil);
+    if (!item) return null;
+    const ex = gym.exercises.find((e) => e.id === item.exerciseId);
+    const equipo = gym.equipment.find((q) => q.id === item.equipmentId);
+    if (!ex || !equipo) return null;
+    return {
+      item,
+      ex,
+      equipo,
+      params: resolveParams(V1_RESEARCH, perfil.goal ?? 'hypertrophy', perfil.nivel),
+    };
+  }
+
+  /** Qué tiene de mal una propuesta de suba, si tiene algo. */
+  function quejasDeLaSuba(
+    donde: string,
+    suba: ProposalBlueprint,
+    esperado: number | null,
+    paso: number,
+  ): string[] {
+    const quejas: string[] = [];
+    if (suba.toValue !== String(esperado)) {
+      quejas.push(`${donde}: propuso ${suba.toValue}, el ruleset da ${esperado} (${paso}%)`);
+    }
+    if (suba.fromValue !== String(CARGA_ANOTADA.value)) {
+      quejas.push(`${donde}: viene de ${suba.fromValue}, no de ${CARGA_ANOTADA.value}`);
+    }
+    // Regla dura 4: cada propuesta guarda con qué ruleset se calculó.
+    if (suba.rulesetVersion !== V1_RESEARCH.version) {
+      quejas.push(`${donde}: la propuesta no declara el ruleset`);
+    }
+    return quejas;
+  }
+
+  it('cada carga propuesta sale del paso que el ruleset fija para ese tren', () => {
+    const sinExplicar: string[] = [];
+    let ejercitados = 0;
+
+    for (const perfil of PERFILES) {
+      const ctx = contextoDe(perfil);
+      if (!ctx) continue;
+      const { progression } = ctx.params;
+
+      const suba = revisar(
+        perfil,
+        historial(
+          ctx.item,
+          progression.triggerRirAtLeast + 1,
+          ctx.item.targetRepsMax,
+          progression.consecutiveSessions,
+        ),
+      ).find((p) => p.type === 'load_increase');
+      if (!suba) continue;
+      ejercitados += 1;
+
+      // El tren inferior mueve más carga absoluta, así que el ruleset le da otro
+      // paso. Misma condición que aplica `progressionStep` en el motor.
+      const esPierna = ctx.ex.primaryMuscles.some((m) => PIERNA.includes(m));
+      const paso = esPierna ? progression.stepPctLowerBody : progression.stepPctUpperBody;
+      const esperado = nextLoad(CARGA_ANOTADA, ctx.equipo.load, paso);
+      sinExplicar.push(...quejasDeLaSuba(`${perfil.nombre}/${ctx.ex.name}`, suba, esperado, paso));
+    }
+
+    expect(sinExplicar.join('\n')).toBe('');
+    // Sin esto el test pasa en verde sin mirar nada, que es lo que hacía cuando
+    // la carga salía de `item.targetLoad` y ese campo siempre era nulo.
+    expect(ejercitados, 'ningún perfil llegó a proponer una suba').toBeGreaterThan(10);
+  });
+
+  it('cada bajada sale del recorte que el ruleset fija', () => {
+    const sinExplicar: string[] = [];
+    let ejercitados = 0;
+
+    for (const perfil of PERFILES) {
+      const ctx = contextoDe(perfil);
+      if (!ctx) continue;
+      const { regression } = ctx.params;
+
+      const baja = revisar(
+        perfil,
+        historial(
+          ctx.item,
+          0,
+          Math.max(1, ctx.item.targetRepsMin - 1),
+          regression.missedRepsSessions,
+        ),
+      ).find((p) => p.type === 'load_decrease');
+      if (!baja) continue;
+      ejercitados += 1;
+
+      const esperado = snapToEquipment(
+        (CARGA_ANOTADA.value ?? 0) * (1 - regression.stepPct / 100),
+        ctx.equipo.load,
+      );
+      if (baja.toValue !== String(esperado)) {
+        sinExplicar.push(
+          `${perfil.nombre}/${ctx.ex.name}: bajó a ${baja.toValue}, el ruleset da ${esperado} (${regression.stepPct}%)`,
+        );
+      }
+    }
+
+    expect(sinExplicar.join('\n')).toBe('');
+    expect(ejercitados, 'ningún perfil llegó a proponer una baja').toBeGreaterThan(10);
+  });
+
+  it('a potencia no le propone subir carga, en ningún perfil', () => {
+    // El ruleset deja `rirTarget: null` en potencia a propósito: se regula por
+    // velocidad, no por repeticiones en reserva. Sin RIR no hay señal, y
+    // proponer igual sería inventar el criterio (`01-fuerza-hipertrofia-potencia.md`).
+    for (const perfil of PERFILES.filter((p) => p.goal === 'power')) {
+      const item = itemDeSala(perfil);
+      if (!item) continue;
+      const propuestas = revisar(perfil, historial(item, 5, item.targetRepsMax, 5));
+      expect(
+        propuestas.filter((p) => p.type === 'load_increase'),
+        perfil.nombre,
+      ).toEqual([]);
+    }
+  });
+
+  it('sin historial no propone nada', () => {
+    for (const perfil of PERFILES) {
+      expect(revisar(perfil, []), perfil.nombre).toEqual([]);
+    }
   });
 });

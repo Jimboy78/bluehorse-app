@@ -142,6 +142,21 @@ antes de hacerlo.
   lectura que tape una pantalla entera va envuelta en `conPlazo()` (`lib/con-plazo.ts`), y el
   `retry` global no reintenta un `PlazoVencido`: si no volvió en ocho segundos, no va a volver en
   los próximos ocho.
+- **`null` no es `undefined` para un campo opcional, y `Math.min(x, null)` es 0.** `EquipmentLoadSpec`
+  declara `min`/`max`/`increment` como opcionales, y `toDomainEquipment` los **omite** con spread
+  condicional cuando la columna viene nula — está bien así. El fixture de `tools/motor-matriz.test.ts`
+  los ponía en `null`, que no es lo mismo: `snapToEquipment` pregunta `spec.max !== undefined` y
+  `null` pasa ese filtro, así que hacía `Math.min(41, null)` = **0**. Medido: con 40 kg anotados, el
+  motor "subía" de 40 a 0. En la app no pasaba nunca; pasaba solo en la matriz, o sea que toda
+  conclusión que la matriz sacara sobre carga se sacaba contra un gimnasio que no existe. **Un
+  fixture que simula la base copia la forma que produce el mapper, no la que produce la base.**
+
+- **Un test que puede saltear todos los casos tiene que contar cuántos miró.** Los primeros tests de
+  `reviewProgress` sobre los 33 perfiles pasaron en verde sin ejercitar **ninguno**: buscaban un ítem
+  con `targetLoad`, y ningún ítem lo trae —las 58 estaciones siguen sin rango medido—, así que los 33
+  entraban por un `continue`. Verde y vacío es peor que rojo. Si el cuerpo del bucle tiene un
+  `continue`, la aserción final va acompañada de `expect(ejercitados).toBeGreaterThan(N)`.
+
 - **`await new Promise((r) => setTimeout(r, 0))` no espera a una cadena `async` que nadie awaitea.**
   `startAutoFlush` dispara la cola con `void flush(...)`, y `flush` encadena una consulta a
   IndexedDB, el envío y un borrado. Un solo turno del event loop alcanza casi siempre, y por eso
