@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './auth/AuthProvider.tsx';
+import { conPlazo } from './con-plazo.ts';
 import { activeRuleset } from './engine.ts';
 import { requireSupabase } from './supabase.ts';
 
@@ -37,13 +38,17 @@ export function useScreeningState() {
       }
 
       const client = requireSupabase();
-      const { data, error } = await client
-        .from('health_screenings')
-        .select('cleared, disclaimer_accepted_at, ruleset_version, created_at')
-        .eq('user_id', user?.id as string)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      // Con plazo: este guard tapa la app entera, y una lectura que no vuelve
+      // nunca la deja sin abrir. Ver `lib/con-plazo.ts`.
+      const { data, error } = await conPlazo(
+        client
+          .from('health_screenings')
+          .select('cleared, disclaimer_accepted_at, ruleset_version, created_at')
+          .eq('user_id', user?.id as string)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+      );
 
       if (error) throw error;
       if (!data) {

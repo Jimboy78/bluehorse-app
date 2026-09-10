@@ -192,6 +192,49 @@ function seriesDeLaCola(
   return { deLaCola, borradas };
 }
 
+/**
+ * El `workout_log` abierto de esta sesión y sus series, del servidor.
+ *
+ * Cuando el servidor no contesta —el subsuelo del gimnasio, no un
+ * `navigator.onLine` en `false`— la lectura falla. Antes eso reventaba la
+ * query entera: `restored.data` quedaba en `undefined`, la pantalla no
+ * reenganchaba nada y volver a marcar las series abría un segundo
+ * `workout_log`. O sea, la cola tenía la sesión entera guardada al lado y no
+ * se usaba, justo en el caso para el que existe.
+ *
+ * Con algo en la cola se sigue con eso solo: es una foto parcial, pero cierta,
+ * y evita partir el entrenamiento en dos registros. Con la cola vacía no hay
+ * nada que mostrar y el error tiene que salir a la superficie — tragárselo
+ * ahí sería convertir un problema de permisos o un bug en "todavía no
+ * entrenaste".
+ */
+async function leerDelServidor(
+  userId: string,
+  planSessionId: string,
+  enCola: number,
+): Promise<ServerSession> {
+  const client = requireSupabase();
+
+  const { data, error } = await client
+    .from('workout_logs')
+    .select('id, set_logs(plan_session_item_id, set_index, id, load_value, load_unit)')
+    .eq('user_id', userId)
+    .eq('plan_session_id', planSessionId)
+    // Solo el que sigue abierto: uno ya cerrado es un entrenamiento terminado,
+    // no la sesión que la persona está haciendo ahora.
+    .is('ended_at', null)
+    .order('started_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    if (enCola === 0) throw error;
+    return { workoutLogId: null, rows: [] };
+  }
+
+  return { workoutLogId: (data?.id as string | undefined) ?? null, rows: data?.set_logs ?? [] };
+}
+
 export function useRestoredSession(userId: string | undefined, planSessionId: string) {
   const { status } = useAuth();
 
@@ -204,32 +247,16 @@ export function useRestoredSession(userId: string | undefined, planSessionId: st
     // falta revalidarla sola.
     staleTime: Number.POSITIVE_INFINITY,
     queryFn: async () => {
-      const client = requireSupabase();
-
-      const { data, error } = await client
-        .from('workout_logs')
-        .select('id, set_logs(plan_session_item_id, set_index, id, load_value, load_unit)')
-        .eq('user_id', userId as string)
-        .eq('plan_session_id', planSessionId)
-        // Solo el que sigue abierto: uno ya cerrado es un entrenamiento
-        // terminado, no la sesión que la persona está haciendo ahora.
-        .is('ended_at', null)
-        .order('started_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (error) throw error;
-
-      // Lo que todavía no salió de la cola offline cuenta igual: ver `fusionar`.
+      // Lo que todavía no salió de la cola cuenta igual que lo que ya llegó:
+      // ver `fusionar`. Se lee primero porque es local y no puede fallar por
+      // falta de señal — es lo único que queda si el servidor no contesta.
       const pendientes = await db.pending
         .where('ownerId')
         .equals(userId as string)
         .sortBy('createdAt');
 
-      return fusionar(
-        { workoutLogId: (data?.id as string | undefined) ?? null, rows: data?.set_logs ?? [] },
-        pendientes,
-        planSessionId,
-      );
+      const servidor = await leerDelServidor(userId as string, planSessionId, pendientes.length);
+      return fusionar(servidor, pendientes, planSessionId);
     },
   });
 }

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { OnboardingInput } from '../routes/onboarding/schemas.ts';
 import { useAuth } from './auth/AuthProvider.tsx';
+import { conPlazo } from './con-plazo.ts';
 import { toBodyMetricInsert, toProfileUpdate, toUserGoalInsert } from './mappers/profile.ts';
 import { requireSupabase, supabase } from './supabase.ts';
 
@@ -20,11 +21,14 @@ export function useProfileStatus() {
     enabled: status === 'signed-in' && !!user,
     queryFn: async () => {
       const client = requireSupabase();
-      const { data, error } = await client
-        .from('profiles')
-        .select('onboarded_at, gym_id')
-        .eq('id', user?.id as string)
-        .single();
+      // Con plazo: mismo motivo que en el cribado — es un guard de ruta.
+      const { data, error } = await conPlazo(
+        client
+          .from('profiles')
+          .select('onboarded_at, gym_id')
+          .eq('id', user?.id as string)
+          .single(),
+      );
 
       if (error) throw error;
       return { onboarded: data.onboarded_at !== null, gymId: data.gym_id as string };

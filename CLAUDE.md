@@ -114,6 +114,14 @@ antes de hacerlo.
   `networkMode: 'offlineFirst'`. Y una query que **no** toca la red (leer la cola de IndexedDB, por
   ejemplo) va con `networkMode: 'always'`: si no, la falta de señal apaga justo el aviso que existe
   para avisar de la falta de señal.
+- **Una lectura de Supabase puede no volver nunca, y eso es peor que un error.** Con el servidor
+  inalcanzable, supabase-js espera a renovar el token antes de mandar la consulta y esa espera puede
+  no terminar: la promesa no resuelve ni rechaza, TanStack la deja en `isPending` para siempre y
+  `retry` no entra porque no hay rechazo. Medido con el gateway apagado: la raíz de la app se quedó
+  más de un minuto en "Cargando…" —el guard `RequireScreening`— mientras un `fetch` suelto contra
+  ese mismo servidor fallaba en dos segundos. Toda lectura que tape una pantalla entera va envuelta
+  en `conPlazo()` (`lib/con-plazo.ts`): pasado el plazo rechaza, y a partir de ahí es un error como
+  cualquier otro.
 - **`supabase db diff` no lee `schema_paths` desde la CLI ≥ 2.116.** El comando correcto es
   `npm run db:sync` (`supabase db schema declarative sync --apply`). Y esa sincronización rechaza
   `INSERT` sobre tablas de sistema (`storage.buckets`, etc.): los inserts van en `seed.sql`, las

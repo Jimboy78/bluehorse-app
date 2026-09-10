@@ -1,4 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
+import { PlazoVencido } from './con-plazo.ts';
 
 /**
  * Lecturas del servidor. Las escrituras del entrenamiento NO pasan por acá:
@@ -30,7 +31,11 @@ export const queryClient = new QueryClient({
       staleTime: 5 * 60 * 1000,
       gcTime: 30 * 60 * 1000,
       refetchOnWindowFocus: false,
-      retry: 2,
+      // Reintentar una lectura que se pasó del plazo solo multiplica la
+      // espera: si no volvió en ocho segundos, no va a volver en los próximos
+      // ocho. Con tres intentos, un guard de ruta tardaba casi medio minuto en
+      // rendirse, y son dos guards en fila.
+      retry: (intentos, error) => !(error instanceof PlazoVencido) && intentos < 2,
       networkMode: 'offlineFirst',
     },
   },

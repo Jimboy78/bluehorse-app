@@ -54,6 +54,13 @@ const AuthContext = createContext<AuthContextValue | null>(null);
  */
 let currentUserId: string | null = null;
 
+/**
+ * Cuánto se espera a que Supabase confirme la sesión antes de dejar de
+ * bloquear la app. No es un número de entrenamiento (regla dura 3): es cuánto
+ * tolera mirar un spinner alguien parado al lado de una máquina.
+ */
+const ESPERA_MAXIMA_DE_SESION_MS = 6000;
+
 export function getCurrentUserId(): string | null {
   return currentUserId;
 }
@@ -68,11 +75,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      currentUserId = data.session?.user.id ?? null;
-      setLoading(false);
-    });
+    /**
+     * NADA BLOQUEA LA APP ENTERA MÁS QUE ESTO
+     *
+     * `loading` acá es el único interruptor de la app: mientras esté en
+     * `true`, `RequireAuth` muestra el spinner y no hay ninguna pantalla. Y lo
+     * apaga una promesa de red, que puede tardar o —peor— no resolver ni
+     * rechazar nunca; `getSession()` sale a renovar el token contra el
+     * servidor cuando el guardado venció.
+     *
+     * Esto es precaución, no la cura de un cuelgue medido: el que sí medí
+     * estaba en los guards de ruta y se arregla en `lib/con-plazo.ts`. Pero un
+     * `await` sin techo sobre el único interruptor de la app es un cuelgue
+     * esperando a pasar, y ponerle plazo no cuesta nada.
+     *
+     * El corte NO se cancela en el cleanup. Así fue el primer intento y no
+     * servía: en desarrollo React monta, desmonta y vuelve a montar, el
+     * cleanup cancelaba el timer y el techo desaparecía. Un
+     * `setLoading(false)` de más no rompe nada —ya está en `false`, y desde
+     * React 18 avisarle a un componente desmontado es un no-op—; uno de menos
+     * deja la app trabada.
+     */
+    const destrabar = () => setLoading(false);
+    const corte = setTimeout(destrabar, ESPERA_MAXIMA_DE_SESION_MS);
+
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        setSession(data.session);
+        currentUserId = data.session?.user.id ?? null;
+      })
+      // Que la sesión no se pueda confirmar es información, no una excepción:
+      // se deja de esperar y la pantalla muestra lo que corresponda.
+      .catch(() => {})
+      .finally(() => {
+        clearTimeout(corte);
+        destrabar();
+      });
 
     const { data: subscription } = supabase.auth.onAuthStateChange((_event, next) => {
       currentUserId = next?.user.id ?? null;
