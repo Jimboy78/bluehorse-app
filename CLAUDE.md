@@ -142,6 +142,15 @@ antes de hacerlo.
   lectura que tape una pantalla entera va envuelta en `conPlazo()` (`lib/con-plazo.ts`), y el
   `retry` global no reintenta un `PlazoVencido`: si no volvió en ocho segundos, no va a volver en
   los próximos ocho.
+- **`await new Promise((r) => setTimeout(r, 0))` no espera a una cadena `async` que nadie awaitea.**
+  `startAutoFlush` dispara la cola con `void flush(...)`, y `flush` encadena una consulta a
+  IndexedDB, el envío y un borrado. Un solo turno del event loop alcanza casi siempre, y por eso
+  `outbox-auto-flush.test.ts` fallaba una corrida de cada varias sin que nada hubiera cambiado —
+  el peor tipo de rojo, porque el reflejo es correrlo de nuevo y seguir. Medido: con 5 ms de
+  demora dentro de `flush`, las dos aserciones positivas fallan siempre. **Toda aserción sobre
+  algo que ya pasó va con `vi.waitFor`**, que espera la condición en vez de un tiempo. El tick
+  fijo solo sirve para lo contrario: comprobar que algo **no** pasó.
+
 - **Para medir tiempos en el navegador, la pestaña tiene que estar a la vista.** Chrome estrangula
   los timers de una pestaña oculta: medido acá, un `setTimeout` de 1500 ms tardó 11 s. Cualquier
   cosa que dependa de un plazo (`conPlazo`, los reintentos de TanStack, el `refetchInterval`) se

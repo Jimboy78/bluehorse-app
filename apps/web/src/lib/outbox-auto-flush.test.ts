@@ -46,10 +46,13 @@ describe('startAutoFlush', () => {
     // Reabrir la app (o volver de segundo plano) sin que la conexión haya
     // cambiado: es exactamente el caso que `online` no cubre.
     setVisibility('visible');
-    await new Promise((r) => setTimeout(r, 0));
 
-    expect(send).toHaveBeenCalledTimes(1);
-    expect(await db.pending.count()).toBe(0);
+    // `startAutoFlush` dispara `flush` sin esperarlo (`void flush(...)`), y
+    // `flush` encadena una consulta a IndexedDB, el envío y un borrado. Un
+    // `setTimeout(0)` alcanza casi siempre y por eso el test fallaba de vez en
+    // cuando: hay que esperar la condición, no un turno del event loop.
+    await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(1));
+    await vi.waitFor(async () => expect(await db.pending.count()).toBe(0));
 
     stop();
   });
@@ -60,9 +63,8 @@ describe('startAutoFlush', () => {
     const stop = startAutoFlush(send, () => OWNER);
 
     window.dispatchEvent(new Event('online'));
-    await new Promise((r) => setTimeout(r, 0));
 
-    expect(send).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(1));
     stop();
   });
 
