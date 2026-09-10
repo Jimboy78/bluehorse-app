@@ -52,6 +52,7 @@ const TEMAS = {
   21: 'Fragilidad',
   22: 'Carga de potencia',
   23: 'Resistencia muscular',
+  24: 'Cobertura muscular',
 };
 
 // El `]` y el `(` cierran un enlace de markdown: sin ellos, un DOI escrito como

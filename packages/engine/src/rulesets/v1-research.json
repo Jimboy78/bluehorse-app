@@ -685,7 +685,7 @@
     },
     "cardio": {
       "confidence": "medium",
-      "confidenceNote": "El trabajo aeróbico está en el bloque `cardio` (zonas, duración e intervalos), que es donde la evidencia es más firme. Lo de sala es la dosis mínima de fuerza que la ACSM recomienda sostener en paralelo: dos sesiones por semana, con cargas moderadas. `minSetsPerMuscle` queda en 0 a propósito: la recomendación es de dos sesiones semanales de fuerza, no de una cantidad de series por músculo, y poner un número acá sería inventarlo.",
+      "confidenceNote": "El trabajo aerobico esta en el bloque cardio (zonas, duracion e intervalos), que es donde la evidencia es mas firme. Lo de sala es la dosis minima de fuerza que WHO 2020 recomienda sostener en paralelo, con recomendacion fuerte y certeza moderada: actividad de fuerza a intensidad moderada o mayor, dos o mas dias por semana. minSetsPerMuscle queda en 0 a proposito, porque WHO dice explicitamente que no hay dosis-respuesta por volumen y poner un numero seria inventarlo. Lo que este plan NO cumple de esa recomendacion es la cobertura: WHO pide involucrar todos los grupos musculares grandes y este objetivo, medido sobre el catalogo real, toca seis. Si buscas cubrir el cuerpo entero, el objetivo de hipertrofia o el de recomposicion lo hacen. El optimo y el maximo de series por musculo son una escala plausible, no una medicion: ninguna fuente los respalda.",
       "default": {
         "primary": {
           "sets": 2,

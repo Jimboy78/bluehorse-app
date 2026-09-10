@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-10T18:50:46.263Z",
+ "generatedAt": "2026-09-10T19:09:44.000Z",
  "docs": [
   {
    "id": "metodo",
@@ -192,6 +192,14 @@
    "resumen": "Revisión del 10 de septiembre de 2026. Salió de npm run qa docs, que marcaba endurance y cardio como los dos únicos objetivos cuyos números ninguna tabla respalda.",
    "archivo": "23-resistencia-muscular.md",
    "bloques": 36
+  },
+  {
+   "id": "24-cobertura-muscular",
+   "orden": 24,
+   "titulo": "La cuenta de volumen la domina una etiqueta, y el cardio implementa media recomendación",
+   "resumen": "Revisión del 10 de septiembre de 2026. Salió de cerrar el último objetivo que npm run qa docs marcaba sin tabla: cardio. Verificando su fuente aparecieron dos cosas distintas, las dos medibles.",
+   "archivo": "24-cobertura-muscular.md",
+   "bloques": 34
   },
   {
    "id": "auditoria",

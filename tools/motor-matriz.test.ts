@@ -18,6 +18,7 @@ import type {
   UserConstraint,
   UserGoal,
 } from '@bh/domain';
+import { MUSCLE_GROUPS } from '@bh/domain';
 import type {
   GymSnapshot,
   PlanBlueprint,
@@ -1269,5 +1270,78 @@ describe('lo que el ruleset afirma de sí mismo', () => {
     }
 
     expect(bajos.join('\n')).toBe('');
+  });
+});
+
+/**
+ * LO QUE MIDIÓ `24-cobertura-muscular.md`
+ *
+ * Dos mediciones que el documento usa como base de sus dos hallazgos. No son
+ * requisitos —son el estado de las cosas— y por eso el mensaje de cada una dice
+ * qué revisar si dejan de valer. Un documento que afirma un número medido y no
+ * tiene nada que lo vuelva a medir envejece sin que nadie se entere, que es
+ * exactamente lo que le pasó a `12-objetivo.md` con la recomposición.
+ */
+describe('las mediciones de cobertura muscular', () => {
+  /** Series semanales por músculo, contando solo el trabajo de sala. */
+  function seriesPorMusculo(perfil: Perfil): Map<MuscleGroup, number> {
+    const plan = planDe(perfil, V1_RESEARCH);
+    const semana = plan.sessions.slice(0, perfil.sesiones);
+    const porMusculo = new Map<MuscleGroup, number>();
+
+    for (const sesion of semana) {
+      for (const item of sesion.items) {
+        const ex = gym.exercises.find((e) => e.id === item.exerciseId);
+        // El cardio se prescribe por tiempo: no tiene series que contar.
+        if (!ex || item.targetDurationSeconds !== null) continue;
+        for (const m of ex.primaryMuscles) {
+          porMusculo.set(m, (porMusculo.get(m) ?? 0) + item.targetSets);
+        }
+      }
+    }
+    return porMusculo;
+  }
+
+  it('el objetivo cardio deja sin tocar más de la mitad de los músculos', () => {
+    const perfil = PERFILES.find((p) => p.goal === 'cardio');
+    expect(perfil).toBeDefined();
+    if (!perfil) return;
+
+    const tocados = seriesPorMusculo(perfil).size;
+
+    // WHO 2020 pide "all major muscle groups"; este objetivo toca seis de
+    // dieciocho. Si esto empieza a fallar es porque la plantilla mejoró: hay
+    // que revisar la nota del bloque, que hoy declara justamente que no cubre.
+    expect(tocados, `${perfil.nombre} toca ${tocados} músculos`).toBeLessThan(
+      MUSCLE_GROUPS.length / 2,
+    );
+  });
+
+  it('nada puede avisar de esa falta de cobertura, porque el mínimo es 0', () => {
+    // El aviso existe y es correcto; lo que no puede es dispararse acá, porque
+    // compara contra `minSetsPerMuscle`, que en este objetivo vale 0 — y vale 0
+    // con razón: WHO dice que no hay dosis-respuesta por volumen.
+    expect(V1_RESEARCH.prescription.cardio.default.weeklyVolume.minSetsPerMuscle).toBe(0);
+
+    const perfil = PERFILES.find((p) => p.goal === 'cardio');
+    if (!perfil) return;
+    const avisos = planDe(perfil, V1_RESEARCH).warnings;
+    expect(avisos.some((a) => a.includes('quedan abajo'))).toBe(false);
+  });
+
+  it('el glúteo es, por lejos, el músculo más etiquetado como primario', () => {
+    const cuenta = new Map<MuscleGroup, number>();
+    for (const ex of gym.exercises) {
+      for (const m of ex.primaryMuscles) cuenta.set(m, (cuenta.get(m) ?? 0) + 1);
+    }
+    const orden = [...cuenta.entries()].sort((a, b) => b[1] - a[1]);
+    const [primero, segundo] = orden;
+
+    // 23 de 58 contra 15 del segundo. Es la causa de que el techo semanal lo
+    // rompa siempre el mismo músculo. Si esto deja de valer, el catálogo se
+    // reequilibró y hay que rehacer las dos tablas de `24-cobertura-muscular.md`.
+    expect(primero[0]).toBe('glutes');
+    expect(primero[1]).toBeGreaterThan(segundo[1]);
+    expect(primero[1] / gym.exercises.length).toBeGreaterThan(0.3);
   });
 });
