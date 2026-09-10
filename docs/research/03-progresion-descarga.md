@@ -13,10 +13,25 @@ Existe un dimorfismo regional significativo que el algoritmo debe contemplar. Me
 
 | Parámetro / Regla | Evidencia Respaldada | Valor App | Confianza | Justificación (Citas) |
 | :---- | :---- | :---- | :---- | :---- |
-| **Paso de Carga: Novatos (Multiarticular)** | \+2.0% a \+7.2% semanal | **\+5.0%** | ⚠️ **SIN VERIFICAR** | ~~R. Jaiswal et al., 2023, Sports Med, DOI: 10.1007/s40279-022-01783-0~~ — **ese DOI no existe** (404 en Crossref, 9/9/2026), y no hay ningún trabajo de ese autor sobre progresión de carga en Sports Medicine. Cita fabricada. El valor **no llegó al ruleset**: el motor usa 1,25 % / 2,5 %. |
+| **Paso de Carga: Novatos (Multiarticular)** | \+2.0% a \+10.0% | **\+5.0%** | ALTA (fuente reemplazada) | ~~R. Jaiswal et al., 2023, Sports Med, DOI: 10.1007/s40279-022-01783-0~~ — **ese DOI no existe** (404 en Crossref, 9/9/2026). Cita fabricada. **Reemplazada el 10/09/2026** por ACSM 2009, DOI 10.1249/MSS.0b013e3181915670 (verificado en Crossref, abstract leído en Europe PMC): *"it is recommended that a 2-10% increase in load be applied"*. El 5 % cae adentro. Ver `26-acsm-2026.md`. |
 | **Paso de Carga: Intermedios/Avanzados (Tren Inferior)** | \+1.5% a \+3.0% mensual | **\+2.5%** | ⚠️ **CITA MAL APLICADA** | El DOI 10.1519/SSC.0000000000000584 sí existe y es de Barakat 2020, pero se titula *"Body Recomposition: Can Trained Individuals Build Muscle and Lose Fat"* — es sobre recomposición corporal, no sobre límites de progresión de carga. El paper no dice lo que se le atribuye. |
 | **Paso de Carga: Intermedios/Avanzados (Tren Superior)** | \+1.0% a \+2.0% mensual | **\+1.25% o \+2.5%** | ⚠️ **CITA MAL APLICADA** | Apoyado en la misma referencia 7 (Barakat 2020) que la fila anterior, con el mismo problema. |
 | **Umbral VBT (Fuerza/Potencia)** | 10% a 20% Velocity Loss | **15% VL** | ALTA | F. Pareja-Blanco et al. (2020, Med Sci Sports Exerc, DOI: 10.1249/MSS.0000000000002295) demostraron que un 15% VL optimiza la Fuerza-Velocidad sin fatiga periférica excesiva4. |
+
+> **Corrección del 10 de septiembre de 2026.** La fila de novatos decía, además de lo de la cita
+> fabricada, que *"el valor no llegó al ruleset: el motor usa 1,25 % / 2,5 %"*. **Era falso.**
+> `beginner` y `novice` usan `stepPctUpperBody: 5` y `stepPctLowerBody: 5` en `strength`,
+> `hypertrophy` y `recomposition`; el 1,25 % / 2,5 % es el `default`, que es lo que resuelve para
+> `intermediate` y `advanced`. La nota se escribió mirando solo la fila del `default` — el mismo error
+> de lectura que había producido la contradicción entre `10` y `12` sobre recomposición.
+>
+> De paso, eso deja al descubierto lo contrario: el **1,25 % / 2,5 %** de intermedio y avanzado queda
+> **por debajo del piso de 2 %** del único rango con fuente, y sus dos filas se apoyan en Barakat
+> 2020, que es sobre recomposición corporal. Hoy esos dos números no tienen respaldo.
+>
+> Antes de moverlos, ver la medición de `26-acsm-2026.md`: `nextLoad()` encaja el porcentaje en el
+> escalón de la máquina, así que con un escalón de 2,5 kg o más **los tres pasos dan el mismo
+> número**. La diferenciación por nivel se evapora en cuanto se midan las estaciones.
 
 ## **2\. Cuándo Subir la Carga: Filtrado de Señal**
 
@@ -26,7 +41,7 @@ La señal operativa innegociable requiere que el sujeto iguale o supere el objet
 | Parámetro / Regla | Evidencia Respaldada | Valor App | Confianza | Justificación (Citas) |
 | :---- | :---- | :---- | :---- | :---- |
 | **Validación de Adaptación** | 1 a 3 sesiones continuas | **2 sesiones** | ALTA | Filtra la varianza diaria (E. R. Helms et al., 2016, Strength Cond J, DOI: 10.1519/SSC.0000000000000218)8. |
-| **Umbral de Gatillo (RIR)** | RIR actual ≥ RIR objetivo | **\+1 RIR o \= RIR máx reps** | ALTA | Zourdos et al. (2016) validaron que subestimar la fatiga es raro en sujetos entrenados10. |
+| **Umbral de Gatillo (RIR)** | RIR actual ≥ RIR objetivo | **\+1 RIR o \= RIR máx reps** | ALTA | Zourdos et al. (2016) validaron que subestimar la fatiga es raro en sujetos entrenados10. **Respaldo directo agregado el 10/09/2026**: ACSM 2009 (DOI 10.1249/MSS.0b013e3181915670, verificado) prescribe subir *"when the individual can perform the current workload for one to two repetitions over the desired number"*, que es exactamente `triggerRirAtLeast = rirTarget + 1`. Ahora hay un test que lo obliga, y encontró que `strength.advanced` pedía dos repeticiones de más: ver `26-acsm-2026.md`. **La segunda mitad de esta celda —"o = RIR máx reps"— no existe en el motor**: `isReadyToIncrease` mira el RIR y nada más. |
 | **Magnitud de Aumento** | 1.0% a 5.0% | **2.5% (multiarticular)** | ALTA | Un aumento conservador garantiza que el RIR post-ajuste no colapse hacia el fallo absoluto. |
 
 ## **3\. Cuándo Bajar la Carga: Regresión y Fatiga Acumulada**

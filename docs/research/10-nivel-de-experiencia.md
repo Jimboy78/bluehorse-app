@@ -52,6 +52,13 @@ y `advanced` no define progresión propia.
 > `advanced` no define progresión propia. Eso es igual en los tres objetivos que diferencian, así
 > que es la forma establecida y no un descuido.
 
+> **Matiz del 10 de septiembre de 2026, misma fecha.** "`advanced` no define progresión propia" era
+> una observación, no una regla, y en un caso tenía consecuencias. `strength.advanced` pisa el RIR
+> objetivo de 3 a 2 y heredaba el gatillo 4 del `default`: un avanzado que cumple el plan anota RIR 2,
+> nunca llega a 4 y **nunca recibe una suba de carga**. Corregido en `26-acsm-2026.md`, que le da
+> progresión propia con el gatillo en 3. `hypertrophy.advanced` y `recomposition.advanced` siguen sin
+> progresión propia y está bien: ahí el gatillo heredado sigue alineado con el RIR que prescriben.
+
 **Esto no es necesariamente un error de prescripción, pero sí de honestidad.** Se le presenta al
 socio una decisión de cuatro opciones como si individualizara el plan, y en la mitad de los casos
 lo único que hace es filtrar qué ejercicios entran por técnica. Que es útil, pero es otra cosa.

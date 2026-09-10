@@ -1,10 +1,67 @@
 {
   "generatedAt": "2026-09-10",
-  "resolved": 55,
+  "resolved": 57,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
   "sources": [
+    {
+      "doi": "10.1249/MSS.0b013e3181915670",
+      "title": "Progression Models in Resistance Training for Healthy Adults",
+      "authors": [],
+      "moreAuthors": 0,
+      "year": 2009,
+      "journal": "Medicine & Science in Sports & Exercise",
+      "type": "journal-article",
+      "temas": [
+        "ACSM 2026",
+        "Progresión y descarga"
+      ],
+      "documentos": [
+        "03-progresion-descarga.md",
+        "26-acsm-2026.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s40279-015-0341-8",
+      "title": "The Optimal Load for Maximal Power Production During Lower-Body Resistance Exercises: A Meta-Analysis",
+      "authors": [
+        "Soriano",
+        "Jiménez-Reyes",
+        "Rhea"
+      ],
+      "moreAuthors": 1,
+      "year": 2015,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "ACSM 2026",
+        "Carga de potencia"
+      ],
+      "documentos": [
+        "22-carga-de-potencia.md",
+        "26-acsm-2026.md"
+      ]
+    },
+    {
+      "doi": "10.1249/mss.0000000000003897",
+      "title": "American College of Sports Medicine Position Stand. Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults: An Overview of Reviews",
+      "authors": [
+        "Currier",
+        "D’souza",
+        "Singh"
+      ],
+      "moreAuthors": 10,
+      "year": 2026,
+      "journal": "Medicine & Science in Sports & Exercise",
+      "type": "journal-article",
+      "temas": [
+        "ACSM 2026"
+      ],
+      "documentos": [
+        "26-acsm-2026.md"
+      ]
+    },
     {
       "doi": "10.1249/MSS.0000000000002585",
       "title": "Resistance Training Load Effects on Muscle Hypertrophy and Strength Gain: Systematic Review and Network Meta-analysis",
@@ -197,25 +254,6 @@
       ],
       "documentos": [
         "02-cardio-resistencia-recomposicion.md"
-      ]
-    },
-    {
-      "doi": "10.1007/s40279-015-0341-8",
-      "title": "The Optimal Load for Maximal Power Production During Lower-Body Resistance Exercises: A Meta-Analysis",
-      "authors": [
-        "Soriano",
-        "Jiménez-Reyes",
-        "Rhea"
-      ],
-      "moreAuthors": 1,
-      "year": 2015,
-      "journal": "Sports Medicine",
-      "type": "journal-article",
-      "temas": [
-        "Carga de potencia"
-      ],
-      "documentos": [
-        "22-carga-de-potencia.md"
       ]
     },
     {

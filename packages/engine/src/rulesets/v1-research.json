@@ -180,6 +180,12 @@
               75,
               85
             ]
+          },
+          "progression": {
+            "stepPctUpperBody": 1.25,
+            "stepPctLowerBody": 2.5,
+            "triggerRirAtLeast": 3,
+            "consecutiveSessions": 2
           }
         }
       }

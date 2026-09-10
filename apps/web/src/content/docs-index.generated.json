@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-10T23:11:21.042Z",
+ "generatedAt": "2026-09-10T23:40:15.544Z",
  "docs": [
   {
    "id": "metodo",
@@ -31,7 +31,7 @@
    "titulo": "Progresión de carga y descargas",
    "resumen": "La codificación de una aplicación experta de entrenamiento no puede limitarse a la manipulación unidimensional de la carga (peso). La fisiología neuromuscular dicta que la fatiga periférica y la adaptación estructural dependen de vectore…",
    "archivo": "03-progresion-descarga.md",
-   "bloques": 34
+   "bloques": 35
   },
   {
    "id": "04-individualizacion-seguridad",
@@ -87,7 +87,7 @@
    "titulo": "Nivel de experiencia: cuatro opciones que a veces no cambian nada",
    "resumen": "El nivel es lo primero que se le pregunta al socio después de la edad, con cuatro tarjetas y un texto que dice que decide qué ejercicios entran al plan. Es el parámetro con más superficie aparente en toda la prescripción: define series,…",
    "archivo": "10-nivel-de-experiencia.md",
-   "bloques": 36
+   "bloques": 37
   },
   {
    "id": "11-frecuencia-semanal",
@@ -208,6 +208,14 @@
    "resumen": "Revisión del 10 de septiembre de 2026. El catálogo es la pieza que ninguna herramienta había mirado: qa barre datos muertos y código muerto, y qa docs cruza el ruleset con la investigación, pero nadie preguntaba nunca qué pasa con los 58…",
    "archivo": "25-cobertura-del-catalogo.md",
    "bloques": 48
+  },
+  {
+   "id": "26-acsm-2026",
+   "orden": 26,
+   "titulo": "El position stand que reemplaza al que sostiene medio motor",
+   "resumen": "Revisión del 10 de septiembre de 2026. Salió de auditar 03-progresion-descarga.md, que tiene tres filas marcadas SIN VERIFICAR o CITA MAL APLICADA y una cita fabricada. Buscando una fuente real para reemplazarlas apareció algo más grande…",
+   "archivo": "26-acsm-2026.md",
+   "bloques": 68
   },
   {
    "id": "auditoria",

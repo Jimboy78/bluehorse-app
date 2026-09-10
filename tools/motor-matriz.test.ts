@@ -1192,15 +1192,31 @@ describe('lo que el ruleset afirma de sí mismo', () => {
    *
    * `10` documenta la forma que sí es deliberada: `beginner` redefine los tres
    * roles, `novice` solo el primario y la progresión, `advanced` el primario y
-   * el secundario sin progresión propia. Un objetivo o no diferencia por nivel
-   * —y entonces el plan lo avisa— o diferencia con esa forma. Cualquier otra
-   * combinación es un copiado incompleto.
+   * el secundario. Un objetivo o no diferencia por nivel —y entonces el plan lo
+   * avisa— o diferencia con esa forma. Cualquier otra combinación es un copiado
+   * incompleto.
+   *
+   * `advanced` arrastra una excepción que costó encontrar. La forma original no
+   * le daba `progression` propia, y eso es inofensivo mientras el nivel no toque
+   * el RIR. `strength.advanced` sí lo tocaba: bajaba `rirTarget` de 3 a 2 en el
+   * primario y el secundario y heredaba el gatillo 4 del `default`. Medido: un
+   * avanzado que cumple la prescripción al pie de la letra registra RIR 2, el
+   * motor exige 4, y **nunca le propone subir la carga**. No hay otro camino —
+   * `isReadyToIncrease` mira el RIR y nada más (`placeholder-engine.ts`).
+   *
+   * `strength.advanced` ahora define su propio `progression` por eso, y la forma
+   * lo admite como extra en ese nivel. Lo que dejó de ser una cuestión de forma
+   * y pasó a tener su propio test es la relación misma: está más abajo, en "el
+   * gatillo no puede pedir más reserva de la que el plan prescribe".
    */
   const FORMA_POR_NIVEL: Record<string, readonly string[]> = {
     beginner: ['primary', 'secondary', 'isolation', 'progression'],
     novice: ['primary', 'progression'],
     advanced: ['primary', 'secondary'],
   };
+
+  /** Claves que un nivel puede agregar a su forma sin que sea un copiado a medias. */
+  const EXTRAS_ADMITIDOS: Record<string, readonly string[]> = { advanced: ['progression'] };
 
   /** Qué tiene de raro la forma del `byLevel` de un objetivo, si tiene algo. */
   function* formasRaras(objetivo: string, byLevel: Record<string, object> | undefined) {
@@ -1210,10 +1226,12 @@ describe('lo que el ruleset afirma de sí mismo', () => {
         yield `${objetivo}: le falta el nivel "${nivel}"`;
         continue;
       }
-      const tiene = Object.keys(override).sort().join(',');
-      const quiere = [...esperados].sort().join(',');
-      if (tiene !== quiere) {
-        yield `${objetivo}.${nivel}: define [${tiene}], la forma es [${quiere}]`;
+      const admitidos = new Set([...esperados, ...(EXTRAS_ADMITIDOS[nivel] ?? [])]);
+      const tiene = Object.keys(override);
+      const faltan = esperados.filter((k) => !tiene.includes(k));
+      const sobran = tiene.filter((k) => !admitidos.has(k));
+      if (faltan.length > 0 || sobran.length > 0) {
+        yield `${objetivo}.${nivel}: define [${[...tiene].sort().join(',')}], la forma pide [${[...esperados].sort().join(',')}]`;
       }
     }
   }
@@ -1247,6 +1265,14 @@ describe('lo que el ruleset afirma de sí mismo', () => {
    * balísticos (≤ 30 % es donde producen más potencia). Las dos cosas pueden ser
    * ciertas —hablan de desenlaces distintos, potencia pico contra adaptación—
    * pero bajar el piso sin decir cuál de los dos manda es elegir sin saberlo.
+   *
+   * Desde `26-acsm-2026.md` el piso tiene una tercera fuente, independiente y
+   * más fuerte que las dos anteriores: el position stand 2026 de ACSM —una
+   * overview de 137 revisiones sistemáticas— da 30-70 % del 1RM para potencia.
+   * Sigue sin resolver el caso balístico, porque un salto con peso corporal no
+   * tiene `%1RM` que prescribir, así que la reconciliación de arriba queda igual
+   * de pendiente. Lo que cambia es que mover el piso ahora contradice tres
+   * documentos en vez de dos.
    */
   /** Cada (objetivo, nivel, slot) del ruleset, con sus parametros. */
   function* todosLosSlots() {
@@ -1753,6 +1779,185 @@ describe('la adaptación sobre todos los perfiles', () => {
   it('sin historial no propone nada', () => {
     for (const perfil of PERFILES) {
       expect(revisar(perfil, []), perfil.nombre).toEqual([]);
+    }
+  });
+});
+
+/**
+ * LO QUE ACSM SOSTIENE DEL RULESET
+ *
+ * `26-acsm-2026.md`. Dos posiciones de ACSM, las dos verificadas contra Crossref
+ * y leídas en Europe PMC:
+ *
+ * - **2009** (DOI 10.1249/MSS.0b013e3181915670) es la única fuente del proyecto
+ *   con un número para el paso de progresión: 2-10 %, y la regla de cuándo
+ *   aplicarlo.
+ * - **2026** (DOI 10.1249/mss.0000000000003897) se declara su reemplazo, sintetiza
+ *   137 revisiones sistemáticas y **no** da porcentaje de incremento.
+ *
+ * Estos tests fijan lo que de ahí se puede afirmar. Lo que queda fuera de la
+ * evidencia no se pone en verde: se cuenta.
+ */
+describe('lo que ACSM sostiene del ruleset', () => {
+  /** Cada (objetivo, nivel) resuelto como lo resuelve el motor. */
+  function* cadaDosis() {
+    for (const objetivo of Object.keys(V1_RESEARCH.prescription) as Goal[]) {
+      for (const nivel of ['beginner', 'novice', 'intermediate', 'advanced'] as const) {
+        yield {
+          donde: `${objetivo}/${nivel}`,
+          params: resolveParams(V1_RESEARCH, objetivo, nivel),
+        };
+      }
+    }
+  }
+
+  it('se sube la carga una repetición antes de lo que el RIR objetivo pide', () => {
+    // ACSM 2009: subir "when the individual can perform the current workload for
+    // one to two repetitions over the desired number". Traducido al RIR del
+    // ruleset, el gatillo es el objetivo más uno.
+    //
+    // Se cumplía en los 11 bloques que definen RIR y nada lo obligaba: los
+    // números están escritos a mano, uno por uno, en el JSON. Un bloque nuevo
+    // copiado de otro objetivo se lleva el gatillo del que copió.
+    const desalineados: string[] = [];
+    let mirados = 0;
+
+    for (const { donde, params } of cadaDosis()) {
+      const objetivo = params.primary.rirTarget;
+      // Potencia deja `rirTarget: null` a propósito —se regula por velocidad—,
+      // así que ahí no hay objetivo del cual estar a una repetición.
+      if (objetivo === null || objetivo === undefined) continue;
+      mirados += 1;
+      if (params.progression.triggerRirAtLeast !== objetivo + 1) {
+        desalineados.push(
+          `${donde}: RIR objetivo ${objetivo}, gatillo ${params.progression.triggerRirAtLeast}`,
+        );
+      }
+    }
+
+    expect(desalineados.join('\n')).toBe('');
+    expect(mirados, 'no miró ninguna dosis con RIR').toBeGreaterThan(10);
+  });
+
+  it('el gatillo no puede pedir más reserva de la que el plan prescribe', () => {
+    // El anterior mira el primario, que es donde la regla se lee. Este mira los
+    // tres slots, porque el gatillo es uno solo por (objetivo, nivel) y se
+    // aplica a cualquier ejercicio.
+    //
+    // Un slot que prescribe RIR 2 y un gatillo de 4 significa que el socio que
+    // cumple el plan al pie de la letra registra 2, nunca llega a 4, y **nunca
+    // recibe una suba de carga**. Es lo que le pasaba a `strength.advanced`, que
+    // pisaba el RIR a 2 en el primario y el secundario y heredaba el gatillo 4
+    // del `default`. `isReadyToIncrease` no tiene otro camino: mira el RIR y
+    // nada más.
+    //
+    // El techo es +1 por ACSM 2009 —se sube cuando sobran una o dos
+    // repeticiones—, y medido, todo el ruleset está en +1 o en 0. Un 0 es
+    // progresar apenas se alcanza el objetivo, sin repetición de sobra: más
+    // ansioso, pero nadie se queda trabado.
+    const MAXIMA_RESERVA_EXTRA = 1;
+    const trabados: string[] = [];
+
+    for (const { donde, params } of cadaDosis()) {
+      for (const slot of ['primary', 'secondary', 'isolation'] as const) {
+        const objetivo = params[slot].rirTarget;
+        if (objetivo === null || objetivo === undefined) continue;
+        const sobra = params.progression.triggerRirAtLeast - objetivo;
+        if (sobra > MAXIMA_RESERVA_EXTRA) {
+          trabados.push(
+            `${donde}.${slot}: prescribe RIR ${objetivo} y el gatillo pide ${params.progression.triggerRirAtLeast}`,
+          );
+        }
+      }
+    }
+
+    expect(trabados.join('\n')).toBe('');
+  });
+
+  /**
+   * EL PASO DE CARGA CONTRA EL ÚNICO RANGO CON FUENTE
+   *
+   * ACSM 2009 da 2-10 %. Hoy hay pasos por debajo del 2 %, y este test **no los
+   * declara correctos**: los enumera. La lista está escrita acá para que agregar
+   * uno nuevo, o corregir uno viejo, obligue a tocar el test y a decir por qué.
+   *
+   * No se arregla solo porque no es un bug: `1,25 %` es una prescripción, y las
+   * prescripciones las decide el dueño (`26-acsm-2026.md`, "Decisiones que
+   * quedan"). Y antes de decidir conviene leer la medición de ese documento: con
+   * un escalón de máquina de 2,5 kg o más, 1,25 % y 5 % dan el mismo número.
+   */
+  it('los pasos que caen fuera del 2-10 % son los que el documento enumera', () => {
+    const [PISO, TECHO] = [2, 10];
+    const CONOCIDOS = [
+      'cardio/advanced: 1.25 %',
+      'cardio/beginner: 1.25 %',
+      'cardio/intermediate: 1.25 %',
+      'cardio/novice: 1.25 %',
+      'endurance/advanced: 1.25 %',
+      'endurance/beginner: 1.25 %',
+      'endurance/intermediate: 1.25 %',
+      'endurance/novice: 1.25 %',
+      'hypertrophy/advanced: 1.25 %',
+      'hypertrophy/intermediate: 1.25 %',
+      'power/advanced: 1.25 %',
+      'power/beginner: 1.25 %',
+      'power/intermediate: 1.25 %',
+      'power/novice: 1.25 %',
+      'recomposition/advanced: 1.25 %',
+      'recomposition/intermediate: 1.25 %',
+      'strength/advanced: 1.25 %',
+      'strength/intermediate: 1.25 %',
+    ];
+
+    const fuera: string[] = [];
+    for (const { donde, params } of cadaDosis()) {
+      for (const paso of [
+        params.progression.stepPctUpperBody,
+        params.progression.stepPctLowerBody,
+      ]) {
+        if (paso < PISO || paso > TECHO) fuera.push(`${donde}: ${paso} %`);
+      }
+    }
+
+    expect([...new Set(fuera)].sort()).toEqual(CONOCIDOS);
+  });
+
+  it('la potencia se prescribe dentro de 30-70 % y por debajo de 24 repeticiones por series', () => {
+    // ACSM 2026: "Power was enhanced by moderate loads (30%-70% one-repetition
+    // maximum), low-to-moderate volume (≤24 repetitions⋅sets)".
+    const quejas: string[] = [];
+
+    for (const nivel of ['beginner', 'novice', 'intermediate', 'advanced'] as const) {
+      const params = resolveParams(V1_RESEARCH, 'power', nivel);
+      for (const slot of ['primary', 'secondary', 'isolation'] as const) {
+        const p = params[slot];
+        const rango = p.intensityPct1RM;
+        if (rango && (rango[0] < 30 || rango[1] > 70)) {
+          quejas.push(`${nivel}.${slot}: ${rango.join('-')} % fuera de 30-70`);
+        }
+        if (p.sets * p.repsMax > 24) {
+          quejas.push(`${nivel}.${slot}: ${p.sets}x${p.repsMax} = ${p.sets * p.repsMax} > 24`);
+        }
+      }
+    }
+
+    expect(quejas.join('\n')).toBe('');
+  });
+
+  it('el volumen semanal de hipertrofia cae entre el piso y el plateau de ACSM 2026', () => {
+    // "hypertrophy was enhanced by higher volumes (≥10 sets/wk)" y el plateau en
+    // "~18-20 weekly sets". El rango óptimo del ruleset tiene que quedar adentro:
+    // por debajo de 10 se prescribe menos de lo que la evidencia pide, y por
+    // encima de 20 se prescribe tiempo que no compra nada.
+    const [PISO, PLATEAU] = [10, 20];
+
+    for (const objetivo of ['hypertrophy', 'recomposition'] as const) {
+      const volumen = V1_RESEARCH.prescription[objetivo]?.default.weeklyVolume;
+      expect(volumen, objetivo).toBeDefined();
+      if (!volumen) continue;
+      const [desde, hasta] = volumen.optimalSetsPerMuscle;
+      expect(desde, `${objetivo}: el piso óptimo`).toBeGreaterThanOrEqual(PISO);
+      expect(hasta, `${objetivo}: el techo óptimo`).toBeLessThanOrEqual(PLATEAU);
     }
   });
 });
