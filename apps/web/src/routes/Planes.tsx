@@ -9,16 +9,18 @@ import {
   Layers,
   Loader2,
   PauseCircle,
+  PenLine,
   PlayCircle,
-  Plus,
   Sparkles,
   Trash2,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router';
 import { AppShell } from '../components/AppShell.tsx';
 import {
   Button,
+  buttonClass,
   Card,
   ConfirmDialog,
   EmptyState,
@@ -29,6 +31,7 @@ import {
 } from '../components/ui/index.ts';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
 import { GOAL_LABELS } from '../lib/labels.ts';
+import { useCreateManualPlan } from '../lib/manual-plan.ts';
 import { fadeUp, listContainer, listItem, spring, tappable } from '../lib/motion.ts';
 import { onboardingUnavailable } from '../lib/onboarding.ts';
 import type { PlanSessionSummary, PlanSummary } from '../lib/plan.ts';
@@ -71,8 +74,13 @@ function formatDate(iso: string): string {
   }).format(new Date(iso));
 }
 
+/**
+ * Cómo se armó. Los planes a mano no salieron de ningún template, así que no
+ * hay nada que traducir: lo dice el origen.
+ */
 function templateLabel(plan: PlanSummary): string {
-  return TEMPLATE_LABELS[plan.templateId] ?? plan.templateId;
+  if (plan.origin === 'manual') return 'Armado por vos';
+  return plan.templateId ? (TEMPLATE_LABELS[plan.templateId] ?? plan.templateId) : 'Del motor';
 }
 
 /**
@@ -422,71 +430,120 @@ function SinPlanes() {
  */
 function NuevoPlan({ hayActivo = false }: { readonly hayActivo?: boolean }) {
   const generate = useGeneratePlan();
-  const [abierto, setAbierto] = useState(false);
+  const crearManual = useCreateManualPlan();
+  const navigate = useNavigate();
+  const [modo, setModo] = useState<'cerrado' | 'motor' | 'mano'>('cerrado');
   const [nombre, setNombre] = useState('');
 
-  if (!abierto) {
-    return (
-      <Button
-        variant={hayActivo ? 'ghost' : 'primary'}
-        size={hayActivo ? 'md' : 'lg'}
-        className={hayActivo ? 'self-start' : ''}
-        disabled={generate.isPending || onboardingUnavailable}
-        onClick={() => setAbierto(true)}
-      >
-        <Plus size={16} aria-hidden="true" />
-        {hayActivo ? 'Armar otro plan' : 'Armar mi plan'}
-      </Button>
-    );
+  const trabajando = generate.isPending || crearManual.isPending;
+
+  if (modo === 'cerrado') {
+    return <DosCaminos hayActivo={hayActivo} trabajando={trabajando} onElegir={setModo} />;
+  }
+
+  const manual = modo === 'mano';
+
+  async function crear() {
+    if (manual) {
+      const id = await crearManual.mutateAsync(nombre.trim());
+      void navigate(`/planes/${id}/armar`);
+      return;
+    }
+    generate.mutate(nombre.trim() || null);
   }
 
   return (
     <div className="flex w-full max-w-sm flex-col gap-2.5">
       <label className="flex flex-col gap-1.5 text-left">
         <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate">
-          Nombre (opcional)
+          {/* En el plan a mano el nombre es lo único que lo distingue: no hay
+              template al que caer si queda vacío. */}
+          Nombre {manual ? '' : '(opcional)'}
         </span>
         <input
           type="text"
           value={nombre}
           maxLength={60}
           onChange={(e) => setNombre(e.target.value)}
-          placeholder="Potencia en piernas"
+          placeholder={manual ? 'Mi rutina' : 'Potencia en piernas'}
           className={fieldClass}
         />
       </label>
 
-      {hayActivo && (
+      {manual ? (
         <p className="text-left text-xs leading-relaxed text-slate">
-          El nuevo pasa a ser el de hoy y el que tenías queda guardado, en la sesión donde lo
-          dejaste. Las cargas que ya venías usando se arrastran al nuevo.
+          Vas a armar los días vos, uno por vez. Empieza vacío y queda guardado: podés cargar hoy un
+          día y el resto cuando quieras. Los números los elegís vos, no salen del motor.
         </p>
+      ) : (
+        hayActivo && (
+          <p className="text-left text-xs leading-relaxed text-slate">
+            El nuevo pasa a ser el de hoy y el que tenías queda guardado, en la sesión donde lo
+            dejaste. Las cargas que ya venías usando se arrastran al nuevo.
+          </p>
+        )
       )}
       <div className="flex gap-2">
-        <Button
-          variant="quiet"
-          size="md"
-          disabled={generate.isPending}
-          onClick={() => setAbierto(false)}
-        >
+        <Button variant="quiet" size="md" disabled={trabajando} onClick={() => setModo('cerrado')}>
           Cancelar
         </Button>
         <Button
           variant="primary"
           size="md"
           className="flex-1"
-          disabled={generate.isPending || onboardingUnavailable}
-          onClick={() => generate.mutate(nombre.trim() || null)}
+          disabled={trabajando || (manual ? !nombre.trim() : onboardingUnavailable)}
+          onClick={() => void crear()}
         >
-          {generate.isPending && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
-          Armarlo
+          {trabajando && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
+          {manual ? 'Empezar a armarlo' : 'Armarlo'}
         </Button>
       </div>
-      {generate.isError && (
+      {(generate.isError || crearManual.isError) && (
         <Notice tone="error" role="alert">
           No se pudo armar el plan. Probá de nuevo.
         </Notice>
       )}
+    </div>
+  );
+}
+
+/**
+ * Las dos formas de tener un plan, una al lado de la otra.
+ *
+ * El camino a mano no está escondido detrás del otro ni en un menú: son dos
+ * maneras distintas de armar un plan, no una opción avanzada de la primera.
+ */
+function DosCaminos({
+  hayActivo,
+  trabajando,
+  onElegir,
+}: {
+  readonly hayActivo: boolean;
+  readonly trabajando: boolean;
+  readonly onElegir: (modo: 'motor' | 'mano') => void;
+}) {
+  return (
+    <div className="flex w-full max-w-sm flex-col gap-2">
+      <Button
+        variant={hayActivo ? 'ghost' : 'primary'}
+        size={hayActivo ? 'md' : 'lg'}
+        className={hayActivo ? 'self-start' : ''}
+        disabled={trabajando || onboardingUnavailable}
+        onClick={() => onElegir('motor')}
+      >
+        <Sparkles size={16} aria-hidden="true" />
+        {hayActivo ? 'Armar otro con el motor' : 'Que me lo arme la app'}
+      </Button>
+      <Button
+        variant="ghost"
+        size="md"
+        className="self-start"
+        disabled={trabajando}
+        onClick={() => onElegir('mano')}
+      >
+        <PenLine size={15} aria-hidden="true" />
+        Armarlo yo, día por día
+      </Button>
     </div>
   );
 }
@@ -602,6 +659,14 @@ function PlanCard({
         {/* Pausar y borrar juntos y en gris: son las dos salidas del plan, y
             ninguna de las dos es lo que la persona vino a hacer acá. */}
         <div className="flex flex-wrap items-center gap-2">
+          {/* Un plan a mano se sigue editando después de creado: agregar el
+              día de mañana es el uso normal, no una corrección. */}
+          {plan.origin === 'manual' && (
+            <Link to={`/planes/${plan.id}/armar`} className={buttonClass('ghost', 'sm')}>
+              <PenLine size={13} aria-hidden="true" />
+              Editar los días
+            </Link>
+          )}
           {activo && (
             <Button variant="ghost" size="sm" disabled={busy} onClick={onPause}>
               <PauseCircle size={14} aria-hidden="true" />

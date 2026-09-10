@@ -169,3 +169,16 @@ export type RulesetSource = (typeof RULESET_SOURCES)[number];
 
 export const BASELINE_SOURCES = ['declared', 'calibrated', 'estimated'] as const;
 export type BaselineSource = (typeof BASELINE_SOURCES)[number];
+
+/**
+ * Quién armó el plan.
+ *
+ * `engine`: salió del motor a partir de un ruleset, y cada número tiene su
+ * fila de investigación detrás.
+ * `manual`: lo escribió el socio, ejercicio por ejercicio. Los números son
+ * suyos. La app los guarda y los muestra tal cual, y avisa que no están
+ * respaldados — presentarlos con la misma cara que los del motor sería
+ * exactamente lo que prohíbe la regla dura 4.
+ */
+export const PLAN_ORIGINS = ['engine', 'manual'] as const;
+export type PlanOrigin = (typeof PLAN_ORIGINS)[number];

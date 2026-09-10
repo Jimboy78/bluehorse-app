@@ -54,7 +54,11 @@ export interface PlanSessionItemInsertRow {
   readonly target_load_unit: LoadUnit | null;
   readonly target_rir: number | null;
   readonly rest_seconds: number;
-  readonly rationale: string;
+  /**
+   * `null` en los ítems que cargó el socio a mano: no hay razón derivada del
+   * ruleset que mostrar. El motor siempre escribe una.
+   */
+  readonly rationale: string | null;
   readonly is_placeholder: boolean;
   /** Cardio: duración del bloque (o del trabajo de cada vuelta) y zona. Nulos en sala. */
   readonly target_duration_seconds: number | null;

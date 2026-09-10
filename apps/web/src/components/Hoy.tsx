@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
 import type { SetActual } from '../lib/mappers/session-log.ts';
 import { checkPop, fadeUp, listContainer, listItem, screen, tappable } from '../lib/motion.ts';
@@ -30,6 +31,7 @@ import { SetRow } from './SetRow.tsx';
 import { SubstitutePicker } from './SubstitutePicker.tsx';
 import {
   Button,
+  buttonClass,
   Card,
   ConfirmDialog,
   EmptyState,
@@ -117,6 +119,23 @@ export function Hoy() {
 
   if (status !== 'signed-in' || plan.isPending || plan.isError || plan.data?.kind !== 'active') {
     return <PlanStateMessage authStatus={status} plan={plan} />;
+  }
+
+  // Un día sin ningún ejercicio. El motor no puede armar uno así, pero en un
+  // plan a mano es el estado normal justo después de agregar el día: se
+  // agrega, se cierra la app, y al otro día "Hoy" tocaba ese. Antes acá se
+  // dibujaba la sesión igual — "SERIES DE HOY 0/0", la lista vacía, el aviso
+  // de que se puede sustituir una máquina que no existe, y "Terminar sesión"
+  // como única salida. Medido en el navegador con un día vacío: cero filas y
+  // ningún camino hacia adelante.
+  if (plan.data.session.items.length === 0) {
+    return (
+      <DiaVacio
+        planId={plan.data.planId}
+        focus={plan.data.session.focus}
+        manual={plan.data.planOrigin === 'manual'}
+      />
+    );
   }
 
   const session = plan.data.session;
@@ -645,10 +664,17 @@ function ExerciseDetail({
       </div>
 
       {/* La barra de la marca al costado convierte el consejo del motor en una
-          cita, no en otro párrafo gris más de la pantalla. */}
-      <p className="border-l-2 border-brand/50 bg-surface/60 py-2.5 pl-3.5 pr-3 text-sm leading-relaxed text-slate">
-        {item.rationale}
-      </p>
+          cita, no en otro párrafo gris más de la pantalla.
+
+          En un plan armado a mano no hay nada que citar: el ejercicio lo
+          eligió la persona. Ahí el bloque no se dibuja — antes quedaba la
+          barra azul al costado de un párrafo vacío, con cara de cita del
+          motor y sin motor detrás. */}
+      {item.rationale && (
+        <p className="border-l-2 border-brand/50 bg-surface/60 py-2.5 pl-3.5 pr-3 text-sm leading-relaxed text-slate">
+          {item.rationale}
+        </p>
+      )}
 
       {/* "Máquina ocupada" antes: el nombre daba a entender que este botón
           solo servía para ese caso puntual, cuando en realidad recorre TODO
@@ -721,6 +747,46 @@ function ExerciseDetail({
         </motion.div>
       )}
     </motion.section>
+  );
+}
+
+/**
+ * El día que toca no tiene ningún ejercicio cargado.
+ *
+ * Solo pasa en los planes armados a mano, y no es un error: es un día que se
+ * creó y quedó a medio llenar. La salida es terminar de cargarlo, así que el
+ * botón lleva ahí y no a "terminar la sesión" —marcar como hecho un día en el
+ * que no se entrenó ensucia el historial para siempre.
+ */
+function DiaVacio({
+  planId,
+  focus,
+  manual,
+}: {
+  readonly planId: string;
+  readonly focus: string;
+  readonly manual: boolean;
+}) {
+  return (
+    <EmptyState
+      icon={<Dumbbell size={24} aria-hidden="true" />}
+      title={`“${focus}” está vacío`}
+      action={
+        manual ? (
+          <Link to={`/planes/${planId}/armar`} className={buttonClass('primary', 'lg')}>
+            Cargarle ejercicios
+          </Link>
+        ) : (
+          <Link to="/planes" className={buttonClass('primary', 'lg')}>
+            Ver tus planes
+          </Link>
+        )
+      }
+    >
+      {manual
+        ? 'Creaste el día pero todavía no le pusiste ningún ejercicio. Agregale los que vayas a hacer y volvé acá.'
+        : 'Este día del plan quedó sin ejercicios. Revisalo desde tus planes.'}
+    </EmptyState>
   );
 }
 

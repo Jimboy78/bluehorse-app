@@ -5,6 +5,7 @@ import type {
   LoadReading,
   MovementPattern,
   MuscleGroup,
+  PlanOrigin,
   Sex,
   UserBaseline,
   UserConstraint,
@@ -395,12 +396,20 @@ async function planExerciseIds(client: SupabaseClient, planId: string): Promise<
 
 export interface PlanSummary {
   readonly id: string;
-  readonly templateId: string;
+  /**
+   * `null` en los planes armados a mano: no salieron de ningún template. La
+   * pantalla cae al nombre que les puso el socio, que en un plan manual es
+   * obligatorio justamente por esto.
+   */
+  readonly templateId: string | null;
   /** El nombre que le puso el socio. `null` si no eligió ninguno: la pantalla cae al del template. */
   readonly name: string | null;
   readonly status: 'active' | 'archived';
   readonly generatedAt: string;
-  readonly rulesetVersion: string;
+  /** `null` en los planes manuales: ningún ruleset generó sus números. */
+  readonly rulesetVersion: string | null;
+  /** Quién lo armó. Decide si la pantalla puede decir que está respaldado. */
+  readonly origin: PlanOrigin;
   /** Sesiones totales y cuántas ya se completaron, para mostrar el avance. */
   readonly totalSessions: number;
   readonly completedSessions: number;
@@ -437,7 +446,7 @@ export function usePlans() {
       const { data: plans, error } = await client
         .from('plans')
         .select(
-          'id, template_id, name, status, generated_at, ruleset_version, goal_snapshot, warnings',
+          'id, template_id, name, status, generated_at, ruleset_version, goal_snapshot, warnings, origin',
         )
         .eq('user_id', user?.id as string)
         .order('generated_at', { ascending: false });
@@ -460,11 +469,12 @@ export function usePlans() {
         const bucket = counts.get(p.id as string) ?? { total: 0, completed: 0, next: null };
         return {
           id: p.id as string,
-          templateId: p.template_id as string,
+          templateId: (p.template_id as string | null) ?? null,
           name: (p.name as string | null) ?? null,
           status: p.status as 'active' | 'archived',
           generatedAt: p.generated_at as string,
-          rulesetVersion: p.ruleset_version as string,
+          rulesetVersion: (p.ruleset_version as string | null) ?? null,
+          origin: p.origin as PlanOrigin,
           totalSessions: bucket.total,
           completedSessions: bucket.completed,
           goal: goalOf(p.goal_snapshot),
@@ -782,7 +792,13 @@ export interface ActiveSessionItem {
   /** RIR prescripto para esta serie. Sale del ruleset, no del código. */
   readonly targetRir: number | null;
   readonly restSeconds: number;
-  readonly rationale: string;
+  /**
+   * El "por qué va acá" que escribió el motor citando el ruleset. `null` en
+   * los ejercicios que cargó el socio en un plan a mano: ahí no hay razón
+   * derivada de evidencia, y la pantalla no dibuja la cita en vez de dibujar
+   * una vacía.
+   */
+  readonly rationale: string | null;
   readonly isPlaceholder: boolean;
   /**
    * Cardio: duración del bloque (o del trabajo de cada vuelta) y zona de
@@ -811,6 +827,14 @@ export type ActivePlanState =
   | { readonly kind: 'queue-empty' }
   | {
       readonly kind: 'active';
+      readonly planId: string;
+      /**
+       * Quién armó el plan. La pantalla lo necesita para un caso que el motor
+       * no puede producir: un día sin ningún ejercicio. En un plan a mano eso
+       * pasa apenas se agrega el día y se cierra la app, y la salida es
+       * volver a cargarlo — no un error.
+       */
+      readonly planOrigin: PlanOrigin;
       readonly session: ActiveSession;
       /** Lo que el motor avisó al armar ESTE plan, no esta sesión — vale mientras el plan siga activo. */
       readonly planWarnings: readonly string[];
@@ -827,7 +851,7 @@ export function useActivePlan() {
 
       const { data: plan, error: planError } = await client
         .from('plans')
-        .select('id, warnings')
+        .select('id, warnings, origin')
         .eq('user_id', user?.id as string)
         .eq('status', 'active')
         .maybeSingle();
@@ -863,6 +887,8 @@ export function useActivePlan() {
 
       return {
         kind: 'active',
+        planId: plan.id as string,
+        planOrigin: plan.origin as PlanOrigin,
         session: activeSession,
         planWarnings: (plan.warnings as string[] | null) ?? [],
       };
@@ -881,7 +907,7 @@ interface PlanSessionItemRow {
   readonly target_load: number | null;
   readonly target_load_unit: LoadReading['unit'] | null;
   readonly rest_seconds: number;
-  readonly rationale: string;
+  readonly rationale: string | null;
   readonly is_placeholder: boolean;
   readonly target_duration_seconds: number | null;
   readonly target_intensity_zone: number | null;

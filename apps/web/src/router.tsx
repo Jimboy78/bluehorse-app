@@ -24,6 +24,9 @@ import { RequireScreening } from './routes/RequireScreening.tsx';
  * de React Router en inglés, en vez del mensaje en castellano de `CrashScreen`.
  */
 const App = lazy(() => import('./App.tsx').then((m) => ({ default: m.App })));
+const ArmarPlan = lazy(() =>
+  import('./routes/ArmarPlan.tsx').then((m) => ({ default: m.ArmarPlan })),
+);
 const Evidencia = lazy(() =>
   import('./routes/Evidencia.tsx').then((m) => ({ default: m.Evidencia })),
 );
@@ -111,6 +114,21 @@ export const router = createBrowserRouter([
         <RequireScreening>
           <RequireOnboarding>
             <Planes />
+          </RequireOnboarding>
+        </RequireScreening>
+      </RequireAuth>,
+    ),
+    errorElement: <RouteError />,
+  },
+  {
+    // El constructor de un plan a mano. Cuelga de `/planes` y no es una
+    // pestaña: se entra desde un plan concreto y se vuelve a la lista.
+    path: '/planes/:planId/armar',
+    element: lazyPage(
+      <RequireAuth>
+        <RequireScreening>
+          <RequireOnboarding>
+            <ArmarPlan />
           </RequireOnboarding>
         </RequireScreening>
       </RequireAuth>,

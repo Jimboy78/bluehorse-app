@@ -21,7 +21,8 @@ export interface TodaySessionItem {
   readonly load: string;
   readonly sets: number;
   readonly reps: string;
-  readonly rationale: string;
+  /** `null` en los ejercicios de un plan armado a mano: no hay ruleset que citar. */
+  readonly rationale: string | null;
 }
 
 export interface TodaySession {

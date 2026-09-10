@@ -541,7 +541,7 @@ export type Database = {
           is_placeholder: boolean
           order_index: number
           plan_session_id: string
-          rationale: string
+          rationale: string | null
           rest_seconds: number
           superset_group: number | null
           target_duration_seconds: number | null
@@ -561,7 +561,7 @@ export type Database = {
           is_placeholder?: boolean
           order_index: number
           plan_session_id: string
-          rationale: string
+          rationale?: string | null
           rest_seconds: number
           superset_group?: number | null
           target_duration_seconds?: number | null
@@ -581,7 +581,7 @@ export type Database = {
           is_placeholder?: boolean
           order_index?: number
           plan_session_id?: string
-          rationale?: string
+          rationale?: string | null
           rest_seconds?: number
           superset_group?: number | null
           target_duration_seconds?: number | null
@@ -666,9 +666,10 @@ export type Database = {
           gym_id: string
           id: string
           name: string | null
-          ruleset_version: string
+          origin: Database["public"]["Enums"]["plan_origin"]
+          ruleset_version: string | null
           status: string
-          template_id: string
+          template_id: string | null
           user_id: string
           warnings: string[]
         }
@@ -678,9 +679,10 @@ export type Database = {
           gym_id: string
           id?: string
           name?: string | null
-          ruleset_version: string
+          origin?: Database["public"]["Enums"]["plan_origin"]
+          ruleset_version?: string | null
           status?: string
-          template_id: string
+          template_id?: string | null
           user_id: string
           warnings?: string[]
         }
@@ -690,9 +692,10 @@ export type Database = {
           gym_id?: string
           id?: string
           name?: string | null
-          ruleset_version?: string
+          origin?: Database["public"]["Enums"]["plan_origin"]
+          ruleset_version?: string | null
           status?: string
-          template_id?: string
+          template_id?: string | null
           user_id?: string
           warnings?: string[]
         }
@@ -1256,6 +1259,7 @@ export type Database = {
         | "obliques"
         | "lower_back"
         | "full_body"
+      plan_origin: "engine" | "manual"
       proposal_status: "pending" | "accepted" | "rejected" | "expired"
       proposal_type:
         | "load_increase"
@@ -1474,6 +1478,7 @@ export const Constants = {
         "lower_back",
         "full_body",
       ],
+      plan_origin: ["engine", "manual"],
       proposal_status: ["pending", "accepted", "rejected", "expired"],
       proposal_type: [
         "load_increase",

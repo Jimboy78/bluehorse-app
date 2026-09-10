@@ -256,6 +256,34 @@ alguien derivó **multiplicadores de carga**. La cinética no da multiplicadores
   Otro bloque de investigación escrito y nunca construido.
 - 8 tests, 327 en verde.
 
+## Segunda vuelta — 2026-09-09
+
+Seis huecos abiertos por la primera vuelta, todos cerrados el mismo día. Dos con código; los otros
+cuatro quedan **declarados como limitación**, que es lo que corresponde cuando la evidencia no
+alcanza para prescribir: una fila de investigación que dice "no hay consenso" cierra el hueco tan
+bien como una que dice un número.
+
+| # | Documento | Qué pasó |
+|---|---|---|
+| 16 | `16-tiempo-bajo-tension.md` | **Limitación declarada.** El TUT no se prescribe. La ACSM 2026 no lo lista entre las variables de prescripción. |
+| 17 | `17-lesion-aguda.md` | **Código.** Una lesión y un dolor de arrastre producían planes byte a byte idénticos. Ahora una lesión no accede al tramo permisivo: su piso para sacar el ejercicio es el umbral en el que un dolor crónico apenas se monitorea. |
+| 18 | `18-enfasis-excentrico.md` | **Limitación declarada.** La columna no se puede construir: la fuente que sostenía el criterio de ranking resultó ser un paper de mecánica arterial. |
+| 19 | `19-desentrenamiento-aerobico.md` | **Código.** Las duraciones de cardio eran idénticas en todas las ventanas de ausencia. El aviso de cardio ahora arranca en el escalón más chico que el objetivo ya define, no en uno nuevo. |
+| 20 | `20-arranque-sin-test.md` | **Limitación declarada.** El hueco de carga inicial para fuerza no se cierra sin inventar. |
+| 21 | `21-fragilidad.md` | **Limitación declarada.** FRAIL es medible con una PWA, pero lo que se haría con el resultado no tiene respaldo. |
+
+**Lo que más rindió no fue buscar papers, otra vez.** La lesión que no cambiaba nada, el cardio
+idéntico en toda ventana de ausencia y —fuera del motor— el gráfico de volumen semanal que
+renderizaba cero barras desde que existe: los tres salieron de medir el sistema contra sí mismo.
+
+**Tres citas fabricadas, confirmadas contra Crossref.** Un DOI atribuido a un metaanálisis de
+carga-velocidad resuelve a un corrigendum sobre atletas transgénero; otro atribuido a énfasis
+excéntrico resuelve a un paper de mecánica arterial windkessel; un tercero (PEACE & LOVE) directamente
+404. Cada una está documentada en la nota al pie del documento correspondiente, y
+`apps/web/src/content/sources.test.ts` congela la regla de que ninguna cita sin resolver llega a la
+app. **La primera tanda de investigación (`01` a `07`) nunca pasó por este control** — vale una
+pasada con el mismo criterio.
+
 ### El motor, auditado de punta a punta
 
 Las trece entradas grandes están cerradas. Lo que queda es de otra clase:

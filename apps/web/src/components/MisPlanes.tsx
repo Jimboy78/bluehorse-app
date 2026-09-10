@@ -2,6 +2,7 @@ import { ChevronRight, Layers } from 'lucide-react';
 import { Link } from 'react-router';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
 import { GOAL_LABELS } from '../lib/labels.ts';
+import type { PlanSummary } from '../lib/plan.ts';
 import { usePlans } from '../lib/plan.ts';
 import { Card, Skeleton } from './ui/index.ts';
 
@@ -59,7 +60,7 @@ export function MisPlanes() {
         </span>
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <p className="truncate text-sm font-semibold text-ink">
-            {activo ? templateLabel(activo.templateId) : 'Tus planes'}
+            {activo ? planLabel(activo) : 'Tus planes'}
           </p>
           <p className="truncate text-xs text-slate">
             {activo?.goal && `${GOAL_LABELS[activo.goal]} · `}
@@ -74,6 +75,15 @@ export function MisPlanes() {
   );
 }
 
-function templateLabel(templateId: string): string {
-  return TEMPLATE_LABELS[templateId] ?? templateId;
+/**
+ * Cómo se llama el plan activo en esta tarjeta: el nombre que le puso el
+ * socio, y si no le puso ninguno, el del template.
+ *
+ * Un plan armado a mano no tiene template al que caer — por eso la pantalla
+ * que lo crea pide el nombre y no lo deja vacío.
+ */
+function planLabel(plan: PlanSummary): string {
+  if (plan.name) return plan.name;
+  if (!plan.templateId) return 'Plan armado por vos';
+  return TEMPLATE_LABELS[plan.templateId] ?? plan.templateId;
 }

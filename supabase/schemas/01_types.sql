@@ -51,6 +51,12 @@ create type proposal_status as enum ('pending', 'accepted', 'rejected', 'expired
 -- 'placeholder' = contenido provisorio. 'research' = contenido real validado.
 create type ruleset_source as enum ('placeholder', 'research');
 
+-- Quién armó el plan. 'engine' es el motor a partir de un ruleset; 'manual' es
+-- el socio, ejercicio por ejercicio. Los números de un plan manual los eligió
+-- una persona: no salen de la investigación y la pantalla no puede presentarlos
+-- como si salieran (regla dura 4).
+create type plan_origin as enum ('engine', 'manual');
+
 create type baseline_source as enum ('declared', 'calibrated', 'estimated');
 
 create type constraint_type as enum ('injury', 'pain', 'avoid_exercise', 'avoid_equipment');

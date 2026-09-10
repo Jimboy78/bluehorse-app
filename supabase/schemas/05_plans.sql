@@ -1,4 +1,5 @@
--- EL PLAN — lo genera el motor a partir de un ruleset.
+-- EL PLAN — lo genera el motor a partir de un ruleset, o lo arma el socio a
+-- mano. `plans.origin` separa los dos casos; ver el comentario de esa columna.
 
 -- Todo el contenido de prescripción vive acá, versionado.
 -- Cuando termine la investigación: se inserta una fila con source='research'
@@ -48,9 +49,13 @@ create table plans (
   user_id uuid not null references profiles (id) on delete cascade,
   gym_id uuid not null references gyms (id) on delete cascade,
   /* Con qué contenido se generó. Sin esto no se puede reproducir un plan ni
-     comparar contra el que se genere con el contenido real. */
-  ruleset_version text not null references rulesets (version),
-  template_id text not null,
+     comparar contra el que se genere con el contenido real.
+     NULO en los planes de `origin = 'manual'`: ahí no hubo motor ni ruleset, y
+     anotar el ruleset activo del momento sería decir que los números de ese
+     plan salen de la investigación cuando los eligió el socio. El `check` de
+     abajo garantiza que un plan del motor nunca los tenga en nulo. */
+  ruleset_version text references rulesets (version),
+  template_id text,
   /* Cómo le dice el socio a este plan. Lo elige al generarlo y sirve para
      distinguir dos planes del mismo template en la lista — y para que borrar
      uno pueda pedir que escriba SU nombre, no un id que nadie reconoce.
@@ -67,7 +72,15 @@ create table plans (
      entrena bajo este plan, no solo en el momento de armarlo (regla dura 4:
      la evidencia se muestra como es, y un hueco de volumen no dicho es
      mentir por omisión igual que un ruleset placeholder sin marcar). */
-  warnings text[] not null default '{}'
+  warnings text[] not null default '{}',
+
+  /* Quién lo armó. Las filas anteriores a esta columna son todas del motor,
+     que es lo que dice el default. */
+  origin plan_origin not null default 'engine',
+
+  constraint plans_engine_needs_ruleset check (
+    origin <> 'engine' or (ruleset_version is not null and template_id is not null)
+  )
 );
 
 create unique index plans_one_active_per_user_idx on plans (user_id) where status = 'active';
@@ -104,9 +117,13 @@ create table plan_session_items (
   target_load_unit load_unit,
   target_rir smallint,
   rest_seconds smallint not null,
-  /* El "por qué va acá" que se muestra en la lista de la sesión. */
-  rationale text not null,
-  /* true mientras el ruleset que lo generó sea placeholder. */
+  /* El "por qué va acá" que se muestra en la lista de la sesión. Lo escribe el
+     motor citando el ruleset. NULO en los ítems que cargó el socio a mano: no
+     hay razón derivada de evidencia que mostrar, y escribir una la inventaría. */
+  rationale text,
+  /* true mientras el ruleset que lo generó sea placeholder. En un ítem manual
+     es false: no hay ruleset detrás, provisorio o no. Lo que avisa que ese plan
+     no está respaldado es `plans.origin`, no esta bandera. */
   is_placeholder boolean not null default true,
   superset_group smallint,
 
