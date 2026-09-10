@@ -250,6 +250,21 @@ export function useSessionLog(
     restActualSeconds: number,
     actual: SetActual,
   ): Promise<void> {
+    // Una serie ya registrada no se vuelve a registrar. Sin esto, cada
+    // llamada genera un `setLogId` y un `clientId` nuevos: el `client_id`
+    // unico de la base da idempotencia ante un reintento de la cola, pero no
+    // ante la misma serie mandada dos veces con identidades distintas.
+    // Medido en la base local: dos `set_logs` con el mismo
+    // `workout_log_id`, `exercise_id`, `plan_session_item_id` y `set_index`,
+    // separados por diez segundos, y la primera fila huerfana —
+    // `writtenSetsRef` la habia pisado, asi que `undoSetDone` ya no podia
+    // borrarla.
+    //
+    // La clave es la misma que usa el deshacer, y `undoSetDone` la borra al
+    // deshacer: destildar y volver a marcar sigue funcionando.
+    const claveDeLaSerie = `${item.id}:${setIndex}`;
+    if (writtenSetsRef.current.has(claveDeLaSerie)) return;
+
     const workoutLogId = await ensureWorkoutLog();
     if (!workoutLogId || !userId) return;
 
@@ -289,7 +304,7 @@ export function useSessionLog(
       ),
       userId,
     );
-    writtenSetsRef.current.set(`${item.id}:${setIndex}`, { setLogId, clientId });
+    writtenSetsRef.current.set(claveDeLaSerie, { setLogId, clientId });
 
     patchRestored((prev) => {
       const hechas = prev.doneByItem[item.id] ?? [];
