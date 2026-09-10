@@ -126,6 +126,18 @@ antes de hacerlo.
   los timers de una pestaña oculta: medido acá, un `setTimeout` de 1500 ms tardó 11 s. Cualquier
   cosa que dependa de un plazo (`conPlazo`, los reintentos de TanStack, el `refetchInterval`) se
   mide mal en una pestaña de fondo, y se termina "arreglando" un problema que no existe.
+- **`client_id` da idempotencia ante reintentos, no ante la misma serie escrita dos veces.**
+  Es unico en la base, asi que reenviar un item de la cola es un no-op. Pero si la misma serie se
+  registra de nuevo con un `client_id` nuevo, son dos filas distintas para la base. Medido: dos
+  `set_logs` con el mismo `workout_log_id`, `exercise_id`, `plan_session_item_id` y `set_index`,
+  once segundos aparte. Contaban doble en Progreso y doble en la adaptacion, y la primera quedaba
+  huerfana —`writtenSetsRef` la habia pisado— asi que destildar la serie no la borraba. La guarda
+  esta en `markSetDone`, con la misma clave que usa el deshacer.
+- **El cliente de Supabase tiene que llevar el generico `<Database>`.** Sin el, `.from()` acepta
+  cualquier string y `.select()` devuelve filas sin forma. Y Supabase no falla al pedir una columna
+  que no existe: devuelve la fila sin ese campo, asi que un typo se ve como un dato vacio en la
+  pantalla del socio, no como un error. Lo cuida `lib/supabase-tipos.test.ts`, que corre en `tsc` y
+  no en vitest: si alguien saca el generico, sus `@ts-expect-error` quedan de mas (TS2578).
 - **`supabase db diff` no lee `schema_paths` desde la CLI ≥ 2.116.** El comando correcto es
   `npm run db:sync` (`supabase db schema declarative sync --apply`). Y esa sincronización rechaza
   `INSERT` sobre tablas de sistema (`storage.buckets`, etc.): los inserts van en `seed.sql`, las
