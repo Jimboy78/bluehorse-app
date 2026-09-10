@@ -479,6 +479,11 @@ const sportsSchema = z.object({
       }),
     )
     .min(1),
+  /**
+   * Qué decirle a quien declaró un deporte cuyo énfasis el gimnasio no puede
+   * cubrir. `{muscles}` se reemplaza con la lista.
+   */
+  emphasisUnreachableNote: z.string().min(1).optional(),
   seasonPhases: z.record(
     z.enum(SEASON_PHASES),
     z.object({

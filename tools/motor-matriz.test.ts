@@ -1345,3 +1345,69 @@ describe('las mediciones de cobertura muscular', () => {
     expect(primero[1] / gym.exercises.length).toBeGreaterThan(0.3);
   });
 });
+
+/**
+ * EL AVISO DE ÉNFASIS INALCANZABLE
+ *
+ * Ver `25-cobertura-del-catalogo.md`. Once de los doce deportes con énfasis
+ * nombran al menos un músculo que ninguna sesión puede tocar; el plan ahora lo
+ * dice en vez de callarlo.
+ */
+describe('el aviso de énfasis que el gimnasio no puede cubrir', () => {
+  function avisoDe(perfil: Perfil): string | undefined {
+    return planDe(perfil, V1_RESEARCH).warnings.find((w) => w.includes('Tu deporte trabaja'));
+  }
+
+  /** Los músculos que ninguna sesión de sala puede tocar, calculado igual que el motor. */
+  const inalcanzables = MUSCLE_GROUPS.filter((m) => {
+    const pedidos = new Set(
+      Object.values(V1_RESEARCH.templates).flatMap((t) =>
+        t.sessions.flatMap((s) => s.slots.map((sl) => sl.pattern)),
+      ),
+    );
+    return !gym.exercises.some(
+      (e) =>
+        e.primaryMuscles.includes(m) &&
+        pedidos.has(e.pattern) &&
+        (e.pattern === 'cardio' || e.modality !== 'time'),
+    );
+  });
+
+  it('hay músculos que ninguna sesión puede tocar (si esto vacía, mejoró el catálogo)', () => {
+    // Hoy son oblicuos y antebrazos: el único ejercicio de cada uno se mide por
+    // tiempo, o vive en `carry`, que ninguna plantilla pide.
+    expect(inalcanzables.length).toBeGreaterThan(0);
+  });
+
+  it('avisa exactamente a los deportes que enfatizan uno de esos músculos', () => {
+    for (const perfil of PERFILES) {
+      const deporte = V1_RESEARCH.sports?.catalog.find((d) => d.id === perfil.deporte);
+      const esperado = (deporte?.emphasis ?? []).filter((m) => inalcanzables.includes(m));
+      const aviso = avisoDe(perfil);
+
+      if (esperado.length === 0) {
+        expect(aviso, `${perfil.nombre} no debería avisar`).toBeUndefined();
+        continue;
+      }
+      expect(aviso, `${perfil.nombre} debería avisar`).toBeDefined();
+      for (const m of esperado) {
+        // El aviso nombra el músculo: sin eso el socio no sabe qué le falta.
+        expect(aviso).toContain(MUSCLE_LABELS_ES[m]);
+      }
+    }
+  });
+
+  it('el texto del aviso sale del ruleset, no del código', () => {
+    // Regla 3 llevada al texto: si alguien lo escribe en el motor, esto falla.
+    expect(V1_RESEARCH.sports?.emphasisUnreachableNote).toBeTruthy();
+    expect(V1_RESEARCH.sports?.emphasisUnreachableNote).toContain('{muscles}');
+  });
+});
+
+/** Los nombres que usa el motor, repetidos acá para no depender de un export interno. */
+const MUSCLE_LABELS_ES: Partial<Record<MuscleGroup, string>> = {
+  obliques: 'oblicuos',
+  forearms: 'antebrazos',
+  calves: 'gemelos',
+  traps: 'trapecios',
+};

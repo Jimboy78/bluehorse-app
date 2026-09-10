@@ -1064,7 +1064,8 @@
       }
     },
     "confidence": "low",
-    "confidenceNote": "Lo que esta bien sostenido es que el deporte NO cambia la dosis (SMD -0,03, I²=0%) y que despues de un partido el rendimiento tarda 72 horas en volver (26 estudios, 465 jugadoras). Lo que es criterio de practica, y por eso todo el bloque va como BAJA: que musculos prioriza cada deporte, cuanto exactamente recortar cada dia, y todo lo previo al partido. Ademas la evidencia es de futbol competitivo con partidos completos: aplicarsela a alguien que juega los sabados es una extrapolacion."
+    "confidenceNote": "Lo que esta bien sostenido es que el deporte NO cambia la dosis (SMD -0,03, I²=0%) y que despues de un partido el rendimiento tarda 72 horas en volver (26 estudios, 465 jugadoras). Lo que es criterio de practica, y por eso todo el bloque va como BAJA: que musculos prioriza cada deporte, cuanto exactamente recortar cada dia, y todo lo previo al partido. Ademas la evidencia es de futbol competitivo con partidos completos: aplicarsela a alguien que juega los sabados es una extrapolacion.",
+    "emphasisUnreachableNote": "Tu deporte trabaja sobre todo {muscles}, y el gimnasio no tiene hoy con que entrenarlo dentro de un plan: lo unico cargado para eso se hace por tiempo o es un patron que ninguna plantilla usa, asi que no entra en ninguna sesion. El plan no lo esta cubriendo. Consultalo con el staff si te importa esa parte."
   },
   "cardio": {
     "zones": [

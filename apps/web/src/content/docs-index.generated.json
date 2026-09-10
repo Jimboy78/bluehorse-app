@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-10T19:09:44.000Z",
+ "generatedAt": "2026-09-10T22:51:19.173Z",
  "docs": [
   {
    "id": "metodo",
@@ -200,6 +200,14 @@
    "resumen": "Revisión del 10 de septiembre de 2026. Salió de cerrar el último objetivo que npm run qa docs marcaba sin tabla: cardio. Verificando su fuente aparecieron dos cosas distintas, las dos medibles.",
    "archivo": "24-cobertura-muscular.md",
    "bloques": 34
+  },
+  {
+   "id": "25-cobertura-del-catalogo",
+   "orden": 25,
+   "titulo": "Un tercio del gimnasio no entra en ningún plan",
+   "resumen": "Revisión del 10 de septiembre de 2026. El catálogo es la pieza que ninguna herramienta había mirado: qa barre datos muertos y código muerto, y qa docs cruza el ruleset con la investigación, pero nadie preguntaba nunca qué pasa con los 58…",
+   "archivo": "25-cobertura-del-catalogo.md",
+   "bloques": 30
   },
   {
    "id": "auditoria",

@@ -188,6 +188,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
   warnings.push(...weeklyVolumeWarnings(sessions, template, gym, params, goal));
   warnings.push(...interferenceWarnings(sessions, gym, ruleset));
   warnings.push(...powerWarnings(sessions, gym, goal));
+  warnings.push(...emphasisWarnings(ruleset, gym, sport));
 
   if (placeholder) {
     warnings.push(
@@ -1374,6 +1375,64 @@ function chooseExercise(input: ChooseExerciseInput): Exercise | undefined {
   eligible = prefer(eligible, (e) => !usedInPlan.has(e.id));
 
   return pickDeterministic(eligible, rng);
+}
+
+/**
+ * EL DEPORTE APUNTA A UN MÚSCULO QUE NUNCA VA A ENTRAR
+ *
+ * `sports.catalog` le pone a cada deporte los músculos del gesto, para
+ * desempatar la selección cuando hay varios ejercicios equivalentes. Medido
+ * sobre el catálogo real, once de los doce deportes con énfasis nombran al
+ * menos un músculo que **ninguna sesión puede tocar**, por una de dos razones
+ * estructurales:
+ *
+ * - El único ejercicio que lo tiene como primario se mide por tiempo, y fuera
+ *   del cardio esos quedan afuera (paso 2 de `chooseExercise`: "2×6-10 de
+ *   plancha" no significa nada). Es el caso de los oblicuos, que enfatizan
+ *   fútbol, futsal, tenis, pádel, handball, boxeo, kickboxing, béisbol, hockey
+ *   y golf.
+ * - El único ejercicio vive en un patrón que ninguna plantilla pide. Es el caso
+ *   de los antebrazos: solo la caminata del granjero, que es `carry`.
+ *
+ * No es que el desempate falle: es que no tiene con qué. Y el socio no se
+ * entera, porque la nota de la categoría solo se muestra cuando el deporte
+ * cambia el volumen, y `local_gesture` no lo cambia.
+ *
+ * Se avisa en vez de cambiar la selección, por la misma razón que en el resto
+ * del motor: agregar un ejercicio para tapar el hueco sería inventar catálogo,
+ * y sacar el músculo del énfasis sería borrar la pregunta en vez de contestarla.
+ * Ver `25-cobertura-del-catalogo.md`.
+ */
+function emphasisWarnings(
+  ruleset: Ruleset,
+  gym: GymSnapshot,
+  sport: ResolvedSport | null,
+): string[] {
+  const note = ruleset.sports?.emphasisUnreachableNote;
+  if (!note || !sport || sport.emphasis.length === 0) return [];
+
+  const pedidos = new Set<MovementPattern>();
+  for (const template of Object.values(ruleset.templates)) {
+    for (const session of template.sessions) {
+      for (const slot of session.slots) pedidos.add(slot.pattern);
+    }
+  }
+
+  // Alcanzable = existe un ejercicio con ese músculo como primario, en un
+  // patrón que alguna plantilla pide, y que no quede fuera por medirse en
+  // tiempo. Es la misma condición que aplica `chooseExercise`.
+  const alcanzable = (muscle: MuscleGroup) =>
+    gym.exercises.some(
+      (e) =>
+        e.primaryMuscles.includes(muscle) &&
+        pedidos.has(e.pattern) &&
+        (e.pattern === 'cardio' || e.modality !== 'time'),
+    );
+
+  const fuera = sport.emphasis.filter((m) => !alcanzable(m));
+  if (fuera.length === 0) return [];
+
+  return [note.replace('{muscles}', fuera.map(muscleLabel).join(', '))];
 }
 
 const MUSCLE_LABELS: Readonly<Record<MuscleGroup, string>> = {

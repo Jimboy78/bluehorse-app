@@ -6144,7 +6144,9 @@
     "fútbol · pretemporada": {
       "rulesetVersion": "v1-research",
       "source": "research",
-      "warnings": [],
+      "warnings": [
+        "Tu deporte trabaja sobre todo oblicuos, y el gimnasio no tiene hoy con que entrenarlo dentro de un plan: lo unico cargado para eso se hace por tiempo o es un patron que ninguna plantilla usa, asi que no entra en ninguna sesion. El plan no lo esta cubriendo. Consultalo con el staff si te importa esa parte."
+      ],
       "sesiones": [
         {
           "label": "Sesión A",
@@ -6609,7 +6611,8 @@
       "source": "research",
       "warnings": [
         "Se baja el volumen a la mitad para llegar entero a los partidos, manteniendo la intensidad. Ojo: esto se repite como consenso firme y no lo es. La unica comparacion directa in-season es de 16 personas, con diferencias despreciables (ES -0,04 a 0,04) y certeza calificada como muy baja por los propios revisores.",
-        "Con 2 sesiones por semana, estos músculos quedan abajo de las 4 series semanales mínimas: pecho (2), isquiotibiales (2). Sumar una sesión más por semana los cubre."
+        "Con 2 sesiones por semana, estos músculos quedan abajo de las 4 series semanales mínimas: pecho (2), isquiotibiales (2). Sumar una sesión más por semana los cubre.",
+        "Tu deporte trabaja sobre todo oblicuos, y el gimnasio no tiene hoy con que entrenarlo dentro de un plan: lo unico cargado para eso se hace por tiempo o es un patron que ninguna plantilla usa, asi que no entra en ninguna sesion. El plan no lo esta cubriendo. Consultalo con el staff si te importa esa parte."
       ],
       "sesiones": [
         {
@@ -7077,7 +7080,8 @@
         "Para este objetivo tu nivel decide qué ejercicios entran al plan por la técnica que piden, pero no cambia las series ni las repeticiones. La evidencia que mide la dosis solo distingue entre entrenado y no entrenado, así que afinar más sería inventarlo.",
         "Se baja el volumen a la mitad para llegar entero a los partidos, manteniendo la intensidad. Ojo: esto se repite como consenso firme y no lo es. La unica comparacion directa in-season es de 16 personas, con diferencias despreciables (ES -0,04 a 0,04) y certeza calificada como muy baja por los propios revisores.",
         "Con 3 sesiones por semana, estos músculos quedan abajo de las 3 series semanales mínimas: isquiotibiales (2). Sumar una sesión más por semana los cubre.",
-        "Este plan no incluye ningún ejercicio explosivo: se entrena con series cortas y rápidas sobre los ejercicios de siempre. El gimnasio tiene con qué (cajones, wall ball, slam ball), pero todavía no entran solos al plan. Si buscás explosividad, consultalo con el staff."
+        "Este plan no incluye ningún ejercicio explosivo: se entrena con series cortas y rápidas sobre los ejercicios de siempre. El gimnasio tiene con qué (cajones, wall ball, slam ball), pero todavía no entran solos al plan. Si buscás explosividad, consultalo con el staff.",
+        "Tu deporte trabaja sobre todo oblicuos, antebrazos, y el gimnasio no tiene hoy con que entrenarlo dentro de un plan: lo unico cargado para eso se hace por tiempo o es un patron que ninguna plantilla usa, asi que no entra en ninguna sesion. El plan no lo esta cubriendo. Consultalo con el staff si te importa esa parte."
       ],
       "sesiones": [
         {
@@ -7542,7 +7546,8 @@
       "rulesetVersion": "v1-research",
       "source": "research",
       "warnings": [
-        "Con 2 sesiones por semana, estos músculos quedan abajo de las 6 series semanales mínimas: cuádriceps (5), pecho (3), espalda (4), hombro anterior (2). Sumar una sesión más por semana los cubre."
+        "Con 2 sesiones por semana, estos músculos quedan abajo de las 6 series semanales mínimas: cuádriceps (5), pecho (3), espalda (4), hombro anterior (2). Sumar una sesión más por semana los cubre.",
+        "Tu deporte trabaja sobre todo oblicuos, antebrazos, y el gimnasio no tiene hoy con que entrenarlo dentro de un plan: lo unico cargado para eso se hace por tiempo o es un patron que ninguna plantilla usa, asi que no entra en ninguna sesion. El plan no lo esta cubriendo. Consultalo con el staff si te importa esa parte."
       ],
       "sesiones": [
         {
