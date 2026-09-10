@@ -25,7 +25,7 @@
  * marca. Por eso la salida dice "el documento dice X, el ruleset dice Y", y la
  * decide una persona.
  */
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chequeo, hallazgo } from './lib/reporte.mjs';
@@ -277,15 +277,38 @@ export function correrContraDocs(nombre = 'v1-research') {
 
   const POR_EQUIVALENCIA = { recomposition: 'hypertrophy' };
 
+  /**
+   * Un objetivo sin tabla puede estar revisado igual, en un documento propio.
+   * Se verifica que el archivo exista y nombre al objetivo, en vez de confiar
+   * en el mapa: si alguien borra o renombra el documento, el objetivo vuelve a
+   * aparecer como no revisado, que es lo correcto.
+   */
+  const REVISADO_EN = {
+    endurance: '23-resistencia-muscular.md',
+    cardio: '24-cobertura-muscular.md',
+  };
+
+  function revisionDe(goal) {
+    const archivo = REVISADO_EN[goal];
+    if (!archivo) return null;
+    const ruta = join(DOCS, archivo);
+    if (!existsSync(ruta)) return null;
+    return readFileSync(ruta, 'utf8').includes(goal) ? archivo : null;
+  }
+
   const sinRespaldo = Object.keys(ruleset.prescription ?? {})
     .filter((goal) => !conTabla.has(goal))
     .map((goal) => {
       const espejo = POR_EQUIVALENCIA[goal];
-      if (!espejo) {
-        return hallazgo(goal, null, 'sus números salen de prosa, no de una tabla comparable');
+      if (espejo) {
+        if (equivaleA(goal, espejo)) return null;
+        return hallazgo(goal, null, `dice ser idéntico a ${espejo} y no lo es`);
       }
-      if (equivaleA(goal, espejo)) return null;
-      return hallazgo(goal, null, `dice ser idéntico a ${espejo} y no lo es`);
+      const revision = revisionDe(goal);
+      if (revision) {
+        return hallazgo(goal, null, `sin tabla, revisado a mano en ${revision}`);
+      }
+      return hallazgo(goal, null, 'sus números salen de prosa, y nadie los revisó');
     })
     .filter((h) => h !== null);
 
