@@ -30,6 +30,7 @@ import {
   Skeleton,
 } from '../components/ui/index.ts';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
+import { GYM_TZ } from '../lib/gym-time.ts';
 import { GOAL_LABELS } from '../lib/labels.ts';
 import { useCreateManualPlan } from '../lib/manual-plan.ts';
 import { fadeUp, listContainer, listItem, spring, tappable } from '../lib/motion.ts';
@@ -62,8 +63,6 @@ const TEMPLATE_LABELS: Record<string, string> = {
   upper_lower: 'Torso / pierna',
   cardio_base: 'Base aeróbica',
 };
-
-const GYM_TZ = 'America/Argentina/Buenos_Aires';
 
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat('es-AR', {

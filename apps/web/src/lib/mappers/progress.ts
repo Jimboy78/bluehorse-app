@@ -1,6 +1,7 @@
 import type { LoadReading, MuscleGroup } from '@bh/domain';
 import { loadUnitSchema, muscleGroupSchema } from '@bh/domain';
 import { z } from 'zod';
+import { diaDelGimnasio, diasEntre, lunesDeLaSemana } from '../gym-time.ts';
 
 /**
  * Traducción de `set_logs`/`workout_logs` (lo que la persona hizo de verdad)
@@ -82,25 +83,21 @@ export interface AdherenceSummary {
   readonly lastSessionAt: string | null;
 }
 
-/** Solo la fecha (UTC), como clave de día — la zona del gimnasio queda para cuando se formatee. */
-function dayKeyUtc(iso: string): string {
-  return iso.slice(0, 10);
-}
-
 export function computeAdherence(workoutLogs: readonly { startedAt: string }[]): AdherenceSummary {
   if (workoutLogs.length === 0) {
     return { totalSessions: 0, currentStreakDays: 0, lastSessionAt: null };
   }
 
   const sorted = [...workoutLogs].sort((a, b) => b.startedAt.localeCompare(a.startedAt));
-  const distinctDays = [...new Set(sorted.map((w) => dayKeyUtc(w.startedAt)))];
+  // Por día del gimnasio, no por día UTC: ver `lib/gym-time.ts`. Lunes 22:00 y
+  // martes 10:00 de acá son el mismo día allá, y la racha se comía uno.
+  const distinctDays = [...new Set(sorted.map((w) => diaDelGimnasio(w.startedAt)))];
 
   let streak = 1;
   for (let i = 1; i < distinctDays.length; i++) {
-    const previous = new Date(`${distinctDays[i - 1]}T00:00:00Z`);
-    const current = new Date(`${distinctDays[i]}T00:00:00Z`);
-    const diffDays = Math.round((previous.getTime() - current.getTime()) / 86_400_000);
-    if (diffDays === 1) streak++;
+    const anterior = distinctDays[i - 1] as string;
+    const actual = distinctDays[i] as string;
+    if (diasEntre(anterior, actual) === 1) streak++;
     else break;
   }
 
@@ -117,14 +114,6 @@ export interface WeeklyVolumePoint {
   readonly volumeKg: number;
 }
 
-/** Lunes (UTC) de la semana ISO a la que pertenece esta fecha. */
-function isoWeekStartUtc(iso: string): string {
-  const date = new Date(`${dayKeyUtc(iso)}T00:00:00Z`);
-  const isoDow = date.getUTCDay() === 0 ? 7 : date.getUTCDay(); // lunes=1 … domingo=7
-  date.setUTCDate(date.getUTCDate() - (isoDow - 1));
-  return dayKeyUtc(date.toISOString());
-}
-
 /**
  * Solo suma series que se pueden convertir a kg sin inventar nada
  * (`loadKgNormalized` no nulo) y con repeticiones registradas. Las demás
@@ -134,7 +123,9 @@ export function computeWeeklyVolume(sets: readonly SetRecord[]): WeeklyVolumePoi
   const byWeek = new Map<string, number>();
   for (const set of sets) {
     if (set.isWarmup || set.loadKgNormalized === null || set.reps === null) continue;
-    const week = isoWeekStartUtc(set.completedAt);
+    // El domingo a la noche de acá ya es lunes en UTC: sin esto esa sesión
+    // se sumaba a la barra de la semana siguiente.
+    const week = lunesDeLaSemana(diaDelGimnasio(set.completedAt));
     byWeek.set(week, (byWeek.get(week) ?? 0) + set.loadKgNormalized * set.reps);
   }
   return [...byWeek.entries()]

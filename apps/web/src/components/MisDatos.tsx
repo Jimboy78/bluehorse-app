@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
 import { useBodyMetrics, useRecordBodyMetric, weightChange } from '../lib/body-metrics.ts';
+import { GYM_TZ } from '../lib/gym-time.ts';
 import { spring } from '../lib/motion.ts';
 import { BodyMetricsForm } from './BodyMetricsForm.tsx';
 import { Button, Card, Notice, SectionLabel, Skeleton } from './ui/index.ts';
@@ -20,8 +21,6 @@ import { Button, Card, Notice, SectionLabel, Skeleton } from './ui/index.ts';
  * Lo que NO hace es calcular un IMC ni decir si el peso "está bien". Eso sería
  * una afirmación de salud sin nada del research atrás.
  */
-
-const GYM_TZ = 'America/Argentina/Buenos_Aires';
 
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat('es-AR', {

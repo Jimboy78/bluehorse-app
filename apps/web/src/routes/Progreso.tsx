@@ -11,6 +11,7 @@ import { SyncNotice } from '../components/SyncNotice.tsx';
 import { Card, SectionLabel, Skeleton } from '../components/ui/index.ts';
 import { useProposalHistory } from '../lib/adaptation.ts';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
+import { GYM_TZ } from '../lib/gym-time.ts';
 import { fadeUp, listContainer, listItem } from '../lib/motion.ts';
 import { useSubstitutionInsights } from '../lib/substitution-insights.ts';
 
@@ -119,8 +120,6 @@ function ExplorarLink() {
     </Link>
   );
 }
-
-const GYM_TZ = 'America/Argentina/Buenos_Aires';
 
 function formatResolvedDate(iso: string): string {
   return new Intl.DateTimeFormat('es-AR', {

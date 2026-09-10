@@ -1,5 +1,6 @@
 import { ChevronDown, Star } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { GYM_TZ } from '../lib/gym-time.ts';
 import type { SetRecord } from '../lib/mappers/progress.ts';
 import { usePinnedExercises } from '../lib/pinned.ts';
 import { formatLoadOrDash } from './RecordsList.tsx';
@@ -14,8 +15,6 @@ import { Card, Chip } from './ui/index.ts';
  * queda debajo, plegado — el número exacto sigue disponible, deja de ser lo
  * primero.
  */
-
-const GYM_TZ = 'America/Argentina/Buenos_Aires';
 
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat('es-AR', {

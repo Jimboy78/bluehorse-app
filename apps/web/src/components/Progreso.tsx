@@ -2,13 +2,12 @@ import { AlertCircle, CalendarDays, Flame, TrendingUp } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { ReactNode } from 'react';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
+import { GYM_TZ } from '../lib/gym-time.ts';
 import type { WeeklyVolumePoint } from '../lib/mappers/progress.ts';
 import { useProgress } from '../lib/progress.ts';
 import { ExerciseEvolution } from './ExerciseEvolution.tsx';
 import { RecordsList } from './RecordsList.tsx';
 import { Card, EmptyState, Notice, Skeleton } from './ui/index.ts';
-
-const GYM_TZ = 'America/Argentina/Buenos_Aires';
 
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat('es-AR', {

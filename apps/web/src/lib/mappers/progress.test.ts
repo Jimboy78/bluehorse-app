@@ -173,3 +173,34 @@ describe('computeRecords', () => {
     expect(records).toEqual([]);
   });
 });
+
+/**
+ * "Días consecutivos" y "esta semana" no existen en UTC: existen donde está
+ * parada la persona. Agrupar por día UTC rompía las dos cosas justo en la
+ * franja horaria en la que más se entrena. Ver `lib/gym-time.ts`.
+ */
+describe('la hora del gimnasio, no la de Greenwich', () => {
+  it('lunes a la noche y martes a la mañana son dos días de racha', () => {
+    // Lunes 2026-09-07 22:00 y martes 2026-09-08 10:00 en Arroyo Seco: los dos
+    // caen en el martes UTC, así que la racha se comía uno de los dos días.
+    const summary = computeAdherence([
+      { startedAt: '2026-09-08T13:00:00Z' },
+      { startedAt: '2026-09-08T01:00:00Z' },
+    ]);
+    expect(summary.currentStreakDays).toBe(2);
+  });
+
+  it('el domingo a la noche suma a su semana, no a la siguiente', () => {
+    // Domingo 2026-09-06 21:00 en Arroyo Seco ya es lunes en UTC.
+    const semanas = computeWeeklyVolume([set({ completedAt: '2026-09-07T00:00:00Z' })]);
+    expect(semanas).toHaveLength(1);
+    expect(semanas[0]?.weekStart).toBe('2026-08-31');
+  });
+
+  it('lunes a la madrugada de acá sigue siendo lunes', () => {
+    // 2026-09-07 00:30 local = 2026-09-07T03:30Z. Mismo día en las dos zonas,
+    // pero es el borde de la semana: tiene que abrir la barra del 07.
+    const semanas = computeWeeklyVolume([set({ completedAt: '2026-09-07T03:30:00Z' })]);
+    expect(semanas[0]?.weekStart).toBe('2026-09-07');
+  });
+});

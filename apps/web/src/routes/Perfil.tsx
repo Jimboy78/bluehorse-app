@@ -42,6 +42,7 @@ import catalogo from '../content/sources.generated.json' with { type: 'json' };
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
 import { useBodyMetrics, useRecordBodyMetric } from '../lib/body-metrics.ts';
 import { documentos } from '../lib/docs.ts';
+import { GYM_TZ } from '../lib/gym-time.ts';
 import { useScreeningState } from '../lib/health-screening.ts';
 import {
   BODY_REGION_LABELS,
@@ -713,8 +714,6 @@ function ConstraintRow({
     </Card>
   );
 }
-
-const GYM_TZ = 'America/Argentina/Buenos_Aires';
 
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat('es-AR', {

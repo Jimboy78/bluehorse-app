@@ -1,6 +1,7 @@
 import type { BodyMetric } from '@bh/domain';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './auth/AuthProvider.tsx';
+import { diaDelGimnasio } from './gym-time.ts';
 import { requireSupabase } from './supabase.ts';
 
 /**
@@ -52,8 +53,6 @@ export function currentMetrics(history: readonly BodyMetric[]): BodyMetric | nul
   };
 }
 
-const GYM_TZ = 'America/Argentina/Buenos_Aires';
-
 /**
  * Cuánto cambió el peso desde la primera medición registrada. No dice si eso
  * es bueno: quien busca recomposición quiere que baje, quien busca hipertrofia
@@ -80,8 +79,7 @@ export function weightChange(
 
 /** Mismo día en la zona del gimnasio, que es la que se usa al formatear. */
 function sameDay(a: string, b: string): boolean {
-  const dia = new Intl.DateTimeFormat('es-AR', { timeZone: GYM_TZ, dateStyle: 'short' });
-  return dia.format(new Date(a)) === dia.format(new Date(b));
+  return diaDelGimnasio(a) === diaDelGimnasio(b);
 }
 
 export function useBodyMetrics() {

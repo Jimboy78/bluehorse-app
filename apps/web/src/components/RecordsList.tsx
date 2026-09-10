@@ -3,6 +3,7 @@ import { formatLoad } from '@bh/domain';
 import { ChevronDown, Star, Trophy } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useMemo, useState } from 'react';
+import { GYM_TZ } from '../lib/gym-time.ts';
 import type { MuscleRegion } from '../lib/labels.ts';
 import { MUSCLE_REGIONS, REGION_LABELS, regionOf } from '../lib/labels.ts';
 import type { PersonalRecord } from '../lib/mappers/progress.ts';
@@ -22,8 +23,6 @@ import { Card } from './ui/index.ts';
  * ningún número del plan sale de acá, y por eso agruparlas no toca la regla
  * dura 3.
  */
-
-const GYM_TZ = 'America/Argentina/Buenos_Aires';
 
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat('es-AR', {

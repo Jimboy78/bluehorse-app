@@ -22,6 +22,7 @@ import {
   SectionLabel,
 } from '../components/ui/index.ts';
 import { activeRuleset } from '../lib/engine.ts';
+import { GYM_TZ } from '../lib/gym-time.ts';
 import { fadeUp } from '../lib/motion.ts';
 import { onboardingUnavailable } from '../lib/onboarding.ts';
 import {
@@ -162,8 +163,6 @@ function MembersSection({ gymId }: { gymId: string | null }) {
     </motion.section>
   );
 }
-
-const GYM_TZ = 'America/Argentina/Buenos_Aires';
 
 function formatShortDate(iso: string): string {
   return new Intl.DateTimeFormat('es-AR', {
