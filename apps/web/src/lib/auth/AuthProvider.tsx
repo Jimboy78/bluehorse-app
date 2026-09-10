@@ -12,6 +12,7 @@ import { pendingCount } from '../outbox.ts';
 import { queryClient } from '../query-client.ts';
 import { supabase } from '../supabase.ts';
 import { describeAuthError } from './errors.ts';
+import { type AuthStatus, estadoDeSesion, haySesionGuardada } from './estado.ts';
 
 /**
  * Sesión de autenticación de toda la app. Un solo lugar que sabe hablarle a
@@ -22,7 +23,7 @@ import { describeAuthError } from './errors.ts';
  * criterio que el resto del proyecto.
  */
 
-type AuthStatus = 'loading' | 'unconfigured' | 'signed-out' | 'signed-in';
+export type { AuthStatus } from './estado.ts';
 
 interface AuthContextValue {
   readonly status: AuthStatus;
@@ -68,6 +69,12 @@ export function getCurrentUserId(): string | null {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  /**
+   * Que la consulta de sesión haya fallado, no que no hubiera sesión. Es la
+   * diferencia entre "cerraste sesión" y "no te puedo confirmar": ver
+   * `auth/estado.ts`.
+   */
+  const [falloAlConsultar, setFalloAlConsultar] = useState(false);
 
   useEffect(() => {
     if (!supabase) {
@@ -99,23 +106,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const destrabar = () => setLoading(false);
     const corte = setTimeout(destrabar, ESPERA_MAXIMA_DE_SESION_MS);
 
-    supabase.auth
-      .getSession()
-      .then(({ data }) => {
-        setSession(data.session);
-        currentUserId = data.session?.user.id ?? null;
-      })
-      // Que la sesión no se pueda confirmar es información, no una excepción:
-      // se deja de esperar y la pantalla muestra lo que corresponda.
-      .catch(() => {})
-      .finally(() => {
-        clearTimeout(corte);
-        destrabar();
-      });
+    /**
+     * Los tres cambios de estado van en el MISMO callback, no repartidos entre
+     * `.then` y `.finally`. Repartidos, React hace dos renders, y en el primero
+     * `loading` ya es `false` mientras `falloAlConsultar` todavía es `false`:
+     * ese render de un solo cuadro dice "signed-out", `RequireAuth` dispara un
+     * `<Navigate to="/auth">` y la URL ya cambió. El estado quedaba bien un
+     * instante después —lo verifiqué leyendo los hooks del componente— pero la
+     * persona ya estaba en la pantalla de login.
+     */
+    const resolver = (sesion: Session | null, fallo: boolean) => {
+      clearTimeout(corte);
+      setSession(sesion);
+      currentUserId = sesion?.user.id ?? null;
+      setFalloAlConsultar(fallo);
+      setLoading(false);
+    };
 
+    supabase.auth.getSession().then(
+      // `error` con `session: null` no es "no hay nadie": es "no se pudo
+      // averiguar". Distinguirlos es todo el punto de `auth/estado.ts`.
+      ({ data, error }) =>
+        resolver(data.session, !data.session && (!!error || haySesionGuardada(localStorage))),
+      () => resolver(null, true),
+    );
+
+    /**
+     * El otro camino por el que se pierde la sesión, y el que de verdad pasaba.
+     *
+     * `getSession()` devuelve la sesión guardada enseguida; la renovación sale
+     * DESPUÉS, por atrás, y cuando falla este listener avisa con `next: null`.
+     * Sin mirar el almacenamiento acá, ese `null` se leía como "cerró sesión" y
+     * al socio lo mandaba al login estando sin señal. Es el mismo criterio de
+     * `getSession()`: si quedó una sesión guardada, no se pudo confirmar.
+     */
     const { data: subscription } = supabase.auth.onAuthStateChange((_event, next) => {
       currentUserId = next?.user.id ?? null;
       setSession(next);
+      setFalloAlConsultar(!next && haySesionGuardada(localStorage));
     });
 
     return () => subscription.subscription.unsubscribe();
@@ -185,13 +213,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [session],
   );
 
-  const status: AuthStatus = !supabase
-    ? 'unconfigured'
-    : loading
-      ? 'loading'
-      : session
-        ? 'signed-in'
-        : 'signed-out';
+  const status: AuthStatus = estadoDeSesion({
+    configurado: !!supabase,
+    cargando: loading,
+    haySesion: !!session,
+    falloAlConsultar,
+  });
 
   const value = useMemo<AuthContextValue>(
     () => ({
