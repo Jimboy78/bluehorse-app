@@ -29,7 +29,13 @@ npm run dev          # PWA en :5173
 npm run db:start     # Supabase local (necesita Docker)
 npm run db:reset     # recrea la base local desde schemas/ + seed.sql
 npm run db:types     # regenera packages/domain/src/database.types.ts
+npm run docs         # publica docs/research/ en la app. Correr al tocar un documento.
+npm run sources      # resuelve los DOIs citados contra Crossref
 ```
+
+`docs` y `sources` generan lo que muestran `/documentacion` y `/evidencia`. Si se edita un archivo
+de `docs/research/` y no se regenera, la app sigue mostrando la versión vieja como si fuera toda la
+investigación que hay — `apps/web/src/content/docs.test.ts` frena eso.
 
 Node mínimo **22.12** (`engines`; `.nvmrc` fija 24 LTS, que es con lo que se probó). Con una
 versión menor Vite avisa y sigue andando — no falla, que es peor: se trabaja sobre una versión no

@@ -8,6 +8,7 @@ import {
   ChevronRight,
   Download,
   Dumbbell,
+  FileText,
   HeartPulse,
   Mail,
   MapPin,
@@ -40,6 +41,7 @@ import {
 import catalogo from '../content/sources.generated.json' with { type: 'json' };
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
 import { useBodyMetrics, useRecordBodyMetric } from '../lib/body-metrics.ts';
+import { documentos } from '../lib/docs.ts';
 import { useScreeningState } from '../lib/health-screening.ts';
 import {
   BODY_REGION_LABELS,
@@ -61,6 +63,7 @@ import { isStandaloneDisplay } from '../lib/use-install-prompt.ts';
 
 /** Cuántas fuentes hay, para no escribir un número que se desactualice solo. */
 const SOURCE_COUNT = catalogo.sources.length;
+const DOC_COUNT = documentos.length;
 
 /**
  * TU PERFIL
@@ -148,6 +151,7 @@ function PerfilBody({
       <ConstraintsSection />
       <PainHistorySection />
       <EvidenceLink />
+      <DocsLink />
     </div>
   );
 }
@@ -172,6 +176,39 @@ function EvidenceLink() {
         </span>
         <span className="text-xs text-slate">
           Las {SOURCE_COUNT} fuentes que usa la app, con enlace a cada trabajo.
+        </span>
+      </span>
+      <ChevronRight
+        size={16}
+        aria-hidden="true"
+        className="shrink-0 text-slate transition-colors group-hover:text-brand"
+      />
+    </Link>
+  );
+}
+
+/**
+ * La puerta a la documentación de investigación.
+ *
+ * Va debajo de la de evidencia y no adentro: son dos preguntas distintas.
+ * "¿De dónde salen estos números?" la contesta la lista de papers. "¿Qué
+ * leyeron ustedes en esos papers y qué decidieron?" la contestan los
+ * documentos, que es donde también están escritos los huecos que quedaron sin
+ * cerrar.
+ */
+function DocsLink() {
+  return (
+    <Link
+      to="/documentacion"
+      className="group flex items-center gap-3 rounded-card border border-line bg-surface p-4 transition-colors hover:border-brand"
+    >
+      <FileText size={18} aria-hidden="true" className="shrink-0 text-brand" />
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="font-display text-sm font-semibold uppercase tracking-tight text-ink">
+          Cómo se arman los planes
+        </span>
+        <span className="text-xs text-slate">
+          Los {DOC_COUNT} documentos de investigación, enteros y sin retocar.
         </span>
       </span>
       <ChevronRight

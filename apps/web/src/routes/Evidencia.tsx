@@ -1,7 +1,9 @@
 import type { Goal } from '@bh/domain';
 import {
   BookOpen,
+  ChevronRight,
   ExternalLink,
+  FileText,
   Search,
   ShieldAlert,
   ShieldCheck,
@@ -9,7 +11,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useId, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { AppShell } from '../components/AppShell.tsx';
 import { Card, Chip, Notice, SectionLabel } from '../components/ui/index.ts';
 import catalogo from '../content/sources.generated.json' with { type: 'json' };
@@ -120,6 +122,25 @@ export function Evidencia() {
           </p>
         </Card>
       </motion.section>
+
+      {/* Los papers son la mitad de la respuesta. La otra —qué leímos en
+          ellos y qué decidimos— está en los documentos, y llegar de una a la
+          otra tiene que ser un toque. */}
+      <Link
+        to="/documentacion"
+        className="flex items-center gap-3 rounded-card border border-line bg-surface p-3.5 transition-colors hover:border-brand/40"
+      >
+        <span className="grid size-9 shrink-0 place-items-center rounded-xl border border-brand/25 bg-brand/10 text-brand">
+          <FileText size={16} aria-hidden="true" />
+        </span>
+        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <span className="text-sm font-semibold text-ink">Qué leímos en estos papers</span>
+          <span className="text-xs text-slate">
+            Los documentos de investigación, con lo que se tomó y lo que no.
+          </span>
+        </span>
+        <ChevronRight size={16} className="shrink-0 text-slate-dim" aria-hidden="true" />
+      </Link>
 
       <ConfianzaPorObjetivo destacado={destacado} />
 

@@ -27,6 +27,12 @@ const App = lazy(() => import('./App.tsx').then((m) => ({ default: m.App })));
 const ArmarPlan = lazy(() =>
   import('./routes/ArmarPlan.tsx').then((m) => ({ default: m.ArmarPlan })),
 );
+const Documentacion = lazy(() =>
+  import('./routes/Documentacion.tsx').then((m) => ({ default: m.Documentacion })),
+);
+const Documento = lazy(() =>
+  import('./routes/Documento.tsx').then((m) => ({ default: m.Documento })),
+);
 const Evidencia = lazy(() =>
   import('./routes/Evidencia.tsx').then((m) => ({ default: m.Evidencia })),
 );
@@ -142,6 +148,35 @@ export const router = createBrowserRouter([
         <RequireScreening>
           <RequireOnboarding>
             <Explorar />
+          </RequireOnboarding>
+        </RequireScreening>
+      </RequireAuth>,
+    ),
+    errorElement: <RouteError />,
+  },
+  {
+    // La documentación de investigación, publicada entera. Cuelga aparte de
+    // `/evidencia` porque responden preguntas distintas: aquélla muestra los
+    // papers, ésta muestra qué leímos en ellos.
+    path: '/documentacion',
+    element: lazyPage(
+      <RequireAuth>
+        <RequireScreening>
+          <RequireOnboarding>
+            <Documentacion />
+          </RequireOnboarding>
+        </RequireScreening>
+      </RequireAuth>,
+    ),
+    errorElement: <RouteError />,
+  },
+  {
+    path: '/documentacion/:docId',
+    element: lazyPage(
+      <RequireAuth>
+        <RequireScreening>
+          <RequireOnboarding>
+            <Documento />
           </RequireOnboarding>
         </RequireScreening>
       </RequireAuth>,

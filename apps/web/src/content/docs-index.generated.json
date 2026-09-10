@@ -1,0 +1,189 @@
+{
+ "generatedAt": "2026-09-10T01:01:00.500Z",
+ "docs": [
+  {
+   "id": "metodo",
+   "orden": 0,
+   "titulo": "Investigaciones de contenido",
+   "resumen": "Segunda tanda, hecha con los prompts de PROMPTS.md (fuentes revisadas por pares, formato JSON forzado). Comparado con la primera tanda (130 videos de YouTube, 21.868 líneas, 0 rangos de repeticiones), esta es la que se puede curar al rul…",
+   "archivo": "README.md",
+   "bloques": 10
+  },
+  {
+   "id": "01-fuerza-hipertrofia-potencia",
+   "orden": 1,
+   "titulo": "Fuerza, hipertrofia y potencia",
+   "resumen": "Fuentes: Artículos y guías de consenso revisados por pares citados junto con autor, año, publicación y DOI/PMID: Pelland et al. (2025), Robinson et al. (2024), ACSM (Phillips et al. 2026), Schoenfeld et al. (2015), Singer et al. (2024),…",
+   "archivo": "01-fuerza-hipertrofia-potencia.md",
+   "bloques": 3
+  },
+  {
+   "id": "02-cardio-resistencia-recomposicion",
+   "orden": 2,
+   "titulo": "Cardio, resistencia y recomposición",
+   "resumen": "Esquema JSON propuesto para sesiones de cardio: Un objeto por sesión con campos clave: tipo de sesión (session_type: “steady” o “interval”), modo (mode: p.ej. “running”), frecuencia semanal (frequency_per_week), duración (duration_min) o…",
+   "archivo": "02-cardio-resistencia-recomposicion.md",
+   "bloques": 4
+  },
+  {
+   "id": "03-progresion-descarga",
+   "orden": 3,
+   "titulo": "Progresión de carga y descargas",
+   "resumen": "La codificación de una aplicación experta de entrenamiento no puede limitarse a la manipulación unidimensional de la carga (peso). La fisiología neuromuscular dicta que la fatiga periférica y la adaptación estructural dependen de vectore…",
+   "archivo": "03-progresion-descarga.md",
+   "bloques": 34
+  },
+  {
+   "id": "04-individualizacion-seguridad",
+   "orden": 4,
+   "titulo": "Individualización y seguridad",
+   "resumen": "Fuentes: Ratamess et al. (ACSM) 2009; Phillips et al. (resumen ACSM 2023); Phillips et al. (BJSports 2023); Haugen et al. 2023 (meta libre vs máquina); Makaruk et al. 2024 (RT y rendimiento deportivo); Phillips et al. (narrativo diferenc…",
+   "archivo": "04-individualizacion-seguridad.md",
+   "bloques": 9
+  },
+  {
+   "id": "05-seguridad-reforzada",
+   "orden": 5,
+   "titulo": "Seguridad: cribado, alarmas y poblaciones especiales",
+   "resumen": "Nivel de confianza: ALTO. (Basado en consensos PAR-Q+ y en recomendaciones ACSM/consenso Riebe 2015.)",
+   "archivo": "05-seguridad-reforzada.md",
+   "bloques": 19
+  },
+  {
+   "id": "06-deporte-y-temporada",
+   "orden": 6,
+   "titulo": "Deporte practicado y momento de la temporada",
+   "resumen": "Busca cerrar el hueco que dejaba abierto 04-individualizacion-seguridad.md: ahí el bloque DEPORTE PRACTICADO decía que la transferencia existe pero que \"no hay una necesidad comprobada de usar cargas o ejercicios de forma muy distinta\".…",
+   "archivo": "06-deporte-y-temporada.md",
+   "bloques": 40
+  },
+  {
+   "id": "07-dias-pre-y-post-partido",
+   "orden": 7,
+   "titulo": "Días pre y post partido",
+   "resumen": "¿Importa dónde cae el entrenamiento respecto del partido? Sí, pero muchísimo más después que antes. Esa asimetría es el resultado principal y define el diseño: lo que se puede prescribir con respaldo es qué hacer los días posteriores; lo…",
+   "archivo": "07-dias-pre-y-post-partido.md",
+   "bloques": 63
+  },
+  {
+   "id": "08-edad",
+   "orden": 8,
+   "titulo": "Edad: qué cambia de verdad después de los 60",
+   "resumen": "El ruleset v1-research aplicaba un único modificador por edad, modifiers.olderAdults, tomado de 04-individualizacion-seguridad.md, que a su vez lo derivó del consenso ACSM 2009 — sin DOI, sin metaanálisis, declarado con confianza MEDIA:",
+   "archivo": "08-edad.md",
+   "bloques": 42
+  },
+  {
+   "id": "09-dolor-y-lesiones",
+   "orden": 9,
+   "titulo": "Dolor y lesiones: qué se saca, qué se sigue haciendo, y con qué umbral",
+   "resumen": "Es la entrada con más consecuencia de seguridad del motor, y la que peor sostenida estaba: las seis safety.painRules del ruleset llevan confidence: \"low\" las seis, y el umbral que decide si un ejercicio se saca (severityAtLeast: 3) no te…",
+   "archivo": "09-dolor-y-lesiones.md",
+   "bloques": 33
+  },
+  {
+   "id": "10-nivel-de-experiencia",
+   "orden": 10,
+   "titulo": "Nivel de experiencia: cuatro opciones que a veces no cambian nada",
+   "resumen": "El nivel es lo primero que se le pregunta al socio después de la edad, con cuatro tarjetas y un texto que dice que decide qué ejercicios entran al plan. Es el parámetro con más superficie aparente en toda la prescripción: define series,…",
+   "archivo": "10-nivel-de-experiencia.md",
+   "bloques": 35
+  },
+  {
+   "id": "11-frecuencia-semanal",
+   "orden": 11,
+   "titulo": "Frecuencia semanal: importa diez veces más para fuerza que para hipertrofia",
+   "resumen": "El socio elige la frecuencia con un slider de 1 a 7 sesiones por semana. Ese número hace dos cosas: elige la plantilla, y define sobre cuántas sesiones se mide el volumen semanal.",
+   "archivo": "11-frecuencia-semanal.md",
+   "bloques": 35
+  },
+  {
+   "id": "12-objetivo",
+   "orden": 12,
+   "titulo": "El objetivo: seis opciones, cinco prescripciones y dos explicaciones escondidas",
+   "resumen": "El objetivo es la entrada que más mueve el plan: elige la plantilla y trae el bloque entero de prescripción. Es la última de las entradas grandes que quedaba sin auditar.",
+   "archivo": "12-objetivo.md",
+   "bloques": 37
+  },
+  {
+   "id": "13-cardio-e-interferencia",
+   "orden": 13,
+   "titulo": "Interferencia: dos reglas sin respaldo y la única que importa, ausente",
+   "resumen": "En las iteraciones 2 y 5 apareció tres veces el mismo problema — contenido escrito en el ruleset, validado por zod, que no lee nadie. Antes de auditar cardio, se hizo el barrido completo: recorrer las 114 claves de contenido del ruleset…",
+   "archivo": "13-cardio-e-interferencia.md",
+   "bloques": 31
+  },
+  {
+   "id": "14-historial-y-desentrenamiento",
+   "orden": 14,
+   "titulo": "Volver después de una pausa: el mecanismo estaba al revés",
+   "resumen": "daysSinceLastSession es de las pocas entradas que sí se usa de verdad: apps/web/src/lib/plan.ts la calcula contra la base y el motor la convierte en un recorte de carga vía el bloque detraining.",
+   "archivo": "14-historial-y-desentrenamiento.md",
+   "bloques": 32
+  },
+  {
+   "id": "15-baselines",
+   "orden": 15,
+   "titulo": "Baselines: la tabla que solo se lee",
+   "resumen": "user_baselines define con cuánta carga arranca cada ejercicio. Es la última entrada grande del motor que quedaba sin auditar.",
+   "archivo": "15-baselines.md",
+   "bloques": 29
+  },
+  {
+   "id": "16-tiempo-bajo-tension",
+   "orden": 16,
+   "titulo": "Tiempo bajo tensión: no se prescribe",
+   "resumen": "Hueco abierto en 08-edad.md: en la meta-regresión de Borde 2015 el tiempo bajo tensión salió predictor significativo de la ganancia de fuerza (p < 0,01), con un óptimo reportado de 6,0 segundos por repetición, y el motor no prescribe tem…",
+   "archivo": "16-tiempo-bajo-tension.md",
+   "bloques": 25
+  },
+  {
+   "id": "17-lesion-aguda",
+   "orden": 17,
+   "titulo": "Lesión aguda contra dolor crónico: la evidencia permisiva no cubre a los dos",
+   "resumen": "La base distingue los dos casos desde siempre: constraint_type es 'injury' | 'pain' | 'avoid_exercise' | 'avoid_equipment', y el onboarding le pregunta al socio cuál es cuál. El motor los colapsaba en un ||:",
+   "archivo": "17-lesion-aguda.md",
+   "bloques": 31
+  },
+  {
+   "id": "18-enfasis-excentrico",
+   "orden": 18,
+   "titulo": "Énfasis excéntrico por ejercicio: no hay con qué construir la columna",
+   "resumen": "Hueco abierto en 07-dias-pre-y-post-partido.md. Cerca de un partido el motor baja el volumen y saca lo explosivo (isExplosive, que sí existe como columna del catálogo). Lo que no puede hacer es sacar los ejercicios de énfasis excéntrico…",
+   "archivo": "18-enfasis-excentrico.md",
+   "bloques": 25
+  },
+  {
+   "id": "19-desentrenamiento-aerobico",
+   "orden": 19,
+   "titulo": "Volver al cardio: el ajuste estaba puesto donde menos hacía falta",
+   "resumen": "Hueco anotado al cerrar 14-historial-y-desentrenamiento.md: detraining solo ajusta la carga de sala, y 03-progresion-descarga.md ya decía que el VO2max cae mucho más rápido que la fuerza.",
+   "archivo": "19-desentrenamiento-aerobico.md",
+   "bloques": 30
+  },
+  {
+   "id": "20-arranque-sin-test",
+   "orden": 20,
+   "titulo": "Arrancar sin test de 1RM: la brecha de fuerza no se cierra",
+   "resumen": "Hueco abierto en 15-baselines.md: las fórmulas de estimación de 1RM que 04 propone (Epley, Brzycki) nunca se implementaron, user_baselines se lee y no se escribe nunca, y targetLoad es null en todos los ítems de todos los planes.",
+   "archivo": "20-arranque-sin-test.md",
+   "bloques": 32
+  },
+  {
+   "id": "21-fragilidad",
+   "orden": 21,
+   "titulo": "Fragilidad: medible, pero lo que se haría con el resultado no tiene respaldo",
+   "resumen": "Hueco abierto en 08-edad.md. El ruleset le aplicaba a todo mayor de 60 la recomendación pensada para adultos frágiles —menos carga, más repeticiones, más descanso— y eso resultó mal: en mayores sanos la carga alta es superior y no produc…",
+   "archivo": "21-fragilidad.md",
+   "bloques": 30
+  },
+  {
+   "id": "auditoria",
+   "orden": 99,
+   "titulo": "Auditoría del motor: un parámetro por vez",
+   "resumen": "Revisión sistemática de todo lo que el motor mira para armar un plan. Para cada entrada: ¿existe?, ¿está respaldada por evidencia primaria con DOI?, ¿el número que usa el ruleset es el que dice esa evidencia?, ¿cambia algo en el plan de…",
+   "archivo": "AUDITORIA-MOTOR.md",
+   "bloques": 47
+  }
+ ]
+}
