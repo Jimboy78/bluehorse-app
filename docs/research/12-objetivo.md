@@ -26,6 +26,23 @@ la nota de confianza de `recomposition`, que dice textualmente *"Los números so
 lo que cambia es la dieta, que esta app no maneja"*. Es honesto, correcto según `02`, y coherente
 con que la app declare explícitamente que **no es una app de nutrición**.
 
+> **Corrección del 10 de septiembre de 2026.** Esta comparación se hizo sobre el bloque `default`,
+> como dice el párrafo de arriba, y por eso se le escapó lo que pasaba en los otros niveles: el
+> `byLevel` de `recomposition` estaba a medio copiar. `beginner` tenía `primary` pero no
+> `secondary` ni `isolation`, `novice` solo tenía `progression`, y `advanced` no existía. Como
+> `resolveParams` cae al `default` slot por slot, la afirmación "idéntico a hipertrofia" valía en
+> uno de los cuatro niveles.
+>
+> Lo que recibía un socio: un **novato** de recomposición entrenaba a 4×6-12 RIR 1 —la dosis de
+> intermedio— donde en hipertrofia le tocaba 3×8-12 RIR 2; un **principiante** recibía los
+> accesorios a 3 series RIR 2 en vez de 2 series RIR 3. Más volumen y más cerca del fallo, en
+> déficit calórico. Un **avanzado** recibía 4 series donde hipertrofia da 5.
+>
+> Corregido copiando el `byLevel` de hipertrofia, que es lo que la nota ya prometía; no se inventó
+> ningún número. Lo cuida un test que compara los dos objetivos en los cuatro niveles
+> (`tools/motor-matriz.test.ts`), porque una comparación de `default` no alcanza para sostener una
+> afirmación sobre todos.
+
 El problema es otro, y es el hallazgo de esta iteración.
 
 ### Dos objetivos tienen una explicación escrita que el socio nunca ve

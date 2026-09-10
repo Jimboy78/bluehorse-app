@@ -527,6 +527,28 @@
               70
             ]
           },
+          "secondary": {
+            "sets": 2,
+            "repsMin": 10,
+            "repsMax": 15,
+            "rirTarget": 3,
+            "restSeconds": 105,
+            "intensityPct1RM": [
+              45,
+              65
+            ]
+          },
+          "isolation": {
+            "sets": 2,
+            "repsMin": 10,
+            "repsMax": 15,
+            "rirTarget": 3,
+            "restSeconds": 75,
+            "intensityPct1RM": [
+              35,
+              55
+            ]
+          },
           "progression": {
             "stepPctUpperBody": 5,
             "stepPctLowerBody": 5,
@@ -535,11 +557,46 @@
           }
         },
         "novice": {
+          "primary": {
+            "sets": 3,
+            "repsMin": 8,
+            "repsMax": 12,
+            "rirTarget": 2,
+            "restSeconds": 120,
+            "intensityPct1RM": [
+              60,
+              75
+            ]
+          },
           "progression": {
             "stepPctUpperBody": 5,
             "stepPctLowerBody": 5,
             "triggerRirAtLeast": 3,
             "consecutiveSessions": 2
+          }
+        },
+        "advanced": {
+          "primary": {
+            "sets": 5,
+            "repsMin": 6,
+            "repsMax": 12,
+            "rirTarget": 1,
+            "restSeconds": 156,
+            "intensityPct1RM": [
+              70,
+              85
+            ]
+          },
+          "secondary": {
+            "sets": 4,
+            "repsMin": 8,
+            "repsMax": 15,
+            "rirTarget": 1,
+            "restSeconds": 117,
+            "intensityPct1RM": [
+              65,
+              80
+            ]
           }
         }
       }

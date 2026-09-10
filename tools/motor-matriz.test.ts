@@ -25,7 +25,7 @@ import type {
   SessionItemBlueprint,
   UserSnapshot,
 } from '@bh/engine';
-import { createPlaceholderEngine, V1_RESEARCH } from '@bh/engine';
+import { createPlaceholderEngine, resolveParams, V1_RESEARCH } from '@bh/engine';
 import { describe, expect, it } from 'vitest';
 import catalogo from '../supabase/catalog/blue-horse.json' with { type: 'json' };
 
@@ -227,6 +227,16 @@ const PERFILES: readonly Perfil[] = [
     nacimiento: '1988-02-14',
     sesiones: 3,
     minutos: 60,
+  },
+  {
+    // El nivel donde la recomposición no tenía byLevel y caía al default:
+    // recibía 4 series donde hipertrofia da 5.
+    nombre: 'recomposición · avanzado',
+    goal: 'recomposition',
+    nivel: 'advanced',
+    nacimiento: '1991-06-30',
+    sesiones: 4,
+    minutos: 75,
   },
   {
     nombre: 'resistencia · intermedio',
@@ -1118,5 +1128,49 @@ describe('el ajuste por día de partido', () => {
         expect(salida.note, donde).toContain(nombre);
       }
     }
+  });
+});
+
+/**
+ * LO QUE EL RULESET AFIRMA SOBRE SÍ MISMO
+ *
+ * La nota de confianza de `recomposition` dice textualmente *"Los números son
+ * los de hipertrofia; lo que cambia es la dieta, que esta app no maneja"*, y
+ * `12-objetivo.md` lo audita y lo da por bueno: su tabla anota
+ * "idéntico a hipertrofia" en los tres slots.
+ *
+ * Medido el 10 de septiembre de 2026, eso valía **solo en el `default`**. El
+ * `byLevel` estaba a medio copiar: `beginner` tenía `primary` pero no
+ * `secondary` ni `isolation`, `novice` solo tenía `progression`, y `advanced`
+ * no existía. Como `resolveParams` cae al `default` slot por slot, un novato
+ * que elegía recomposición recibía la dosis de intermedio —4 series a RIR 1 en
+ * vez de 3 a RIR 2— y un principiante recibía los accesorios a 3 series RIR 2
+ * en vez de 2 a RIR 3. Más volumen y más cerca del fallo, en déficit calórico,
+ * que es justo donde el margen es menor.
+ *
+ * La auditoría de `12` no lo vio porque miró la fila del `default`. Este test
+ * mira los cuatro niveles.
+ */
+describe('lo que el ruleset afirma de sí mismo', () => {
+  const NIVELES: readonly ExperienceLevel[] = ['beginner', 'novice', 'intermediate', 'advanced'];
+
+  it('la recomposición prescribe lo mismo que la hipertrofia, en los cuatro niveles', () => {
+    const distintos: string[] = [];
+
+    for (const nivel of NIVELES) {
+      const hiper = resolveParams(V1_RESEARCH, 'hypertrophy', nivel);
+      const recomp = resolveParams(V1_RESEARCH, 'recomposition', nivel);
+
+      for (const slot of ['primary', 'secondary', 'isolation'] as const) {
+        const a = JSON.stringify(hiper[slot]);
+        const b = JSON.stringify(recomp[slot]);
+        if (a !== b) distintos.push(`${nivel}.${slot}: hipertrofia ${a} · recomposición ${b}`);
+      }
+    }
+
+    // Si algún día la recomposición tiene que diferenciarse, el cambio empieza
+    // por la nota y por `12-objetivo.md`, no por acá: hoy las dos dicen que son
+    // los mismos números.
+    expect(distintos.join('\n')).toBe('');
   });
 });

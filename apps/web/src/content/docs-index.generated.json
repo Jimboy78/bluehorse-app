@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-10T18:32:32.256Z",
+ "generatedAt": "2026-09-10T18:42:30.415Z",
  "docs": [
   {
    "id": "metodo",
@@ -103,7 +103,7 @@
    "titulo": "El objetivo: seis opciones, cinco prescripciones y dos explicaciones escondidas",
    "resumen": "El objetivo es la entrada que más mueve el plan: elige la plantilla y trae el bloque entero de prescripción. Es la última de las entradas grandes que quedaba sin auditar.",
    "archivo": "12-objetivo.md",
-   "bloques": 37
+   "bloques": 38
   },
   {
    "id": "13-cardio-e-interferencia",
