@@ -18,7 +18,13 @@ import type {
   UserConstraint,
   UserGoal,
 } from '@bh/domain';
-import type { GymSnapshot, PlanBlueprint, Ruleset, UserSnapshot } from '@bh/engine';
+import type {
+  GymSnapshot,
+  PlanBlueprint,
+  Ruleset,
+  SessionItemBlueprint,
+  UserSnapshot,
+} from '@bh/engine';
 import { createPlaceholderEngine, V1_RESEARCH } from '@bh/engine';
 import { describe, expect, it } from 'vitest';
 import catalogo from '../supabase/catalog/blue-horse.json' with { type: 'json' };
@@ -924,24 +930,77 @@ describe('el ajuste por día de partido', () => {
   }
 
   /**
-   * TODAS las sesiones del plan, no la más cargada.
+   * TODAS las sesiones de TODOS los perfiles, aplanadas una sola vez.
    *
-   * La primera versión de esto miraba solo la sesión con más ítems, y con eso
-   * sacarle `avoidExplosive` al motor entero no rompía nada: el único
+   * La primera versión miraba solo la sesión con más ítems de cada perfil, y
+   * con eso sacarle `avoidExplosive` al motor entero no rompía nada: el único
    * explosivo que hoy entra a un plan cae en "Pierna B" del perfil de vóley,
    * que no es la sesión más grande. Un test que mira una sesión por perfil deja
    * pasar justo lo que aparece en las otras.
    */
-  function sesionesDe(p: Perfil) {
-    return planDe(p, V1_RESEARCH).sessions;
+  const SESIONES = PERFILES.flatMap((perfil) =>
+    planDe(perfil, V1_RESEARCH).sessions.map((s) => ({
+      perfil,
+      label: s.label,
+      items: s.items,
+    })),
+  );
+
+  /**
+   * Cada sesión pasada por cada estado, calculado una vez.
+   *
+   * Aplanar acá es lo que deja cada test en un solo bucle: con los cuatro
+   * anidados adentro de cada `it`, biome medía complejidad 63 sobre un test
+   * que hace una comparación por ítem.
+   */
+  const AJUSTES = SESIONES.flatMap(({ perfil, label, items }) =>
+    ESTADOS.map((state) => ({
+      donde: `${perfil.nombre}/${state}/${label}`,
+      perfil,
+      state,
+      regla: V1_RESEARCH.sports?.matchDay?.[state],
+      antes: items,
+      salida: engine.adjustSession({ items, gym, state, ruleset: V1_RESEARCH }),
+    })),
+  );
+
+  type ReglaDia = NonNullable<NonNullable<Ruleset['sports']>['matchDay']>[MatchDayState];
+
+  /**
+   * Qué tiene de inexplicable lo que le pasó a un ítem, si tiene algo.
+   *
+   * Mismo criterio que `quejasDe`: la regla 3 dice que el número sale del
+   * ruleset, así que acá se recalcula desde el ruleset y se compara. Si no
+   * coincide, el número lo puso el motor.
+   */
+  function quejaDelAjuste(
+    item: SessionItemBlueprint,
+    despues: SessionItemBlueprint | undefined,
+    ex: Exercise,
+    regla: ReglaDia,
+  ): string | null {
+    const mult = esDePierna(ex) ? regla.lowerBodyVolumeMultiplier : regla.upperBodyVolumeMultiplier;
+    const fuera = (regla.avoidExplosive && ex.isExplosive) || mult === 0;
+
+    if (fuera) return despues === undefined ? null : `${ex.name} tendría que salir y quedó`;
+    if (despues === undefined) return `${ex.name} salió sin regla que lo saque`;
+
+    const esperado = Math.max(1, Math.round(item.targetSets * mult));
+    if (despues.targetSets === esperado) return null;
+    return `${ex.name} ${item.targetSets}→${despues.targetSets}, el ruleset da ${esperado}`;
   }
 
-  function ajustar(p: Perfil, state: MatchDayState) {
-    return sesionesDe(p).map((sesion) => ({
-      label: sesion.label,
-      antes: sesion.items,
-      salida: engine.adjustSession({ items: sesion.items, gym, state, ruleset: V1_RESEARCH }),
-    }));
+  /** Cada (ajuste, ítem) del barrido, con el ejercicio ya resuelto. */
+  function* porItem() {
+    for (const ajuste of AJUSTES) {
+      if (!ajuste.regla) continue;
+      const porId = new Map(ajuste.salida.items.map((i) => [i.exerciseId, i]));
+      for (const item of ajuste.antes) {
+        const ex = gym.exercises.find((e) => e.id === item.exerciseId);
+        if (ex)
+          yield { ...ajuste, regla: ajuste.regla, item, ex, despues: porId.get(item.exerciseId) };
+      }
+    }
   }
 
   it('el ruleset declara los cinco estados que el documento justifica', () => {
@@ -953,63 +1012,26 @@ describe('el ajuste por día de partido', () => {
   });
 
   it('un día normal no toca nada', () => {
-    for (const perfil of PERFILES) {
-      for (const { label, antes, salida } of ajustar(perfil, 'normal')) {
-        expect(salida.changed, `${perfil.nombre}/${label}`).toBe(false);
-        expect(salida.note, `${perfil.nombre}/${label}`).toBeNull();
-        expect(salida.items, `${perfil.nombre}/${label}`).toEqual(antes);
-      }
+    for (const { donde, state, antes, salida } of AJUSTES) {
+      if (state !== 'normal') continue;
+      expect(salida.changed, donde).toBe(false);
+      expect(salida.note, donde).toBeNull();
+      expect(salida.items, donde).toEqual(antes);
     }
   });
 
   it('cada serie que sale se explica por el multiplicador del ruleset', () => {
     const sinExplicar: string[] = [];
 
-    for (const perfil of PERFILES) {
-      for (const state of ESTADOS) {
-        const regla = V1_RESEARCH.sports?.matchDay?.[state];
-        if (!regla) continue;
-        for (const { antes, salida } of ajustar(perfil, state)) {
-          const porId = new Map(salida.items.map((i) => [i.exerciseId, i]));
-
-          for (const item of antes) {
-            const ex = gym.exercises.find((e) => e.id === item.exerciseId);
-            const despues = porId.get(item.exerciseId);
-            if (!ex) continue;
-
-            // El cardio se prescribe por tiempo: un multiplicador de series no
-            // significa nada sobre él y tiene que salir intacto.
-            if (item.targetDurationSeconds !== null) {
-              expect(despues, `${perfil.nombre}/${state}/${ex.name}`).toEqual(item);
-              continue;
-            }
-
-            const mult = esDePierna(ex)
-              ? regla.lowerBodyVolumeMultiplier
-              : regla.upperBodyVolumeMultiplier;
-            const fuera = (regla.avoidExplosive && ex.isExplosive) || mult === 0;
-
-            if (fuera) {
-              if (despues !== undefined) {
-                sinExplicar.push(`${perfil.nombre}/${state}: ${ex.name} tendría que salir y quedó`);
-              }
-              continue;
-            }
-            if (despues === undefined) {
-              sinExplicar.push(
-                `${perfil.nombre}/${state}: ${ex.name} salió sin regla que lo saque`,
-              );
-              continue;
-            }
-            const esperado = Math.max(1, Math.round(item.targetSets * mult));
-            if (despues.targetSets !== esperado) {
-              sinExplicar.push(
-                `${perfil.nombre}/${state}: ${ex.name} ${item.targetSets}→${despues.targetSets}, el ruleset da ${esperado}`,
-              );
-            }
-          }
-        }
+    for (const { donde, regla, item, ex, despues } of porItem()) {
+      // El cardio se prescribe por tiempo: un multiplicador de series no
+      // significa nada sobre él y tiene que salir intacto.
+      if (item.targetDurationSeconds !== null) {
+        expect(despues, `${donde}/${ex.name}`).toEqual(item);
+        continue;
       }
+      const queja = quejaDelAjuste(item, despues, ex, regla);
+      if (queja) sinExplicar.push(`${donde}: ${queja}`);
     }
 
     expect(sinExplicar.join('\n')).toBe('');
@@ -1020,11 +1042,9 @@ describe('el ajuste por día de partido', () => {
    *
    * Se le sacó `avoidExplosive` al motor entero y los 32 perfiles siguieron
    * pasando. La causa no era que ningún plan traiga explosivos —uno los trae—
-   * sino que el test miraba una sola sesión por perfil, y el único explosivo
-   * que hoy entra cae en "Pierna B" del perfil de vóley. Con eso corregido, la
+   * sino que el test miraba una sola sesión por perfil. Con eso corregido, la
    * cobertura pende de **un** ítem de **un** perfil: si el catálogo o el
-   * selector se mueven un poco, la regla vuelve a quedar sin probar y nada
-   * avisa.
+   * selector se mueven un poco, la regla vuelve a quedar sin probar.
    *
    * Por eso van los dos tests: uno arma el caso a mano, para que la rama esté
    * cubierta pase lo que pase, y el otro vigila que siga habiendo al menos un
@@ -1035,8 +1055,7 @@ describe('el ajuste por día de partido', () => {
     expect(explosivo).toBeDefined();
     if (!explosivo) return;
 
-    const base = sesionesDe(PERFILES[0])[0].items[0];
-    const item = { ...base, exerciseId: explosivo.id };
+    const item = { ...SESIONES[0].items[0], exerciseId: explosivo.id };
 
     for (const state of ESTADOS) {
       const regla = V1_RESEARCH.sports?.matchDay?.[state];
@@ -1048,11 +1067,9 @@ describe('el ajuste por día de partido', () => {
   });
 
   it('algún plan real todavía trae un explosivo sobre el que la regla actúe', () => {
-    const conExplosivo = PERFILES.filter((perfil) =>
-      sesionesDe(perfil).some((s) =>
-        s.items.some((i) => gym.exercises.find((e) => e.id === i.exerciseId)?.isExplosive),
-      ),
-    ).map((perfil) => perfil.nombre);
+    const conExplosivo = SESIONES.filter((s) =>
+      s.items.some((i) => gym.exercises.find((e) => e.id === i.exerciseId)?.isExplosive),
+    ).map((s) => `${s.perfil.nombre} / ${s.label}`);
 
     // Hoy es exactamente uno, y no es de potencia: los tres explosivos del
     // gimnasio son de peso corporal y el selector prefiere `reps_weight` en el
@@ -1075,31 +1092,30 @@ describe('el ajuste por día de partido', () => {
   });
 
   it('ningún estado deja la sesión vacía salvo el del partido', () => {
-    for (const perfil of PERFILES) {
-      for (const state of ESTADOS) {
-        if (state === 'match_day') continue;
-        for (const { label, salida } of ajustar(perfil, state)) {
-          expect(salida.items.length, `${perfil.nombre}/${state}/${label}`).toBeGreaterThan(0);
-        }
-      }
+    for (const { donde, state, salida } of AJUSTES) {
+      if (state === 'match_day') continue;
+      expect(salida.items.length, donde).toBeGreaterThan(0);
     }
   });
 
-  it('cuando cambia algo lo explica, y lo que saca lo nombra', () => {
-    for (const perfil of PERFILES) {
-      for (const state of ESTADOS) {
-        for (const { label, antes, salida } of ajustar(perfil, state)) {
-          if (!salida.changed) continue;
-          expect(salida.note, `${perfil.nombre}/${state}/${label}`).toBeTruthy();
+  /** Los ejercicios que el ajuste dejó afuera de una sesión. */
+  function sacadosDe(
+    antes: readonly SessionItemBlueprint[],
+    items: readonly SessionItemBlueprint[],
+  ): string[] {
+    const quedaron = new Set(items.map((o) => o.exerciseId));
+    return antes
+      .filter((i) => !quedaron.has(i.exerciseId))
+      .map((i) => gym.exercises.find((e) => e.id === i.exerciseId)?.name)
+      .filter((n): n is string => n !== undefined);
+  }
 
-          const sacados = antes.filter(
-            (i) => !salida.items.some((o) => o.exerciseId === i.exerciseId),
-          );
-          for (const item of sacados) {
-            const nombre = gym.exercises.find((e) => e.id === item.exerciseId)?.name;
-            if (nombre) expect(salida.note, `${perfil.nombre}/${state}/${label}`).toContain(nombre);
-          }
-        }
+  it('cuando cambia algo lo explica, y lo que saca lo nombra', () => {
+    for (const { donde, antes, salida } of AJUSTES) {
+      if (!salida.changed) continue;
+      expect(salida.note, donde).toBeTruthy();
+      for (const nombre of sacadosDe(antes, salida.items)) {
+        expect(salida.note, donde).toContain(nombre);
       }
     }
   });
