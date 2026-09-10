@@ -7,6 +7,7 @@ import { AppShell } from '../components/AppShell.tsx';
 import { MisDatos } from '../components/MisDatos.tsx';
 import { MisPlanes } from '../components/MisPlanes.tsx';
 import { Progreso as ProgresoBody } from '../components/Progreso.tsx';
+import { SyncNotice } from '../components/SyncNotice.tsx';
 import { Card, SectionLabel, Skeleton } from '../components/ui/index.ts';
 import { useProposalHistory } from '../lib/adaptation.ts';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
@@ -36,6 +37,10 @@ export function Progreso() {
           Lo que ya hiciste
         </h1>
       </motion.header>
+
+      {/* Antes que cualquier número: si algo quedó en la cola offline, todo
+          lo que sigue está incompleto y hay que decirlo primero. */}
+      <SyncNotice />
 
       {/* Los datos del cuerpo antes que el historial: son lo único de esta
           pantalla que se puede actualizar hoy mismo, sin haber entrenado. */}
