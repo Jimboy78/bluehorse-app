@@ -484,6 +484,11 @@ const sportsSchema = z.object({
    * cubrir. `{muscles}` se reemplaza con la lista.
    */
   emphasisUnreachableNote: z.string().min(1).optional(),
+  /**
+   * Y qué decirle cuando sí puede llegar, pero solo cambiando un ejercicio
+   * por uno de sus equivalentes. `{muscles}` se reemplaza con la lista.
+   */
+  emphasisOnlyBySwapNote: z.string().min(1).optional(),
   seasonPhases: z.record(
     z.enum(SEASON_PHASES),
     z.object({

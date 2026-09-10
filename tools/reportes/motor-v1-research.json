@@ -6145,7 +6145,7 @@
       "rulesetVersion": "v1-research",
       "source": "research",
       "warnings": [
-        "Tu deporte trabaja sobre todo oblicuos, y el gimnasio no tiene hoy con que entrenarlo dentro de un plan: lo unico cargado para eso se hace por tiempo o es un patron que ninguna plantilla usa, asi que no entra en ninguna sesion. El plan no lo esta cubriendo. Consultalo con el staff si te importa esa parte."
+        "Tu deporte trabaja sobre todo oblicuos, y el plan no lo trae de entrada. Si te importa esa parte, en cada ejercicio tenes \"otras formas de hacerlo\": ahi aparece alguna opcion que si lo trabaja, y podes cambiarla durante la sesion."
       ],
       "sesiones": [
         {
@@ -6612,7 +6612,7 @@
       "warnings": [
         "Se baja el volumen a la mitad para llegar entero a los partidos, manteniendo la intensidad. Ojo: esto se repite como consenso firme y no lo es. La unica comparacion directa in-season es de 16 personas, con diferencias despreciables (ES -0,04 a 0,04) y certeza calificada como muy baja por los propios revisores.",
         "Con 2 sesiones por semana, estos músculos quedan abajo de las 4 series semanales mínimas: pecho (2), isquiotibiales (2). Sumar una sesión más por semana los cubre.",
-        "Tu deporte trabaja sobre todo oblicuos, y el gimnasio no tiene hoy con que entrenarlo dentro de un plan: lo unico cargado para eso se hace por tiempo o es un patron que ninguna plantilla usa, asi que no entra en ninguna sesion. El plan no lo esta cubriendo. Consultalo con el staff si te importa esa parte."
+        "Tu deporte trabaja sobre todo oblicuos, y el plan no lo trae de entrada. Si te importa esa parte, en cada ejercicio tenes \"otras formas de hacerlo\": ahi aparece alguna opcion que si lo trabaja, y podes cambiarla durante la sesion."
       ],
       "sesiones": [
         {
@@ -7081,7 +7081,8 @@
         "Se baja el volumen a la mitad para llegar entero a los partidos, manteniendo la intensidad. Ojo: esto se repite como consenso firme y no lo es. La unica comparacion directa in-season es de 16 personas, con diferencias despreciables (ES -0,04 a 0,04) y certeza calificada como muy baja por los propios revisores.",
         "Con 3 sesiones por semana, estos músculos quedan abajo de las 3 series semanales mínimas: isquiotibiales (2). Sumar una sesión más por semana los cubre.",
         "Este plan no incluye ningún ejercicio explosivo: se entrena con series cortas y rápidas sobre los ejercicios de siempre. El gimnasio tiene con qué (cajones, wall ball, slam ball), pero todavía no entran solos al plan. Si buscás explosividad, consultalo con el staff.",
-        "Tu deporte trabaja sobre todo oblicuos, antebrazos, y el gimnasio no tiene hoy con que entrenarlo dentro de un plan: lo unico cargado para eso se hace por tiempo o es un patron que ninguna plantilla usa, asi que no entra en ninguna sesion. El plan no lo esta cubriendo. Consultalo con el staff si te importa esa parte."
+        "Tu deporte trabaja sobre todo oblicuos, y el plan no lo trae de entrada. Si te importa esa parte, en cada ejercicio tenes \"otras formas de hacerlo\": ahi aparece alguna opcion que si lo trabaja, y podes cambiarla durante la sesion.",
+        "Tu deporte trabaja sobre todo hombro posterior, antebrazos, y este plan no lo cubre: no aparece en ninguna sesion ni entre los equivalentes que podes elegir en su lugar. El gimnasio no tiene hoy con que entrenarlo dentro de un plan. Consultalo con el staff si te importa esa parte."
       ],
       "sesiones": [
         {
@@ -7547,7 +7548,8 @@
       "source": "research",
       "warnings": [
         "Con 2 sesiones por semana, estos músculos quedan abajo de las 6 series semanales mínimas: cuádriceps (5), pecho (3), espalda (4), hombro anterior (2). Sumar una sesión más por semana los cubre.",
-        "Tu deporte trabaja sobre todo oblicuos, antebrazos, y el gimnasio no tiene hoy con que entrenarlo dentro de un plan: lo unico cargado para eso se hace por tiempo o es un patron que ninguna plantilla usa, asi que no entra en ninguna sesion. El plan no lo esta cubriendo. Consultalo con el staff si te importa esa parte."
+        "Tu deporte trabaja sobre todo oblicuos, y el plan no lo trae de entrada. Si te importa esa parte, en cada ejercicio tenes \"otras formas de hacerlo\": ahi aparece alguna opcion que si lo trabaja, y podes cambiarla durante la sesion.",
+        "Tu deporte trabaja sobre todo hombro posterior, antebrazos, y este plan no lo cubre: no aparece en ninguna sesion ni entre los equivalentes que podes elegir en su lugar. El gimnasio no tiene hoy con que entrenarlo dentro de un plan. Consultalo con el staff si te importa esa parte."
       ],
       "sesiones": [
         {

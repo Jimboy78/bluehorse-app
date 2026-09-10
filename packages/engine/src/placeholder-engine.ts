@@ -18,6 +18,7 @@ import type {
 import { EXPERIENCE_LEVELS, nextLoad, snapToEquipment } from '@bh/domain';
 import type {
   AdjustSessionInput,
+  EngineContext,
   FindSubstitutesInput,
   GeneratePlanInput,
   GymSnapshot,
@@ -188,7 +189,16 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
   warnings.push(...weeklyVolumeWarnings(sessions, template, gym, params, goal));
   warnings.push(...interferenceWarnings(sessions, gym, ruleset));
   warnings.push(...powerWarnings(sessions, gym, goal));
-  warnings.push(...emphasisWarnings(ruleset, gym, sport));
+  warnings.push(
+    ...emphasisWarnings({
+      context,
+      ruleset,
+      gym,
+      sport,
+      sessions,
+      constraints: user.constraints,
+    }),
+  );
 
   if (placeholder) {
     warnings.push(
@@ -1378,61 +1388,100 @@ function chooseExercise(input: ChooseExerciseInput): Exercise | undefined {
 }
 
 /**
- * EL DEPORTE APUNTA A UN MÚSCULO QUE NUNCA VA A ENTRAR
+ * Qué músculos toca el plan, y cuáles quedan a un cambio de distancia.
  *
- * `sports.catalog` le pone a cada deporte los músculos del gesto, para
- * desempatar la selección cuando hay varios ejercicios equivalentes. Medido
- * sobre el catálogo real, once de los doce deportes con énfasis nombran al
- * menos un músculo que **ninguna sesión puede tocar**, por una de dos razones
- * estructurales:
- *
- * - El único ejercicio que lo tiene como primario se mide por tiempo, y fuera
- *   del cardio esos quedan afuera (paso 2 de `chooseExercise`: "2×6-10 de
- *   plancha" no significa nada). Es el caso de los oblicuos, que enfatizan
- *   fútbol, futsal, tenis, pádel, handball, boxeo, kickboxing, béisbol, hockey
- *   y golf.
- * - El único ejercicio vive en un patrón que ninguna plantilla pide. Es el caso
- *   de los antebrazos: solo la caminata del granjero, que es `carry`.
- *
- * No es que el desempate falle: es que no tiene con qué. Y el socio no se
- * entera, porque la nota de la categoría solo se muestra cuando el deporte
- * cambia el volumen, y `local_gesture` no lo cambia.
- *
- * Se avisa en vez de cambiar la selección, por la misma razón que en el resto
- * del motor: agregar un ejercicio para tapar el hueco sería inventar catálogo,
- * y sacar el músculo del énfasis sería borrar la pregunta en vez de contestarla.
- * Ver `25-cobertura-del-catalogo.md`.
+ * La cola repite las sesiones de la plantilla, así que a cada ejercicio se le
+ * piden los equivalentes una sola vez: sin `vistos` se le preguntaba ocho veces
+ * al mismo ítem para obtener siempre la misma respuesta.
  */
-function emphasisWarnings(
-  ruleset: Ruleset,
-  gym: GymSnapshot,
-  sport: ResolvedSport | null,
-): string[] {
-  const note = ruleset.sports?.emphasisUnreachableNote;
-  if (!note || !sport || sport.emphasis.length === 0) return [];
+function musclesReachable(input: EmphasisWarningInput): {
+  enElPlan: Set<MuscleGroup>;
+  cambiando: Set<MuscleGroup>;
+} {
+  const { context, ruleset, gym, sessions, constraints } = input;
+  const exerciseById = new Map(gym.exercises.map((e) => [e.id, e]));
+  const enElPlan = new Set<MuscleGroup>();
+  const cambiando = new Set<MuscleGroup>();
+  const vistos = new Set<Id>();
 
-  const pedidos = new Set<MovementPattern>();
-  for (const template of Object.values(ruleset.templates)) {
-    for (const session of template.sessions) {
-      for (const slot of session.slots) pedidos.add(slot.pattern);
+  for (const item of sessions.flatMap((s) => s.items)) {
+    for (const m of exerciseById.get(item.exerciseId)?.primaryMuscles ?? []) enElPlan.add(m);
+    if (vistos.has(item.exerciseId)) continue;
+    vistos.add(item.exerciseId);
+
+    const opciones = findSubstitutes({
+      context,
+      item,
+      gym,
+      constraints,
+      unavailableEquipmentIds: [],
+      ruleset,
+    });
+    for (const opcion of opciones) {
+      for (const m of exerciseById.get(opcion.exerciseId)?.primaryMuscles ?? []) cambiando.add(m);
     }
   }
 
-  // Alcanzable = existe un ejercicio con ese músculo como primario, en un
-  // patrón que alguna plantilla pide, y que no quede fuera por medirse en
-  // tiempo. Es la misma condición que aplica `chooseExercise`.
-  const alcanzable = (muscle: MuscleGroup) =>
-    gym.exercises.some(
-      (e) =>
-        e.primaryMuscles.includes(muscle) &&
-        pedidos.has(e.pattern) &&
-        (e.pattern === 'cardio' || e.modality !== 'time'),
-    );
+  return { enElPlan, cambiando };
+}
 
-  const fuera = sport.emphasis.filter((m) => !alcanzable(m));
-  if (fuera.length === 0) return [];
+/**
+ * EL DEPORTE APUNTA A UN MÚSCULO QUE EL PLAN NO TOCA
+ *
+ * `sports.catalog` le pone a cada deporte los músculos del gesto, para
+ * desempatar la selección cuando hay varios ejercicios equivalentes. Cuando el
+ * gimnasio no tiene con qué, el desempate no falla: no tiene sobre qué actuar,
+ * y el socio no se entera — la nota de la categoría solo se muestra si el
+ * deporte cambia el volumen, y `local_gesture` no lo cambia.
+ *
+ * **Se mira el plan y sus equivalentes, no el catálogo.** La primera versión de
+ * esto preguntaba si el catálogo tenía, estructuralmente, algún ejercicio con
+ * ese músculo primario en un patrón que alguna plantilla pidiera. Medido contra
+ * los planes reales, esa pregunta se equivocaba en las dos direcciones:
+ *
+ * - **De más**: daba los oblicuos por imposibles porque la plancha se mide en
+ *   tiempo y no entra sola a un slot. Pero sí aparece entre los equivalentes de
+ *   los ejercicios de core, así que el socio puede cambiarla desde la sesión.
+ *   Decirle "el gimnasio no tiene con qué" era falso.
+ * - **De menos**: no marcaba el hombro posterior en tenis y pádel, porque
+ *   estructuralmente hay ejercicios que lo tienen primario. En el plan que esos
+ *   perfiles reciben no aparece en ninguna sesión ni entre los tres
+ *   equivalentes de ningún ejercicio.
+ *
+ * Lo que el socio experimenta es su plan y lo que puede cambiar dentro de él.
+ * Eso es lo que se mide.
+ */
+function emphasisWarnings(input: EmphasisWarningInput): string[] {
+  const { ruleset, sport } = input;
+  const sinNada = ruleset.sports?.emphasisUnreachableNote;
+  const soloCambiando = ruleset.sports?.emphasisOnlyBySwapNote;
+  if (!sport || sport.emphasis.length === 0) return [];
 
-  return [note.replace('{muscles}', fuera.map(muscleLabel).join(', '))];
+  const { enElPlan, cambiando } = musclesReachable(input);
+
+  const faltan = sport.emphasis.filter((m) => !enElPlan.has(m));
+  const avisos: string[] = [];
+
+  const conCambio = faltan.filter((m) => cambiando.has(m));
+  if (soloCambiando && conCambio.length > 0) {
+    avisos.push(soloCambiando.replace('{muscles}', conCambio.map(muscleLabel).join(', ')));
+  }
+
+  const sinSalida = faltan.filter((m) => !cambiando.has(m));
+  if (sinNada && sinSalida.length > 0) {
+    avisos.push(sinNada.replace('{muscles}', sinSalida.map(muscleLabel).join(', ')));
+  }
+
+  return avisos;
+}
+
+interface EmphasisWarningInput {
+  readonly context: EngineContext;
+  readonly ruleset: Ruleset;
+  readonly gym: GymSnapshot;
+  readonly sport: ResolvedSport | null;
+  readonly sessions: readonly SessionBlueprint[];
+  readonly constraints: readonly UserConstraint[];
 }
 
 const MUSCLE_LABELS: Readonly<Record<MuscleGroup, string>> = {

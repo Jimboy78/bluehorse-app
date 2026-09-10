@@ -1347,67 +1347,115 @@ describe('las mediciones de cobertura muscular', () => {
 });
 
 /**
- * EL AVISO DE ÉNFASIS INALCANZABLE
+ * EL AVISO DE ÉNFASIS QUE EL PLAN NO CUBRE
  *
- * Ver `25-cobertura-del-catalogo.md`. Once de los doce deportes con énfasis
- * nombran al menos un músculo que ninguna sesión puede tocar; el plan ahora lo
- * dice en vez de callarlo.
+ * Ver `25-cobertura-del-catalogo.md`. Hay dos avisos distintos y la diferencia
+ * importa: uno dice "cambialo desde la sesión" y el otro dice "el gimnasio no
+ * tiene". Confundirlos es lo que hacía la primera versión, que miraba el
+ * catálogo en vez del plan.
  */
-describe('el aviso de énfasis que el gimnasio no puede cubrir', () => {
-  function avisoDe(perfil: Perfil): string | undefined {
-    return planDe(perfil, V1_RESEARCH).warnings.find((w) => w.includes('Tu deporte trabaja'));
+describe('el aviso de énfasis que el plan no cubre', () => {
+  /** Los músculos del plan y los que quedan a un cambio, recalculados acá. */
+  function alcanceDe(perfil: Perfil) {
+    const plan = planDe(perfil, V1_RESEARCH);
+    const musculosDe = (id: string) => gym.exercises.find((e) => e.id === id)?.primaryMuscles ?? [];
+    const enPlan = new Set<MuscleGroup>();
+    const cambiando = new Set<MuscleGroup>();
+
+    for (const item of plan.sessions.flatMap((s) => s.items)) {
+      for (const m of musculosDe(item.exerciseId)) enPlan.add(m);
+      const opciones = engine.findSubstitutes({
+        item,
+        gym,
+        constraints: socioDe(perfil).constraints,
+        unavailableEquipmentIds: [],
+        ruleset: V1_RESEARCH,
+      });
+      for (const o of opciones) for (const m of musculosDe(o.exerciseId)) cambiando.add(m);
+    }
+    return { avisos: plan.warnings, enPlan, cambiando };
   }
 
-  /** Los músculos que ninguna sesión de sala puede tocar, calculado igual que el motor. */
-  const inalcanzables = MUSCLE_GROUPS.filter((m) => {
-    const pedidos = new Set(
-      Object.values(V1_RESEARCH.templates).flatMap((t) =>
-        t.sessions.flatMap((s) => s.slots.map((sl) => sl.pattern)),
-      ),
-    );
-    return !gym.exercises.some(
-      (e) =>
-        e.primaryMuscles.includes(m) &&
-        pedidos.has(e.pattern) &&
-        (e.pattern === 'cardio' || e.modality !== 'time'),
-    );
-  });
-
-  it('hay músculos que ninguna sesión puede tocar (si esto vacía, mejoró el catálogo)', () => {
-    // Hoy son oblicuos y antebrazos: el único ejercicio de cada uno se mide por
-    // tiempo, o vive en `carry`, que ninguna plantilla pide.
-    expect(inalcanzables.length).toBeGreaterThan(0);
-  });
-
-  it('avisa exactamente a los deportes que enfatizan uno de esos músculos', () => {
-    for (const perfil of PERFILES) {
-      const deporte = V1_RESEARCH.sports?.catalog.find((d) => d.id === perfil.deporte);
-      const esperado = (deporte?.emphasis ?? []).filter((m) => inalcanzables.includes(m));
-      const aviso = avisoDe(perfil);
-
-      if (esperado.length === 0) {
-        expect(aviso, `${perfil.nombre} no debería avisar`).toBeUndefined();
-        continue;
-      }
-      expect(aviso, `${perfil.nombre} debería avisar`).toBeDefined();
-      for (const m of esperado) {
-        // El aviso nombra el músculo: sin eso el socio no sabe qué le falta.
-        expect(aviso).toContain(MUSCLE_LABELS_ES[m]);
-      }
+  it('los dos textos salen del ruleset, no del código', () => {
+    // Regla 3 llevada al texto: si alguien los escribe en el motor, esto falla.
+    for (const clave of ['emphasisUnreachableNote', 'emphasisOnlyBySwapNote'] as const) {
+      expect(V1_RESEARCH.sports?.[clave], clave).toBeTruthy();
+      expect(V1_RESEARCH.sports?.[clave], clave).toContain('{muscles}');
     }
   });
 
-  it('el texto del aviso sale del ruleset, no del código', () => {
-    // Regla 3 llevada al texto: si alguien lo escribe en el motor, esto falla.
-    expect(V1_RESEARCH.sports?.emphasisUnreachableNote).toBeTruthy();
-    expect(V1_RESEARCH.sports?.emphasisUnreachableNote).toContain('{muscles}');
+  /**
+   * Con qué reconocer cada aviso, sacado del ruleset en vez de repetir el texto.
+   *
+   * Va la parte de DESPUÉS de `{muscles}`: las dos notas arrancan igual —"Tu
+   * deporte trabaja sobre todo…"— así que el principio no distingue una de la
+   * otra, y con él este test daba por buenos avisos cruzados.
+   */
+  function marcaDe(clave: 'emphasisUnreachableNote' | 'emphasisOnlyBySwapNote'): string {
+    const nota = V1_RESEARCH.sports?.[clave] ?? '';
+    return nota.slice(nota.indexOf('{muscles}') + '{muscles}'.length).slice(0, 40);
+  }
+
+  type ClaveNota = 'emphasisUnreachableNote' | 'emphasisOnlyBySwapNote';
+
+  /** Qué falla en UN aviso: que esté cuando no toca, que falte, o que no nombre. */
+  function* quejasDeUnCaso(
+    donde: string,
+    avisos: readonly string[],
+    muscles: readonly MuscleGroup[],
+    clave: ClaveNota,
+  ) {
+    const aviso = avisos.find((a) => a.includes(marcaDe(clave)));
+    if (muscles.length > 0 !== (aviso !== undefined)) {
+      yield `${donde}/${clave}: ${aviso ? 'de más' : 'faltante'}`;
+      return;
+    }
+    // Cada aviso nombra sus músculos: sin eso el socio no sabe qué le falta.
+    for (const m of muscles) {
+      if (!aviso?.includes(ETIQUETA[m] ?? m)) yield `${donde}/${clave}: no nombra ${m}`;
+    }
+  }
+
+  /** Qué falla en los avisos de un perfil, si falla algo. */
+  function quejasDelAviso(perfil: Perfil): string[] {
+    const deporte = V1_RESEARCH.sports?.catalog.find((d) => d.id === perfil.deporte);
+    const { avisos, enPlan, cambiando } = alcanceDe(perfil);
+    const faltan = (deporte?.emphasis ?? []).filter((m) => !enPlan.has(m));
+
+    const casos: readonly { muscles: MuscleGroup[]; clave: ClaveNota }[] = [
+      { muscles: faltan.filter((m) => cambiando.has(m)), clave: 'emphasisOnlyBySwapNote' },
+      { muscles: faltan.filter((m) => !cambiando.has(m)), clave: 'emphasisUnreachableNote' },
+    ];
+
+    return casos.flatMap(({ muscles, clave }) => [
+      ...quejasDeUnCaso(perfil.nombre, avisos, muscles, clave),
+    ]);
+  }
+
+  it('separa "cambialo en la sesión" de "el gimnasio no tiene"', () => {
+    const problemas = PERFILES.flatMap(quejasDelAviso);
+    expect(problemas.join('\n')).toBe('');
+  });
+
+  it('hoy hay al menos un caso de cada tipo', () => {
+    // Si esto falla es una buena noticia y hay que revisar `25`: o el catálogo
+    // creció, o las plantillas cambiaron, o el énfasis se corrigió.
+    const avisos = PERFILES.flatMap((p) => planDe(p, V1_RESEARCH).warnings);
+    for (const clave of ['emphasisOnlyBySwapNote', 'emphasisUnreachableNote'] as const) {
+      expect(
+        avisos.some((a) => a.includes(marcaDe(clave))),
+        clave,
+      ).toBe(true);
+    }
   });
 });
 
 /** Los nombres que usa el motor, repetidos acá para no depender de un export interno. */
-const MUSCLE_LABELS_ES: Partial<Record<MuscleGroup, string>> = {
+const ETIQUETA: Partial<Record<MuscleGroup, string>> = {
   obliques: 'oblicuos',
   forearms: 'antebrazos',
   calves: 'gemelos',
   traps: 'trapecios',
+  rear_delts: 'hombro posterior',
+  front_delts: 'hombro anterior',
 };

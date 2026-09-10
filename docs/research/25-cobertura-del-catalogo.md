@@ -76,11 +76,53 @@ músculos del gesto cuando hay varios ejercicios equivalentes"*— **solo se mue
 cambia el volumen**, y `local_gesture` tiene `volumeMultiplier: 1`. Así que no había una promesa
 rota en pantalla; había una función que no hacía nada y nadie lo decía.
 
+## Corrección del 10 de septiembre de 2026: faltaba mirar los equivalentes
+
+Todo lo de arriba cuenta qué ejercicios entran **al plan**. Pero el plan no es lo único que el socio
+puede hacer: cada ejercicio ofrece "otras formas de hacerlo" (`findSubstitutes`), y esa es la
+función que justifica el relevamiento del catálogo entero. Medido sobre los mismos 33 perfiles,
+juntando el plan y los equivalentes que ofrece:
+
+| | |
+|---|---|
+| Ejercicios que aparecen en algún plan | 39 |
+| Ejercicios que aparecen como equivalente | 41 |
+| **Alcanzables de una forma u otra** | **49 de 58** |
+| **Sin aparecer en ningún lado** | **9** |
+
+Los equivalentes **rescatan 10 de los 19**: prensa de piernas, sentadilla con cinturón,
+hiperextensiones, flexiones de brazos, **plancha**, curl con barra Z, patada de glúteo, extensión de
+glúteo sentado, elíptico y escaladora.
+
+Los 9 que no aparecen en ninguna parte: wall ball, slam ball, face pull en polea, gemelos sentado,
+aperturas en máquina, cruce de poleas, encogimientos de hombros, abductores en máquina y caminata
+del granjero.
+
+### Esto corrige el aviso que se había agregado
+
+La primera versión del aviso preguntaba si el **catálogo** tenía, estructuralmente, algún ejercicio
+con ese músculo primario en un patrón que alguna plantilla pidiera. Contra los planes reales esa
+pregunta se equivoca en las dos direcciones:
+
+| | Qué decía | Qué pasa de verdad |
+|---|---|---|
+| **Oblicuos** | "el gimnasio no tiene con qué" | **Falso.** La plancha aparece entre los equivalentes de los ejercicios de core: el socio puede cambiarla desde la sesión. |
+| **Hombro posterior** (tenis, pádel) | no lo marcaba | **Faltaba.** Estructuralmente hay ejercicios que lo tienen primario, pero en el plan que esos perfiles reciben no aparece ni en una sesión ni entre los tres equivalentes de ningún ejercicio. |
+
+Lo que el socio experimenta es su plan y lo que puede cambiar dentro de él. Eso es lo que hay que
+medir, y es lo que mide ahora.
+
 ## Lo que se cambió
 
-El plan **avisa** cuando el deporte declarado enfatiza un músculo que el gimnasio no puede cubrir
-dentro de una sesión, nombrándolo. El texto vive en el ruleset
-(`sports.emphasisUnreachableNote`), no en el código.
+El plan **avisa**, con dos mensajes distintos según el caso, nombrando los músculos en los dos. Los
+textos viven en el ruleset (`sports.emphasisOnlyBySwapNote` y `sports.emphasisUnreachableNote`), no
+en el código:
+
+- **"No lo trae de entrada, pero podés cambiarlo."** El músculo no está en el plan y sí entre los
+  equivalentes. Es el caso de los oblicuos en fútbol, futsal, tenis y pádel. El aviso manda a "otras
+  formas de hacerlo", que es la función que existe justo para esto.
+- **"El gimnasio no tiene hoy con qué."** No está en el plan ni entre los equivalentes. Es el caso
+  del hombro posterior y los antebrazos en tenis y pádel.
 
 Se avisa en vez de arreglar la selección, y es a propósito:
 
