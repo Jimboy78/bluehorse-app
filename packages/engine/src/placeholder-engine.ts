@@ -187,6 +187,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
   warnings.push(...comebackWarnings(sessions, ruleset, daysAway, comeback, params));
   warnings.push(...weeklyVolumeWarnings(sessions, template, gym, params, goal));
   warnings.push(...interferenceWarnings(sessions, gym, ruleset));
+  warnings.push(...powerWarnings(sessions, gym, goal));
 
   if (placeholder) {
     warnings.push(
@@ -743,6 +744,57 @@ function adjustItem(
  * Sale una sola vez por plan: el efecto medido es chico y a nivel de músculo
  * entero no aparece, así que repetirlo por sesión lo convertiría en ruido.
  */
+/**
+ * UN PLAN DE POTENCIA SIN NADA EXPLOSIVO LO DICE
+ *
+ * La app ofrece este objetivo como "Potencia / explosividad — moverte más
+ * rápido y más explosivo", y toda la prescripción del bloque `power` está
+ * escrita para movimientos explosivos: la investigación habla de "3-5 series
+ * para ejercicios explosivos", "trabajo explosivo", "saltos asistidos", y de
+ * repeticiones bajas "para mantener velocidad máxima"
+ * (`01-fuerza-hipertrofia-potencia.md`).
+ *
+ * Lo que sale hoy es otra cosa. Medido sobre el catálogo real: un plan de
+ * potencia trae sentadilla en Smith, press inclinado, remo y press militar —la
+ * misma selección que fuerza— a 1-3 repeticiones. Los tres ejercicios
+ * explosivos del gimnasio (salto al cajón, wall ball, slam ball) no entran
+ * nunca, porque son de peso corporal y el slot principal prefiere algo a lo
+ * que se le pueda subir la carga.
+ *
+ * Ese filtro es correcto para fuerza e hipertrofia, donde la progresión se
+ * mide en kilos. Para potencia contradice al propio ruleset, que dice que "la
+ * potencia se regula por velocidad, no por repeticiones en reserva" y no
+ * propone subir carga sola en este objetivo.
+ *
+ * Cambiar la selección es una decisión de producto —implicaría que el
+ * ejercicio principal de un plan de potencia sea un salto al cajón, y el
+ * bloque prescribe 30-60 % del 1RM, que en peso corporal no significa nada—.
+ * Hasta que se tome, el plan **no puede prometer explosividad y entregar
+ * series lentas sin decirlo**: es la regla dura 4 aplicada a la selección en
+ * vez de a los números.
+ */
+function powerWarnings(
+  sessions: readonly SessionBlueprint[],
+  gym: GymSnapshot,
+  goal: UserGoal,
+): string[] {
+  if (goal.goal !== 'power') return [];
+
+  const exerciseById = new Map(gym.exercises.map((e) => [e.id, e]));
+  const hayExplosivo = sessions
+    .flatMap((s) => s.items)
+    .some((item) => exerciseById.get(item.exerciseId)?.isExplosive === true);
+
+  if (hayExplosivo) return [];
+
+  return [
+    'Este plan no incluye ningún ejercicio explosivo: se entrena con series cortas y ' +
+      'rápidas sobre los ejercicios de siempre. El gimnasio tiene con qué (cajones, wall ' +
+      'ball, slam ball), pero todavía no entran solos al plan. Si buscás explosividad, ' +
+      'consultalo con el staff.',
+  ];
+}
+
 function interferenceWarnings(
   sessions: readonly SessionBlueprint[],
   gym: GymSnapshot,

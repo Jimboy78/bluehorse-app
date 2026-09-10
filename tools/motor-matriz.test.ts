@@ -848,3 +848,50 @@ describe('los números del plan salen del ruleset', () => {
     expect([...new Set(inexplicables)]).toEqual([]);
   });
 });
+
+/**
+ * EL PLAN NO PROMETE LO QUE NO ENTREGA
+ *
+ * La app ofrece el objetivo como "Potencia / explosividad — moverte más rápido
+ * y más explosivo". Medido sobre el catálogo real, un plan de potencia trae la
+ * misma selección que uno de fuerza —sentadilla en Smith, press inclinado,
+ * remo, press militar— a 1-3 repeticiones, y ninguno de los tres ejercicios
+ * explosivos del gimnasio.
+ *
+ * Mientras eso siga así, el plan tiene que decirlo. Ver la nota larga en
+ * `powerWarnings` (`placeholder-engine.ts`) para por qué la selección no se
+ * cambió acá: es una decisión de producto con una tensión real detrás.
+ */
+describe('el aviso de potencia sin explosivos', () => {
+  const explosivosDelGimnasio = gym.exercises.filter((e) => e.isExplosive).map((e) => e.name);
+
+  function avisaDeExplosivos(p: Perfil): boolean {
+    return planDe(p, V1_RESEARCH).warnings.some((w) => w.includes('explosivo'));
+  }
+
+  it('el gimnasio tiene ejercicios explosivos cargados', () => {
+    // Si el catálogo no marcara ninguno, el aviso saldría siempre y no
+    // significaría nada: estaría describiendo el catálogo, no el plan.
+    expect(explosivosDelGimnasio.length).toBeGreaterThan(0);
+  });
+
+  it('avisa cuando el objetivo es potencia y no entró ninguno', () => {
+    const potencia = PERFILES.filter((p) => p.goal === 'power');
+    expect(potencia.length).toBeGreaterThan(0);
+    for (const perfil of potencia) {
+      const conExplosivo = reporteDe(perfil).sesiones.some((s) =>
+        s.items.some((i) => explosivosDelGimnasio.includes(i.ejercicio)),
+      );
+      // Hoy ninguno recibe explosivos, así que todos tienen que avisar. Si
+      // algún día la selección cambia, este test sigue siendo correcto: avisa
+      // solo el que no recibió ninguno.
+      expect(avisaDeExplosivos(perfil)).toBe(!conExplosivo);
+    }
+  });
+
+  it('no avisa en objetivos que no son potencia', () => {
+    for (const perfil of PERFILES.filter((p) => p.goal !== 'power')) {
+      expect(avisaDeExplosivos(perfil)).toBe(false);
+    }
+  });
+});
