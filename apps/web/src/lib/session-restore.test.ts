@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { rebuild } from './session-restore.ts';
+import type { OutboxItem } from './outbox.ts';
+import { fusionar, rebuild } from './session-restore.ts';
 
 /**
  * Reconstruir la sesión en curso desde lo que quedó registrado. Es lo que se
@@ -92,5 +93,113 @@ describe('rebuild', () => {
   it('una serie sin carga no deja entrada propia', () => {
     const out = rebuild([fila({ set_index: 0, id: 'a' })]);
     expect(out.loadBySet['item-1:0']).toBeUndefined();
+  });
+});
+
+/**
+ * La cola offline es la otra mitad de la verdad. Lo que se marcó sin señal
+ * todavía no está en Postgres, pero está escrito: si la reconstrucción no lo
+ * mira, después de recargar la serie vuelve destildada y volver a marcarla
+ * duplica el registro —y abre un segundo `workout_log` para la misma sesión—.
+ */
+function pendiente(kind: OutboxItem['kind'], payload: unknown, createdAt = 0): OutboxItem {
+  return {
+    clientId: `c-${createdAt}`,
+    kind,
+    payload,
+    createdAt,
+    attempts: 0,
+    lastError: null,
+    ownerId: 'u1',
+  };
+}
+
+const SESION = 'ps-1';
+
+describe('fusionar', () => {
+  it('sin cola, es lo que dice el servidor', () => {
+    const out = fusionar({ workoutLogId: 'wl-1', rows: [fila()] }, [], SESION);
+    expect(out.workoutLogId).toBe('wl-1');
+    expect(out.doneByItem).toEqual({ 'item-1': [0] });
+  });
+
+  it('una serie que sigue en la cola cuenta como hecha', () => {
+    const out = fusionar(
+      { workoutLogId: 'wl-1', rows: [] },
+      [pendiente('set_log', { ...fila({ id: 'set-cola' }), workout_log_id: 'wl-1' })],
+      SESION,
+    );
+    expect(out.doneByItem).toEqual({ 'item-1': [0] });
+    expect(out.setLogIds.get('item-1:0')).toBe('set-cola');
+  });
+
+  it('el workout_log encolado evita abrir un segundo registro de la misma sesión', () => {
+    const out = fusionar(
+      { workoutLogId: null, rows: [] },
+      [
+        pendiente('workout_log', { id: 'wl-cola', plan_session_id: SESION }),
+        pendiente('set_log', { ...fila({ id: 'set-cola' }), workout_log_id: 'wl-cola' }, 1),
+      ],
+      SESION,
+    );
+    expect(out.workoutLogId).toBe('wl-cola');
+    expect(out.doneByItem).toEqual({ 'item-1': [0] });
+  });
+
+  it('no trae series de otra sesión que estén en la misma cola', () => {
+    const out = fusionar(
+      { workoutLogId: 'wl-1', rows: [] },
+      [
+        pendiente('workout_log', { id: 'wl-otro', plan_session_id: 'ps-2' }),
+        pendiente('set_log', { ...fila({ id: 'ajena' }), workout_log_id: 'wl-otro' }, 1),
+      ],
+      SESION,
+    );
+    expect(out.workoutLogId).toBe('wl-1');
+    expect(out.doneByItem).toEqual({});
+  });
+
+  it('un borrado encolado deshace la serie aunque el servidor todavía la tenga', () => {
+    const out = fusionar(
+      { workoutLogId: 'wl-1', rows: [fila({ id: 'set-1' })] },
+      [pendiente('set_log_delete', { id: 'set-1' })],
+      SESION,
+    );
+    expect(out.doneByItem).toEqual({});
+    expect(out.setLogIds.size).toBe(0);
+  });
+
+  it('la misma serie en los dos lados se cuenta una sola vez', () => {
+    // La respuesta se perdió: la fila llegó al servidor y el ítem quedó en cola.
+    const cruda = { ...fila({ id: 'set-1' }), workout_log_id: 'wl-1' };
+    const out = fusionar(
+      { workoutLogId: 'wl-1', rows: [cruda] },
+      [pendiente('set_log', cruda)],
+      SESION,
+    );
+    expect(out.doneByItem).toEqual({ 'item-1': [0] });
+  });
+
+  it('la carga anotada sin señal se recupera al volver', () => {
+    const out = fusionar(
+      { workoutLogId: 'wl-1', rows: [] },
+      [
+        pendiente('set_log', {
+          ...fila({ id: 's0', set_index: 0, load_value: 60, load_unit: 'kg' }),
+          workout_log_id: 'wl-1',
+        }),
+        pendiente(
+          'set_log',
+          {
+            ...fila({ id: 's1', set_index: 1, load_value: 70, load_unit: 'kg' }),
+            workout_log_id: 'wl-1',
+          },
+          1,
+        ),
+      ],
+      SESION,
+    );
+    expect(out.loadBySet['item-1:0']).toEqual({ value: 60, unit: 'kg' });
+    expect(out.loadByItem['item-1']).toEqual({ value: 70, unit: 'kg' });
   });
 });

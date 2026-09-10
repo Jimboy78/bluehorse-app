@@ -4,9 +4,16 @@
  * `max_volume` y `est_1rm` quedan para cuando haga falta — la tabla ya los
  * admite (`07_adaptation.sql`), pero inventar esa lógica sin necesidad real
  * es peor que no tenerla.
+ *
+ * El `id` lo genera el cliente, como en `workout_logs` y `set_logs`. No es
+ * cosmético: sin un id propio esta fila era la única de la cola offline que se
+ * mandaba con `insert` en vez de `upsert`, así que un reintento —una respuesta
+ * que se perdió, un teléfono que volvió de un túnel— escribía el mismo récord
+ * dos veces. Con id, reintentar es un no-op.
  */
 
 export interface PersonalRecordInsertRow {
+  readonly id: string;
   readonly user_id: string;
   readonly exercise_id: string;
   readonly type: 'max_load';
@@ -16,6 +23,7 @@ export interface PersonalRecordInsertRow {
 }
 
 export function toPersonalRecordInsert(
+  id: string,
   userId: string,
   exerciseId: string,
   value: number,
@@ -23,6 +31,7 @@ export function toPersonalRecordInsert(
   achievedAt: string,
 ): PersonalRecordInsertRow {
   return {
+    id,
     user_id: userId,
     exercise_id: exerciseId,
     type: 'max_load',

@@ -43,7 +43,9 @@ export async function sendOutboxItem(item: OutboxItem): Promise<void> {
   }
 
   if (item.kind === 'personal_record') {
-    const { error } = await client.from('personal_records').insert(item.payload as never);
+    const { error } = await client
+      .from('personal_records')
+      .upsert(item.payload as never, { onConflict: 'id', ignoreDuplicates: true });
     if (error) throw error;
     return;
   }
@@ -141,7 +143,7 @@ async function celebrateIfRecord(
     // llegara antes, falla una vez y entra en el flush siguiente.
     await enqueue(
       'personal_record',
-      toPersonalRecordInsert(userId, exerciseId, loadKg, setLogId, achievedAt),
+      toPersonalRecordInsert(crypto.randomUUID(), userId, exerciseId, loadKg, setLogId, achievedAt),
       userId,
     );
     void flush(sendOutboxItem, userId);

@@ -1,6 +1,7 @@
 import type { LoadReading, LoadUnit } from '@bh/domain';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from './auth/AuthProvider.tsx';
+import { db, type OutboxItem } from './outbox.ts';
 import { requireSupabase } from './supabase.ts';
 
 /**
@@ -100,6 +101,97 @@ export function rebuild(rows: readonly unknown[]): Omit<RestoredSession, 'workou
   return { doneByItem, setLogIds, loadByItem, loadBySet };
 }
 
+/** Lo que devolvió el servidor para esta sesión, antes de mezclarlo con la cola. */
+export interface ServerSession {
+  readonly workoutLogId: string | null;
+  readonly rows: readonly unknown[];
+}
+
+/**
+ * LA COLA CUENTA IGUAL QUE EL SERVIDOR
+ *
+ * Sin esto, la reconstrucción leía solo Postgres. En el gimnasio sin señal la
+ * serie marcada queda en la cola offline y todavía no existe del otro lado:
+ * al recargar, la pantalla la mostraba SIN marcar. Volver a marcarla escribía
+ * un `set_log` nuevo y —como tampoco había `workout_log` del lado del
+ * servidor— un SEGUNDO `workout_log` para la misma sesión. O sea, exactamente
+ * el bug que este archivo dice prevenir: la protección solo valía una vez que
+ * el dato había llegado, que es justo cuando no hacía falta.
+ *
+ * Una serie escrita es una serie escrita, esté en Postgres o esperando señal
+ * en IndexedDB. Acá se mezclan las dos fuentes antes de reconstruir:
+ *
+ * - Los `workout_log` encolados de ESTA sesión valen como sesión abierta.
+ * - Las series encoladas cuyo `workout_log_id` pertenece a esta sesión (el del
+ *   servidor o alguno encolado) se suman a las del servidor.
+ * - Los borrados encolados sacan la serie de las dos listas: deshacer una
+ *   serie sin señal tiene que seguir viéndose deshecha después de recargar.
+ *
+ * Repetir una serie que está en los dos lados no rompe nada: es la misma fila,
+ * con el mismo `id`, y `rebuild` la colapsa.
+ */
+export function fusionar(
+  servidor: ServerSession,
+  pendientes: readonly OutboxItem[],
+  planSessionId: string,
+): RestoredSession {
+  const { propios, encolado } = logsDeLaSesion(pendientes, planSessionId, servidor.workoutLogId);
+  const { deLaCola, borradas } = seriesDeLaCola(pendientes, propios);
+
+  const todas = [...servidor.rows, ...deLaCola].filter((row) => {
+    const { id } = row as { id?: unknown };
+    return typeof id !== 'string' || !borradas.has(id);
+  });
+
+  // El del servidor manda: si existe, es el que ya tiene series colgando.
+  return { workoutLogId: servidor.workoutLogId ?? encolado, ...rebuild(todas) };
+}
+
+/** Qué `workout_log` son de esta sesión, contando los que siguen en la cola. */
+function logsDeLaSesion(
+  pendientes: readonly OutboxItem[],
+  planSessionId: string,
+  delServidor: string | null,
+): { propios: ReadonlySet<string>; encolado: string | null } {
+  const propios = new Set<string>();
+  if (delServidor) propios.add(delServidor);
+  let encolado: string | null = null;
+
+  for (const item of pendientes) {
+    if (item.kind !== 'workout_log') continue;
+    const payload = item.payload as { id?: unknown; plan_session_id?: unknown };
+    if (payload?.plan_session_id !== planSessionId || typeof payload.id !== 'string') continue;
+    propios.add(payload.id);
+    encolado ??= payload.id;
+  }
+
+  return { propios, encolado };
+}
+
+/** Las series encoladas de esos `workout_log`, y las que un borrado encolado ya sacó. */
+function seriesDeLaCola(
+  pendientes: readonly OutboxItem[],
+  propios: ReadonlySet<string>,
+): { deLaCola: readonly unknown[]; borradas: ReadonlySet<string> } {
+  const borradas = new Set<string>();
+  const deLaCola: unknown[] = [];
+
+  for (const item of pendientes) {
+    if (item.kind === 'set_log_delete') {
+      const { id } = item.payload as { id?: unknown };
+      if (typeof id === 'string') borradas.add(id);
+      continue;
+    }
+    if (item.kind !== 'set_log') continue;
+    const payload = item.payload as { workout_log_id?: unknown };
+    if (typeof payload?.workout_log_id === 'string' && propios.has(payload.workout_log_id)) {
+      deLaCola.push(payload);
+    }
+  }
+
+  return { deLaCola, borradas };
+}
+
 export function useRestoredSession(userId: string | undefined, planSessionId: string) {
   const { status } = useAuth();
 
@@ -126,9 +218,18 @@ export function useRestoredSession(userId: string | undefined, planSessionId: st
         .limit(1)
         .maybeSingle();
       if (error) throw error;
-      if (!data) return EMPTY_RESTORED;
 
-      return { workoutLogId: data.id as string, ...rebuild(data.set_logs ?? []) };
+      // Lo que todavía no salió de la cola offline cuenta igual: ver `fusionar`.
+      const pendientes = await db.pending
+        .where('ownerId')
+        .equals(userId as string)
+        .sortBy('createdAt');
+
+      return fusionar(
+        { workoutLogId: (data?.id as string | undefined) ?? null, rows: data?.set_logs ?? [] },
+        pendientes,
+        planSessionId,
+      );
     },
   });
 }
