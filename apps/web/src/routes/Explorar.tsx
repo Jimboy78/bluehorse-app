@@ -250,7 +250,17 @@ function AlternativesPanel({
     () =>
       engine.findSubstitutes({
         context: engineContext(userId ?? 'explorando-sin-sesion'),
-        item: { exerciseId: exercise.id, equipmentId: exercise.equipmentIds[0] ?? null },
+        // `equipmentId: null` a propósito, y es la diferencia con "Cambiar
+        // ejercicio" en Hoy: allá se pide un reemplazo PORQUE la máquina está
+        // ocupada, así que `findSubstitutes` la bloquea. Acá nadie está
+        // esperando nada —se está mirando el catálogo— y bloquearla esconde los
+        // ejercicios que solo se pueden hacer en esa misma estación.
+        //
+        // Medido sobre los 58: cambia lo que se ve en uno solo. Abriendo "Remo
+        // invertido en TRX" aparecen las dominadas, que estaban tapadas por
+        // compartir estación. Es poco, pero la alternativa es mostrar una lista
+        // filtrada por una condición que en esta pantalla no se cumple.
+        item: { exerciseId: exercise.id, equipmentId: null },
         gym: catalog.gym,
         constraints: [],
         unavailableEquipmentIds: [],

@@ -1459,3 +1459,78 @@ const ETIQUETA: Partial<Record<MuscleGroup, string>> = {
   rear_delts: 'hombro posterior',
   front_delts: 'hombro anterior',
 };
+
+/**
+ * LOS EQUIVALENTES, Y LOS DOS CONTEXTOS EN QUE SE PIDEN
+ *
+ * `findSubstitutes` bloquea siempre la máquina del ejercicio original, porque
+ * nació de "la máquina está ocupada". Eso es correcto en la sesión y **no** lo
+ * es al explorar el catálogo, donde nadie está esperando nada: escondía los
+ * ejercicios que solo existen en esa misma estación.
+ *
+ * Ver `25-cobertura-del-catalogo.md`. Medido sobre los 33 perfiles, los
+ * equivalentes rescatan 10 de los 19 ejercicios que ningún plan usa.
+ */
+describe('los ejercicios equivalentes', () => {
+  function opcionesDe(exerciseId: string, equipmentId: string | null) {
+    return engine
+      .findSubstitutes({
+        item: { exerciseId, equipmentId },
+        gym,
+        constraints: [],
+        unavailableEquipmentIds: [],
+        ruleset: V1_RESEARCH,
+      })
+      .map((o) => gym.exercises.find((e) => e.id === o.exerciseId)?.name ?? o.exerciseId);
+  }
+
+  it('bloquear la máquina propia esconde lo que solo vive en esa estación', () => {
+    const aductores = gym.exercises.find((e) => e.name === 'Aductores en máquina');
+    const abductores = gym.exercises.find((e) => e.name === 'Abductores en máquina');
+    if (!aductores || !abductores) throw new Error('faltan los ejercicios del caso');
+
+    // Los aductores tienen dos estaciones; los abductores una sola, la
+    // combinada. El plan asigna justamente esa, así que si el socio la declara
+    // ocupada, el ejercicio más parecido que existe no se le puede ofrecer.
+    const combinada = abductores.equipmentIds[0];
+    expect(aductores.equipmentIds, 'ya no comparten estación').toContain(combinada);
+
+    expect(
+      opcionesDe(aductores.id, combinada),
+      'con esa máquina ocupada no puede ofrecerla',
+    ).not.toContain(abductores.name);
+
+    // Y sin nada bloqueado —explorando el catálogo— sí aparece.
+    expect(opcionesDe(aductores.id, null), 'explorando sí').toContain(abductores.name);
+  });
+
+  it('los equivalentes rescatan ejercicios que ningún plan usa', () => {
+    const enPlanes = new Set<string>();
+    const comoEquivalente = new Set<string>();
+
+    for (const perfil of PERFILES) {
+      for (const item of planDe(perfil, V1_RESEARCH).sessions.flatMap((s) => s.items)) {
+        enPlanes.add(item.exerciseId);
+        for (const o of engine.findSubstitutes({
+          item,
+          gym,
+          constraints: socioDe(perfil).constraints,
+          unavailableEquipmentIds: [],
+          ruleset: V1_RESEARCH,
+        })) {
+          comoEquivalente.add(o.exerciseId);
+        }
+      }
+    }
+
+    const rescatados = gym.exercises.filter(
+      (e) => !enPlanes.has(e.id) && comoEquivalente.has(e.id),
+    );
+
+    // Hoy son 10 de los 19 sin usar. El test no fija el número —el catálogo se
+    // mueve— sino que la sustitución sirve para esto, que es lo que se afirma
+    // en `25`. Si llega a cero, esa sección quedó vieja.
+    expect(rescatados.length, 'la sustitución no rescata a nadie').toBeGreaterThan(0);
+    expect(new Set([...enPlanes, ...comoEquivalente]).size).toBeGreaterThan(enPlanes.size);
+  });
+});

@@ -98,6 +98,35 @@ Los 9 que no aparecen en ninguna parte: wall ball, slam ball, face pull en polea
 aperturas en máquina, cruce de poleas, encogimientos de hombros, abductores en máquina y caminata
 del granjero.
 
+### Por qué los 9 restantes no llegan tampoco por ahí
+
+Reimplementando el ranking de `scoreEquivalence` para ver en qué puesto queda cada ausente, los 9 se
+parten en dos grupos distintos:
+
+| Grupo | Cuáles | Qué pasa |
+|---|---|---|
+| **Ni siquiera puntúan** | Face pull, gemelos sentado, encogimientos de hombros, caminata del granjero | Puntaje **0** contra todo lo que aparece en algún plan: no comparten ni patrón ni un solo músculo primario. Quedan debajo de `minEquivalence: 0.5` siempre. Son, exactamente, los ejercicios de gemelos, trapecios y antebrazos. |
+| **Puntúan pero quedan afuera del corte** | Wall ball (7º), aperturas (5º), cruce de poleas (6º), slam ball (4º) | `maxOptions: 3`. Son equivalentes válidos que no entran en los tres que se muestran. |
+
+El primer grupo es el hallazgo real: no es un problema de cuántas opciones se muestran, sino de que
+esos músculos no tienen ningún puente hacia el resto del catálogo.
+
+### Un caso donde compartir estación esconde el equivalente más parecido
+
+`findSubstitutes` bloquea siempre la máquina del ejercicio original, porque nació de "la máquina
+está ocupada". Medido:
+
+- **Aductores en máquina** tiene dos estaciones; **abductores en máquina**, una sola: la combinada.
+- El plan le asigna al socio justamente la combinada.
+- Con esa estación bloqueada, el ejercicio más parecido que existe en el gimnasio no se le puede
+  ofrecer. Es correcto —la máquina está ocupada— pero vale anotarlo.
+
+Y hay un contexto donde ese bloqueo **no** corresponde: `/explorar`, donde nadie está esperando una
+máquina, se está mirando el catálogo. Ahí se sacó. Medido sobre los 58, cambia lo que se ve en uno
+solo: abriendo "Remo invertido en TRX" ahora aparecen las dominadas, que estaban tapadas por
+compartir estación. Es poco; la alternativa era seguir filtrando por una condición que en esa
+pantalla no se cumple.
+
 ### Esto corrige el aviso que se había agregado
 
 La primera versión del aviso preguntaba si el **catálogo** tenía, estructuralmente, algún ejercicio
