@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-10",
-  "resolved": 53,
+  "resolved": 55,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -979,6 +979,44 @@
       ],
       "documentos": [
         "03-progresion-descarga.md"
+      ]
+    },
+    {
+      "doi": "10.3390/sports9020032",
+      "title": "Loading Recommendations for Muscle Strength, Hypertrophy, and Local Endurance: A Re-Examination of the Repetition Continuum",
+      "authors": [
+        "Schoenfeld",
+        "Grgic",
+        "Van Every"
+      ],
+      "moreAuthors": 1,
+      "year": 2021,
+      "journal": "Sports",
+      "type": "journal-article",
+      "temas": [
+        "Resistencia muscular"
+      ],
+      "documentos": [
+        "23-resistencia-muscular.md"
+      ]
+    },
+    {
+      "doi": "10.7717/peerj.20909",
+      "title": "Minimum load threshold in resistance training: insights into muscle metabolism, excitation, and fatigue across the repetition continuum",
+      "authors": [
+        "Colosio",
+        "D’hoe",
+        "Bourgois"
+      ],
+      "moreAuthors": 1,
+      "year": 2026,
+      "journal": "PeerJ",
+      "type": "journal-article",
+      "temas": [
+        "Resistencia muscular"
+      ],
+      "documentos": [
+        "23-resistencia-muscular.md"
       ]
     },
     {

@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-10T18:43:51.208Z",
+ "generatedAt": "2026-09-10T18:50:46.263Z",
  "docs": [
   {
    "id": "metodo",
@@ -184,6 +184,14 @@
    "resumen": "Revisión del 10 de septiembre de 2026. Salió de correr la matriz del motor (npm run qa:motor) sobre el catálogo real y mirar qué recibe un socio que elige el objetivo \"Potencia / explosividad\".",
    "archivo": "22-carga-de-potencia.md",
    "bloques": 35
+  },
+  {
+   "id": "23-resistencia-muscular",
+   "orden": 23,
+   "titulo": "La \"zona de resistencia muscular\" no se sostiene, y por eso el plan está bien",
+   "resumen": "Revisión del 10 de septiembre de 2026. Salió de npm run qa docs, que marcaba endurance y cardio como los dos únicos objetivos cuyos números ninguna tabla respalda.",
+   "archivo": "23-resistencia-muscular.md",
+   "bloques": 36
   },
   {
    "id": "auditoria",

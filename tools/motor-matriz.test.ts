@@ -1222,4 +1222,52 @@ describe('lo que el ruleset afirma de sí mismo', () => {
 
     expect(raros.join('\n')).toBe('');
   });
+
+  /**
+   * NINGUNA PRESCRIPCIÓN BAJA DEL UMBRAL DONDE EMPIEZA A PASAR ALGO
+   *
+   * `23-resistencia-muscular.md`: la hipertrofia es equivalente en todo el
+   * espectro **≥ ~30 % del 1RM** y no hay una "zona ideal" (Schoenfeld 2021).
+   * Por debajo de eso la carga deja de producir el estímulo — medido aparte, un
+   * protocolo al 10 % ni siquiera llegaba al fallo, con la carga crítica en
+   * 31,7 ± 11,9 % (Colosio 2026, agudo y n = 12).
+   *
+   * Hoy el piso del ruleset es exactamente 30 %, en el primario de `power`.
+   *
+   * Esto además obliga a reconciliar dos documentos si alguien toca esa banda:
+   * `22-carga-de-potencia.md` propone abrirla hacia abajo para los ejercicios
+   * balísticos (≤ 30 % es donde producen más potencia). Las dos cosas pueden ser
+   * ciertas —hablan de desenlaces distintos, potencia pico contra adaptación—
+   * pero bajar el piso sin decir cuál de los dos manda es elegir sin saberlo.
+   */
+  /** Cada (objetivo, nivel, slot) del ruleset, con sus parametros. */
+  function* todosLosSlots() {
+    for (const [objetivo, bloque] of Object.entries(V1_RESEARCH.prescription)) {
+      const niveles = [
+        ['default', bloque.default] as const,
+        ...Object.entries(bloque.byLevel ?? {}),
+      ];
+      for (const [nivel, params] of niveles) {
+        for (const slot of ['primary', 'secondary', 'isolation'] as const) {
+          const p = params?.[slot];
+          if (p) yield { donde: `${objetivo}.${nivel}.${slot}`, params: p };
+        }
+      }
+    }
+  }
+
+  it('ninguna intensidad prescrita arranca por debajo del 30 % del 1RM', () => {
+    // No es configuracion ni una prescripcion: es el limite que declara el
+    // documento, escrito aca para que el test falle si el ruleset lo cruza.
+    const UMBRAL_MINIMO_PCT_1RM = 30;
+
+    const bajos: string[] = [];
+
+    for (const { donde, params } of todosLosSlots()) {
+      const rango = params.intensityPct1RM;
+      if (rango && rango[0] < UMBRAL_MINIMO_PCT_1RM) bajos.push(`${donde}: ${rango[0]} %`);
+    }
+
+    expect(bajos.join('\n')).toBe('');
+  });
 });

@@ -603,7 +603,7 @@
     },
     "endurance": {
       "confidence": "low",
-      "confidenceNote": "La investigación cubre resistencia aeróbica, no resistencia muscular en sala con repeticiones altas. Estos números son el extremo liviano del bloque de hipertrofia, que es el anclaje con evidencia más cercano; no hay respaldo directo para series de 20 o 25 repeticiones. El trabajo aeróbico de este objetivo, que sí tiene respaldo, está en el bloque `cardio`.",
+      "confidenceNote": "La investigacion cubre resistencia aerobica, no resistencia muscular en sala con repeticiones altas. Estos numeros son el extremo liviano del bloque de hipertrofia, y eso es lo que la evidencia apoya: la zona de 15 o mas repeticiones como adaptacion separada es equivoca, y en resistencia relativa la investigacion contradice al continuo de repeticiones (Schoenfeld 2021). Por encima de ~30 por ciento del 1RM la hipertrofia es equivalente, asi que elegir este objetivo no cuesta musculo. Va como BAJA no por falta de evidencia sino porque la que hay califica el efecto de equivoco, y porque las series y los descansos siguen viniendo de hipertrofia. El trabajo aerobico de este objetivo esta en el bloque cardio.",
       "default": {
         "primary": {
           "sets": 3,
