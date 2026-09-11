@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-11T00:13:06.790Z",
+ "generatedAt": "2026-09-11T00:29:59.990Z",
  "docs": [
   {
    "id": "metodo",
@@ -224,6 +224,14 @@
    "resumen": "Revisión del 10 de septiembre de 2026. Salió de auditar el camino de lesiones, que es el de mayor riesgo del motor y el único que no tenía cobertura sobre la diversidad de perfiles.",
    "archivo": "27-zonas-sin-regla.md",
    "bloques": 30
+  },
+  {
+   "id": "28-lo-que-el-socio-lee",
+   "orden": 28,
+   "titulo": "El aviso que mandaba a buscar el problema al lugar equivocado",
+   "resumen": "Revisión del 10 de septiembre de 2026. Salió de completar la cobertura de UserConstraint: tiene cuatro tipos y la matriz probaba dos. Los 33 perfiles declaran pain o injury; avoid_exercise y avoid_equipment —\"no puedo usar esta máquina\",…",
+   "archivo": "28-lo-que-el-socio-lee.md",
+   "bloques": 27
   },
   {
    "id": "auditoria",

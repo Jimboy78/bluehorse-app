@@ -140,7 +140,15 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
       });
       if (!exercise) {
         warnings.push(
-          `No hay ningún ejercicio disponible para el patrón "${slot.pattern}" en ${tplSession.label}. Falta equipamiento en el catálogo, está todo bloqueado por restricciones, o no hay nada de tu nivel para ese patrón.`,
+          `En ${tplSession.label} no quedó ningún ejercicio de ${patternLabel(slot.pattern)}: ${porQueNoHay(
+            {
+              pattern: slot.pattern,
+              gym,
+              constraints: user.constraints,
+              avoidRules,
+              level: user.profile.experienceLevel,
+            },
+          )}`,
         );
         continue;
       }
@@ -1572,6 +1580,78 @@ const REGION_LABELS: Readonly<Record<BodyRegion, string>> = {
 
 function regionLabel(region: BodyRegion): string {
   return REGION_LABELS[region] ?? 'la zona que marcaste';
+}
+
+/**
+ * El patrón de movimiento en castellano.
+ *
+ * Mismo caso que `GOAL_LABELS` acá abajo, y que a los objetivos ya les había
+ * pasado: el aviso de patrón sin cubrir interpolaba `slot.pattern` crudo, así
+ * que el socio leía `el patrón "vertical_pull"` — el identificador interno, en
+ * inglés y entrecomillado. No era un caso de borde: cuatro de los 33 planes del
+ * reporte lo mostraban, y los dos con lesión lo tienen siempre, porque sacar un
+ * patrón entero es justamente lo que dispara ese aviso.
+ *
+ * Las palabras son las mismas que usa `PATTERN_LABELS` en la app, en minúscula
+ * porque acá van en medio de una oración. Que la insignia del ejercicio y el
+ * aviso digan cosas distintas del mismo patrón es peor que no traducir.
+ */
+const PATTERN_LABELS: Readonly<Record<MovementPattern, string>> = {
+  squat: 'sentadilla',
+  hinge: 'bisagra de cadera',
+  lunge: 'zancada',
+  horizontal_push: 'empuje horizontal',
+  horizontal_pull: 'tirón horizontal',
+  vertical_push: 'empuje vertical',
+  vertical_pull: 'tirón vertical',
+  carry: 'traslado',
+  core: 'zona media',
+  isolation: 'aislamiento',
+  cardio: 'cardio',
+};
+
+function patternLabel(pattern: MovementPattern): string {
+  return PATTERN_LABELS[pattern] ?? pattern;
+}
+
+/**
+ * Por qué no quedó ningún ejercicio de un patrón.
+ *
+ * El aviso listaba las tres causas posibles —"falta equipamiento en el catálogo,
+ * está todo bloqueado por restricciones, o no hay nada de tu nivel"— y el motor
+ * sabe cuál es. Para alguien con la rodilla lesionada, leer que "falta
+ * equipamiento en el catálogo" cuando lo que pasó es que su propia lesión sacó
+ * las sentadillas manda a buscar el problema al lugar equivocado.
+ *
+ * Se reaplican los mismos cuatro filtros de `usableExercises`, en el mismo orden,
+ * y se informa el primero que deja el patrón en cero.
+ */
+function porQueNoHay(input: {
+  pattern: MovementPattern;
+  gym: GymSnapshot;
+  constraints: readonly UserConstraint[];
+  avoidRules: readonly PainRule[];
+  level: ExperienceLevel;
+}): string {
+  const { pattern, gym, constraints, avoidRules, level } = input;
+  const delPatron = gym.exercises.filter((e) => e.pattern === pattern);
+  if (delPatron.length === 0) {
+    return 'el catálogo del gimnasio no tiene ninguno cargado todavía.';
+  }
+
+  const sinBloquear = delPatron.filter(
+    (e) => !isBlocked(e, constraints) && !isBlockedByPain(e, avoidRules),
+  );
+  if (sinBloquear.length === 0) {
+    return 'los que hay quedaron afuera por lo que anotaste que no podés hacer. Es lo esperable y no hace falta que hagas nada.';
+  }
+
+  const deTuNivel = sinBloquear.filter((e) => isWithinSkillLevel(e, level));
+  if (deTuNivel.length === 0) {
+    return 'los que hay piden más experiencia de la que declaraste. Hablalo con el staff si querés incorporarlos.';
+  }
+
+  return 'las estaciones donde se hacen no están disponibles. Avisale al staff.';
 }
 
 /**

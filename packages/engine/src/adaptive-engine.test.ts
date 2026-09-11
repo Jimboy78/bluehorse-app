@@ -239,8 +239,12 @@ describe('nivel de experiencia', () => {
 
     const ids = result.sessions.flatMap((s) => s.items.map((i) => i.exerciseId));
     expect(ids).not.toContain('ex-peso-muerto');
-    // Y lo dice, en vez de dejar un hueco silencioso en la sesión.
-    expect(result.warnings.some((w) => w.includes('hinge'))).toBe(true);
+    // Y lo dice, en vez de dejar un hueco silencioso en la sesión. En castellano
+    // y nombrando la causa correcta: al principiante no le falta equipamiento,
+    // le falta técnica, y el aviso anterior le ofrecía las tres causas juntas.
+    const aviso = result.warnings.find((w) => w.includes('bisagra de cadera'));
+    expect(aviso, 'no avisó del patrón sin cubrir').toBeDefined();
+    expect(aviso).toContain('piden más experiencia de la que declaraste');
   });
 
   it('a un avanzado sí se lo propone', () => {

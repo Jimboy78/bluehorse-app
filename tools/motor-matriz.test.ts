@@ -21,7 +21,13 @@ import type {
   UserConstraint,
   UserGoal,
 } from '@bh/domain';
-import { BODY_REGIONS, MUSCLE_GROUPS, nextLoad, snapToEquipment } from '@bh/domain';
+import {
+  BODY_REGIONS,
+  MOVEMENT_PATTERNS,
+  MUSCLE_GROUPS,
+  nextLoad,
+  snapToEquipment,
+} from '@bh/domain';
 import type {
   GymSnapshot,
   PlanBlueprint,
@@ -2274,5 +2280,139 @@ describe('el consejo de seguridad cuando hay dos tramos', () => {
       V1_RESEARCH,
     );
     expect(plan.warnings.join('\n')).toContain(permisivo?.keepDoing);
+  });
+});
+
+/**
+ * BLOQUEAR EQUIPAMIENTO Y EJERCICIOS
+ *
+ * `UserConstraint` tiene cuatro tipos y la matriz probaba dos: los 33 perfiles
+ * declaran `pain` o `injury`. `avoid_exercise` y `avoid_equipment` pasan por el
+ * mismo `isBlocked` que filtra la generación **y** la sustitución, y no tenían
+ * cobertura sobre la diversidad.
+ *
+ * Medido al escribir esto, bloqueando de a tandas hasta las 58 estaciones: **cero
+ * ejercicios bloqueados se colaron nunca**, y el plan se degrada de a poco en vez
+ * de romperse. Lo que sí estaba mal era lo que el socio leía cuando un patrón se
+ * quedaba sin nada. Ver `28-lo-que-el-socio-lee.md`.
+ */
+describe('los bloqueos de equipamiento y ejercicio', () => {
+  const BASE = PERFILES.find((p) => p.nombre === 'hipertrofia · intermedio');
+
+  function bloqueando(limitaciones: UserConstraint[], nombre = 'bloqueos') {
+    if (!BASE) throw new Error('falta el perfil base');
+    return planDe({ ...BASE, nombre, limitaciones }, V1_RESEARCH);
+  }
+
+  const sinEquipo = (equipmentId: string): UserConstraint => ({
+    type: 'avoid_equipment',
+    bodyRegion: null,
+    exerciseId: null,
+    equipmentId,
+    severity: null,
+  });
+
+  it('ninguna estación bloqueada entra al plan, por muchas que se bloqueen', () => {
+    let medidos = 0;
+
+    for (const cuantas of [1, 5, 10, 20, 40]) {
+      const ids = gym.equipment.slice(0, cuantas).map((e) => e.id);
+      const plan = bloqueando(ids.map(sinEquipo), `bloquea ${cuantas}`);
+      const items = plan.sessions.flatMap((s) => s.items);
+      const colados = items.filter((i) => i.equipmentId !== null && ids.includes(i.equipmentId));
+      expect(colados.map((i) => i.exerciseId).join(', '), `bloqueando ${cuantas}`).toBe('');
+      if (items.length > 0) medidos += 1;
+    }
+
+    // Si todas las tandas dejaran el plan vacío, lo de arriba pasa sin mirar nada.
+    expect(medidos, 'todas las tandas vaciaron el plan').toBeGreaterThan(3);
+  });
+
+  it('un ejercicio bloqueado no entra ni como equivalente', () => {
+    if (!BASE) return;
+    const plan0 = planDe(BASE, V1_RESEARCH);
+    const primero = plan0.sessions[0]?.items[0];
+    expect(primero).toBeDefined();
+    if (!primero) return;
+
+    const bloqueo: UserConstraint = {
+      type: 'avoid_exercise',
+      bodyRegion: null,
+      exerciseId: primero.exerciseId,
+      equipmentId: null,
+      severity: null,
+    };
+    const plan = bloqueando([bloqueo], 'sin un ejercicio');
+    const ids = plan.sessions.flatMap((s) => s.items.map((i) => i.exerciseId));
+    expect(ids).not.toContain(primero.exerciseId);
+
+    // Y tampoco puede volver por la puerta de atrás: `findSubstitutes` comparte
+    // el filtro, que es la única razón por la que compartirlo vale la pena.
+    for (const item of plan.sessions.flatMap((s) => s.items)) {
+      const opciones = engine.findSubstitutes({
+        item,
+        gym,
+        constraints: [bloqueo],
+        unavailableEquipmentIds: [],
+        ruleset: V1_RESEARCH,
+      });
+      expect(opciones.map((o) => o.exerciseId)).not.toContain(primero.exerciseId);
+    }
+  });
+
+  /**
+   * EL AVISO DICE CUÁL DE LAS CAUSAS ES
+   *
+   * Listaba las tres juntas — "falta equipamiento en el catálogo, está todo
+   * bloqueado por restricciones, o no hay nada de tu nivel" — y el motor sabe
+   * cuál. Para alguien con la rodilla lesionada, leer que falta equipamiento
+   * cuando lo que pasó es que su propia lesión sacó las sentadillas lo manda a
+   * buscar el problema al lugar equivocado.
+   */
+  it('cada causa produce su propia explicación', () => {
+    if (!BASE) return;
+
+    // 1. El socio bloqueó todo lo de ese patrón.
+    const delPatron = gym.exercises.filter((e) => e.pattern === 'squat');
+    expect(delPatron.length, 'el catálogo dejó de tener sentadillas').toBeGreaterThan(0);
+    const porRestriccion = bloqueando(
+      delPatron.map((e) => ({
+        type: 'avoid_exercise' as const,
+        bodyRegion: null,
+        exerciseId: e.id,
+        equipmentId: null,
+        severity: null,
+      })),
+      'sin sentadillas',
+    );
+    const aviso = porRestriccion.warnings.find((w) => w.includes('sentadilla'));
+    expect(aviso, 'no avisó').toBeDefined();
+    expect(aviso).toContain('por lo que anotaste que no podés hacer');
+
+    // 2. Y nunca en inglés: el identificador interno no sale a pantalla.
+    for (const w of porRestriccion.warnings) {
+      for (const pattern of ['squat', 'hinge', 'vertical_pull', 'horizontal_push', 'isolation']) {
+        expect(w, `el aviso filtra "${pattern}"`).not.toContain(pattern);
+      }
+    }
+  });
+
+  it('ningún aviso de ningún perfil deja escapar un identificador interno', () => {
+    // La red ancha: los patrones son once y este barrido mira los 33 perfiles.
+    // Es el mismo descuido que ya había pasado con `goal.goal`, así que lo que
+    // conviene fijar no es el caso sino la clase.
+    const escapes: string[] = [];
+
+    for (const perfil of PERFILES) {
+      for (const aviso of planDe(perfil, V1_RESEARCH).warnings) {
+        for (const pattern of MOVEMENT_PATTERNS) {
+          // `cardio` y `core` son palabras del castellano además de ids; se
+          // miran entrecomilladas, que es como salían.
+          if (aviso.includes(`"${pattern}"`)) escapes.push(`${perfil.nombre}: "${pattern}"`);
+        }
+      }
+    }
+
+    expect(escapes.join('\n')).toBe('');
   });
 });

@@ -427,7 +427,12 @@ describe('generatePlan', () => {
       ruleset: V0_PLACEHOLDER,
     });
 
-    expect(plan.warnings.some((w) => w.includes('core'))).toBe(true);
+    // En castellano: este test decía `includes('core')` y por eso el aviso pudo
+    // interpolar el identificador interno durante meses sin que nada avisara.
+    const aviso = plan.warnings.find((w) => w.includes('zona media'));
+    expect(aviso, 'no avisó del patrón sin cubrir').toBeDefined();
+    // Y dice cuál de las causas es: acá el catálogo directamente no lo tiene.
+    expect(aviso).toContain('el catálogo del gimnasio no tiene ninguno');
   });
 
   it('respeta el escalón de la máquina al proponer la carga inicial', () => {
