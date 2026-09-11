@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-11T00:29:59.990Z",
+ "generatedAt": "2026-09-11T00:50:42.326Z",
  "docs": [
   {
    "id": "metodo",
@@ -215,7 +215,7 @@
    "titulo": "El position stand que reemplaza al que sostiene medio motor",
    "resumen": "Revisión del 10 de septiembre de 2026. Salió de auditar 03-progresion-descarga.md, que tiene tres filas marcadas SIN VERIFICAR o CITA MAL APLICADA y una cita fabricada. Buscando una fuente real para reemplazarlas apareció algo más grande…",
    "archivo": "26-acsm-2026.md",
-   "bloques": 70
+   "bloques": 71
   },
   {
    "id": "27-zonas-sin-regla",
@@ -232,6 +232,14 @@
    "resumen": "Revisión del 10 de septiembre de 2026. Salió de completar la cobertura de UserConstraint: tiene cuatro tipos y la matriz probaba dos. Los 33 perfiles declaran pain o injury; avoid_exercise y avoid_equipment —\"no puedo usar esta máquina\",…",
    "archivo": "28-lo-que-el-socio-lee.md",
    "bloques": 27
+  },
+  {
+   "id": "29-la-intensidad-que-nadie-lee",
+   "orden": 29,
+   "titulo": "Las 36 bandas de %1RM que no llegan a ninguna pantalla",
+   "resumen": "Revisión del 10 de septiembre de 2026. Salió de auditar los modificadores —edad, desentrenamiento, frecuencia— para ver si cambian el plan o son otro bloque escrito y muerto.",
+   "archivo": "29-la-intensidad-que-nadie-lee.md",
+   "bloques": 29
   },
   {
    "id": "auditoria",

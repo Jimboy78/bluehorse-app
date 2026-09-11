@@ -25,8 +25,24 @@ describe('bloques del ruleset sin consumir', () => {
    * nunca ve. Conectar uno significa borrarlo de acá.
    */
   const DEUDA = new Set([
+    // Qué hacer ante cada bandera roja. Muere con `redFlags`, que ya estaba acá.
+    'action',
     'clearedMessage',
     'hrPercentMax',
+    /**
+     * Las 36 bandas de %1RM del ruleset, curadas desde `01` y `02`, que no
+     * llegan a ninguna pantalla.
+     *
+     * Estuvo viva en esta lista desde siempre y nadie la vio, porque el motor
+     * **escribe** la clave una vez —en el ajuste por edad— y el chequeo de
+     * arriba era `codigo.includes(k)`. Nombrarla no es leerla; por eso ahora hay
+     * un segundo chequeo que pide un acceso a propiedad.
+     *
+     * Conectarla no es una decisión libre: prescribir por %1RM necesita un 1RM,
+     * o sea `user_baselines`, que se leen y nunca se escriben. Es la decisión de
+     * producto número 3 y bloquea a esta. Ver `29-la-intensidad-que-nadie-lee.md`.
+     */
+    'intensityPct1RM',
     'keepLoad',
     'nprs',
     'optimalSetsPerMuscle',
@@ -37,6 +53,15 @@ describe('bloques del ruleset sin consumir', () => {
     'severityScale',
     'specialPopulations',
   ]);
+
+  /**
+   * Claves que se leen sin que se vea un acceso a propiedad.
+   *
+   * El chequeo de "solo escritas" busca `algo.clave` o una desestructuración. Lo
+   * que no ve es una clave que se alcanza por índice dinámico o que se consume
+   * recorriendo el objeto, y esas hay que anotarlas acá con el motivo.
+   */
+  const soloEscritas_permitidas = new Set<string>([]);
 
   /** Claves que son estructura o texto suelto, no un campo que el motor consulte. */
   const ESTRUCTURALES = new Set([
@@ -108,13 +133,30 @@ describe('bloques del ruleset sin consumir', () => {
       readFileSync(join(raiz, 'packages', 'engine', 'src', 'rulesets', 'v1-research.json'), 'utf8'),
     );
 
-    const sinConsumir = [...clavesDe(crudo)]
+    const candidatas = [...clavesDe(crudo)]
       .filter((k) => !ESTRUCTURALES.has(k) && k.length > 3)
-      .filter((k) => !DEUDA.has(k) && !enums.has(`'${k}'`))
+      .filter((k) => !DEUDA.has(k) && !enums.has(`'${k}'`));
+
+    const sinConsumir = candidatas
       .filter((k) => !codigo.includes(k) && !esquema.includes(k))
       .sort();
 
     expect(sinConsumir).toEqual([]);
+
+    // Nombrar una clave no es leerla. `intensityPct1RM` pasó este test durante
+    // toda su vida porque el motor la **escribe** una vez, en el ajuste por
+    // edad, y `includes` no distingue un lado del otro del `=`. Son 36 bandas
+    // curadas desde la investigación que no llegan a ninguna pantalla.
+    //
+    // Una lectura se ve: es un acceso a propiedad, o una desestructuración.
+    // Escribirla es `clave:` dentro de un objeto que se arma, y eso solo.
+    const todo = `${codigo}\n${esquema}`;
+    const seLee = (k: string) =>
+      new RegExp(`\\.\\s*${k}\\b|\\[['"\`]${k}['"\`]\\]`).test(todo) ||
+      new RegExp(`\\{[^{}]*\\b${k}\\b[^{}]*\\}\\s*=[^=]`).test(todo);
+
+    const soloEscritas = candidatas.filter((k) => !soloEscritas_permitidas.has(k) && !seLee(k));
+    expect(soloEscritas.sort()).toEqual([]);
   });
 
   it('la deuda listada sigue siendo deuda: si algo se conectó, hay que sacarlo de la lista', () => {

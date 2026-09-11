@@ -308,8 +308,17 @@ function comebackWarnings(
 }
 
 /**
- * Ajuste por edad: menos carga, más repeticiones y más descanso. No es que a
- * cierta edad se progrese menos — se progresa bien —, es dejar más margen.
+ * Ajuste por edad: la ventana de repeticiones e intensidad que se midió a partir
+ * de los 60, en lugar de la del objetivo.
+ *
+ * **Se reemplaza, no se rebaja.** Para fuerza baja la carga y sube las
+ * repeticiones; para hipertrofia en principiantes hace lo contrario (la ventana
+ * es 70-79 % y la base es 50-70 %). El descanso no se toca: ninguna fuente
+ * respalda alargarlo por edad. El comentario de acá decía "menos carga, más
+ * repeticiones y más descanso" y las tres cosas eran inexactas.
+ *
+ * De la ventana, hoy solo llega la mitad: `intensityPct1RM` se escribe acá y no
+ * se lee en ninguna parte (`29-la-intensidad-que-nadie-lee.md`).
  */
 function applyAgeModifier(
   params: GoalParams,
