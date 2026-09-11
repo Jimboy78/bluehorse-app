@@ -469,7 +469,7 @@ function safetyWarnings(
   const out: string[] = [];
   let hayLesion = false;
 
-  for (const rule of painRules) {
+  for (const rule of masSeveraPorZona(painRules)) {
     const region = regionLabel(rule.bodyRegion);
     const lesion = isInjuryRegion(constraints, rule);
     hayLesion ||= lesion;
@@ -481,6 +481,11 @@ function safetyWarnings(
     out.push(`Consultá si ${lowerFirst(rule.referIf)}`);
   }
 
+  // Las zonas que el socio declaró y el ruleset no cubre. Sin esto el plan sale
+  // igual que el de alguien sano, y el silencio se lee como "miramos y no hay
+  // nada que ajustar".
+  out.push(...avisosDeZonaSinRegla(ruleset, constraints));
+
   // Con una lesión declarada, la regla de monitoreo de dolor NO se emite: su
   // texto autoriza a cargar hasta 5 sobre 10, y esa autorización sale de
   // literatura de dolor crónico. Se emite en su lugar la nota de lesión.
@@ -490,6 +495,49 @@ function safetyWarnings(
   else if (painRules.length > 0 && monitoring) out.push(monitoring.text);
 
   return out;
+}
+
+/**
+ * Una sola regla por zona: la del tramo más severo que aplique.
+ *
+ * Las exclusiones sí se unen —sacar de más es el lado seguro—, pero el **consejo**
+ * no. La rodilla tiene dos reglas escalonadas, y con severidad 4 aplican las dos:
+ * el socio leía "hacé sentadillas parciales controladas" del tramo de 3, y abajo
+ * el aviso de que no quedó ningún ejercicio de sentadilla en el plan porque el
+ * tramo de 4 las sacó todas. Además las dos comparten el `referIf` palabra por
+ * palabra, así que leía dos veces la misma frase.
+ *
+ * El consejo del tramo permisivo no acompaña a un plan armado con el estricto.
+ */
+function masSeveraPorZona(rules: readonly PainRule[]): readonly PainRule[] {
+  const porZona = new Map<BodyRegion, PainRule>();
+  for (const rule of rules) {
+    const previa = porZona.get(rule.bodyRegion);
+    if (!previa || rule.monitorFrom > previa.monitorFrom) porZona.set(rule.bodyRegion, rule);
+  }
+  return [...porZona.values()];
+}
+
+/**
+ * Las zonas declaradas para las que el ruleset no tiene regla.
+ *
+ * `BODY_REGIONS` ofrece diez y `painRules` cubre cinco. Codo, espalda alta,
+ * cadera, tobillo y "otra" no tienen ninguna, y hasta acá eso se veía igual que
+ * no tener nada: plan completo y ni un aviso. Ver `27-zonas-sin-regla.md`.
+ */
+function avisosDeZonaSinRegla(ruleset: Ruleset, constraints: readonly UserConstraint[]): string[] {
+  const texto = ruleset.safety?.noRuleForRegion?.text;
+  if (!texto) return [];
+
+  const conRegla = new Set((ruleset.safety?.painRules ?? []).map((r) => r.bodyRegion));
+  const sinRegla = new Set<BodyRegion>();
+  for (const c of constraints) {
+    if (c.type !== 'pain' && c.type !== 'injury') continue;
+    if (c.bodyRegion === null || conRegla.has(c.bodyRegion)) continue;
+    sinRegla.add(c.bodyRegion);
+  }
+
+  return [...sinRegla].map((region) => texto.replace('{region}', regionLabel(region)));
 }
 
 /** Si la zona de esta regla es una lesión declarada y no un dolor de arrastre. */

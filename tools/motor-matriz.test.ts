@@ -21,7 +21,7 @@ import type {
   UserConstraint,
   UserGoal,
 } from '@bh/domain';
-import { MUSCLE_GROUPS, nextLoad, snapToEquipment } from '@bh/domain';
+import { BODY_REGIONS, MUSCLE_GROUPS, nextLoad, snapToEquipment } from '@bh/domain';
 import type {
   GymSnapshot,
   PlanBlueprint,
@@ -2097,5 +2097,182 @@ describe('el aviso de volumen semanal', () => {
     // quedan cortos —abdominales y femorales— no los apunta ningún compuesto, y
     // el motor no cuenta el trabajo incidental como sub-dosificación.
     expect(sinPiso).toEqual(['mayor de 60 · fuerza']);
+  });
+});
+
+/**
+ * LAS ZONAS QUE EL SOCIO PUEDE DECLARAR Y EL RULESET NO CUBRE
+ *
+ * `BODY_REGIONS` tiene diez zonas y `SessionClose.tsx` las ofrece todas.
+ * `safety.painRules` cubre cinco. Medido antes de este test: una lesión de
+ * severidad 5 en la cadera producía el **plan entero, 40 ítems, y cero avisos**
+ * — idéntico al de alguien sano, y sin nada que le dijera al socio por qué.
+ *
+ * No se inventan reglas para las cinco que faltan: un `avoidPatterns` para la
+ * cadera sin fuente sería el número inventado que este proyecto no admite. Lo
+ * que se puede hacer sin inventar nada es decir que no hay.
+ *
+ * Ver `27-zonas-sin-regla.md`.
+ */
+describe('las zonas sin regla de dolor', () => {
+  const CON_REGLA = new Set((V1_RESEARCH.safety.painRules ?? []).map((r) => r.bodyRegion));
+
+  /** Un perfil cualquiera al que se le cambia la zona declarada. */
+  function planConLesionEn(zona: BodyRegion, severidad = 5) {
+    const base = PERFILES.find((p) => p.nombre === 'rodilla lesionada');
+    if (!base) throw new Error('falta el perfil base');
+    return planDe(
+      { ...base, nombre: `prueba ${zona}`, limitaciones: [molestia(zona, severidad, 'injury')] },
+      V1_RESEARCH,
+    );
+  }
+
+  it('el texto sale del ruleset y nombra la zona', () => {
+    // Regla dura 3 llevada al texto de seguridad.
+    const nota = V1_RESEARCH.safety.noRuleForRegion;
+    expect(nota?.text).toBeTruthy();
+    expect(nota?.text).toContain('{region}');
+  });
+
+  it('ninguna de las diez zonas deja al socio sin leer nada', () => {
+    const mudas: string[] = [];
+    let sinRegla = 0;
+
+    for (const zona of BODY_REGIONS) {
+      const plan = planConLesionEn(zona);
+      if (!CON_REGLA.has(zona)) sinRegla += 1;
+      if (plan.warnings.length === 0) mudas.push(zona);
+    }
+
+    expect(mudas.join(', '), 'zonas que no le dicen nada al socio').toBe('');
+    // Si esto llega a 0 es porque alguien cubrió las cinco zonas con reglas
+    // propias, y entonces este bloque entero sobra: hay que ir a `27`.
+    expect(sinRegla, 'ya no queda ninguna zona sin regla: revisar `27`').toBeGreaterThan(0);
+  });
+
+  it('avisa por la zona que no cubre, y no por la que sí', () => {
+    const marca = 'no tenemos una regla propia';
+
+    for (const zona of BODY_REGIONS) {
+      const avisos = planConLesionEn(zona).warnings;
+      const avisa = avisos.some((a) => a.includes(marca));
+      expect(avisa, `${zona}: aviso de "sin regla" ${avisa ? 'de más' : 'faltante'}`).toBe(
+        !CON_REGLA.has(zona),
+      );
+      // Y cuando avisa, el texto es **exactamente** el del ruleset con la zona
+      // puesta. Esto era un `toContain` y pasaba por casualidad en `other`: la
+      // frase que buscaba estaba en el molde del propio aviso y no en la parte
+      // interpolada, así que el label podía estar mal y el test seguía verde.
+      if (avisa) {
+        const esperado = (V1_RESEARCH.safety.noRuleForRegion?.text ?? '').replace(
+          '{region}',
+          BODY_REGION_LABELS_MATRIZ[zona],
+        );
+        expect(avisos, zona).toContain(esperado);
+      }
+    }
+  });
+
+  it('con dos zonas sin regla avisa por las dos, una vez cada una', () => {
+    const base = PERFILES.find((p) => p.nombre === 'rodilla lesionada');
+    if (!base) return;
+    const plan = planDe(
+      {
+        ...base,
+        nombre: 'cadera y tobillo',
+        limitaciones: [molestia('hip', 5, 'injury'), molestia('ankle', 3)],
+      },
+      V1_RESEARCH,
+    );
+    const avisos = plan.warnings.filter((a) => a.includes('no tenemos una regla propia'));
+    expect(avisos).toHaveLength(2);
+    expect(avisos.join('\n')).toContain('la cadera');
+    expect(avisos.join('\n')).toContain('el tobillo');
+  });
+});
+
+/** Las zonas como las nombra el motor, repetidas acá para no depender de un export interno. */
+const BODY_REGION_LABELS_MATRIZ: Record<BodyRegion, string> = {
+  neck: 'el cuello',
+  shoulder: 'el hombro',
+  elbow: 'el codo',
+  wrist: 'la muñeca',
+  upper_back: 'la espalda alta',
+  lower_back: 'la zona lumbar',
+  hip: 'la cadera',
+  knee: 'la rodilla',
+  ankle: 'el tobillo',
+  other: 'la zona que marcaste',
+};
+
+/**
+ * UN SOLO CONSEJO POR ZONA, EL DEL TRAMO QUE MANDA
+ *
+ * La rodilla tiene dos reglas escalonadas: una desde 3 que dice "sentadillas
+ * parciales controladas" y saca `lunge`, y otra desde 4 que dice "tren superior
+ * y core" y saca además `squat` y `quads`. Con severidad 4 aplican las dos, y el
+ * motor emitía las dos.
+ *
+ * Medido sobre `rodilla lesionada`: el socio leía "hacé sentadillas parciales" y
+ * cuatro renglones abajo, que no quedó ningún ejercicio de sentadilla en el plan.
+ * Y como las dos reglas comparten el `referIf` palabra por palabra, leía dos
+ * veces "Consultá si hubo un chasquido...".
+ *
+ * Las exclusiones se siguen uniendo —sacar de más es el lado seguro—; el consejo
+ * no. Ver `27-zonas-sin-regla.md`.
+ */
+describe('el consejo de seguridad cuando hay dos tramos', () => {
+  it('ningún plan repite un aviso palabra por palabra', () => {
+    const repetidos: string[] = [];
+
+    for (const perfil of PERFILES) {
+      const avisos = planDe(perfil, V1_RESEARCH).warnings;
+      const vistos = new Set<string>();
+      for (const aviso of avisos) {
+        if (vistos.has(aviso)) repetidos.push(`${perfil.nombre}: "${aviso.slice(0, 60)}…"`);
+        vistos.add(aviso);
+      }
+    }
+
+    expect(repetidos.join('\n')).toBe('');
+  });
+
+  it('con dos reglas en la zona sale el consejo del tramo estricto, no el permisivo', () => {
+    const perfil = PERFILES.find((p) => p.nombre === 'rodilla lesionada');
+    expect(perfil).toBeDefined();
+    if (!perfil) return;
+
+    // Los dos tramos salen del ruleset, no escritos acá: si alguien agrega un
+    // tercero o cambia los umbrales, este test lo sigue.
+    const deRodilla = (V1_RESEARCH.safety.painRules ?? [])
+      .filter((r) => r.bodyRegion === 'knee')
+      .sort((a, b) => a.monitorFrom - b.monitorFrom);
+    expect(deRodilla.length, 'la rodilla dejó de tener dos tramos: revisar `27`').toBe(2);
+
+    const permisivo = deRodilla[0];
+    const estricto = deRodilla[deRodilla.length - 1];
+    expect(permisivo?.keepDoing).not.toBe(estricto?.keepDoing);
+
+    const avisos = planDe(perfil, V1_RESEARCH).warnings.join('\n');
+    expect(avisos, 'sale el consejo del tramo que manda').toContain(estricto?.keepDoing);
+    expect(avisos, 'no sale el del tramo permisivo').not.toContain(permisivo?.keepDoing);
+  });
+
+  it('con severidad del tramo permisivo sale ese, que es el que corresponde', () => {
+    // La otra mitad de la regla: quedarse siempre con el estricto sería el error
+    // simétrico. Con una molestia de 3 no se saca nada, y el consejo tiene que
+    // ser el que acompaña a un plan sin exclusiones.
+    const base = PERFILES.find((p) => p.nombre === 'rodilla lesionada');
+    if (!base) return;
+    const deRodilla = (V1_RESEARCH.safety.painRules ?? [])
+      .filter((r) => r.bodyRegion === 'knee')
+      .sort((a, b) => a.monitorFrom - b.monitorFrom);
+    const permisivo = deRodilla[0];
+
+    const plan = planDe(
+      { ...base, nombre: 'rodilla que molesta', limitaciones: [molestia('knee', 3)] },
+      V1_RESEARCH,
+    );
+    expect(plan.warnings.join('\n')).toContain(permisivo?.keepDoing);
   });
 });

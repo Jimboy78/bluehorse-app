@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-10T23:46:10.872Z",
+ "generatedAt": "2026-09-11T00:13:06.790Z",
  "docs": [
   {
    "id": "metodo",
@@ -216,6 +216,14 @@
    "resumen": "Revisión del 10 de septiembre de 2026. Salió de auditar 03-progresion-descarga.md, que tiene tres filas marcadas SIN VERIFICAR o CITA MAL APLICADA y una cita fabricada. Buscando una fuente real para reemplazarlas apareció algo más grande…",
    "archivo": "26-acsm-2026.md",
    "bloques": 70
+  },
+  {
+   "id": "27-zonas-sin-regla",
+   "orden": 27,
+   "titulo": "Cinco zonas del cuerpo que el socio puede marcar y el motor no mira",
+   "resumen": "Revisión del 10 de septiembre de 2026. Salió de auditar el camino de lesiones, que es el de mayor riesgo del motor y el único que no tenía cobertura sobre la diversidad de perfiles.",
+   "archivo": "27-zonas-sin-regla.md",
+   "bloques": 30
   },
   {
    "id": "auditoria",

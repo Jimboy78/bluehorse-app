@@ -55,6 +55,7 @@ const TEMAS = {
   24: 'Cobertura muscular',
   25: 'Cobertura del catalogo',
   26: 'ACSM 2026',
+  27: 'Zonas sin regla',
 };
 
 // El `]` y el `(` cierran un enlace de markdown: sin ellos, un DOI escrito como

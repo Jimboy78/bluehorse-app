@@ -1433,6 +1433,10 @@
     "painMonitoring": {
       "text": "Que moleste no quiere decir que estés haciéndote mal. La referencia es 5 sobre 10: durante el ejercicio podés llegar hasta ahí, y al día siguiente tenés que estar como empezaste. Si el dolor pasa de ahí, si no baja para la mañana siguiente, o si va aumentando semana a semana, ese movimiento está cargando de más.",
       "confidence": "low"
+    },
+    "noRuleForRegion": {
+      "text": "Anotaste una molestia en {region} y para esa zona no tenemos una regla propia, así que el plan de hoy salió sin ajustar por eso. No quiere decir que no importe: quiere decir que no tenemos con qué decirte qué sacar sin inventarlo. Si te duele al hacer un ejercicio, cambialo o salteálo, y si la molestia no afloja o apareció de golpe, que la vea un profesional antes de seguir.",
+      "confidence": "low"
     }
   },
   "templates": [

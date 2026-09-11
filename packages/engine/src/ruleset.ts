@@ -306,6 +306,28 @@ const safetySchema = z.object({
     confidence: z.enum(CONFIDENCE_LEVELS),
   }),
   /**
+   * Qué se le dice a quien declara una zona para la que **no hay regla**.
+   *
+   * El socio elige entre diez zonas (`BODY_REGIONS`) y `painRules` cubre cinco.
+   * Sin esto, declarar una lesión de severidad 5 en la cadera producía el plan
+   * completo y **cero avisos** — indistinguible de "miramos y no hay nada que
+   * ajustar". Es la regla dura 4 al revés: el silencio afirma una cobertura que
+   * no existe.
+   *
+   * No se inventan reglas para las zonas que faltan. Una `avoidPatterns` para la
+   * cadera sin una fuente que la sostenga sería exactamente el número inventado
+   * que este proyecto no admite. Lo que se puede hacer sin inventar nada es
+   * decir que no hay.
+   *
+   * `{region}` se reemplaza por la zona en castellano.
+   */
+  noRuleForRegion: z
+    .object({
+      text: z.string().min(1),
+      confidence: z.enum(CONFIDENCE_LEVELS),
+    })
+    .optional(),
+  /**
    * Qué hacer cuando lo que el socio declaró es una **lesión**, no un dolor que
    * viene de arrastre.
    *
