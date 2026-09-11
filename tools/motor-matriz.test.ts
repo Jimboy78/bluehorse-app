@@ -2416,3 +2416,152 @@ describe('los bloqueos de equipamiento y ejercicio', () => {
     expect(escapes.join('\n')).toBe('');
   });
 });
+
+/**
+ * EL ORDEN DEL HISTORIAL NO PUEDE CAMBIAR LO QUE EL MOTOR PROPONE
+ *
+ * El contrato pide `history` de más reciente a más viejo y toda la adaptación lo
+ * daba por cierto sin verificarlo: `proposeAbsenceDeload` toma la primera serie
+ * como la última que hizo el socio.
+ *
+ * Medido antes de arreglarlo, con el mismo historial al revés: el motor le
+ * proponía a alguien que entrenó **hoy** cortar el volumen a la mitad porque
+ * "pasaron 100 días". La app lo ordena bien, pero es una línea de una query que
+ * alguien puede tocar, y el error no rompe nada — sale una propuesta absurda.
+ *
+ * Ver `30-el-orden-del-historial.md`.
+ */
+describe('el orden del historial', () => {
+  const PERFIL = PERFILES.find((p) => p.nombre === 'hipertrofia · intermedio');
+  const DIA = 86400000;
+
+  /** Seis sesiones: las dos más recientes con RIR de sobra, el resto al fallo. */
+  function historialDe(item: SessionItemBlueprint, cada = 3): SetLog[] {
+    return [0, 1, 2, 3, 4, 5].map((i) => ({
+      id: `s${i}`,
+      workoutLogId: `l${i}`,
+      planSessionItemId: null,
+      exerciseId: item.exerciseId,
+      equipmentId: item.equipmentId,
+      load: { value: 40, unit: 'kg' as const },
+      loadKg: 40,
+      reps: item.targetRepsMax,
+      repsTarget: item.targetRepsMax,
+      rir: i < 2 ? 4 : 0,
+      durationSeconds: null,
+      distanceMeters: null,
+      restPrescribedSeconds: item.restSeconds,
+      restActualSeconds: item.restSeconds,
+      isWarmup: false,
+      completedAt: new Date(Date.parse(AHORA) - i * cada * DIA).toISOString(),
+      clientId: `c${i}`,
+    }));
+  }
+
+  function proponer(perfil: Perfil, history: SetLog[]) {
+    return engine
+      .reviewProgress({
+        context: { now: AHORA, seed: 42 },
+        user: socioDe(perfil),
+        gym,
+        plan: {
+          id: 'p',
+          userId: 'socio',
+          gymId: GYM_ID,
+          rulesetVersion: V1_RESEARCH.version,
+          generatedAt: AHORA,
+          status: 'active',
+        },
+        history,
+        resolvedProposals: [],
+        ruleset: V1_RESEARCH,
+      })
+      .map((p) => `${p.type}/${p.reasonCode}:${p.toValue}`)
+      .sort();
+  }
+
+  it('da lo mismo cómo venga ordenado, sobre todos los perfiles', () => {
+    const distintos: string[] = [];
+    let medidos = 0;
+
+    for (const perfil of PERFILES) {
+      const item = planDe(perfil, V1_RESEARCH)
+        .sessions.flatMap((s) => s.items)
+        .find((i) => i.targetDurationSeconds === null);
+      if (!item) continue;
+
+      const enOrden = historialDe(item);
+      const esperado = proponer(perfil, enOrden);
+      if (esperado.length > 0) medidos += 1;
+
+      // Al revés y barajado con un orden fijo: el test tiene que ser
+      // determinista, así que nada de `Math.random`.
+      const alReves = [...enOrden].reverse();
+      const barajado = [2, 5, 0, 3, 1, 4].map((i) => enOrden[i]).filter((s) => s !== undefined);
+
+      for (const [comoVino, otro] of [
+        ['al revés', alReves],
+        ['barajado', barajado],
+      ] as const) {
+        const salida = proponer(perfil, otro);
+        if (salida.join('|') !== esperado.join('|')) {
+          distintos.push(
+            `${perfil.nombre} (${comoVino}): ${salida.join(', ')} ≠ ${esperado.join(', ')}`,
+          );
+        }
+      }
+    }
+
+    expect(distintos.join('\n')).toBe('');
+    // Si ningún perfil propusiera nada, comparar listas vacías pasa sin mirar.
+    expect(medidos, 'ningún perfil produjo una propuesta').toBeGreaterThan(10);
+  });
+
+  it('la serie que cuenta es la más reciente, no la más vieja', () => {
+    // El test de arriba pide que el orden de entrada no importe, y eso lo cumple
+    // igual un motor que ordene al revés: las tres entradas darían la misma
+    // respuesta equivocada. Esto fija la dirección.
+    //
+    // Historial repartido: la última sesión es de hoy, la primera de hace 100
+    // días. Mirando la más reciente no hay ausencia; mirando la más vieja, sí.
+    if (!PERFIL) return;
+    const item = planDe(PERFIL, V1_RESEARCH).sessions.flatMap((s) => s.items)[0];
+    if (!item) return;
+    const { deload } = resolveParams(V1_RESEARCH, PERFIL.goal ?? 'hypertrophy', PERFIL.nivel);
+
+    const repartido = historialDe(item, 20);
+    const masViejo =
+      Math.max(...repartido.map((s) => Date.parse(AHORA) - Date.parse(s.completedAt))) / DIA;
+    expect(masViejo, 'la sesión más vieja tiene que pasar el umbral').toBeGreaterThan(
+      deload.absenceDays,
+    );
+
+    for (const entrada of [repartido, [...repartido].reverse()]) {
+      expect(
+        proponer(PERFIL, entrada).filter((p) => p.includes('absence')),
+        'le descargó a alguien que entrenó hoy',
+      ).toEqual([]);
+    }
+  });
+
+  it('el descargo por ausencia sale del umbral del ruleset, no de un número suelto', () => {
+    if (!PERFIL) return;
+    const item = planDe(PERFIL, V1_RESEARCH).sessions.flatMap((s) => s.items)[0];
+    if (!item) return;
+    const { deload } = resolveParams(V1_RESEARCH, PERFIL.goal ?? 'hypertrophy', PERFIL.nivel);
+
+    // Justo por debajo del umbral: la última serie es de ayer.
+    const reciente = historialDe(item, 1);
+    expect(proponer(PERFIL, reciente).filter((p) => p.includes('absence'))).toEqual([]);
+
+    // Y justo por encima: la última, `absenceDays` atrás.
+    const vieja = historialDe(item, 1).map((s, i) => ({
+      ...s,
+      completedAt: new Date(Date.parse(AHORA) - (deload.absenceDays + i) * DIA).toISOString(),
+    }));
+    const conDescargo = proponer(PERFIL, vieja).find((p) => p.includes('absence'));
+    expect(conDescargo, `no descargó a los ${deload.absenceDays} días`).toBeDefined();
+    // El porcentaje sale del ruleset: un 50 escrito acá sería la regla dura 3 rota.
+    expect(conDescargo).toContain(`${Math.round(deload.volumeMultiplier * 100)}%`);
+  });
+});

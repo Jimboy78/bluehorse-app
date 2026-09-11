@@ -912,7 +912,28 @@ interface RuleContext {
 }
 
 function reviewProgress(input: ReviewProgressInput): readonly ProposalBlueprint[] {
-  const { context, user, gym, history, ruleset, resolvedProposals } = input;
+  const { context, user, gym, ruleset, resolvedProposals } = input;
+  // El contrato pide el historial de más reciente a más viejo y toda la lógica de
+  // abajo lo da por cierto: `proposeAbsenceDeload` toma la primera serie como la
+  // última que hizo, y `isReadyToIncrease` mira las primeras N.
+  //
+  // Un comentario no es una garantía. Medido pasándole el mismo historial al
+  // revés: el motor le propone a alguien que entrenó **hoy** cortar el volumen a
+  // la mitad porque "pasaron 100 días". La app lo ordena bien hoy
+  // (`.order('completed_at', { ascending: false })` en `adaptation.ts`), pero es
+  // una línea que alguien puede tocar sin saber que de eso depende la adaptación
+  // entera, y el error no rompe nada: sale una propuesta absurda y nadie se
+  // entera.
+  //
+  // Ordenarlo acá cuesta un sort sobre un array acotado y vuelve imposible esa
+  // clase de error. Con el orden correcto no cambia nada.
+  // Se compara por instante y no por texto: dos ISO válidos del mismo momento
+  // pueden escribirse distinto (`Z` contra `+00:00`) y ordenarlos alfabéticamente
+  // los pondría en cualquier lado. `Date.parse` no lee el reloj, así que el motor
+  // sigue siendo puro.
+  const history = [...input.history].sort(
+    (a, b) => Date.parse(b.completedAt) - Date.parse(a.completedAt),
+  );
   const goal = primaryGoal(user.goals);
   const params = resolveParams(ruleset, goal.goal, user.profile.experienceLevel);
   const placeholder = isPlaceholder(ruleset);

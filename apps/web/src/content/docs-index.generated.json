@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-11T00:50:42.326Z",
+ "generatedAt": "2026-09-11T01:10:23.166Z",
  "docs": [
   {
    "id": "metodo",
@@ -240,6 +240,14 @@
    "resumen": "Revisión del 10 de septiembre de 2026. Salió de auditar los modificadores —edad, desentrenamiento, frecuencia— para ver si cambian el plan o son otro bloque escrito y muerto.",
    "archivo": "29-la-intensidad-que-nadie-lee.md",
    "bloques": 29
+  },
+  {
+   "id": "30-el-orden-del-historial",
+   "orden": 30,
+   "titulo": "Una línea de una query decidía si la adaptación tenía sentido",
+   "resumen": "Revisión del 10 de septiembre de 2026. Salió de terminar lo que 29-la-intensidad-que-nadie-lee.md dejó anotado: los otros tres modificadores, que ahí solo se miraron de reojo.",
+   "archivo": "30-el-orden-del-historial.md",
+   "bloques": 28
   },
   {
    "id": "auditoria",

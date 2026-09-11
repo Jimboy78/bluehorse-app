@@ -58,6 +58,7 @@ const TEMAS = {
   27: 'Zonas sin regla',
   28: 'Lo que el socio lee',
   29: 'Intensidad sin leer',
+  30: 'Orden del historial',
 };
 
 // El `]` y el `(` cierran un enlace de markdown: sin ellos, un DOI escrito como
