@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-11T01:28:53.378Z",
+ "generatedAt": "2026-09-11T20:21:38.297Z",
  "docs": [
   {
    "id": "metodo",
@@ -255,7 +255,7 @@
    "titulo": "Auditoría del motor: un parámetro por vez",
    "resumen": "Revisión sistemática de todo lo que el motor mira para armar un plan. Para cada entrada: ¿existe?, ¿está respaldada por evidencia primaria con DOI?, ¿el número que usa el ruleset es el que dice esa evidencia?, ¿cambia algo en el plan de…",
    "archivo": "AUDITORIA-MOTOR.md",
-   "bloques": 47
+   "bloques": 56
   }
  ]
 }

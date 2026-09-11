@@ -301,3 +301,47 @@ Las trece entradas grandes están cerradas. Lo que queda es de otra clase:
 
 Nada de eso es investigación pendiente: es trabajo de producto o de catálogo, con la evidencia ya
 puesta al lado de cada uno.
+
+## Tercera vuelta — 2026-09-10
+
+No salió de un hueco declarado sino de una pregunta suelta: **¿el motor hace lo que la
+investigación dice, para la diversidad entera de socios?** Cinco documentos, cinco correcciones de
+código, y un cambio de método que vale más que cualquiera de ellas.
+
+| # | Documento | Qué pasó |
+|---|---|---|
+| 26 | `26-acsm-2026.md` | **Fuente nueva, la más fuerte del proyecto.** El position stand 2026 de ACSM (DOI 10.1249/mss.0000000000003897, overview de **137 revisiones sistemáticas**) se declara el reemplazo del 2009 sobre el que se apoya medio ruleset. Cuatro cosas coinciden; el volumen de hipertrofia `[10, 20]` cae exactamente entre su piso (≥10) y su plateau (~18-20). **Código:** `strength.advanced` pisaba el RIR objetivo a 2 y heredaba el gatillo 4 del default — un avanzado que cumplía el plan al pie de la letra **nunca recibía una suba de carga**. |
+| 27 | `27-zonas-sin-regla.md` | **Código.** `BODY_REGIONS` ofrece diez zonas y `painRules` cubre cinco. Una lesión de severidad 5 en cadera, tobillo, codo, espalda alta u "otra" producía el plan completo y **cero avisos**, indistinguible de "lo miramos y no hay nada". No se inventaron reglas: se agregó `safety.noRuleForRegion`, que dice que no hay. Y la rodilla, única zona con dos tramos, emitía el consejo de los dos: el socio leía "hacé sentadillas parciales" y cuatro renglones abajo que no quedaba ninguna sentadilla en el plan. |
+| 28 | `28-lo-que-el-socio-lee.md` | **Código.** El aviso de patrón sin cubrir interpolaba `slot.pattern` crudo: el socio leía `el patrón "vertical_pull"`. Cuatro de los 33 planes del reporte lo mostraban. Es el mismo bug que ya se había arreglado para objetivos, músculos y zonas. Además listaba las tres causas posibles cuando el motor sabe cuál es — decirle a alguien con la rodilla lesionada que "falta equipamiento en el catálogo" lo manda a reclamarle al gimnasio por algo que el gimnasio tiene. |
+| 29 | `29-la-intensidad-que-nadie-lee.md` | **Deuda declarada.** `intensityPct1RM` aparece dos veces en el motor: el esquema y **una escritura**. Cero lecturas. Son **36 bandas** curadas desde `01` y `02` que no llegan a ninguna pantalla. Pasó `ruleset-consumo.test.ts` toda su vida porque el chequeo era `includes(k)` y nombrar una clave no es leerla. |
+| 30 | `30-el-orden-del-historial.md` | **Código, dos veces.** `reviewProgress` daba por cierta la precondición "más recientes primero" del contrato: con el historial al revés le proponía a alguien que entrenó **hoy** cortar el volumen a la mitad "porque pasaron 100 días". Y en la app, `dedupeByExercise` se llamaba "quedarse con la más reciente" y hacía "quedarse con la primera" — de ahí sale la carga que el plan propone. |
+
+### Las tres lecciones de método
+
+**1. Preguntar quién lee un número antes de discutirlo.** Dos veces en la misma vuelta se comparó
+contra la evidencia un campo que nadie consume: `optimalSetsPerMuscle` primero, `intensityPct1RM`
+después. Verificar la fuente es la mitad del trabajo; la otra mitad es verificar que el número llega.
+
+**2. Una falsificación que no rompe nada puede ser un test flojo o una rotura falsa.** Pasó tres
+veces y hay que distinguir cuál es antes de concluir: invertir el `sort` del historial dejó todo en
+verde porque el test pedía *consistencia* entre órdenes y un motor que ordena al revés también la
+cumple —la consistencia no es la corrección—; reemplazar el porcentaje del ruleset por `"50%"`
+literal dejó todo en verde porque `volumeMultiplier` **vale** 0,5; e inyectar
+`inventadoYMuerto: rule.inventadoYMuerto` no falló porque esa línea **lee** la clave.
+
+**3. Un comentario no es una garantía.** Las dos precondiciones de orden que se rompieron estaban
+documentadas, y el test de `dedupeByExercise` incluso empezaba diciendo "llega ordenada como la pide
+la consulta": documentaba la precondición en vez de sacarla.
+
+### Lo que quedó abierto
+
+- **Cuatro decisiones de prescripción nuevas** (techo de potencia, cuatro series en fuerza,
+  intensidad de `beginner`/`novice`, banda de volumen 6-24). Dos de ellas son sobre
+  `intensityPct1RM`, o sea que hoy moverlas no cambia un solo plan.
+- **Reglas de dolor para cadera y tobillo**, las dos zonas sin cubrir que más aparecen en un
+  gimnasio. O sale de investigación o queda el aviso.
+- **Si un plan generado para alguien que vuelve después de un año debe salir con volumen reducido.**
+  Hoy sale completo: el descargo por ausencia es una propuesta de `reviewProgress` y nunca toca
+  `generatePlan`.
+- **El plan de 8 sesiones vacías con el catálogo sin cargar.** Medido, no construido, no probado en
+  el navegador.
