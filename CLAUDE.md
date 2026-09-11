@@ -224,3 +224,14 @@ Los procedimientos largos están en skills, no acá: `cambiar-esquema`, `activar
   el último corte de la tanda contaba el trabajo incidental como sub-dosificación. `git add -A` no
   tiene forma de saberlo. Después de cualquier tanda de falsificación, **correr la matriz una vez más
   y mirar `git diff tools/reportes/`** antes de commitear.
+
+- **"La más reciente" implementada como "la primera".** Aparecio dos veces en el mismo dia, en los dos
+  lados de la frontera: `reviewProgress` tomaba `history[0]` como la ultima serie del socio, y
+  `dedupeByExercise` tomaba la primera fila de cada ejercicio como su baseline vigente. Las dos se
+  apoyaban en el `ORDER BY` de una consulta, y las dos tenian un comentario diciendolo — un comentario
+  no es una garantia, y el test de `dedupeByExercise` incluso **documentaba** la precondicion en vez de
+  sacarla. Medido: con el historial al reves el motor le propone a alguien que entreno hoy cortar el
+  volumen a la mitad "porque pasaron 100 dias". **Si una funcion elige por posicion y su nombre dice
+  "la mas reciente", que ordene ella.** Y que compare por instante (`Date.parse`), no por texto: dos
+  ISO validos del mismo momento se escriben distinto y `2026-09-01T12:00:00+02:00` es **anterior** a
+  `2026-09-01T11:00:00Z` aunque alfabeticamente vaya despues.

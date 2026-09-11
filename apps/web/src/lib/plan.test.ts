@@ -23,6 +23,7 @@ function row(
 describe('dedupeByExercise', () => {
   it('se queda con la más reciente de cada ejercicio', () => {
     // Llega ordenada de más nueva a más vieja, como la pide la consulta.
+    // El test de abajo cubre el caso en que no.
     const result = dedupeByExercise([
       row({ exercise_id: 'ex-1', recorded_at: '2026-09-01T10:00:00Z', load_value: 80 }),
       row({ exercise_id: 'ex-1', recorded_at: '2026-06-01T10:00:00Z', load_value: 60 }),
@@ -58,5 +59,43 @@ describe('dedupeByExercise', () => {
 
   it('sin baselines devuelve una lista vacía, no rompe', () => {
     expect(dedupeByExercise([])).toEqual([]);
+  });
+});
+
+describe('dedupeByExercise y el orden de las filas', () => {
+  /**
+   * La consulta pide `recorded_at` descendente y la función se apoyaba en eso:
+   * se quedaba con la **primera** fila de cada ejercicio, no con la más reciente.
+   *
+   * Es la misma clase que tenía `reviewProgress` con el historial
+   * (`docs/research/30-el-orden-del-historial.md`), y acá pesa igual: de estos
+   * baselines sale la carga que el plan le propone al socio. Una fila vieja
+   * elegida por venir primera es una carga equivocada, sin error ni aviso.
+   */
+  it('elige la más reciente aunque las filas vengan en cualquier orden', () => {
+    const filas = [
+      row({ exercise_id: 'ex-1', recorded_at: '2026-06-01T10:00:00Z', load_value: 60 }),
+      row({ exercise_id: 'ex-1', recorded_at: '2026-09-01T10:00:00Z', load_value: 80 }),
+      row({ exercise_id: 'ex-1', recorded_at: '2026-07-15T10:00:00Z', load_value: 70 }),
+    ];
+
+    for (const orden of [filas, [...filas].reverse(), [filas[2], filas[0], filas[1]]]) {
+      const result = dedupeByExercise(orden.filter((f) => f !== undefined));
+      expect(result).toHaveLength(1);
+      expect(result[0]?.load.value, 'eligió un baseline viejo').toBe(80);
+    }
+  });
+
+  it('compara instantes y no texto, que no siempre coinciden', () => {
+    // El mismo día con husos distintos: 12:00+02:00 son las 10:00 UTC, o sea
+    // **anteriores** a las 11:00 UTC. Pero alfabéticamente la cadena que empieza
+    // con "12" va primero, así que ordenar por texto elegiría el baseline viejo.
+    // `timestamptz` no garantiza una sola escritura del mismo instante.
+    const result = dedupeByExercise([
+      row({ exercise_id: 'ex-1', recorded_at: '2026-09-01T12:00:00+02:00', load_value: 60 }),
+      row({ exercise_id: 'ex-1', recorded_at: '2026-09-01T11:00:00Z', load_value: 80 }),
+    ]);
+
+    expect(result[0]?.load.value, 'ordenó por texto y no por instante').toBe(80);
   });
 });

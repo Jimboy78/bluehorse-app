@@ -109,7 +109,18 @@ export function dedupeByExercise(rows: readonly BaselineRow[]): UserBaseline[] {
   const seen = new Set<string>();
   const out: UserBaseline[] = [];
 
-  for (const row of rows) {
+  // Se ordena acá y no se confía en que la consulta haya ordenado. La función se
+  // llama desde un solo lugar hoy, pero está exportada, se llama "quedarse con la
+  // más reciente" y lo que hacía era "quedarse con la primera": con las filas en
+  // otro orden elegía un baseline viejo sin avisar, y de ahí sale la carga que se
+  // le propone al socio. Es el mismo descuido que tenía `reviewProgress` con el
+  // historial (`docs/research/30-el-orden-del-historial.md`).
+  //
+  // Por instante y no por texto: dos ISO del mismo momento pueden escribirse
+  // distinto y ordenarlos alfabéticamente los pondría en cualquier lado.
+  const ordenadas = [...rows].sort((a, b) => Date.parse(b.recorded_at) - Date.parse(a.recorded_at));
+
+  for (const row of ordenadas) {
     if (seen.has(row.exercise_id)) continue;
     seen.add(row.exercise_id);
     out.push({
