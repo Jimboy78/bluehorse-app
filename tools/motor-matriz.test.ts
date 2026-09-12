@@ -673,27 +673,71 @@ describe('matriz del motor', () => {
     expect(JSON.stringify(uno)).toBe(JSON.stringify(dos));
   });
 
-  /** El plan tiene que caber en el tiempo que el socio dijo que tiene. */
   /**
-   * HUECO CONOCIDO: el motor no mira los minutos que el socio declaró.
+   * EL PLAN QUE NO ENTRA EN EL TIEMPO LO DICE
    *
-   * `sessionMinutesTarget` se pregunta en el onboarding (paso 3, "los minutos
-   * por sesión"), se valida entre 15 y 180, se guarda en `user_goals`, se mapea
-   * a `UserSnapshot` y se le pasa al motor en cada `generatePlan`. Y el motor
-   * nunca lo lee: `estimatedMinutes` sale de la plantilla
-   * (`placeholder-engine.ts:182`, `resolved.tplSession.estimatedMinutes`).
+   * El motor ya no ignora del todo `sessionMinutesTarget`: compara el
+   * **descanso solo** —`restSeconds` × series, todo del ruleset— contra los
+   * minutos que la persona declaró. Una sesión no puede durar menos que la suma
+   * de sus descansos, así que si eso no entra, el plan no entra, y no hace falta
+   * suponer cuánto tarda una serie para saberlo. Suponerlo sí sería inventar: la
+   * investigación mide el tempo y devuelve un rango de 0,5 a 8 segundos por
+   * repetición, no un valor.
    *
-   * Medido acá: quien declara 40 minutos recibe sesiones de 55 —un 37% más—, y
-   * quien declara 75 recibe las mismas de siempre. La pregunta del onboarding
-   * no cambia nada de lo que pasa después.
+   * Lo que importa de un aviso es a quién NO le sale. Medido sobre los 33
+   * perfiles: con 30 minutos declarados le sale a 14, con 45 a 2, y con 60 a
+   * ninguno. Un aviso que le saliera a todos no informaría nada.
+   */
+  it('avisa cuando el descanso solo no entra en el tiempo declarado', () => {
+    const marca = (V1_RESEARCH.modifiers?.sessionLength?.overTargetNote ?? '').split(
+      '{declarados}',
+    )[0];
+    expect(marca, 'el ruleset dejó de traer el aviso de tiempo').toBeTruthy();
+
+    let conAviso = 0;
+    let sinAviso = 0;
+    for (const perfil of PERFILES) {
+      const apurado = planDe(
+        { ...perfil, nombre: `${perfil.nombre} apurado`, minutos: 30 },
+        V1_RESEARCH,
+      );
+      const holgado = planDe(
+        { ...perfil, nombre: `${perfil.nombre} holgado`, minutos: 180 },
+        V1_RESEARCH,
+      );
+      if (apurado.warnings.some((w) => w.startsWith(marca ?? ''))) conAviso += 1;
+      if (!holgado.warnings.some((w) => w.startsWith(marca ?? ''))) sinAviso += 1;
+    }
+
+    // A unos cuantos sí, para que el aviso exista de verdad.
+    expect(conAviso, 'con 30 minutos no le avisó a nadie').toBeGreaterThan(8);
+    // Y a nadie con tiempo de sobra, para que no sea ruido.
+    expect(sinAviso, 'le avisó a alguien que declaró tres horas').toBe(PERFILES.length);
+  });
+
+  /**
+   * HUECO QUE QUEDA: el número de minutos que se muestra sigue saliendo de la
+   * plantilla.
    *
-   * Este test **afirma el hueco** en vez de ignorarlo: si alguien hace que el
-   * motor respete el tiempo, esta lista deja de coincidir y el test falla
+   * El motor ya **lee** `sessionMinutesTarget` para avisar cuando el plan no
+   * entra (test de arriba), pero `estimatedMinutes` —lo que la pantalla le
+   * muestra al socio en `PlanPreview`— sigue siendo la constante de la
+   * plantilla, la misma para todos.
+   *
+   * Medido: la misma "Sesión A" le promete 55 minutos a los 27 perfiles que la
+   * reciben, y el descanso solo va de 12 a 46 minutos según el objetivo y el
+   * nivel. El número no sigue a la prescripción porque no se calcula a partir
+   * de ella.
+   *
+   * Cerrarlo del todo obliga a suponer cuánto tarda una serie, que es una
+   * decisión del dueño y no una que salga de la investigación. Mientras tanto
+   * este test **afirma el hueco** en vez de ignorarlo: si alguien hace que el
+   * motor calcule el tiempo, esta lista deja de coincidir y el test falla
    * pidiendo que se lo dé vuelta. Un `it.skip` no haría eso, y un test que
    * simplemente falla rompe `npm run check` todos los días hasta que alguien lo
    * borra por molesto.
    */
-  it('todavía no respeta el tiempo declarado (hueco conocido)', () => {
+  it('el número que se muestra todavía sale de la plantilla (hueco conocido)', () => {
     const desbordes = new Set<string>();
     for (const perfil of PERFILES) {
       for (const sesion of reporte.perfiles[perfil.nombre].sesiones) {

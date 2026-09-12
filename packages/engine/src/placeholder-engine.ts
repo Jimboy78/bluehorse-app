@@ -200,6 +200,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
   }
 
   warnings.push(...comebackWarnings(sessions, ruleset, daysAway, comeback, params));
+  warnings.push(...sessionLengthWarnings(sessions, ruleset, goal));
   warnings.push(...weeklyVolumeWarnings(sessions, template, gym, params, goal));
   warnings.push(...interferenceWarnings(sessions, gym, ruleset));
   warnings.push(...powerWarnings(sessions, gym, goal));
@@ -1263,6 +1264,45 @@ function frequencyWarnings(
     .replace('{minimo}', String(minimo));
   const porObjetivo = rule.byGoal[goal.goal];
   return porObjetivo ? [aviso, porObjetivo] : [aviso];
+}
+
+/**
+ * EL PLAN NO ENTRA EN EL TIEMPO QUE LA PERSONA DIJO TENER
+ *
+ * El onboarding pregunta los minutos por sesión, Perfil los muestra de vuelta, y
+ * el motor no los leía — está anotado en CLAUDE.md como deuda desde hace rato.
+ * Quien contestaba "tengo 30 minutos" recibía el mismo plan que quien tiene 90,
+ * y la pantalla le prometía los 55 minutos fijos de la plantilla.
+ *
+ * Lo que se compara acá no es una estimación de cuánto dura la sesión, que
+ * obligaría a suponer cuánto tarda una serie. Es el **descanso solo**, que sale
+ * entero del ruleset: una sesión no puede durar menos que la suma de sus
+ * descansos. Si eso ya no entra, el plan no entra, y no hizo falta inventar
+ * nada para saberlo.
+ *
+ * Se mira la sesión más larga de la plantilla y no el promedio: el socio no
+ * entrena promedios, entrena días.
+ */
+function sessionLengthWarnings(
+  sessions: readonly SessionBlueprint[],
+  ruleset: Ruleset,
+  goal: UserGoal,
+): string[] {
+  const rule = ruleset.modifiers?.sessionLength;
+  if (!rule || goal.sessionMinutesTarget <= 0) return [];
+
+  const descansoDe = (s: SessionBlueprint) =>
+    s.items.reduce((total, i) => total + i.targetSets * i.restSeconds, 0);
+
+  const peor = Math.max(0, ...sessions.map(descansoDe));
+  const minutos = Math.round(peor / 60);
+  if (minutos <= goal.sessionMinutesTarget) return [];
+
+  return [
+    rule.overTargetNote
+      .replace('{declarados}', String(goal.sessionMinutesTarget))
+      .replace('{descanso}', `${minutos} minutos`),
+  ];
 }
 
 function isBlocked(exercise: Exercise, constraints: readonly UserConstraint[]): boolean {

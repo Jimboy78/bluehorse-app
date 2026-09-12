@@ -1161,6 +1161,10 @@
     }
   },
   "modifiers": {
+    "sessionLength": {
+      "overTargetNote": "Dijiste que tenés {declarados} minutos por sesión, y solo en descansos este plan se lleva {descanso}. Podés hacerlo igual cortando los descansos, pero eso cambia el estímulo: el descanso está para llegar entero a la serie siguiente. Si el tiempo es fijo, avisale al staff y se arma con menos ejercicios en vez de con menos descanso.",
+      "confidence": "low"
+    },
     "olderAdults": {
       "fromAge": 60,
       "intensityWindowPct1RM": [

@@ -513,6 +513,36 @@ const modifiersSchema = z.object({
       confidence: z.enum(CONFIDENCE_LEVELS),
     })
     .optional(),
+  /**
+   * Cuando el plan no entra en el tiempo que el socio dijo tener.
+   *
+   * El onboarding pregunta los minutos por sesión, Perfil los muestra de vuelta,
+   * y el motor **no los leía**: quien contestaba "tengo 30 minutos" recibía el
+   * mismo plan que quien tiene 90, y la pantalla le prometía los 55 de la
+   * plantilla.
+   *
+   * Lo que se compara no es una estimación: es el **descanso solo**, que sale
+   * entero del ruleset (`restSeconds` × series). Una sesión no puede durar menos
+   * que la suma de sus descansos, así que si eso ya no entra, el plan no entra —
+   * sin necesidad de suponer cuánto tarda una serie. Ese supuesto sí sería un
+   * número inventado: la investigación mide el tempo (`01`, confianza ALTA) y
+   * dice que entre 0,5 y 8 segundos por repetición da lo mismo, o sea que da un
+   * rango, no un valor.
+   *
+   * Medido sobre los 33 perfiles: la misma "Sesión A" promete 55 minutos a los
+   * 27 perfiles que la reciben, y el descanso solo va de 12 a 46 minutos. En
+   * fuerza avanzada quedaban 35 segundos por serie para hacer la serie, caminar
+   * hasta el rack y cargar los discos.
+   *
+   * `{declarados}` son los minutos que dijo tener y `{descanso}` los que se van
+   * solo en descansos.
+   */
+  sessionLength: z
+    .object({
+      overTargetNote: z.string().min(1),
+      confidence: z.enum(CONFIDENCE_LEVELS),
+    })
+    .optional(),
   olderAdults: z
     .object({
       fromAge: z.number().int().min(40).max(100),
