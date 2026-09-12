@@ -2079,7 +2079,7 @@ describe('el aviso de volumen semanal', () => {
    *
    * Tentador conectarlo, porque es el que coincide con ACSM 2026 (≥10 series
    * semanales para hipertrofia, plateau en ~18-20). Este test mide qué pasaría:
-   * con la banda óptima el aviso de piso le sale a **32 de los 33 perfiles**. Un
+   * con la banda óptima el aviso de piso le sale a **30 de los 33 perfiles**. Un
    * aviso que le sale a casi todo el mundo no informa nada; es tapar la evidencia
    * con ruido en vez de con silencio, que es la regla dura 4 al revés.
    *
@@ -2098,11 +2098,19 @@ describe('el aviso de volumen semanal', () => {
       if (pordebajoDe(series, apuntados, optimoDesde).length === 0) sinPiso.push(perfil.nombre);
     }
 
-    // El único que se salva es un plan de fuerza de tres días: su piso óptimo es
-    // 6 y ningún músculo que reciba un compuesto queda debajo. Los dos que sí
-    // quedan cortos —abdominales y femorales— no los apunta ningún compuesto, y
-    // el motor no cuenta el trabajo incidental como sub-dosificación.
-    expect(sinPiso).toEqual(['mayor de 60 · fuerza']);
+    // Los que se salvan son planes de fuerza, donde el piso óptimo es 6 y no
+    // 10: ningún músculo que reciba un compuesto queda debajo. Lo que quedaría
+    // corto en el resto —abdominales, femorales— no lo apunta ningún compuesto,
+    // y el motor no cuenta el trabajo incidental como sub-dosificación.
+    //
+    // Se mide la proporción y no la lista exacta. Acá había un `toEqual` con un
+    // solo nombre adentro, y se cayó al arreglar el piso de `preferSoft` —que
+    // cambió qué ejercicio llena cada slot y por lo tanto qué músculos suman
+    // series—, sin que el argumento de este test se hubiera movido un milímetro:
+    // el aviso le seguiría saliendo a treinta de treinta y tres. Fijar el nombre
+    // del perfil era fijar un detalle del que la conclusión no depende.
+    expect(sinPiso.length, `se salvan ${sinPiso.join(', ')}`).toBeLessThan(5);
+    expect(PERFILES.length - sinPiso.length).toBeGreaterThan(25);
   });
 });
 

@@ -1530,7 +1530,19 @@ function chooseExercise(input: ChooseExerciseInput): Exercise | undefined {
   const preferSoft = (list: readonly Exercise[], keep: (e: Exercise) => boolean) => {
     const kept = list.filter(keep);
     if (kept.length === 0) return list;
-    if (list.length > floor && kept.length < floor) return list;
+    // El piso se topea con lo que hay. Antes la guarda era
+    // `list.length > floor && kept.length < floor`, y con `minPoolSize` 3 un
+    // pool de 2 nunca entraba (2 > 3 es falso): el filtro lo colapsaba a 1 sin
+    // ninguna protección, o sea que el piso cuidaba los pools grandes —que no
+    // lo necesitan— y dejaba sin cuidar a los chicos, que es donde quedarse con
+    // una sola opción duele.
+    //
+    // Medido sobre el catálogo real, 30 socios del mismo perfil: el tirón
+    // horizontal quedaba en 2 candidatos después de filtrar por modalidad y por
+    // compuestos, la tolerancia de nivel dejaba 1, y **el 100% de los socios
+    // intermedios hacía remo con mancuerna a una mano, en las dos sesiones de
+    // la semana**, con el remo sentado disponible y sin usar.
+    if (kept.length < Math.min(floor, list.length)) return list;
     return kept;
   };
 

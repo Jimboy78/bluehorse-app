@@ -297,6 +297,58 @@ describe('generatePlan · variedad entre socios', () => {
     expect(elegidas.size).toBeGreaterThan(1);
   });
 
+  /**
+   * EL PISO TIENE QUE CUIDAR AL POOL CHICO, QUE ES DONDE DUELE
+   *
+   * La guarda de `preferSoft` era `list.length > floor && kept.length < floor`.
+   * Con `minPoolSize` 3, un pool de **2** no entraba nunca (2 > 3 es falso) y el
+   * filtro lo colapsaba a 1 sin ninguna protección: el piso cuidaba los pools
+   * grandes —que no lo necesitan— y dejaba sin cuidar a los chicos.
+   *
+   * Medido sobre el catálogo real con 30 socios del mismo perfil: el tirón
+   * horizontal queda en 2 candidatos después de filtrar por modalidad y por
+   * compuestos, la tolerancia de nivel dejaba 1, y **el 100% de los socios
+   * intermedios hacía remo con mancuerna a una mano, en las dos sesiones de la
+   * semana**, con el remo sentado disponible y sin usar. Después del arreglo:
+   * 37% / 33% / 30% entre tres remos.
+   *
+   * Acá se reproduce con dos sentadillas, que es el mínimo para exponerlo: tres
+   * ya entraban por la guarda vieja.
+   */
+  it('con solo dos candidatos tampoco manda a todos al mismo', () => {
+    const gym = buildGym();
+    const conDos: GymSnapshot = {
+      ...gym,
+      equipment: [...gym.equipment, equipment('eq-hack', 'Sentadilla hack')],
+      exercises: [
+        // `ex-prensa` ya es `squat` de nivel beginner: a un intermedio con
+        // tolerancia 1 le queda fuera (2 - 0 = 2 > 1).
+        ...gym.exercises,
+        exercise('ex-hack', 'Sentadilla hack', {
+          skillLevel: 'intermediate',
+          equipmentIds: ['eq-hack'],
+        }),
+      ],
+    };
+
+    const elegidas = new Set<string>();
+    for (let seed = 1; seed <= 12; seed += 1) {
+      const plan = engine.generatePlan({
+        context: { ...context, seed },
+        user: buildUser(),
+        gym: conDos,
+        ruleset: conSeleccion,
+      });
+      for (const item of plan.sessions.flatMap((s) => s.items)) {
+        if (item.exerciseId === 'ex-prensa' || item.exerciseId === 'ex-hack') {
+          elegidas.add(item.exerciseId);
+        }
+      }
+    }
+
+    expect(elegidas.size, `doce socios recibieron ${[...elegidas].join(', ')}`).toBe(2);
+  });
+
   // Hacia arriba la tolerancia no afloja nada: proponerle a un principiante un
   // ejercicio que exige más técnica de la que tiene es justo lo que el filtro de
   // seguridad existe para evitar.
