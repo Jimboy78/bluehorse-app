@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { AppShell } from '../components/AppShell.tsx';
 import { BodyMetricsForm } from '../components/BodyMetricsForm.tsx';
 import { ProfileForm } from '../components/ProfileForm.tsx';
@@ -34,6 +34,7 @@ import {
   Card,
   ConfirmDialog,
   EmptyState,
+  fieldClass,
   Notice,
   SectionLabel,
   Skeleton,
@@ -60,6 +61,7 @@ import {
   useProfileDetail,
   useUpdateProfile,
 } from '../lib/profile.ts';
+import { useResetProfile } from '../lib/reset-profile.ts';
 import { isStandaloneDisplay } from '../lib/use-install-prompt.ts';
 
 /** Cuántas fuentes hay, para no escribir un número que se desactualice solo. */
@@ -153,7 +155,96 @@ function PerfilBody({
       <PainHistorySection />
       <EvidenceLink />
       <DocsLink />
+      <DangerZone />
     </div>
+  );
+}
+
+const RESET_CONFIRM_PHRASE = 'BORRAR TODO';
+
+/**
+ * Empezar de cero.
+ *
+ * Doble verificación, como pidió el socio que lo probó: el cuadro explica qué
+ * se pierde, y el botón de confirmar queda apagado hasta escribir la frase
+ * exacta — el mismo patrón que ya usa borrar un plan en `Planes.tsx`, pero acá
+ * la frase es fija porque no hay un nombre propio que escribir.
+ *
+ * `health_screenings` no se toca (ver `reset-profile.ts`): el socio vuelve a
+ * responder el PAR-Q antes de poder generar un plan con el motor, y esta
+ * pantalla lo dice para que no sea una sorpresa después.
+ */
+function DangerZone() {
+  const navigate = useNavigate();
+  const reset = useResetProfile();
+  const [asking, setAsking] = useState(false);
+  const [typed, setTyped] = useState('');
+
+  async function handleReset() {
+    await reset.mutateAsync();
+    setAsking(false);
+    navigate('/onboarding', { replace: true });
+  }
+
+  return (
+    <section className="flex flex-col gap-2.5">
+      <SectionLabel icon={<Trash2 size={13} aria-hidden="true" />}>Zona de riesgo</SectionLabel>
+
+      <Card tone="nested" className="flex flex-col gap-3 px-4 py-3.5">
+        <p className="text-sm text-slate">
+          Borra tu objetivo, tus medidas, tus planes, todo lo que entrenaste y tus restricciones, y
+          te manda de nuevo al onboarding para empezar como si fuera la primera vez.
+        </p>
+        <Button variant="danger" size="md" className="self-start" onClick={() => setAsking(true)}>
+          Borrar todos mis datos
+        </Button>
+      </Card>
+
+      <ConfirmDialog
+        open={asking}
+        icon={<Trash2 size={18} aria-hidden="true" />}
+        title="¿Borrar todo y empezar de nuevo?"
+        confirmLabel="Borrar todo"
+        confirmVariant="danger"
+        cancelLabel="No, dejalo"
+        busy={reset.isPending}
+        confirmDisabled={typed.trim() !== RESET_CONFIRM_PHRASE}
+        onCancel={() => {
+          setAsking(false);
+          setTyped('');
+        }}
+        onConfirm={() => void handleReset()}
+      >
+        <span className="flex flex-col gap-3 text-left">
+          <span>
+            No se puede deshacer. Se borra tu objetivo, tus medidas, tus restricciones, todos tus
+            planes y todo lo que registraste entrenando. Vas a tener que volver a hacer el
+            onboarding — y si querés generar un plan con el motor, también vas a tener que responder
+            el cribado de salud de nuevo.
+          </span>
+          <label className="flex flex-col gap-1.5">
+            <span className="text-xs text-slate">
+              Escribí <strong className="text-ink">{RESET_CONFIRM_PHRASE}</strong> para confirmar
+            </span>
+            <input
+              type="text"
+              value={typed}
+              onChange={(e) => setTyped(e.target.value)}
+              autoComplete="off"
+              placeholder={RESET_CONFIRM_PHRASE}
+              className={fieldClass}
+            />
+          </label>
+        </span>
+      </ConfirmDialog>
+
+      {reset.isError && (
+        <Notice tone="error" role="alert" icon={<AlertCircle size={15} aria-hidden="true" />}>
+          No se pudo completar el borrado. Probá de nuevo — lo que ya se borró no vuelve, pero podés
+          reintentar sin problema.
+        </Notice>
+      )}
+    </section>
   );
 }
 

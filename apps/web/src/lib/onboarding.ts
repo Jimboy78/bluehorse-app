@@ -87,5 +87,37 @@ export function useCompleteOnboarding() {
   });
 }
 
+/**
+ * Saltear el wizard entero para armar el plan a mano.
+ *
+ * No inserta `user_goals` ni `body_metrics`: quien elige esto ya tiene su
+ * rutina y no va a pasar por el motor, así que preguntarle objetivo, edad o
+ * nivel de experiencia sería pedirle datos que nadie va a leer. Alcanza con
+ * marcar `onboarded_at` para que `RequireOnboarding` lo deje pasar.
+ *
+ * `RequireScreening` sigue exigiendo el PAR-Q antes de entrenar — eso no
+ * depende de cómo se armó el plan, depende de que la persona va a levantar
+ * pesas en el gimnasio.
+ */
+export function useSkipOnboardingManual() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, void>({
+    mutationFn: async () => {
+      if (!user) throw new Error('No hay sesión activa.');
+      const client = requireSupabase();
+      const { error } = await client
+        .from('profiles')
+        .update({ onboarded_at: new Date().toISOString() })
+        .eq('id', user.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['profile-status', user?.id] });
+    },
+  });
+}
+
 /** `true` mientras Supabase no esté configurado: el onboarding no puede correr. */
 export const onboardingUnavailable = !supabase;

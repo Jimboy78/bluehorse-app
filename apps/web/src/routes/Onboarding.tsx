@@ -35,6 +35,7 @@ import {
   onboardingUnavailable,
   useCompleteOnboarding,
   useProfileStatus,
+  useSkipOnboardingManual,
 } from '../lib/onboarding.ts';
 import type { PlanPreview as Preview } from '../lib/plan-preview.ts';
 import { useAvoidExercise, useBuildPlanPreview, useConfirmPlan } from '../lib/plan-preview.ts';
@@ -161,6 +162,17 @@ export function Onboarding() {
   const [draft, setDraft] = useState<Draft>({});
   const [error, setError] = useState<string | null>(null);
   const [regenerating, setRegenerating] = useState(false);
+  const skipManual = useSkipOnboardingManual();
+
+  async function handleSkipManual() {
+    setError(null);
+    try {
+      await skipManual.mutateAsync();
+      navigate('/planes', { replace: true });
+    } catch {
+      setError('No se pudo saltear el onboarding. Revisá tu conexión y probá de nuevo.');
+    }
+  }
 
   // Ya lo completó (llegó acá por error o volvió atrás): no tiene sentido repetirlo.
   if (profile.data?.onboarded && stage.kind === 'preguntas') {
@@ -342,6 +354,21 @@ export function Onboarding() {
           nunca aparecía, la cabecera decía "Paso 5 de 5" y abajo seguía el 4.
           Con un solo hijo por vez el modo hace lo que promete. */}
       <AnimatePresence mode="wait">{renderStage()}</AnimatePresence>
+
+      {/* Solo en el primer paso: saltear tiene sentido antes de invertir tiempo
+          contestando, no a mitad de wizard. Quien ya tiene su rutina y solo
+          quiere cargarla no necesita el motor, así que no tiene sentido
+          pedirle objetivo, edad ni nivel de experiencia. */}
+      {stage.kind === 'preguntas' && stepIndex === 0 && (
+        <button
+          type="button"
+          onClick={() => void handleSkipManual()}
+          disabled={skipManual.isPending || onboardingUnavailable}
+          className="text-center text-sm text-slate underline decoration-line underline-offset-4 disabled:opacity-50"
+        >
+          Ya tengo mi rutina, prefiero armarla a mano
+        </button>
+      )}
 
       <AnimatePresence>
         {error && (
