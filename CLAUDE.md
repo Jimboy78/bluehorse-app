@@ -96,10 +96,16 @@ antes de hacerlo.
 3. **Ningún número de entrenamiento vive en el código.** Series, repeticiones, RIR, descansos,
    porcentajes, umbrales de descarga: todo sale del ruleset. Un `3` que significa "3 series" es un
    bug.
-4. **La evidencia se muestra como es.** Lo derivado de un ruleset `placeholder` va marcado como
-   provisorio, y un bloque con `confidence: "low"` avisa en pantalla en qué es floja la evidencia.
-   Presentar una fila de consenso con la misma cara que un metaanálisis es mentir por omisión. Cada
-   plan guarda el `rulesetVersion` con el que se generó.
+4. **La evidencia se audita puertas adentro, no se discute en pantalla.** El `confidence` de cada
+   bloque y los documentos de `docs/research/` existen para saber qué revalidar primero, y siguen
+   publicándose en `/documentacion` y `/evidencia` para quien los quiera leer. Pero la app **no**
+   le aclara al socio, en cada plan, cuán firme es la evidencia detrás de un número: si algo no
+   está bien sostenido, se corrige o se saca, no se acompaña con un descargo. Lo que sí sigue
+   avisando es lo accionable (qué cubrir, qué falta en el gimnasio, cuándo consultar). Cada plan
+   guarda el `rulesetVersion` con el que se generó, y lo derivado de un ruleset `placeholder` sigue
+   marcándose como provisorio — eso es estado del producto, no calidad de la evidencia.
+   Decisión del dueño, 13/09/2026: aclarar por todo lo que hace la app resta confianza en vez de
+   sumarla.
 5. **`gym_id` en toda tabla de negocio**, aunque hoy haya un solo gimnasio.
 6. **La carga se guarda cruda y normalizada.** `load_value` + `load_unit` es lo que dice la máquina
    y es lo único que se le muestra al usuario. `load_kg_normalized` existe solo para gráficos, y es

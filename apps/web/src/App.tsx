@@ -2,14 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { Info, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AppShell } from './components/AppShell.tsx';
-import { EvidenceNotice } from './components/EvidenceNotice.tsx';
 import { Hoy } from './components/Hoy.tsx';
 import { Proposals } from './components/Proposals.tsx';
 import { Card, Notice, SectionLabel } from './components/ui/index.ts';
 import { useAuth } from './lib/auth/AuthProvider.tsx';
 import { activeRuleset, showsPlaceholderContent } from './lib/engine.ts';
 import { envError, isConfigured } from './lib/env.ts';
-import { useActiveGoal } from './lib/goal.ts';
 import { fadeUp } from './lib/motion.ts';
 import { type OutboxHealth, outboxHealth } from './lib/outbox.ts';
 import { useActivePlan } from './lib/plan.ts';
@@ -29,7 +27,6 @@ import { useTodaySession } from './lib/use-today-session.ts';
  */
 export function App() {
   const { user } = useAuth();
-  const activeGoal = useActiveGoal();
   // Solo alimentan el panel "Estado del esqueleto", que es dev-only: no tiene
   // sentido pedirle esto a Supabase en cada carga de la app de un socio real.
   const connection = useQuery({
@@ -56,8 +53,6 @@ export function App() {
   return (
     <AppShell>
       <PlaceholderNotice />
-
-      <EvidenceNotice goal={activeGoal.data ?? null} />
 
       <PlanWarningsNotice />
 

@@ -117,8 +117,8 @@ export function Evidencia() {
             para que lo leas si querés.
           </p>
           <p className="text-xs text-slate">
-            Y donde la evidencia es floja, lo decimos. No todo lo que prescribe la app está igual de
-            respaldado, y presentar una cosa como la otra sería mentirte.
+            Cada documento cuenta qué se leyó y qué se decidió con eso. Están acá por si querés
+            mirarlos, no porque haga falta leerlos para entrenar.
           </p>
         </Card>
       </motion.section>
