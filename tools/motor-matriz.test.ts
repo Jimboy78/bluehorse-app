@@ -2374,6 +2374,96 @@ describe('los bloqueos de equipamiento y ejercicio', () => {
   });
 
   /**
+   * CAMBIAR UN EJERCICIO NO ES CAMBIAR EL PLAN
+   *
+   * El botón no existe para elegir otra cosa: existe para hacer **el mismo
+   * trabajo** de otra forma, cuando la máquina está ocupada o cuando algo
+   * molesta. Si deja elegir cualquier cosa, el plan deja de ser el plan.
+   * Decisión del dueño, 12/09/2026.
+   *
+   * El puntaje solo no alcanzaba: con `patternWeight` 0,4 y `muscleWeight` 0,6,
+   * un candidato de otro patrón pasa el piso de 0,5 con que comparta los
+   * músculos. Medido sobre el catálogo real, a las **dominadas** les ofrecía un
+   * **remo sentado** — los mismos músculos, pero tirón horizontal en vez de
+   * vertical.
+   */
+  it('un equivalente es del mismo patrón de movimiento', () => {
+    let medidos = 0;
+
+    for (const original of gym.exercises) {
+      const opciones = engine.findSubstitutes({
+        item: { exerciseId: original.id, equipmentId: null } as never,
+        gym,
+        constraints: [],
+        unavailableEquipmentIds: [],
+        ruleset: V1_RESEARCH,
+      });
+      if (opciones.length === 0) continue;
+      medidos += 1;
+
+      for (const opcion of opciones) {
+        const candidato = gym.exercises.find((e) => e.id === opcion.exerciseId);
+        expect(
+          candidato?.pattern,
+          `a "${original.name}" (${original.pattern}) le ofreció "${candidato?.name}" (${candidato?.pattern})`,
+        ).toBe(original.pattern);
+      }
+    }
+
+    // Si ningún ejercicio tuviera equivalentes, el bucle de arriba no mira nada.
+    expect(medidos, 'ningún ejercicio del catálogo tiene equivalentes').toBeGreaterThan(20);
+  });
+
+  /**
+   * LO QUE LA LESIÓN SACA DEL PLAN NO PUEDE VOLVER POR EL BOTÓN
+   *
+   * `findSubstitutes` miraba las restricciones que el socio anotó a mano
+   * (`avoid_exercise`, `avoid_equipment`) pero **no** las reglas de dolor del
+   * ruleset, que son las que sacan un patrón entero. Medido sobre el catálogo
+   * real: alguien con la rodilla lesionada en severidad 5 recibía un plan sin
+   * una sola sentadilla, y tocando "cambiar ejercicio" se le ofrecían
+   * sentadilla hack, sentadilla con cinturón y sentadilla en Smith.
+   *
+   * El plan protegía la rodilla y el botón la desprotegía en dos toques.
+   */
+  it('una lesión filtra los equivalentes igual que filtra el plan', () => {
+    const lesion: UserConstraint = {
+      type: 'injury',
+      bodyRegion: 'knee',
+      exerciseId: null,
+      equipmentId: null,
+      severity: 5,
+    };
+    const regla = (V1_RESEARCH.safety?.painRules ?? [])
+      .filter((r) => r.bodyRegion === 'knee')
+      .sort((a, b) => b.avoidPatterns.length - a.avoidPatterns.length)[0];
+    expect(regla, 'el ruleset dejó de tener una regla de rodilla').toBeDefined();
+    if (!regla) return;
+
+    const ofrecidos = gym.exercises.flatMap((original) =>
+      engine
+        .findSubstitutes({
+          item: { exerciseId: original.id, equipmentId: null } as never,
+          gym,
+          constraints: [lesion],
+          unavailableEquipmentIds: [],
+          ruleset: V1_RESEARCH,
+        })
+        .flatMap((o) => gym.exercises.filter((e) => e.id === o.exerciseId)),
+    );
+
+    const colados = ofrecidos.filter(
+      (c) =>
+        regla.avoidPatterns.includes(c.pattern) ||
+        c.primaryMuscles.some((m) => regla.avoidMuscles.includes(m)),
+    );
+    expect([...new Set(colados.map((c) => c.name))].join(', ')).toBe('');
+
+    // Sin esto, un motor que no ofreciera ningún equivalente pasaría en verde.
+    expect(ofrecidos.length, 'con la lesión no se ofreció ni un equivalente').toBeGreaterThan(10);
+  });
+
+  /**
    * UN PATRÓN BLOQUEADO SE REEMPLAZA, NO SE SALTEA
    *
    * Hasta el 13/09/2026 este test pedía lo contrario: que el aviso explicara

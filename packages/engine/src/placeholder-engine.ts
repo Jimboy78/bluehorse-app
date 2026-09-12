@@ -1154,14 +1154,36 @@ function findSubstitutes(input: FindSubstitutesInput): readonly SubstituteOption
     gym.substitutions.filter((s) => s.exerciseId === original.id).map((s) => [s.substituteId, s]),
   );
 
+  // Las mismas reglas de dolor que armaron el plan.
+  //
+  // Hasta acá este camino no las miraba, y era un agujero: medido sobre el
+  // catálogo real, alguien con la rodilla lesionada en severidad 5 recibía un
+  // plan sin una sola sentadilla —la regla saca el patrón entero y el cuádriceps
+  // — y después, tocando "cambiar ejercicio", se le ofrecían sentadilla hack,
+  // sentadilla con cinturón y sentadilla en Smith. El plan protegía la rodilla
+  // y el botón la desprotegía en dos toques.
+  //
+  // Vale también para las equivalencias cargadas a mano: el staff carga una
+  // equivalencia mirando el ejercicio, no la lesión de cada socio.
+  const avoidRules = activePainRules(ruleset, constraints, 'avoid');
+
+  /** Lo que descalifica a un candidato antes de mirar cuánto se parece. */
+  const descartado = (candidate: Exercise, curatedEdge: SubstitutionEdge | undefined) =>
+    candidate.id === original.id ||
+    isBlocked(candidate, constraints) ||
+    isBlockedByPain(candidate, avoidRules) ||
+    !hasUsableEquipment(candidate, gym, [...blocked]) ||
+    // El mismo trabajo de otra forma, no otro trabajo. Una equivalencia curada
+    // sí puede cruzar patrones: si el staff la escribió, sabe algo que el
+    // puntaje no.
+    (!curatedEdge && cfg.requireSamePattern && candidate.pattern !== original.pattern);
+
   const options: SubstituteOption[] = [];
 
   for (const candidate of gym.exercises) {
-    if (candidate.id === original.id) continue;
-    if (isBlocked(candidate, constraints)) continue;
-    if (!hasUsableEquipment(candidate, gym, [...blocked])) continue;
-
     const curatedEdge = explicit.get(candidate.id);
+    if (descartado(candidate, curatedEdge)) continue;
+
     const equivalence = curatedEdge?.equivalence ?? scoreEquivalence(original, candidate, cfg);
     // El piso de confianza es del cálculo automático, no de una equivalencia
     // cargada a mano: si el staff la escribió, ya decidió que es un reemplazo

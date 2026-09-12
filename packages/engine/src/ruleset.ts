@@ -676,6 +676,24 @@ export const rulesetSchema = z.object({
     patternWeight: z.number().min(0).max(1),
     /** Peso de compartir músculos primarios. */
     muscleWeight: z.number().min(0).max(1),
+    /**
+     * Un reemplazo tiene que ser del mismo patrón de movimiento.
+     *
+     * Sin esto el puntaje solo alcanzaba: con `patternWeight` 0,4 y
+     * `muscleWeight` 0,6, un candidato de otro patrón pasa el piso de 0,5 con
+     * que comparta los músculos (0,6 × 1 = 0,6). Medido sobre el catálogo real,
+     * a las **dominadas** les ofrecía un **remo sentado** — mismos músculos,
+     * pero tirón horizontal en vez de vertical.
+     *
+     * El botón no existe para cambiar de ejercicio: existe para hacer el mismo
+     * trabajo de otra forma cuando la máquina está ocupada o cuando algo
+     * molesta. Si deja elegir otra cosa, el plan deja de ser el plan.
+     * Decisión del dueño, 12/09/2026.
+     *
+     * No aplica a las equivalencias cargadas a mano en `/panel`: si el staff
+     * escribió que dos ejercicios se reemplazan, sabe algo que el puntaje no.
+     */
+    requireSamePattern: z.boolean(),
     maxOptions: z.number().int().min(1).max(10),
   }),
   /** Plantillas de texto para el "por qué va acá". `{exercise}` se reemplaza. */

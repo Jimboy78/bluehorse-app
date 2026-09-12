@@ -1715,6 +1715,7 @@
     "minEquivalence": 0.5,
     "patternWeight": 0.4,
     "muscleWeight": 0.6,
+    "requireSamePattern": true,
     "maxOptions": 3
   },
   "rationale": {
