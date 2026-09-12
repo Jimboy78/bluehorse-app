@@ -339,9 +339,36 @@ la consulta": documentaba la precondición en vez de sacarla.
   intensidad de `beginner`/`novice`, banda de volumen 6-24). Dos de ellas son sobre
   `intensityPct1RM`, o sea que hoy moverlas no cambia un solo plan.
 - **Reglas de dolor para cadera y tobillo**, las dos zonas sin cubrir que más aparecen en un
-  gimnasio. O sale de investigación o queda el aviso.
+  gimnasio. O sale de investigación o queda el aviso. **Actualizado 2026-09-12:** la investigación
+  salió — `31-cadera-y-tobillo.md`. Hay evidencia de calidad media (GTPS: DOI
+  10.1016/j.physio.2024.01.001; CAI: DOI 10.3389/fbioe.2025.1691203) de que el ejercicio ayuda en
+  las dos zonas, pero ninguna mide un umbral de severidad ni qué patrón sacar, así que no alcanza
+  para escribir una regla como las cinco que ya existen. Sigue siendo decisión del dueño: al menos
+  cambiar el texto de `noRuleForRegion` para esas dos zonas en vez de escribir exclusiones.
 - **Si un plan generado para alguien que vuelve después de un año debe salir con volumen reducido.**
   Hoy sale completo: el descargo por ausencia es una propuesta de `reviewProgress` y nunca toca
   `generatePlan`.
 - **El plan de 8 sesiones vacías con el catálogo sin cargar.** Medido, no construido, no probado en
   el navegador.
+
+## Cuarta vuelta — 2026-09-12
+
+Salió de correr `npm run qa docs`, que sigue marcando `05-seguridad-reforzada.md` (21 filas, cero
+citas) desde la primera vuelta. Ese documento no es solo evidencia floja: su prosa **es** el
+`referIf` que `09` activó, así que llega directo a la pantalla del socio.
+
+| # | Documento | Qué pasó |
+|---|---|---|
+| 31 | `31-cadera-y-tobillo.md` | **Investigación, sin código.** Cadera y tobillo, las dos zonas sin regla que `27` dejó como decisión del dueño. Hay evidencia de calidad media de que el ejercicio ayuda en las dos (GTPS: DOI 10.1016/j.physio.2024.01.001; inestabilidad crónica de tobillo: DOI 10.3389/fbioe.2025.1691203), pero ninguna mide un umbral de severidad ni qué patrón sacar. No alcanza para una regla como las cinco que existen; sí alcanza para no seguir tratando esas zonas como si no hubiera nada que decir. |
+| 32 | `32-red-flags-lumbares.md` | **El más serio de la vuelta.** El `referIf` lumbar —ya emitido en la app— no menciona anestesia en silla de montar ni incontinencia urinaria/fecal, que son las dos señales de mayor especificidad para cauda equina (DOI 10.1016/j.msksp.2019.05.004, especificidad hasta 0,88 contra RMN). En cambio incluye "dos semanas sin mejorar" y "empeora tras 48 horas de reposo", que no aparecen como red flags de patología grave en el consenso de 16 guías internacionales (DOI 10.1007/s00586-016-4684-0). Cauda equina es una emergencia quirúrgica con ventana de horas; el aviso actual no le pregunta al socio por lo que de verdad la distingue. Nada tocado en el ruleset — es decisión de quien firma ese texto. |
+
+Ninguna de las dos vueltas tocó `packages/engine` ni el ruleset: son investigación documentada,
+verificada contra Crossref y Europe PMC, con la decisión de aplicarla dejada para el dueño del
+producto.
+
+| # | Documento | Qué pasó |
+|---|---|---|
+| 33 | `33-red-flags-cervicales.md` | **Menor, mismo método que 32.** El `referIf` de cuello está bien orientado (mareo, náusea coinciden con el marco IFOMPT vigente, DOI 10.2519/jospt.2022.11147) salvo un detalle: "hormigueo en los brazos" no es la señal vascular del marco (esa es entumecimiento facial), es una señal de radiculopatía cervical, cuadro distinto y no urgente. A diferencia de `32`, el error no omite nada peligroso — como mucho sobre-alarma. |
+| 34 | `34-red-flags-hombro-y-muneca.md` | **Cierra el repaso de los cinco `referIf`.** Hombro: "debilidad marcada" es correcto en esencia pero impreciso frente al criterio medido (no poder levantar el brazo por arriba de la horizontal — sensibilidad 84 %, DOI 10.1186/s12891-025-08754-1). Muñeca: falta el dedo mayor en el territorio del nervio mediano (DOI 10.7759/cureus.87563, evidencia más débil que las otras cuatro zonas). Ninguno de los dos con la urgencia de `32`. Con esto, las cinco zonas con regla tienen su `referIf` comparado contra evidencia real. |
+| — | `25-cobertura-del-catalogo.md` (actualizado) | **Bug de motor, no de evidencia.** `chooseExercise` protege el piso `selection.minPoolSize` en 3 de sus 8 pasos (`preferSoft`); los otros 3 usan `prefer` sin piso. Medido contra el catálogo real: el principal de `vertical_pull` colapsa de 3 candidatos a 2 (dominadas queda estructuralmente afuera) y el de `horizontal_pull` de 4 a 2 (remo invertido en TRX y face pull en polea, afuera). Mismo mecanismo que ya encontró `22` para potencia, acá alcanza también a fuerza e hipertrofia. Nada tocado en el motor. |
+| — | `30-el-orden-del-historial.md` (actualizado) | **La tercera función que dice "más reciente" y hace "la primera".** `ultimaVezDe` (`apps/web/src/lib/last-session.ts:54`) confía en el orden de la fila 0 igual que las dos ya corregidas. Reproducido: con una fila de enero antes que una de hoy, muestra "la última vez" de enero. El test existente no lo detecta por la misma razón que las otras dos: documenta la precondición en vez de sacarla. Nada tocado. |

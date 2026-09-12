@@ -59,6 +59,10 @@ const TEMAS = {
   28: 'Lo que el socio lee',
   29: 'Intensidad sin leer',
   30: 'Orden del historial',
+  31: 'Cadera y tobillo',
+  32: 'Red flags lumbares',
+  33: 'Red flags cervicales',
+  34: 'Red flags hombro y muñeca',
 };
 
 // El `]` y el `(` cierran un enlace de markdown: sin ellos, un DOI escrito como

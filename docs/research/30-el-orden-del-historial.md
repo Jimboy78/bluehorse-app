@@ -153,6 +153,52 @@ pasaba con cualquiera de las dos implementaciones. El par que sí discrimina es 
 distintos: `2026-09-01T12:00:00+02:00` son las 10:00 UTC, **anteriores** a `2026-09-01T11:00:00Z`,
 pero alfabéticamente la cadena que empieza con "12" va primero.
 
+## La tercera — encontrada el 12 de septiembre de 2026
+
+El cierre de arriba decía "no se barrió el resto del proyecto buscando la tercera". Se barrió:
+`grep` sobre cada `.sort(` y cada `.order(` de `apps/web/src` y `packages/engine/src` buscando
+funciones que confíen en el orden de entrada en vez de garantizarlo ellas mismas.
+
+`ultimaVezDe` (`apps/web/src/lib/last-session.ts:54`) tiene el mismo defecto exacto:
+
+```ts
+export function ultimaVezDe(filas: readonly unknown[]): UltimaVez | null {
+  const primera = filas[0] as Fila | undefined;   // "la más reciente" == "la primera"
+  ...
+  const delMismo = (filas as Fila[]).filter((f) => f.workout_log_id === primera.workout_log_id);
+```
+
+Su docstring dice "las del entrenamiento más reciente", y depende enteramente de que quien la llama
+haya pedido `.order('completed_at', { ascending: false })` — que hoy se cumple
+(`last-session.ts:105`) — sin verificarlo. Es lo que le muestra al socio en la pantalla del
+ejercicio como "la última vez hiciste X": si `filas` llegara en cualquier otro orden, muestra
+la sesión equivocada sin ningún error.
+
+Medido, reproduciendo la función con una fila de enero y una de hoy en ese orden (enero primero):
+
+```
+entrada:  [ {workout_log_id: 'wl-vieja', completed_at: '2026-01-01', load: 20},
+            {workout_log_id: 'wl-hoy',   completed_at: '2026-09-12', load: 60} ]
+salida:   { cuando: '2026-01-01', series: [{ load: 20, ... }] }
+```
+
+Un socio que entrenó hoy con 60 kg vería "la última vez hiciste 20 kg" — la sesión de enero, no la
+de hoy. El test existente (`last-session.test.ts`) no lo detecta por la misma razón que ya apareció
+dos veces: cada caso de prueba pasa las filas ya en el orden que la función asume, así que documenta
+la precondición en vez de sacarla, igual que `dedupeByExercise` y el `history` del motor.
+
+### Veredicto
+
+| Elemento | Veredicto | Por qué |
+|---|---|---|
+| `ultimaVezDe` confía en el orden de `filas` | **mismo defecto que las otras dos** | Ninguna de las tres razones para no confiar cambió: un `select` que agregue una columna, o que reuse la función con datos ya en memoria, puede romperlo sin ningún error visible. |
+
+No se tocó el código. La corrección, si se aplica, es la misma que ya funcionó dos veces: ordenar
+por `Date.parse(f.completed_at)` al entrar a la función, no confiar en el `.order()` del llamador.
+Costaría un `sort` sobre como mucho 12 filas (`limit(12)` en la query) y, si el orden ya viene bien
+como corre hoy, no cambiaría ningún resultado — igual que las dos correcciones anteriores no
+cambiaron el reporte de la matriz.
+
 ## Lo que este documento NO cubre
 
 - **Si un plan recién generado para alguien que volvió después de un año debería salir con volumen
@@ -161,5 +207,5 @@ pero alfabéticamente la cadena que empieza con "12" va primero.
   ningún lado, así que queda anotado.
 - **El plan de 8 sesiones vacías con el catálogo sin cargar.** Se midió, no se construyó nada para
   él, y no se probó en el navegador qué muestra la app.
-- **Otros lugares donde una función se llame "la más reciente" y haga "la primera".** Se encontraron
-  dos, en el motor y en la app. No se barrió el resto del proyecto buscando la tercera.
+- **Si aplicar la corrección a `ultimaVezDe`.** Es código de la app, no del motor, y cambia qué ve
+  el socio en pantalla — queda para quien decide, igual que el resto de esta vuelta.

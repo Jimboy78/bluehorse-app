@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-11T20:21:38.297Z",
+ "generatedAt": "2026-09-12T19:43:21.263Z",
  "docs": [
   {
    "id": "metodo",
@@ -207,7 +207,7 @@
    "titulo": "Un tercio del gimnasio no entra en ningún plan",
    "resumen": "Revisión del 10 de septiembre de 2026. El catálogo es la pieza que ninguna herramienta había mirado: qa barre datos muertos y código muerto, y qa docs cruza el ruleset con la investigación, pero nadie preguntaba nunca qué pasa con los 58…",
    "archivo": "25-cobertura-del-catalogo.md",
-   "bloques": 48
+   "bloques": 61
   },
   {
    "id": "26-acsm-2026",
@@ -247,7 +247,39 @@
    "titulo": "Una línea de una query decidía si la adaptación tenía sentido",
    "resumen": "Revisión del 10 de septiembre de 2026. Salió de terminar lo que 29-la-intensidad-que-nadie-lee.md dejó anotado: los otros tres modificadores, que ahí solo se miraron de reojo.",
    "archivo": "30-el-orden-del-historial.md",
-   "bloques": 43
+   "bloques": 54
+  },
+  {
+   "id": "31-cadera-y-tobillo",
+   "orden": 31,
+   "titulo": "Cadera y tobillo: hay evidencia, pero no alcanza para una regla como las otras cinco",
+   "resumen": "Revisión del 12 de septiembre de 2026. Sale de 27-zonas-sin-regla.md, que dejó explícitamente como decisión del dueño si conviene investigar reglas de dolor para cadera y tobillo — las dos zonas sin cobertura que más aparecen en un gimna…",
+   "archivo": "31-cadera-y-tobillo.md",
+   "bloques": 25
+  },
+  {
+   "id": "32-red-flags-lumbares",
+   "orden": 32,
+   "titulo": "El aviso de \"cuándo ir al médico\" por dolor lumbar no menciona las dos señales más específicas de cauda equina",
+   "resumen": "Revisión del 12 de septiembre de 2026. Sale de auditar 05-seguridad-reforzada.md, el único documento de seguridad que quedaba sin citas verificables (npm run qa docs lo marca con 21 filas sin fuente) y cuyo texto sí llega a la pantalla:…",
+   "archivo": "32-red-flags-lumbares.md",
+   "bloques": 26
+  },
+  {
+   "id": "33-red-flags-cervicales",
+   "orden": 33,
+   "titulo": "El aviso de cuello: bien orientado, con una señal que apunta a otro lado",
+   "resumen": "Revisión del 12 de septiembre de 2026, continuación de 32-red-flags-lumbares.md sobre el mismo documento sin citas (05-seguridad-reforzada.md). Mismo método: comparar el referIf que ya se emite contra el consenso clínico vigente, en la ú…",
+   "archivo": "33-red-flags-cervicales.md",
+   "bloques": 19
+  },
+  {
+   "id": "34-red-flags-hombro-y-muneca",
+   "orden": 34,
+   "titulo": "Hombro y muñeca: cierran el repaso de los cinco referIf",
+   "resumen": "Revisión del 12 de septiembre de 2026, cierre de la serie que empezó en 32 (lumbar) y siguió en 33 (cuello). Mismo método: comparar el referIf que el ruleset ya emite contra la mejor evidencia disponible para el mecanismo relevante en ca…",
+   "archivo": "34-red-flags-hombro-y-muneca.md",
+   "bloques": 30
   },
   {
    "id": "auditoria",
@@ -255,7 +287,7 @@
    "titulo": "Auditoría del motor: un parámetro por vez",
    "resumen": "Revisión sistemática de todo lo que el motor mira para armar un plan. Para cada entrada: ¿existe?, ¿está respaldada por evidencia primaria con DOI?, ¿el número que usa el ruleset es el que dice esa evidencia?, ¿cambia algo en el plan de…",
    "archivo": "AUDITORIA-MOTOR.md",
-   "bloques": 56
+   "bloques": 61
   }
  ]
 }

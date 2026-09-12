@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-09-11",
-  "resolved": 57,
+  "generatedAt": "2026-09-12",
+  "resolved": 64,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -140,6 +140,44 @@
       ],
       "documentos": [
         "20-arranque-sin-test.md"
+      ]
+    },
+    {
+      "doi": "10.1016/j.physio.2024.01.001",
+      "title": "Exercise compared to a control condition or other conservative treatment options in patients with Greater Trochanteric Pain Syndrome: a systematic review and meta-analysis of randomized controlled trials",
+      "authors": [
+        "Kjeldsen",
+        "Hvidt",
+        "Bohn"
+      ],
+      "moreAuthors": 4,
+      "year": 2024,
+      "journal": "Physiotherapy",
+      "type": "journal-article",
+      "temas": [
+        "Cadera y tobillo"
+      ],
+      "documentos": [
+        "31-cadera-y-tobillo.md"
+      ]
+    },
+    {
+      "doi": "10.3389/fbioe.2025.1691203",
+      "title": "Which therapeutic exercise is most effective for improving ankle inversion muscle function in individuals with chronic ankle instability? A systematic review and network meta-analysis",
+      "authors": [
+        "Zhang",
+        "Luan",
+        "Shi"
+      ],
+      "moreAuthors": 4,
+      "year": 2025,
+      "journal": "Frontiers in Bioengineering and Biotechnology",
+      "type": "journal-article",
+      "temas": [
+        "Cadera y tobillo"
+      ],
+      "documentos": [
+        "31-cadera-y-tobillo.md"
       ]
     },
     {
@@ -1019,6 +1057,101 @@
       ],
       "documentos": [
         "03-progresion-descarga.md"
+      ]
+    },
+    {
+      "doi": "10.2519/jospt.2022.11147",
+      "title": "International Framework for Examination of the Cervical Region for Potential of Vascular Pathologies of the Neck Prior to Musculoskeletal Intervention: International IFOMPT Cervical Framework",
+      "authors": [
+        "Rushton",
+        "Carlesso",
+        "Flynn"
+      ],
+      "moreAuthors": 4,
+      "year": 2023,
+      "journal": "Journal of Orthopaedic & Sports Physical Therapy",
+      "type": "journal-article",
+      "temas": [
+        "Red flags cervicales"
+      ],
+      "documentos": [
+        "33-red-flags-cervicales.md"
+      ]
+    },
+    {
+      "doi": "10.1186/s12891-025-08754-1",
+      "title": "Physical examination tests in the acute phase of shoulder injuries with negative radiographs: a diagnostic accuracy study",
+      "authors": [
+        "Enger",
+        "Schmidt",
+        "Nordsletten"
+      ],
+      "moreAuthors": 4,
+      "year": 2025,
+      "journal": "BMC Musculoskeletal Disorders",
+      "type": "journal-article",
+      "temas": [
+        "Red flags hombro y muñeca"
+      ],
+      "documentos": [
+        "34-red-flags-hombro-y-muneca.md"
+      ]
+    },
+    {
+      "doi": "10.7759/cureus.87563",
+      "title": "Diagnostic Accuracy of Clinical Examination for Carpal Tunnel Syndrome: Validation Using Nerve Conduction Studies",
+      "authors": [
+        "Roghani",
+        "Farooq",
+        "Ullah"
+      ],
+      "moreAuthors": 5,
+      "year": 2025,
+      "journal": "Cureus",
+      "type": "journal-article",
+      "temas": [
+        "Red flags hombro y muñeca"
+      ],
+      "documentos": [
+        "34-red-flags-hombro-y-muneca.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s00586-016-4684-0",
+      "title": "Red flags presented in current low back pain guidelines: a review",
+      "authors": [
+        "Verhagen",
+        "Downie",
+        "Popal"
+      ],
+      "moreAuthors": 2,
+      "year": 2016,
+      "journal": "European Spine Journal",
+      "type": "journal-article",
+      "temas": [
+        "Red flags lumbares"
+      ],
+      "documentos": [
+        "32-red-flags-lumbares.md"
+      ]
+    },
+    {
+      "doi": "10.1016/j.msksp.2019.05.004",
+      "title": "What is the diagnostic accuracy of red flags related to cauda equina syndrome (CES), when compared to Magnetic Resonance Imaging (MRI)? A systematic review",
+      "authors": [
+        "Dionne",
+        "Adefolarin",
+        "Kunzelman"
+      ],
+      "moreAuthors": 5,
+      "year": 2019,
+      "journal": "Musculoskeletal Science and Practice",
+      "type": "journal-article",
+      "temas": [
+        "Red flags lumbares"
+      ],
+      "documentos": [
+        "32-red-flags-lumbares.md"
       ]
     },
     {

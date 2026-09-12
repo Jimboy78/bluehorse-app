@@ -186,6 +186,65 @@ el plan lo dice.
 3. **Si los gemelos merecen su propio slot.** Hoy compiten en `isolation` contra todo lo demás y
    nunca ganan. Es la misma pregunta que ya se contestó para el core, que sí tiene slot propio.
 
+## Corrección del 12 de septiembre de 2026: el piso de `minPoolSize` no protege todos los filtros
+
+El punto pendiente de más abajo ("los patrones que sí se piden pero con pocos candidatos") se midió.
+`chooseExercise` (`packages/engine/src/placeholder-engine.ts:1346`) aplica ocho preferencias en
+cadena. Tres de ellas usan `preferSoft`, que respeta `selection.minPoolSize` (hoy 3) y se salta el
+filtro si dejaría el pool más chico que el piso: rotación respecto del plan anterior (paso 1),
+tolerancia de nivel (paso 5) y énfasis deportivo (paso 7). El propio comentario del código explica
+por qué existe esa protección: *"Un pool de una sola opción no es una elección: es el mismo ejercicio
+—y la misma máquina— para todos los socios del mismo perfil, aunque el catálogo tenga alternativas
+equivalentes."*
+
+**Los otros tres pasos usan `prefer`, sin esa protección**, y con el catálogo real dos patrones que
+sí se piden como ejercicio principal colapsan por debajo del piso:
+
+Simulando la cadena de filtros del ejercicio principal (`modality !== 'time'` → `modality ===
+'reps_weight'` → `isCompound`) contra los 58 ejercicios reales:
+
+| Patrón | Candidatos totales | Sobreviven al principal | ¿Por qué se cae cada uno |
+|---|---|---|---|
+| `horizontal_pull` | 4 | **2** | Remo invertido en TRX (peso corporal) cae en el filtro de `reps_weight`; face pull en polea (aislado) cae en el filtro de compuesto. |
+| `vertical_pull` | 3 | **2** | Dominadas (peso corporal) cae en el filtro de `reps_weight`. |
+
+Los cuatro patrones restantes que sí se piden como principal (`squat`, `hinge`, `horizontal_push`,
+`cardio` no aplica esta cadena) quedan por encima del piso y no tienen el problema.
+
+**Acotado a `primary`.** Se repitió la misma simulación para `secondary` (sin el filtro de
+`reps_weight`, que solo aplica al principal) y para `isolation`: con el catálogo actual, ningún
+patrón pedido en esos dos roles queda por debajo del piso de 3. El colapso es específico del rol
+principal, donde se suman dos filtros duros en cadena (`reps_weight` y `isCompound`) en vez de uno
+solo.
+
+**Consecuencia medida:** todo socio a quien el motor le pida un `vertical_pull` principal elige
+entre **dorsalera al pecho y dorsalera con agarre neutro únicamente** — dominadas nunca puede ser el
+ejercicio principal de ese slot, sin importar nivel o rotación, porque la cadena lo descarta antes de
+que la protección de piso tenga oportunidad de aplicarse. Mismo caso para `horizontal_pull`: remo
+sentado y remo con mancuerna se reparten el 100% de las asignaciones, remo invertido en TRX y face
+pull en polea quedan estructuralmente afuera del rol principal.
+
+**Por qué importa además de la variedad:** es la misma preferencia (`modality === 'reps_weight'`)
+que `22-carga-de-potencia.md` ya identificó bloqueando los ejercicios explosivos del objetivo
+potencia. Acá el efecto es más amplio: no depende del objetivo, alcanza a `strength` e `hypertrophy`
+también, cada vez que el patrón principal es `horizontal_pull` o `vertical_pull`.
+
+### Veredicto
+
+| Elemento | Veredicto | Por qué |
+|---|---|---|
+| `preferSoft` con piso solo en 3 de 8 pasos | **inconsistencia real** | El propio código explica por qué el piso importa; la razón no depende de cuál paso está aplicando el filtro. |
+| Bug de código, no de evidencia | — | No hay ningún número de investigación en juego: es una preferencia de selección que se auto-contradice contra su propio piso declarado. |
+
+### Lo que queda para decidir (dueño)
+
+Cambiar los pasos 2-4 (`modality !== 'time'`, `modality === 'reps_weight'` en el principal,
+`isCompound`) de `prefer` a `preferSoft` alinearía la protección con lo que el comentario del código
+ya promete. Es un cambio de comportamiento de selección —no de números de prescripción—, así que
+queda para quien decide: **no se tocó el motor** desde esta auditoría. Si se aplica, hay que correr
+`npm run qa:motor` después y mirar el diff del reporte: se espera que dominadas y remo invertido en
+TRX empiecen a aparecer como principal para una parte de los perfiles.
+
 ## Lo que esta revisión NO cubre
 
 - **Si los 19 sin usar deberían estar en el catálogo.** Un ejercicio que existe en el gimnasio va al
@@ -193,5 +252,3 @@ el plan lo dice.
   la función que justifica el relevamiento entero.
 - **Cuántos socios declaran cada deporte.** Toda la tabla de arriba pesa distinto si nadie juega al
   golf. Eso se sabrá con datos de uso, no desde acá.
-- **Los patrones que sí se piden pero con pocos candidatos.** No se midió si algún slot queda con
-  una sola opción, que es el problema que `selection.minPoolSize` existe para evitar.
