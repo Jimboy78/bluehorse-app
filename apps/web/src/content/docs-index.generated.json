@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-12T19:43:21.263Z",
+ "generatedAt": "2026-09-12T20:55:57.367Z",
  "docs": [
   {
    "id": "metodo",
@@ -280,6 +280,14 @@
    "resumen": "Revisión del 12 de septiembre de 2026, cierre de la serie que empezó en 32 (lumbar) y siguió en 33 (cuello). Mismo método: comparar el referIf que el ruleset ya emite contra la mejor evidencia disponible para el mecanismo relevante en ca…",
    "archivo": "34-red-flags-hombro-y-muneca.md",
    "bloques": 30
+  },
+  {
+   "id": "35-proximidad-al-fallo",
+   "orden": 35,
+   "titulo": "El RIR de hipertrofia dice confianza ALTA, y los propios autores dicen que la relación no está clara",
+   "resumen": "Revisión del 13 de septiembre de 2026. Sale de auditar 01-fuerza-hipertrofia-potencia.md, que sostiene el núcleo del ruleset (series, reps, RIR y descanso de fuerza, hipertrofia y potencia) sin ninguna cita verificable. Se tomó un paráme…",
+   "archivo": "35-proximidad-al-fallo.md",
+   "bloques": 27
   },
   {
    "id": "auditoria",

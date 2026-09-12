@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-12",
-  "resolved": 64,
+  "resolved": 66,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -1057,6 +1057,44 @@
       ],
       "documentos": [
         "03-progresion-descarga.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s40279-022-01784-y",
+      "title": "Influence of Resistance Training Proximity-to-Failure on Skeletal Muscle Hypertrophy: A Systematic Review with Meta-analysis",
+      "authors": [
+        "Refalo",
+        "Helms",
+        "Trexler"
+      ],
+      "moreAuthors": 2,
+      "year": 2022,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Proximidad al fallo"
+      ],
+      "documentos": [
+        "35-proximidad-al-fallo.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s40279-024-02069-2",
+      "title": "Exploring the Dose–Response Relationship Between Estimated Resistance Training Proximity to Failure, Strength Gain, and Muscle Hypertrophy: A Series of Meta-Regressions",
+      "authors": [
+        "Robinson",
+        "Pelland",
+        "Remmert"
+      ],
+      "moreAuthors": 4,
+      "year": 2024,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Proximidad al fallo"
+      ],
+      "documentos": [
+        "35-proximidad-al-fallo.md"
       ]
     },
     {

@@ -193,10 +193,13 @@ la precondición en vez de sacarla, igual que `dedupeByExercise` y el `history` 
 |---|---|---|
 | `ultimaVezDe` confía en el orden de `filas` | **mismo defecto que las otras dos** | Ninguna de las tres razones para no confiar cambió: un `select` que agregue una columna, o que reuse la función con datos ya en memoria, puede romperlo sin ningún error visible. |
 
-No se tocó el código. La corrección, si se aplica, es la misma que ya funcionó dos veces: ordenar
-por `Date.parse(f.completed_at)` al entrar a la función, no confiar en el `.order()` del llamador.
-Costaría un `sort` sobre como mucho 12 filas (`limit(12)` en la query) y, si el orden ya viene bien
-como corre hoy, no cambiaría ningún resultado — igual que las dos correcciones anteriores no
+**Corregido el 13 de septiembre de 2026**, a pedido explícito del dueño. La corrección es la misma
+que ya funcionó dos veces: ordenar por `Date.parse(f.completed_at)` al entrar a la función, no
+confiar en el `.order()` del llamador. Dos tests nuevos la fijan —uno con la fila vieja primero, uno
+con el mismo instante escrito en dos husos horarios distintos— y los dos fallan sin el fix
+(falsificado revirtiendo el archivo y corriendo la suite). Costó un `sort` sobre como mucho 12 filas
+(`limit(12)` en la query) y, como el orden ya venía bien en producción, no cambió ningún resultado —
+igual que las dos correcciones anteriores no
 cambiaron el reporte de la matriz.
 
 ## Lo que este documento NO cubre
@@ -205,7 +208,12 @@ cambiaron el reporte de la matriz.
   reducido.** Hoy sale completo: el descargo por ausencia es una *propuesta* de `reviewProgress` y no
   toca `generatePlan`. Puede ser correcto —son dos caminos distintos— pero no está decidido en
   ningún lado, así que queda anotado.
-- **El plan de 8 sesiones vacías con el catálogo sin cargar.** Se midió, no se construyó nada para
-  él, y no se probó en el navegador qué muestra la app.
-- **Si aplicar la corrección a `ultimaVezDe`.** Es código de la app, no del motor, y cambia qué ve
-  el socio en pantalla — queda para quien decide, igual que el resto de esta vuelta.
+- **El plan de 8 sesiones vacías con el catálogo sin cargar.** Cerrado el 12 de septiembre de 2026:
+  el lado del motor ya tenía el comportamiento correcto (8 sesiones, 10 avisos deduplicados, cero
+  ejercicios) y ahora tiene un test que lo fija
+  (`placeholder-engine.test.ts`, "con el catálogo vacío arma la cola completa..."). El lado de la
+  app también estaba resuelto: `Hoy.tsx:132` ya usa `DiaVacio` para ese caso, con el bug viejo
+  documentado en su propio comentario. No se verificó en un navegador real —seguía sin Docker
+  disponible—, pero el comportamiento en código, motor y app, coincide con lo que este documento
+  pedía.
+- ~~Si aplicar la corrección a `ultimaVezDe`.~~ Aplicada el 13/09, ver arriba.

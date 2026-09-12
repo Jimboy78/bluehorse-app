@@ -348,8 +348,9 @@ la consulta": documentaba la precondición en vez de sacarla.
 - **Si un plan generado para alguien que vuelve después de un año debe salir con volumen reducido.**
   Hoy sale completo: el descargo por ausencia es una propuesta de `reviewProgress` y nunca toca
   `generatePlan`.
-- **El plan de 8 sesiones vacías con el catálogo sin cargar.** Medido, no construido, no probado en
-  el navegador.
+- **El plan de 8 sesiones vacías con el catálogo sin cargar.** **Cerrado 2026-09-12:** medido de
+  nuevo y resultó estar construido de los dos lados — motor y app — desde antes de esta nota. Ver
+  `30-el-orden-del-historial.md`. Sigue faltando la vuelta en un navegador real.
 
 ## Cuarta vuelta — 2026-09-12
 
@@ -372,3 +373,4 @@ producto.
 | 34 | `34-red-flags-hombro-y-muneca.md` | **Cierra el repaso de los cinco `referIf`.** Hombro: "debilidad marcada" es correcto en esencia pero impreciso frente al criterio medido (no poder levantar el brazo por arriba de la horizontal — sensibilidad 84 %, DOI 10.1186/s12891-025-08754-1). Muñeca: falta el dedo mayor en el territorio del nervio mediano (DOI 10.7759/cureus.87563, evidencia más débil que las otras cuatro zonas). Ninguno de los dos con la urgencia de `32`. Con esto, las cinco zonas con regla tienen su `referIf` comparado contra evidencia real. |
 | — | `25-cobertura-del-catalogo.md` (actualizado) | **Bug de motor, no de evidencia.** `chooseExercise` protege el piso `selection.minPoolSize` en 3 de sus 8 pasos (`preferSoft`); los otros 3 usan `prefer` sin piso. Medido contra el catálogo real: el principal de `vertical_pull` colapsa de 3 candidatos a 2 (dominadas queda estructuralmente afuera) y el de `horizontal_pull` de 4 a 2 (remo invertido en TRX y face pull en polea, afuera). Mismo mecanismo que ya encontró `22` para potencia, acá alcanza también a fuerza e hipertrofia. Nada tocado en el motor. |
 | — | `30-el-orden-del-historial.md` (actualizado) | **La tercera función que dice "más reciente" y hace "la primera".** `ultimaVezDe` (`apps/web/src/lib/last-session.ts:54`) confía en el orden de la fila 0 igual que las dos ya corregidas. Reproducido: con una fila de enero antes que una de hoy, muestra "la última vez" de enero. El test existente no lo detecta por la misma razón que las otras dos: documenta la precondición en vez de sacarla. Nada tocado. |
+| 35 | `35-proximidad-al-fallo.md` | **`hypertrophy.confidence: "high"` no se sostiene.** Los dos mejores trabajos sobre RIR e hipertrofia (Refalo 2023, DOI 10.1007/s40279-022-01784-y: efecto trivial y no significativo de entrenar al fallo; Robinson 2024, DOI 10.1007/s40279-024-02069-2: "the exact relationship... remains unclear", análisis "exploratory") usan lenguaje de incertidumbre, no de alta confianza. El campo es real y `EvidenceNotice.tsx` lo consume: hoy ningún socio con objetivo hipertrofia ve el aviso de evidencia floja. `strength.confidence: "high"` sobre lo mismo sí se sostiene, porque ahí la afirmación es una ausencia de efecto con IC que incluye el cero. Nada tocado en el ruleset. |

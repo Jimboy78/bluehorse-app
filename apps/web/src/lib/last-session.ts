@@ -50,12 +50,23 @@ interface Fila {
  *
  * Se agrupa por `workout_log_id` y no por día: dos sesiones del mismo día son
  * dos entrenamientos, y mezclarlas mostraría ocho series donde hubo cuatro.
+ *
+ * Ordena por `completed_at` acá adentro, no confía en el orden de `filas`.
+ * `useUltimaVez` ya pide `.order('completed_at', { ascending: false })`, pero
+ * un comentario que dice "llega ordenada" no es una garantía: es la misma
+ * clase de bug que ya apareció dos veces en el motor y en `plan.ts`
+ * (`docs/research/30-el-orden-del-historial.md`). Se compara por instante
+ * (`Date.parse`) y no por texto, por la misma razón que ahí: dos ISO válidos
+ * del mismo momento se escriben distinto.
  */
 export function ultimaVezDe(filas: readonly unknown[]): UltimaVez | null {
-  const primera = filas[0] as Fila | undefined;
+  const ordenadas = [...(filas as Fila[])].sort(
+    (a, b) => Date.parse(b.completed_at) - Date.parse(a.completed_at),
+  );
+  const primera = ordenadas[0];
   if (!primera) return null;
 
-  const delMismo = (filas as Fila[]).filter((f) => f.workout_log_id === primera.workout_log_id);
+  const delMismo = ordenadas.filter((f) => f.workout_log_id === primera.workout_log_id);
   const series = delMismo
     .map((f) => ({
       setIndex: f.set_index,

@@ -59,4 +59,26 @@ describe('ultimaVezDe', () => {
     const out = ultimaVezDe([fila({ completed_at: '2026-09-08T13:00:00Z' })]);
     expect(out?.cuando).toBe('2026-09-08T13:00:00Z');
   });
+
+  it('elige el entrenamiento más reciente aunque no venga primero', () => {
+    // `useUltimaVez` pide `.order('completed_at', { ascending: false })`, pero
+    // esta función no puede confiar en eso: con la fila vieja primero, el
+    // socio vería "la última vez" de hace meses en vez de la de ayer.
+    const out = ultimaVezDe([
+      fila({ workout_log_id: 'wl-vieja', completed_at: '2026-01-01T10:00:00Z', load_value: 20 }),
+      fila({ workout_log_id: 'wl-nueva', completed_at: '2026-09-08T13:00:00Z', load_value: 60 }),
+    ]);
+    expect(out?.cuando).toBe('2026-09-08T13:00:00Z');
+    expect(out?.series[0]?.load?.value).toBe(60);
+  });
+
+  it('compara por instante, no por texto: un huso horario distinto no invierte el orden', () => {
+    // Mismo momento, dos formas válidas de escribirlo. Alfabéticamente "12"
+    // va antes que "11", pero en UTC las 12:00+02:00 son antes que las 11:00Z.
+    const out = ultimaVezDe([
+      fila({ workout_log_id: 'wl-a', completed_at: '2026-09-01T12:00:00+02:00', load_value: 10 }),
+      fila({ workout_log_id: 'wl-b', completed_at: '2026-09-01T11:00:00Z', load_value: 20 }),
+    ]);
+    expect(out?.series[0]?.load?.value).toBe(20);
+  });
 });
