@@ -51,13 +51,18 @@ export function toPainReportInsert(
   bodyRegion: BodyRegion,
   severity: number,
   reportedAt: string,
+  /**
+   * Con qué ejercicio apareció, cuando se reporta en el medio de la sesión.
+   * El cierre no lo sabe —ahí la molestia es del día entero— y manda `null`.
+   */
+  note: string | null = null,
 ): PainReportInsertRow {
   return {
     user_id: userId,
     workout_log_id: workoutLogId,
     body_region: bodyRegion,
     severity,
-    note: null,
+    note,
     reported_at: reportedAt,
   };
 }

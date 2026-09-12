@@ -7,6 +7,7 @@ import {
   ChevronRight,
   Dumbbell,
   Flag,
+  HeartPulse,
   Loader2,
   MapPin,
   Repeat2,
@@ -25,6 +26,7 @@ import { useActivePlan, useGeneratePlan, useRequestNextPlan } from '../lib/plan.
 import { useSessionLog } from '../lib/session-log.ts';
 import { useRestoredSession } from '../lib/session-restore.ts';
 import { carriesLoad } from './LoadInput.tsx';
+import { PainReport } from './PainReport.tsx';
 import { RestTimer } from './RestTimer.tsx';
 import { SessionClose } from './SessionClose.tsx';
 import { SetRow } from './SetRow.tsx';
@@ -90,6 +92,7 @@ export function Hoy() {
   const [restingIndex, setRestingIndex] = useState<number | null>(null);
   const [closing, setClosing] = useState(false);
   const [showingSubstitutes, setShowingSubstitutes] = useState(false);
+  const [reportandoDolor, setReportandoDolor] = useState(false);
   const [substitutions, setSubstitutions] = useState<Record<string, Substitution>>({});
   // Destildar una serie ya registrada borra el registro: se pregunta antes.
   const [undoing, setUndoing] = useState<number | null>(null);
@@ -254,6 +257,7 @@ export function Hoy() {
             gymId={profile.data?.gymId ?? null}
             workoutLogId={workoutLogId}
             showingSubstitutes={showingSubstitutes}
+            reportandoDolor={reportandoDolor}
             restingIndex={restingIndex}
             seriesHechas={seriesHechas}
             cargaDeSerie={(setIndex) =>
@@ -271,10 +275,18 @@ export function Hoy() {
               setActiveItemId(null);
               setRestingIndex(null);
               setShowingSubstitutes(false);
+              setReportandoDolor(false);
             }}
             onShowSubstitutes={() => setShowingSubstitutes(true)}
             onPickSubstitute={handlePickSubstitute}
             onCancelSubstitutes={() => setShowingSubstitutes(false)}
+            onReportPain={() => setReportandoDolor(true)}
+            onCancelPain={() => setReportandoDolor(false)}
+            onEndSession={() => {
+              setReportandoDolor(false);
+              setActiveItemId(null);
+              setClosing(true);
+            }}
             onRestFinish={handleRestFinish}
             onToggleSet={markDone}
           />
@@ -600,6 +612,7 @@ function ExerciseDetail({
   gymId,
   workoutLogId,
   showingSubstitutes,
+  reportandoDolor,
   restingIndex,
   seriesHechas,
   cargaDeSerie: cargaDe,
@@ -608,6 +621,9 @@ function ExerciseDetail({
   onShowSubstitutes,
   onPickSubstitute,
   onCancelSubstitutes,
+  onReportPain,
+  onCancelPain,
+  onEndSession,
   onRestFinish,
   onToggleSet,
 }: {
@@ -618,6 +634,7 @@ function ExerciseDetail({
   /** El registro de HOY, para no contar la sesión en curso como "la vez pasada". */
   workoutLogId: string | null;
   showingSubstitutes: boolean;
+  reportandoDolor: boolean;
   restingIndex: number | null;
   seriesHechas: number[];
   /** Con cuánto se está trabajando hoy: lo del plan, o lo que la persona anotó. */
@@ -628,6 +645,9 @@ function ExerciseDetail({
   onShowSubstitutes: () => void;
   onPickSubstitute: (option: SubstituteOption, name: string, sector: string | null) => void;
   onCancelSubstitutes: () => void;
+  onReportPain: () => void;
+  onCancelPain: () => void;
+  onEndSession: () => void;
   onRestFinish: (actualSeconds: number, actual: SetActual) => void;
   onToggleSet: (indice: number) => void;
 }) {
@@ -687,14 +707,40 @@ function ExerciseDetail({
           no solo máquinas libres. "Cambiar ejercicio" es lo que hace de
           verdad — sirve tanto para la estación ocupada como para "che, ¿esto
           lo puedo hacer de otra forma?" un día cualquiera. */}
-      {!showingSubstitutes && restingIndex === null && (
-        <Button variant="ghost" size="sm" className="self-start" onClick={onShowSubstitutes}>
-          <Repeat2 size={13} aria-hidden="true" />
-          Cambiar ejercicio
-        </Button>
+      {/* "Me duele" al lado de "Cambiar ejercicio" y no escondido en el cierre:
+          hasta acá la molestia se preguntaba al terminar, o sea cuando las
+          series que dolieron ya estaban hechas y lo único que quedaba por hacer
+          con el dato era el plan de la semana siguiente. */}
+      {!showingSubstitutes && !reportandoDolor && restingIndex === null && (
+        <div className="flex flex-wrap gap-2">
+          <Button variant="ghost" size="sm" onClick={onShowSubstitutes}>
+            <Repeat2 size={13} aria-hidden="true" />
+            Cambiar ejercicio
+          </Button>
+          <Button variant="ghost" size="sm" onClick={onReportPain}>
+            <HeartPulse size={13} aria-hidden="true" />
+            Me duele algo
+          </Button>
+        </div>
       )}
 
-      {showingSubstitutes && original ? (
+      {reportandoDolor ? (
+        <PainReport
+          exerciseName={item.name}
+          workoutLogId={workoutLogId}
+          onSwap={() => {
+            onCancelPain();
+            onShowSubstitutes();
+          }}
+          onSkip={() => {
+            onCancelPain();
+            onBack();
+          }}
+          onKeepGoing={onCancelPain}
+          onEndSession={onEndSession}
+          onCancel={onCancelPain}
+        />
+      ) : showingSubstitutes && original ? (
         <SubstitutePicker
           userId={userId}
           gymId={gymId}

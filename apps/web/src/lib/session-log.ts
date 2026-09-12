@@ -500,3 +500,50 @@ export function useCloseSession() {
     },
   });
 }
+
+/**
+ * Reportar una molestia **en el medio** de la sesión, sin cerrarla.
+ *
+ * `useCloseSession` ya guardaba molestias, pero recién al terminar: para cuando
+ * se preguntaba, el socio ya había hecho las tres series que le dolieron. Esto
+ * escribe la misma fila de `pain_reports` apenas pasa, con el nombre del
+ * ejercicio en `note` — que al cierre no se sabe, porque ahí la molestia es del
+ * día entero y no de un movimiento.
+ *
+ * No pasa por la cola offline, igual que el cierre: es una acción deliberada,
+ * no algo disparado a mitad de una serie. Si falla, la pantalla lo dice y la
+ * persona sigue entrenando; perder el registro es malo, trabarle la sesión por
+ * eso es peor.
+ */
+export function useReportPain() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: {
+      readonly workoutLogId: string | null;
+      readonly region: BodyRegion;
+      readonly severity: number;
+      readonly exerciseName: string;
+    }) => {
+      if (!user) throw new Error('No hay sesión activa.');
+      const client = requireSupabase();
+      const { error } = await client
+        .from('pain_reports')
+        .insert(
+          toPainReportInsert(
+            user.id,
+            input.workoutLogId,
+            input.region,
+            input.severity,
+            new Date().toISOString(),
+            input.exerciseName,
+          ),
+        );
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['pain-history', user?.id] });
+    },
+  });
+}
