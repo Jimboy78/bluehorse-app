@@ -2272,10 +2272,9 @@
       "rulesetVersion": "v1-research",
       "source": "research",
       "warnings": [
-        "Para este objetivo tu nivel decide qué ejercicios entran al plan por la técnica que piden, pero no cambia las series ni las repeticiones. La evidencia que mide la dosis solo distingue entre entrenado y no entrenado, así que afinar más sería inventarlo.",
+        "Para este objetivo tu nivel decide qué ejercicios entran al plan por la técnica que piden, pero no cambia las series ni las repeticiones.",
         "Ninguna plantilla cubre 4 sesiones por semana para potencia. Se usó \"Cuerpo completo A/B\".",
-        "Con 3 sesiones por semana, estos músculos pasan las 10 series semanales que la evidencia marca como techo útil: glúteos (12), hombro anterior (12), espalda (12), dorsales (12). Más volumen ahí no rinde más.",
-        "Este plan no incluye ningún ejercicio explosivo: se entrena con series cortas y rápidas sobre los ejercicios de siempre. El gimnasio tiene con qué (cajones, wall ball, slam ball), pero todavía no entran solos al plan. Si buscás explosividad, consultalo con el staff."
+        "Con 3 sesiones por semana, estos músculos pasan las 10 series semanales que la evidencia marca como techo útil: glúteos (12), hombro anterior (12), espalda (12), dorsales (12). Más volumen ahí no rinde más."
       ],
       "sesiones": [
         {
@@ -3609,7 +3608,7 @@
       "rulesetVersion": "v1-research",
       "source": "research",
       "warnings": [
-        "Para este objetivo tu nivel decide qué ejercicios entran al plan por la técnica que piden, pero no cambia las series ni las repeticiones. La evidencia que mide la dosis solo distingue entre entrenado y no entrenado, así que afinar más sería inventarlo.",
+        "Para este objetivo tu nivel decide qué ejercicios entran al plan por la técnica que piden, pero no cambia las series ni las repeticiones.",
         "Con 3 sesiones por semana, estos músculos quedan abajo de las 6 series semanales mínimas: isquiotibiales (3). Sumar una sesión más por semana los cubre."
       ],
       "sesiones": [
@@ -4075,7 +4074,7 @@
       "rulesetVersion": "v1-research",
       "source": "research",
       "warnings": [
-        "Para este objetivo tu nivel decide qué ejercicios entran al plan por la técnica que piden, pero no cambia las series ni las repeticiones. La evidencia que mide la dosis solo distingue entre entrenado y no entrenado, así que afinar más sería inventarlo.",
+        "Para este objetivo tu nivel decide qué ejercicios entran al plan por la técnica que piden, pero no cambia las series ni las repeticiones.",
         "Si hacés cardio el mismo día que pierna, no te preocupes de más: el efecto medido es chico y a nivel de músculo entero no aparece. Da igual el orden y da igual si lo hacés el mismo día o en días separados. Lo único que sí cambia algo es la máquina: correr en cinta castiga más la pierna que la bici o el elíptico, porque frenar en cada paso es lo que deja el músculo golpeado. Si ese día entrenás pierna fuerte, elegí bici."
       ],
       "sesiones": [
@@ -6610,7 +6609,7 @@
       "rulesetVersion": "v1-research",
       "source": "research",
       "warnings": [
-        "Se baja el volumen a la mitad para llegar entero a los partidos, manteniendo la intensidad. Ojo: esto se repite como consenso firme y no lo es. La unica comparacion directa in-season es de 16 personas, con diferencias despreciables (ES -0,04 a 0,04) y certeza calificada como muy baja por los propios revisores.",
+        "Se baja el volumen a la mitad para llegar entero a los partidos, manteniendo la intensidad.",
         "Con 2 sesiones por semana, estos músculos quedan abajo de las 4 series semanales mínimas: pecho (2), isquiotibiales (2). Sumar una sesión más por semana los cubre.",
         "Tu deporte trabaja sobre todo oblicuos, y el plan no lo trae de entrada. Si te importa esa parte, en cada ejercicio tenes \"otras formas de hacerlo\": ahi aparece alguna opcion que si lo trabaja, y podes cambiarla durante la sesion."
       ],
@@ -7077,10 +7076,9 @@
       "rulesetVersion": "v1-research",
       "source": "research",
       "warnings": [
-        "Para este objetivo tu nivel decide qué ejercicios entran al plan por la técnica que piden, pero no cambia las series ni las repeticiones. La evidencia que mide la dosis solo distingue entre entrenado y no entrenado, así que afinar más sería inventarlo.",
-        "Se baja el volumen a la mitad para llegar entero a los partidos, manteniendo la intensidad. Ojo: esto se repite como consenso firme y no lo es. La unica comparacion directa in-season es de 16 personas, con diferencias despreciables (ES -0,04 a 0,04) y certeza calificada como muy baja por los propios revisores.",
+        "Para este objetivo tu nivel decide qué ejercicios entran al plan por la técnica que piden, pero no cambia las series ni las repeticiones.",
+        "Se baja el volumen a la mitad para llegar entero a los partidos, manteniendo la intensidad.",
         "Con 3 sesiones por semana, estos músculos quedan abajo de las 3 series semanales mínimas: isquiotibiales (2). Sumar una sesión más por semana los cubre.",
-        "Este plan no incluye ningún ejercicio explosivo: se entrena con series cortas y rápidas sobre los ejercicios de siempre. El gimnasio tiene con qué (cajones, wall ball, slam ball), pero todavía no entran solos al plan. Si buscás explosividad, consultalo con el staff.",
         "Tu deporte trabaja sobre todo oblicuos, y el plan no lo trae de entrada. Si te importa esa parte, en cada ejercicio tenes \"otras formas de hacerlo\": ahi aparece alguna opcion que si lo trabaja, y podes cambiarla durante la sesion.",
         "Tu deporte trabaja sobre todo hombro posterior, antebrazos, y este plan no lo cubre: no aparece en ninguna sesion ni entre los equivalentes que podes elegir en su lugar. El gimnasio no tiene hoy con que entrenarlo dentro de un plan. Consultalo con el staff si te importa esa parte."
       ],
@@ -8887,7 +8885,7 @@
         "Por la molestia en la zona lumbar: Trabajo de core y glúteos en posición neutra, y caminar. Lo que no conviene es quedarse quieto del todo.",
         "Consultá si el dolor pasa dos semanas sin mejorar, empeora tras 48 horas de reposo, o aparece hormigueo, debilidad en las piernas o fiebre.",
         "Que moleste no quiere decir que estés haciéndote mal. La referencia es 5 sobre 10: durante el ejercicio podés llegar hasta ahí, y al día siguiente tenés que estar como empezaste. Si el dolor pasa de ahí, si no baja para la mañana siguiente, o si va aumentando semana a semana, ese movimiento está cargando de más.",
-        "En Sesión B no quedó ningún ejercicio de bisagra de cadera: los que hay quedaron afuera por lo que anotaste que no podés hacer. Es lo esperable y no hace falta que hagas nada."
+        "Por lo que anotaste en la zona lumbar, en Sesión B cambiamos el trabajo de bisagra de cadera por otros ejercicios que mueven los mismos músculos sin cargar la zona. El día queda igual de completo."
       ],
       "sesiones": [
         {
@@ -8953,7 +8951,7 @@
           "minutos": 55,
           "items": [
             {
-              "ejercicio": "Dorsalera con agarre neutro",
+              "ejercicio": "Extensión de glúteo sentado",
               "series": 4,
               "reps": "6-12",
               "rir": 1,
@@ -8963,7 +8961,17 @@
               "zona": null
             },
             {
-              "ejercicio": "Sentadilla búlgara",
+              "ejercicio": "Dorsalera al pecho",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Zancadas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -8983,7 +8991,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Curl de bíceps",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -9057,7 +9065,7 @@
           "minutos": 55,
           "items": [
             {
-              "ejercicio": "Dorsalera con agarre neutro",
+              "ejercicio": "Extensión de glúteo sentado",
               "series": 4,
               "reps": "6-12",
               "rir": 1,
@@ -9067,7 +9075,17 @@
               "zona": null
             },
             {
-              "ejercicio": "Sentadilla búlgara",
+              "ejercicio": "Dorsalera al pecho",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Zancadas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -9087,7 +9105,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Curl de bíceps",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -9161,7 +9179,7 @@
           "minutos": 55,
           "items": [
             {
-              "ejercicio": "Dorsalera con agarre neutro",
+              "ejercicio": "Extensión de glúteo sentado",
               "series": 4,
               "reps": "6-12",
               "rir": 1,
@@ -9171,7 +9189,17 @@
               "zona": null
             },
             {
-              "ejercicio": "Sentadilla búlgara",
+              "ejercicio": "Dorsalera al pecho",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Zancadas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -9191,7 +9219,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Curl de bíceps",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -9265,7 +9293,7 @@
           "minutos": 55,
           "items": [
             {
-              "ejercicio": "Dorsalera con agarre neutro",
+              "ejercicio": "Extensión de glúteo sentado",
               "series": 4,
               "reps": "6-12",
               "rir": 1,
@@ -9275,7 +9303,17 @@
               "zona": null
             },
             {
-              "ejercicio": "Sentadilla búlgara",
+              "ejercicio": "Dorsalera al pecho",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Zancadas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -9295,7 +9333,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Curl de bíceps",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -9704,8 +9742,8 @@
         "Por la lesión en la rodilla: Trabajo de tren superior y core, y cardio sin impacto si no duele.",
         "Consultá si hubo un chasquido, la rodilla se traba o se hincha, o sentís que se va de lugar.",
         "Marcaste esto como una lesión, no como un dolor que venís arrastrando, así que el plan se pone en el lado prudente: se saca todo lo que cargue la zona, no solo lo que más molesta. La evidencia de que conviene seguir cargando aunque duela está hecha con dolor de meses, sobre tejido que ya cicatrizó; no dice nada sobre algo que se lesionó hace poco. Mientras esté reciente, no uses el dolor como permiso para cargar. Si fue un golpe fuerte, si la zona se hinchó o se deformó, si no podés apoyar o mover, o si no mejora en unos días, eso lo tiene que ver un profesional antes de que sigas entrenando.",
-        "En Sesión A no quedó ningún ejercicio de sentadilla: los que hay quedaron afuera por lo que anotaste que no podés hacer. Es lo esperable y no hace falta que hagas nada.",
-        "En Sesión B no quedó ningún ejercicio de zancada: los que hay quedaron afuera por lo que anotaste que no podés hacer. Es lo esperable y no hace falta que hagas nada."
+        "Por lo que anotaste en la rodilla, en Sesión A cambiamos el trabajo de sentadilla por otros ejercicios que mueven los mismos músculos sin cargar la zona. El día queda igual de completo.",
+        "Por lo que anotaste en la rodilla, en Sesión B cambiamos el trabajo de zancada por otros ejercicios que mueven los mismos músculos sin cargar la zona. El día queda igual de completo."
       ],
       "sesiones": [
         {
@@ -9714,6 +9752,16 @@
           "minutos": 55,
           "items": [
             {
+              "ejercicio": "Hiperextensiones",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
               "ejercicio": "Press de banco",
               "series": 4,
               "reps": "1-5",
@@ -9734,7 +9782,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press militar con barra",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -9744,7 +9792,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Abdominales en camilla",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -9761,7 +9809,7 @@
           "minutos": 55,
           "items": [
             {
-              "ejercicio": "Peso muerto",
+              "ejercicio": "Peso muerto rumano",
               "series": 4,
               "reps": "1-5",
               "rir": 3,
@@ -9771,11 +9819,21 @@
               "zona": null
             },
             {
-              "ejercicio": "Dorsalera con agarre neutro",
+              "ejercicio": "Dorsalera al pecho",
               "series": 4,
               "reps": "1-5",
               "rir": 3,
               "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Hiperextensiones",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
               "carga": null,
               "duracionSeg": null,
               "zona": null
@@ -9791,7 +9849,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Rotación externa con banda",
+              "ejercicio": "Elevaciones laterales",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -9808,6 +9866,16 @@
           "minutos": 55,
           "items": [
             {
+              "ejercicio": "Hiperextensiones",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
               "ejercicio": "Press de banco",
               "series": 4,
               "reps": "1-5",
@@ -9828,7 +9896,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press militar con barra",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -9838,7 +9906,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Abdominales en camilla",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -9855,7 +9923,7 @@
           "minutos": 55,
           "items": [
             {
-              "ejercicio": "Peso muerto",
+              "ejercicio": "Peso muerto rumano",
               "series": 4,
               "reps": "1-5",
               "rir": 3,
@@ -9865,11 +9933,21 @@
               "zona": null
             },
             {
-              "ejercicio": "Dorsalera con agarre neutro",
+              "ejercicio": "Dorsalera al pecho",
               "series": 4,
               "reps": "1-5",
               "rir": 3,
               "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Hiperextensiones",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
               "carga": null,
               "duracionSeg": null,
               "zona": null
@@ -9885,7 +9963,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Rotación externa con banda",
+              "ejercicio": "Elevaciones laterales",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -9902,6 +9980,16 @@
           "minutos": 55,
           "items": [
             {
+              "ejercicio": "Hiperextensiones",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
               "ejercicio": "Press de banco",
               "series": 4,
               "reps": "1-5",
@@ -9922,7 +10010,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press militar con barra",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -9932,7 +10020,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Abdominales en camilla",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -9949,7 +10037,7 @@
           "minutos": 55,
           "items": [
             {
-              "ejercicio": "Peso muerto",
+              "ejercicio": "Peso muerto rumano",
               "series": 4,
               "reps": "1-5",
               "rir": 3,
@@ -9959,11 +10047,21 @@
               "zona": null
             },
             {
-              "ejercicio": "Dorsalera con agarre neutro",
+              "ejercicio": "Dorsalera al pecho",
               "series": 4,
               "reps": "1-5",
               "rir": 3,
               "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Hiperextensiones",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
               "carga": null,
               "duracionSeg": null,
               "zona": null
@@ -9979,7 +10077,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Rotación externa con banda",
+              "ejercicio": "Elevaciones laterales",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -9996,6 +10094,16 @@
           "minutos": 55,
           "items": [
             {
+              "ejercicio": "Hiperextensiones",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
               "ejercicio": "Press de banco",
               "series": 4,
               "reps": "1-5",
@@ -10016,7 +10124,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press militar con barra",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -10026,7 +10134,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Abdominales en camilla",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -10043,7 +10151,7 @@
           "minutos": 55,
           "items": [
             {
-              "ejercicio": "Peso muerto",
+              "ejercicio": "Peso muerto rumano",
               "series": 4,
               "reps": "1-5",
               "rir": 3,
@@ -10053,11 +10161,21 @@
               "zona": null
             },
             {
-              "ejercicio": "Dorsalera con agarre neutro",
+              "ejercicio": "Dorsalera al pecho",
               "series": 4,
               "reps": "1-5",
               "rir": 3,
               "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Hiperextensiones",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
               "carga": null,
               "duracionSeg": null,
               "zona": null
@@ -10073,7 +10191,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Rotación externa con banda",
+              "ejercicio": "Elevaciones laterales",
               "series": 2,
               "reps": "6-10",
               "rir": 3,

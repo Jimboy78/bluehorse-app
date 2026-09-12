@@ -562,6 +562,7 @@
       "secondaryMuscles": ["lower_back", "abs"],
       "isCompound": true,
       "isUnilateral": false,
+      "isExplosive": true,
       "modality": "reps_weight",
       "skillLevel": "intermediate",
       "cues": "La pesa la impulsa la cadera, no los hombros. Los brazos solo cuelgan.",

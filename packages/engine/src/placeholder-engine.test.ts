@@ -435,6 +435,33 @@ describe('generatePlan', () => {
     expect(aviso).toContain('el catálogo del gimnasio no tiene ninguno');
   });
 
+  /**
+   * El catálogo real recién relevado, o borrado por `npm run db:reset` sin
+   * volver a cargar `db:catalog` (trampa documentada en `CLAUDE.md`): el
+   * motor no puede tirar una excepción solo porque todavía no hay máquinas
+   * cargadas. `docs/research/30-el-orden-del-historial.md` lo medía como
+   * "no construido"; `Hoy.tsx` ya tiene `DiaVacio` para el lado de la app, y
+   * esto fija el lado del motor para que no se rompa en el próximo cambio.
+   */
+  it('con el catálogo vacío arma la cola completa, vacía, y avisa sin repetirse por sesión', () => {
+    const gym = buildGym();
+    const plan = engine.generatePlan({
+      context,
+      user: buildUser(),
+      gym: { ...gym, equipment: [], exercises: [] },
+      ruleset: V1_RESEARCH,
+    });
+
+    expect(plan.sessions).toHaveLength(V1_RESEARCH.planning.sessionsAhead);
+    expect(plan.sessions.every((s) => s.items.length === 0)).toBe(true);
+
+    // Ocho sesiones alternan A/B: un aviso por patrón sin cubrir en CADA
+    // sesión de la cola daría 40, no 10. Deduplicar por etiqueta de sesión es
+    // lo que evita que un catálogo vacío se lea como un error del motor.
+    expect(plan.warnings).toHaveLength(10);
+    expect(new Set(plan.warnings).size).toBe(plan.warnings.length);
+  });
+
   it('respeta el escalón de la máquina al proponer la carga inicial', () => {
     const plan = engine.generatePlan({
       context,
@@ -1047,6 +1074,219 @@ describe('lesión declarada contra dolor de arrastre', () => {
     // El piso conservador arranca en `monitorFrom`, no antes: una lesión leve
     // que ni siquiera dispara el aviso tampoco puede vaciar el plan.
     expect(JSON.stringify(planCon('injury', 2))).toEqual(JSON.stringify(planCon('pain', 2)));
+  });
+});
+
+/**
+ * UNA MOLESTIA CAMBIA QUÉ SE ENTRENA, NO SI SE ENTRENA
+ *
+ * El motor dejaba el slot vacío y explicaba por qué. Ahora busca en el catálogo
+ * trabajo que mueva los músculos que el patrón bloqueado cubría, sin tocar la
+ * zona. Lo que se fija acá son las dos garantías que hacen que eso no sea peor
+ * que el hueco: que el sustituto **nunca** puede ser algo que la molestia
+ * prohibió, y que se elige por los músculos que definen al patrón y no por uno
+ * que aparece en un solo ejercicio.
+ */
+describe('sustitución por molestia', () => {
+  const engine = createPlaceholderEngine();
+
+  /**
+   * Un gimnasio donde la sentadilla tiene un ejercicio raro.
+   *
+   * `ex-wall-ball` declara `front_delts` además de lo de siempre. Es el caso
+   * del catálogo real —de las ocho sentadillas de Blue Horse, el wall ball es
+   * la única que los lista— y es lo que hacía que el motor ofreciera un press
+   * de hombro como reemplazo de la sentadilla.
+   */
+  function gimnasioConRareza(): GymSnapshot {
+    const base = buildGym();
+    return {
+      ...base,
+      exercises: [
+        ...base.exercises,
+        exercise('ex-sentadilla', 'Sentadilla', {
+          pattern: 'squat',
+          primaryMuscles: ['quads', 'glutes'],
+          equipmentIds: ['eq-prensa'],
+        }),
+        exercise('ex-wall-ball', 'Wall ball', {
+          pattern: 'squat',
+          primaryMuscles: ['quads', 'glutes', 'front_delts', 'abs'],
+          equipmentIds: ['eq-prensa'],
+        }),
+        // El impostor. Con la unión ingenua de músculos le gana a la patada de
+        // glúteo —toca dos de los "músculos de la sentadilla" contra uno— y el
+        // motor termina ofreciendo hombro donde iba pierna. Va sin usar en
+        // ningún slot a propósito: el primer intento de este test puso uno que
+        // ya estaba elegido en el slot de empuje vertical, así que `used` lo
+        // descartaba antes de llegar acá y el test pasaba en verde con el bug
+        // puesto.
+        exercise('ex-hombro-mancuernas', 'Press de hombro con mancuernas', {
+          pattern: 'vertical_push',
+          primaryMuscles: ['front_delts', 'abs'],
+          equipmentIds: ['eq-mancuernas'],
+        }),
+        // Glúteo puro, sin cargar la rodilla: el reemplazo que tiene sentido.
+        exercise('ex-patada-gluteo', 'Patada de glúteo', {
+          pattern: 'isolation',
+          primaryMuscles: ['glutes'],
+          isCompound: false,
+          equipmentIds: ['eq-hombro'],
+        }),
+        /*
+         * El señuelo balístico.
+         *
+         * Va de `carry` porque es el único patrón sin slot en la plantilla: un
+         * señuelo que tiene slot propio se lo queda, entra en `used` y deja de
+         * ser candidato a complemento — o sea que el test pasa en verde con el
+         * bug puesto. Ya pasó dos veces en este archivo (el press de hombro, y
+         * una primera versión de este mismo con patrón `hinge`).
+         *
+         * Y lleva `glutes` sin `quads`: la regla de rodilla bloquea el
+         * cuádriceps, así que un señuelo con cuádriceps nunca llega al pool y
+         * tampoco prueba nada.
+         */
+        exercise('ex-slam-ball', 'Slam ball', {
+          pattern: 'carry',
+          primaryMuscles: ['glutes', 'hamstrings'],
+          isExplosive: true,
+          equipmentIds: ['eq-mancuernas'],
+        }),
+      ],
+    };
+  }
+
+  function planConRodillaRota(gym = gimnasioConRareza()) {
+    return engine.generatePlan({
+      context,
+      user: buildUser({
+        constraints: [
+          { type: 'injury', bodyRegion: 'knee', exerciseId: null, equipmentId: null, severity: 5 },
+        ],
+      }),
+      gym,
+      ruleset: V1_RESEARCH,
+    });
+  }
+
+  it('el sustituto no puede ser nada que la molestia haya prohibido', () => {
+    const gym = gimnasioConRareza();
+    const plan = planConRodillaRota(gym);
+    const elegidos = plan.sessions.flatMap((s) => s.items.map((i) => i.exerciseId));
+    expect(elegidos.length, 'el plan salió vacío y no se midió nada').toBeGreaterThan(0);
+
+    const porId = new Map(gym.exercises.map((e) => [e.id, e]));
+    for (const id of elegidos) {
+      const e = porId.get(id);
+      expect(e, `${id} no está en el catálogo`).toBeDefined();
+      // La regla de rodilla del ruleset saca los patrones de rodilla y el cuádriceps.
+      expect(['squat', 'lunge'], `entró ${e?.name}`).not.toContain(e?.pattern);
+      expect(e?.primaryMuscles, `entró ${e?.name}`).not.toContain('quads');
+    }
+  });
+
+  it('no reemplaza una sentadilla por un press de hombro', () => {
+    const gym = gimnasioConRareza();
+    const sano = engine.generatePlan({ context, user: buildUser(), gym, ruleset: V1_RESEARCH });
+    const conMolestia = planConRodillaRota(gym);
+    const porId = new Map(gym.exercises.map((e) => [e.id, e]));
+
+    // El press de hombro entra legítimamente en **su** slot de empuje vertical:
+    // prohibirlo en todo el plan no mide nada. Lo que importa es qué ocupó el
+    // lugar de la sentadilla, así que se compara slot contra slot — los dos
+    // planes tienen la misma cantidad de ítems, y el orden es el de la plantilla.
+    let medidos = 0;
+    for (const [i, sesion] of conMolestia.sessions.entries()) {
+      const original = sano.sessions[i];
+      if (!original) continue;
+      for (const [j, item] of sesion.items.entries()) {
+        const antes = porId.get(original.items[j]?.exerciseId ?? '');
+        if (antes?.pattern !== 'squat' && antes?.pattern !== 'lunge') continue;
+        medidos += 1;
+        const ahora = porId.get(item.exerciseId);
+        // `front_delts` y `abs` estaban entre los "músculos de la sentadilla"
+        // solo por el wall ball. Con el peso por frecuencia dejan de estarlo,
+        // así que lo que ocupa ese lugar toca glúteo, que sí define al patrón.
+        expect(ahora?.primaryMuscles, `${ahora?.name} reemplazó a ${antes?.name}`).toContain(
+          'glutes',
+        );
+      }
+    }
+
+    // Sin esto, un plan donde nada se sustituyó pasaría en verde sin mirar nada.
+    expect(medidos, 'ningún slot de pierna se sustituyó').toBeGreaterThan(0);
+  });
+
+  /**
+   * A quien acaba de declarar severidad 5 no se le ofrece un lanzamiento.
+   *
+   * Los tres explosivos del catálogo real (salto al cajón, wall ball, slam
+   * ball) nunca habían entrado a un plan, pero por un efecto colateral —son de
+   * peso corporal y el slot principal prefiere algo a lo que se le pueda subir
+   * la carga—, no por una regla. La sustitución no pasa por ese filtro, así que
+   * los dejaba entrar: medido sobre el catálogo real, lumbalgia recibía un wall
+   * ball y rodilla lesionada un slam ball.
+   *
+   * Y contradice al propio ruleset, que en `acuteInjury` dice "se saca todo lo
+   * que cargue la zona" y "mientras esté reciente, no uses el dolor como
+   * permiso para cargar".
+   */
+  it('no ofrece trabajo explosivo como reemplazo de una molestia', () => {
+    const gym = gimnasioConRareza();
+    // Lumbalgia y no rodilla, porque es el caso que se midió en el catálogo
+    // real: la regla lumbar saca el patrón `hinge` entero, cuyo único
+    // ejercicio acá mueve isquios y glúteos — los dos músculos que el señuelo
+    // balístico toca. Por solapamiento le gana a la patada de glúteo, así que
+    // si aparece es porque nadie lo filtró.
+    const plan = engine.generatePlan({
+      context,
+      user: buildUser({
+        constraints: [
+          {
+            type: 'injury',
+            bodyRegion: 'lower_back',
+            exerciseId: null,
+            equipmentId: null,
+            severity: 5,
+          },
+        ],
+      }),
+      gym,
+      ruleset: V1_RESEARCH,
+    });
+
+    const elegidos = plan.sessions.flatMap((s) => s.items.map((i) => i.exerciseId));
+    expect(elegidos.length, 'el plan salió vacío').toBeGreaterThan(0);
+    expect(elegidos, 'entró un ejercicio balístico').not.toContain('ex-slam-ball');
+
+    // Y el día no se quedó corto por haberlo filtrado.
+    const sano = engine.generatePlan({ context, user: buildUser(), gym, ruleset: V1_RESEARCH });
+    expect(elegidos.length).toBe(sano.sessions.flatMap((s) => s.items).length);
+  });
+
+  it('el día no queda más corto que el de alguien sano', () => {
+    const gym = gimnasioConRareza();
+    const sano = engine.generatePlan({ context, user: buildUser(), gym, ruleset: V1_RESEARCH });
+    const conMolestia = planConRodillaRota(gym);
+
+    for (const [i, sesion] of conMolestia.sessions.entries()) {
+      const original = sano.sessions[i];
+      if (!original) continue;
+      expect(sesion.items.length, `${sesion.label} quedó más corta`).toBe(original.items.length);
+    }
+  });
+
+  it('lo avisa con el texto del ruleset, nombrando la zona y la sesión', () => {
+    const plantilla = V1_RESEARCH.safety?.painSubstitution?.text ?? '';
+    expect(plantilla, 'el ruleset no trae el texto de sustitución').not.toBe('');
+
+    const cola = plantilla.split('{pattern}')[1] ?? '';
+    const aviso = planConRodillaRota().warnings.find((w) => w.includes(cola));
+    expect(aviso, 'no avisó que había sustituido').toBeDefined();
+    expect(aviso).toContain('la rodilla');
+    // Y nada de identificadores internos: el socio lee castellano.
+    expect(aviso).not.toContain('{');
+    expect(aviso).not.toContain('squat');
   });
 });
 

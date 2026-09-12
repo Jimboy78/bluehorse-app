@@ -2,7 +2,7 @@
   "version": "v1-research",
   "source": "research",
   "notes": [
-    "Curado desde docs/research/ el 8 de septiembre de 2026. Cada bloque lleva su nivel de confianza, que sale de la columna 'Confianza' de la investigación: presentar una fila de evidencia floja con la misma cara que una sólida sería mentir por omisión.",
+    "Curado desde docs/research/ el 8 de septiembre de 2026. Cada bloque lleva su nivel de confianza, que sale de la columna 'Confianza' de la investigación y se usa para priorizar qué revalidar: es metadato de la auditoría, no texto que se le muestre al socio.",
     "Fuerza, hipertrofia y potencia: 01-fuerza-hipertrofia-potencia.md. Cardio y zonas: 02-cardio-resistencia-recomposicion.md. Progresión, regresión, descarga, desentrenamiento y rotación: 03-progresion-descarga.md. Ajustes por nivel y edad: 04-individualizacion-seguridad.md. Seguridad: 04 parte D + 05-seguridad-reforzada.md.",
     "Criterio para las filas en confianza BAJA (decisión del usuario, 8/9/2026): se usa el extremo conservador del rango y el bloque queda marcado, en vez de descartarlo o de tomarlo como si fuera sólido. Aplica sobre todo a potencia y a resistencia muscular en sala.",
     "Cuando el volumen por sesión choca con el techo semanal, gana el techo: por eso el bloque de fuerza avanzada usa 4 series en el ejercicio principal (el valor documentado) y no 5 (el tope del rango). Con 5 y tres sesiones semanales, glúteos y dorsales pasaban las 15 series semanales que la misma investigación marca como límite útil.",
@@ -1019,7 +1019,7 @@
       "in_season": {
         "label": "En temporada",
         "volumeMultiplier": 0.5,
-        "note": "Se baja el volumen a la mitad para llegar entero a los partidos, manteniendo la intensidad. Ojo: esto se repite como consenso firme y no lo es. La unica comparacion directa in-season es de 16 personas, con diferencias despreciables (ES -0,04 a 0,04) y certeza calificada como muy baja por los propios revisores."
+        "note": "Se baja el volumen a la mitad para llegar entero a los partidos, manteniendo la intensidad."
       },
       "off_season": {
         "label": "Fuera de temporada",
@@ -1059,7 +1059,7 @@
         "lowerBodyVolumeMultiplier": 0.5,
         "upperBodyVolumeMultiplier": 1,
         "avoidExplosive": true,
-        "note": "No hay evidencia directa para esto: es criterio de practica. Se evita dejar la pierna cansada para el partido."
+        "note": "Se evita dejar la pierna cansada para el partido."
       },
       "match_day": {
         "label": "Juego hoy",
@@ -1179,7 +1179,7 @@
       "confidence": "medium"
     },
     "experienceLevel": {
-      "noDoseEffectNote": "Para este objetivo tu nivel decide qué ejercicios entran al plan por la técnica que piden, pero no cambia las series ni las repeticiones. La evidencia que mide la dosis solo distingue entre entrenado y no entrenado, así que afinar más sería inventarlo.",
+      "noDoseEffectNote": "Para este objetivo tu nivel decide qué ejercicios entran al plan por la técnica que piden, pero no cambia las series ni las repeticiones.",
       "confidence": "medium"
     },
     "frequency": {
@@ -1435,7 +1435,19 @@
       "confidence": "low"
     },
     "noRuleForRegion": {
-      "text": "Anotaste una molestia en {region} y para esa zona no tenemos una regla propia, así que el plan de hoy salió sin ajustar por eso. No quiere decir que no importe: quiere decir que no tenemos con qué decirte qué sacar sin inventarlo. Si te duele al hacer un ejercicio, cambialo o salteálo, y si la molestia no afloja o apareció de golpe, que la vea un profesional antes de seguir.",
+      "text": "Anotaste una molestia en {region}. El plan sale completo: si algún ejercicio te molesta mientras lo hacés, cambialo por un equivalente desde \"otras formas de hacerlo\" o salteálo, y seguí con el resto. Si la molestia no afloja o apareció de golpe, consultalo con un instructor.",
+      "confidence": "low"
+    },
+    "painSubstitution": {
+      "text": "Por lo que anotaste en {region}, en {session} cambiamos el trabajo de {pattern} por otros ejercicios que mueven los mismos músculos sin cargar la zona. El día queda igual de completo.",
+      "textSinZona": "En {session} cambiamos el trabajo de {pattern} por otros ejercicios que mueven los mismos músculos, porque los de ese tipo quedaron afuera por lo que anotaste. El día queda igual de completo.",
+      "avoidExplosive": true,
+      "confidence": "low"
+    },
+    "inSessionPain": {
+      "limitsMovementFrom": 4,
+      "text": "Anotado. Podés cambiar este ejercicio por otra forma de hacerlo, saltearlo y seguir con el resto, o hacerlo igual si te banca. Lo tenemos en cuenta para el próximo plan.",
+      "limitedText": "Si el dolor no te deja mover con libertad, no fuerces este movimiento. Podés cambiarlo por otro, saltearlo y seguir con el resto del día, o cortar acá. Si no sabés cuál te conviene, preguntale a un instructor antes de seguir.",
       "confidence": "low"
     }
   },

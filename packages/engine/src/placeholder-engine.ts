@@ -125,7 +125,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
     const items: SessionItemBlueprint[] = [];
 
     for (const slot of tplSession.slots) {
-      const exercise = chooseExercise({
+      let exercise = chooseExercise({
         pattern: slot.pattern,
         role: slot.role,
         pool: usableExercises,
@@ -138,20 +138,26 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
         emphasis: sport?.emphasis ?? [],
         rng,
       });
+
       if (!exercise) {
-        warnings.push(
-          `En ${tplSession.label} no quedó ningún ejercicio de ${patternLabel(slot.pattern)}: ${porQueNoHay(
-            {
-              pattern: slot.pattern,
-              gym,
-              constraints: user.constraints,
-              avoidRules,
-              level: user.profile.experienceLevel,
-            },
-          )}`,
-        );
-        continue;
+        const salida = resolverSlotVacio({
+          pattern: slot.pattern,
+          sessionLabel: tplSession.label,
+          pool: usableExercises,
+          gym,
+          constraints: user.constraints,
+          avoidRules,
+          level: user.profile.experienceLevel,
+          safety: ruleset.safety,
+          used,
+          setsByMuscle,
+          rng,
+        });
+        warnings.push(salida.warning);
+        if (!salida.exercise) continue;
+        exercise = salida.exercise;
       }
+
       used.add(exercise.id);
       usedInPlan.add(exercise.id);
 
@@ -1343,6 +1349,143 @@ function preferRanked(
   return kept;
 }
 
+/**
+ * TRABAJO COMPLEMENTARIO CUANDO UNA MOLESTIA SACÓ TODO UN PATRÓN
+ *
+ * Hasta acá, si una molestia lumbar sacaba todo el patrón `hinge`, el día
+ * quedaba con un ejercicio menos y un aviso explicando por qué. Eso es honesto
+ * y es lo que menos ayuda: quien vino a entrenar se va con menos entrenamiento
+ * justo el día que le duele algo, que es cuando más importa sostener el hábito.
+ *
+ * Lo que hace esto es buscar, entre los ejercicios que **sí** puede hacer, los
+ * que mueven los músculos que ese patrón cubría en **este** gimnasio. No hay
+ * ninguna tabla de "qué reemplaza a qué": los músculos objetivo salen del
+ * catálogo real (qué entrenan los ejercicios de ese patrón acá), y los
+ * candidatos salen del mismo `pool` que ya pasó por las restricciones, el
+ * nivel y el equipamiento disponible. Un ejercicio bloqueado por la molestia
+ * nunca puede aparecer como complemento, porque nunca estuvo en el `pool`.
+ *
+ * **El músculo tiene que definir al patrón, no aparecer una vez.** La primera
+ * versión unía los músculos de todos los ejercicios del patrón, y eso alcanzó
+ * para que a alguien con la rodilla lesionada el motor le pusiera un press de
+ * hombro donde iba la sentadilla: de las ocho sentadillas del catálogo real, el
+ * wall ball es la única que declara `front_delts`, y ese único caso metió los
+ * hombros en la lista de "músculos de la sentadilla". Así que cada músculo se
+ * pesa por en cuántos ejercicios del patrón aparece y solo cuentan los que
+ * están en más de la mitad. Para la sentadilla eso deja cuádriceps y glúteos,
+ * que es lo que una sentadilla es.
+ *
+ * Entre los que empatan gana el que menos trabajo lleva en la semana — el mismo
+ * criterio que el slot de aislamiento, para no apilar series sobre lo que ya
+ * está cubierto.
+ */
+function chooseComplement(input: {
+  readonly pattern: MovementPattern;
+  readonly pool: readonly Exercise[];
+  readonly gymExercises: readonly Exercise[];
+  readonly used: ReadonlySet<Id>;
+  readonly setsByMuscle: ReadonlyMap<MuscleGroup, number>;
+  readonly avoidExplosive: boolean;
+  readonly rng: () => number;
+}): Exercise | undefined {
+  const { pattern, pool, gymExercises, used, setsByMuscle, avoidExplosive, rng } = input;
+
+  // Se mira el catálogo entero y no el `pool`: el pool ya tiene sacados
+  // justamente los ejercicios que la molestia bloqueó, y son los que definen
+  // qué hay que compensar.
+  const delPatron = gymExercises.filter((e) => e.pattern === pattern);
+  if (delPatron.length === 0) return undefined;
+
+  const frecuencia = new Map<MuscleGroup, number>();
+  for (const e of delPatron) {
+    for (const m of e.primaryMuscles) frecuencia.set(m, (frecuencia.get(m) ?? 0) + 1);
+  }
+  // "En más de la mitad", sin constante que alguien pueda tocar: dos veces la
+  // cuenta supera al total. Un músculo que está en la mitad justa no define.
+  const nucleo = new Set(
+    [...frecuencia].filter(([, veces]) => veces * 2 > delPatron.length).map(([m]) => m),
+  );
+  if (nucleo.size === 0) return undefined;
+
+  const candidatos = pool.filter(
+    (e) =>
+      e.pattern !== pattern &&
+      !used.has(e.id) &&
+      !(avoidExplosive && e.isExplosive) &&
+      e.primaryMuscles.some((m) => nucleo.has(m)),
+  );
+  if (candidatos.length === 0) return undefined;
+
+  // Más músculos en común primero; entre iguales, el que menos volumen acumuló.
+  const solapamiento = (e: Exercise) => e.primaryMuscles.filter((m) => nucleo.has(m)).length;
+  const mejor = Math.max(...candidatos.map(solapamiento));
+  const empatados = candidatos.filter((e) => solapamiento(e) === mejor);
+  const menosTrabajado = preferRanked(
+    empatados,
+    (e) => Math.min(...e.primaryMuscles.map((m) => setsByMuscle.get(m) ?? 0)),
+    1,
+  );
+
+  return pickDeterministic(menosTrabajado, rng);
+}
+
+/**
+ * Qué hacer con un slot que quedó sin ejercicio.
+ *
+ * Siempre devuelve un aviso, porque el socio tiene derecho a saber que su plan
+ * no salió como el de cualquier otro. Devuelve además un ejercicio cuando pudo
+ * sustituir: una molestia cambia **qué** se entrena, no si se entrena.
+ */
+function resolverSlotVacio(input: {
+  readonly pattern: MovementPattern;
+  readonly sessionLabel: string;
+  readonly pool: readonly Exercise[];
+  readonly gym: GymSnapshot;
+  readonly constraints: readonly UserConstraint[];
+  readonly avoidRules: readonly PainRule[];
+  readonly level: ExperienceLevel;
+  readonly safety: Ruleset['safety'];
+  readonly used: ReadonlySet<Id>;
+  readonly setsByMuscle: ReadonlyMap<MuscleGroup, number>;
+  readonly rng: () => number;
+}): { readonly exercise?: Exercise; readonly warning: string } {
+  const { pattern, sessionLabel, pool, gym, constraints, avoidRules, level, safety } = input;
+  const vacio = { pattern, gym, constraints, avoidRules, level };
+
+  const sinSustituto = {
+    warning: `En ${sessionLabel} no quedó ningún ejercicio de ${patternLabel(pattern)}: ${porQueNoHay(vacio)}`,
+  };
+
+  // Las otras tres causas —el catálogo vacío, el nivel, la estación fuera de
+  // servicio— no tienen nada que sustituir: no es que el socio no pueda hacer
+  // el movimiento, es que acá no se puede hacer. Ahí el aviso es la respuesta.
+  const sustitucion = safety?.painSubstitution;
+  if (!sustitucion || causaDeVacio(vacio) !== 'bloqueado') return sinSustituto;
+
+  const complemento = chooseComplement({
+    pattern,
+    pool,
+    gymExercises: gym.exercises,
+    used: input.used,
+    setsByMuscle: input.setsByMuscle,
+    avoidExplosive: sustitucion.avoidExplosive,
+    rng: input.rng,
+  });
+  if (!complemento) return sinSustituto;
+
+  const zona = zonaQueBloqueo({ pattern, gym, constraints, avoidRules });
+  const plantilla = zona
+    ? sustitucion.text.replace('{region}', regionLabel(zona))
+    : sustitucion.textSinZona;
+
+  return {
+    exercise: complemento,
+    warning: plantilla
+      .replace('{session}', sessionLabel)
+      .replace('{pattern}', patternLabel(pattern)),
+  };
+}
+
 function chooseExercise(input: ChooseExerciseInput): Exercise | undefined {
   const { pattern, role, used, usedInPlan, rotateAway, setsByMuscle, selection, rng } = input;
   const candidates = input.pool
@@ -1656,32 +1799,87 @@ function patternLabel(pattern: MovementPattern): string {
  * Se reaplican los mismos cuatro filtros de `usableExercises`, en el mismo orden,
  * y se informa el primero que deja el patrón en cero.
  */
-function porQueNoHay(input: {
+interface VacioInput {
   pattern: MovementPattern;
   gym: GymSnapshot;
   constraints: readonly UserConstraint[];
   avoidRules: readonly PainRule[];
   level: ExperienceLevel;
-}): string {
+}
+
+/**
+ * La causa, separada de la frase.
+ *
+ * El texto solo servía para mostrarlo. Ahora el motor además **decide** con
+ * esto: si el patrón se vació porque el socio anotó una molestia, el día no se
+ * queda corto — se busca trabajo complementario. Si se vació porque el catálogo
+ * no tiene el ejercicio o la máquina está fuera de servicio, no hay nada que
+ * sustituir y el aviso sigue siendo la respuesta correcta.
+ *
+ * Devolver un código en vez de comparar la frase es lo que evita que cambiar
+ * una palabra del aviso cambie el comportamiento del motor — que es el mismo
+ * error que ya cometieron dos tests buscando `'no tenemos una regla propia'`.
+ */
+type CausaDeVacio = 'sin_catalogo' | 'bloqueado' | 'nivel' | 'sin_estacion';
+
+function causaDeVacio(input: VacioInput): CausaDeVacio {
   const { pattern, gym, constraints, avoidRules, level } = input;
   const delPatron = gym.exercises.filter((e) => e.pattern === pattern);
-  if (delPatron.length === 0) {
-    return 'el catálogo del gimnasio no tiene ninguno cargado todavía.';
-  }
+  if (delPatron.length === 0) return 'sin_catalogo';
 
   const sinBloquear = delPatron.filter(
     (e) => !isBlocked(e, constraints) && !isBlockedByPain(e, avoidRules),
   );
-  if (sinBloquear.length === 0) {
-    return 'los que hay quedaron afuera por lo que anotaste que no podés hacer. Es lo esperable y no hace falta que hagas nada.';
-  }
+  if (sinBloquear.length === 0) return 'bloqueado';
 
-  const deTuNivel = sinBloquear.filter((e) => isWithinSkillLevel(e, level));
-  if (deTuNivel.length === 0) {
-    return 'los que hay piden más experiencia de la que declaraste. Hablalo con el staff si querés incorporarlos.';
-  }
+  if (sinBloquear.filter((e) => isWithinSkillLevel(e, level)).length === 0) return 'nivel';
 
-  return 'las estaciones donde se hacen no están disponibles. Avisale al staff.';
+  return 'sin_estacion';
+}
+
+const TEXTO_DE_VACIO: Readonly<Record<CausaDeVacio, string>> = {
+  sin_catalogo: 'el catálogo del gimnasio no tiene ninguno cargado todavía.',
+  bloqueado:
+    'los que hay quedaron afuera por lo que anotaste que no podés hacer. Es lo esperable y no hace falta que hagas nada.',
+  nivel:
+    'los que hay piden más experiencia de la que declaraste. Hablalo con el staff si querés incorporarlos.',
+  sin_estacion: 'las estaciones donde se hacen no están disponibles. Avisale al staff.',
+};
+
+function porQueNoHay(input: VacioInput): string {
+  return TEXTO_DE_VACIO[causaDeVacio(input)];
+}
+
+/**
+ * Qué zona del cuerpo dejó ese patrón sin ejercicios.
+ *
+ * Se pregunta primero a las reglas de dolor —son las que sacan un patrón
+ * entero— y después a lo que el socio anotó a mano. `null` cuando lo que
+ * bloqueó fue una máquina que no quiere usar: ahí no hay zona que nombrar, y
+ * el aviso lo dice de otra manera.
+ */
+function zonaQueBloqueo(input: {
+  pattern: MovementPattern;
+  gym: GymSnapshot;
+  constraints: readonly UserConstraint[];
+  avoidRules: readonly PainRule[];
+}): BodyRegion | null {
+  const { pattern, gym, constraints, avoidRules } = input;
+  const delPatron = gym.exercises.filter((e) => e.pattern === pattern);
+
+  const porDolor = avoidRules.find((rule) =>
+    delPatron.some(
+      (e) =>
+        rule.avoidPatterns.includes(e.pattern) ||
+        e.primaryMuscles.some((m) => rule.avoidMuscles.includes(m)),
+    ),
+  );
+  if (porDolor) return porDolor.bodyRegion;
+
+  const porAnotacion = constraints.find(
+    (c) => c.bodyRegion !== null && delPatron.some((e) => isBlocked(e, [c])),
+  );
+  return porAnotacion?.bodyRegion ?? null;
 }
 
 /**

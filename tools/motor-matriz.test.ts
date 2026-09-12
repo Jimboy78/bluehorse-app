@@ -2123,6 +2123,16 @@ describe('el aviso de volumen semanal', () => {
 describe('las zonas sin regla de dolor', () => {
   const CON_REGLA = new Set((V1_RESEARCH.safety.painRules ?? []).map((r) => r.bodyRegion));
 
+  /**
+   * El tramo del aviso anterior a la zona interpolada, sacado del ruleset.
+   *
+   * Escribir la frase a mano acá ata el test a la redacción: cuando el texto
+   * cambió (13/09/2026) los tres tests de este bloque se cayeron sin que
+   * nada del comportamiento se hubiera roto.
+   */
+  const MARCA_SIN_REGLA =
+    (V1_RESEARCH.safety.noRuleForRegion?.text ?? '').split('{region}')[0] ?? '';
+
   /** Un perfil cualquiera al que se le cambia la zona declarada. */
   function planConLesionEn(zona: BodyRegion, severidad = 5) {
     const base = PERFILES.find((p) => p.nombre === 'rodilla lesionada');
@@ -2157,7 +2167,10 @@ describe('las zonas sin regla de dolor', () => {
   });
 
   it('avisa por la zona que no cubre, y no por la que sí', () => {
-    const marca = 'no tenemos una regla propia';
+    // La marca sale del propio ruleset, no de una frase copiada acá: el texto
+    // del aviso cambió una vez (13/09, al sacar el lenguaje de "no tenemos
+    // evidencia") y estos tres tests se cayeron por buscar la redacción vieja.
+    const marca = MARCA_SIN_REGLA;
 
     for (const zona of BODY_REGIONS) {
       const avisos = planConLesionEn(zona).warnings;
@@ -2190,7 +2203,7 @@ describe('las zonas sin regla de dolor', () => {
       },
       V1_RESEARCH,
     );
-    const avisos = plan.warnings.filter((a) => a.includes('no tenemos una regla propia'));
+    const avisos = plan.warnings.filter((a) => a.includes(MARCA_SIN_REGLA));
     expect(avisos).toHaveLength(2);
     expect(avisos.join('\n')).toContain('la cadera');
     expect(avisos.join('\n')).toContain('el tobillo');
@@ -2361,20 +2374,25 @@ describe('los bloqueos de equipamiento y ejercicio', () => {
   });
 
   /**
-   * EL AVISO DICE CUÁL DE LAS CAUSAS ES
+   * UN PATRÓN BLOQUEADO SE REEMPLAZA, NO SE SALTEA
    *
-   * Listaba las tres juntas — "falta equipamiento en el catálogo, está todo
-   * bloqueado por restricciones, o no hay nada de tu nivel" — y el motor sabe
-   * cuál. Para alguien con la rodilla lesionada, leer que falta equipamiento
-   * cuando lo que pasó es que su propia lesión sacó las sentadillas lo manda a
-   * buscar el problema al lugar equivocado.
+   * Hasta el 13/09/2026 este test pedía lo contrario: que el aviso explicara
+   * **por qué** el día había quedado más corto. Explicarlo bien era una mejora
+   * sobre listar las tres causas juntas, pero seguía dejando al socio con un
+   * ejercicio menos justo el día que le duele algo — que es cuando el hábito
+   * más cuesta sostener.
+   *
+   * Ahora el motor busca en el catálogo trabajo que mueva los mismos músculos
+   * sin tocar la zona, y lo que se mide acá no es la redacción: es que la
+   * sesión tenga la misma cantidad de ejercicios que sin el bloqueo.
    */
-  it('cada causa produce su propia explicación', () => {
+  it('cuando una restricción vacía un patrón, el día sigue completo', () => {
     if (!BASE) return;
 
-    // 1. El socio bloqueó todo lo de ese patrón.
     const delPatron = gym.exercises.filter((e) => e.pattern === 'squat');
     expect(delPatron.length, 'el catálogo dejó de tener sentadillas').toBeGreaterThan(0);
+
+    const sano = planDe(BASE, V1_RESEARCH);
     const porRestriccion = bloqueando(
       delPatron.map((e) => ({
         type: 'avoid_exercise' as const,
@@ -2385,16 +2403,61 @@ describe('los bloqueos de equipamiento y ejercicio', () => {
       })),
       'sin sentadillas',
     );
-    const aviso = porRestriccion.warnings.find((w) => w.includes('sentadilla'));
-    expect(aviso, 'no avisó').toBeDefined();
-    expect(aviso).toContain('por lo que anotaste que no podés hacer');
 
-    // 2. Y nunca en inglés: el identificador interno no sale a pantalla.
+    // Ninguna sentadilla entró, que es lo que el socio pidió.
+    const bloqueados = new Set(delPatron.map((e) => e.id));
+    for (const item of porRestriccion.sessions.flatMap((s) => s.items)) {
+      expect(bloqueados.has(item.exerciseId), 'entró un ejercicio bloqueado').toBe(false);
+    }
+
+    // Y sin embargo el día no perdió ningún ejercicio.
+    for (const [i, sesion] of porRestriccion.sessions.entries()) {
+      const original = sano.sessions[i];
+      if (!original) continue;
+      expect(sesion.items.length, `${sesion.label} quedó más corta`).toBe(original.items.length);
+    }
+
+    // El aviso lo cuenta, con la marca sacada del ruleset y no copiada acá.
+    const marca = (V1_RESEARCH.safety.painSubstitution?.textSinZona ?? '').split('{pattern}')[1];
+    expect(marca, 'el ruleset dejó de traer el texto de sustitución').toBeTruthy();
+    expect(porRestriccion.warnings.some((w) => w.includes(marca ?? ''))).toBe(true);
+
+    // Y nunca en inglés: el identificador interno no sale a pantalla.
     for (const w of porRestriccion.warnings) {
       for (const pattern of ['squat', 'hinge', 'vertical_pull', 'horizontal_push', 'isolation']) {
         expect(w, `el aviso filtra "${pattern}"`).not.toContain(pattern);
       }
     }
+  });
+
+  /**
+   * Las otras tres causas no tienen nada que sustituir, y ahí el aviso sigue
+   * siendo la respuesta correcta: si la estación está fuera de servicio o el
+   * catálogo no tiene el ejercicio, el socio necesita saberlo.
+   */
+  it('lo que no se puede sustituir se sigue explicando por su causa', () => {
+    if (!BASE) return;
+
+    const estaciones = new Set(
+      gym.exercises.filter((e) => e.pattern === 'squat').flatMap((e) => e.equipmentIds),
+    );
+    expect(estaciones.size, 'las sentadillas no dependen de ninguna estación').toBeGreaterThan(0);
+
+    // Fuera de servicio en el gimnasio, no anotado por el socio: son causas
+    // distintas y solo la segunda tiene algo que sustituir.
+    const sinEstacion = engine.generatePlan({
+      context: { now: AHORA, seed: 42 },
+      user: socioDe(BASE),
+      gym: {
+        ...gym,
+        equipment: gym.equipment.map((e) => (estaciones.has(e.id) ? { ...e, isActive: false } : e)),
+      },
+      ruleset: V1_RESEARCH,
+    });
+
+    const aviso = sinEstacion.warnings.find((w) => w.includes('sentadilla'));
+    expect(aviso, 'no avisó').toBeDefined();
+    expect(aviso).toContain('no están disponibles');
   });
 
   it('ningún aviso de ningún perfil deja escapar un identificador interno', () => {

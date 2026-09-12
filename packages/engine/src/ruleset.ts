@@ -328,6 +328,77 @@ const safetySchema = z.object({
     })
     .optional(),
   /**
+   * Qué decir cuando una molestia sacó todo un patrón y el plan lo reemplazó
+   * por trabajo complementario en vez de dejar el día más corto.
+   *
+   * El reemplazo no sale de una tabla de "qué sustituye a qué": sale del
+   * catálogo real, buscando ejercicios permitidos que toquen los músculos que
+   * el patrón bloqueado cubría en ESE gimnasio. Por eso el texto no nombra
+   * ejercicios: los nombra el plan, que es donde están.
+   *
+   * `text` lleva `{region}`, `{session}` y `{pattern}`. `textSinZona` es el
+   * mismo aviso para cuando lo que vació el patrón fue un ejercicio o una
+   * máquina que el socio marcó, sin zona del cuerpo asociada: ahí no hay
+   * ninguna zona que nombrar, e interpolar "la zona que marcaste" sería
+   * inventar una molestia que nadie declaró.
+   */
+  painSubstitution: z
+    .object({
+      text: z.string().min(1),
+      textSinZona: z.string().min(1),
+      /**
+       * No ofrecer trabajo explosivo como reemplazo.
+       *
+       * Medido sobre el catálogo real: sin esto, a alguien con lumbalgia que
+       * saca todo el patrón de bisagra el motor le ofrecía un **wall ball**, y
+       * a alguien con la rodilla lesionada un **slam ball**. Los dos son
+       * lanzamientos balísticos, y los dos aparecían justo para quien acababa
+       * de declarar severidad 5.
+       *
+       * Contradice al propio ruleset: `acuteInjury` dice "se saca todo lo que
+       * cargue la zona" y "mientras esté reciente, no uses el dolor como
+       * permiso para cargar". Y no es una regla nueva: `sports.matchDay` ya
+       * tiene este mismo `avoidExplosive` para el día del partido, que es el
+       * otro momento en que el criterio es no arriesgar.
+       *
+       * Los tres explosivos del catálogo (salto al cajón, wall ball, slam ball)
+       * no entraban a ningún plan hasta ahora, pero por un efecto colateral
+       * —son de peso corporal y el slot principal prefiere algo a lo que se le
+       * pueda subir la carga—, no por una decisión. La sustitución no pasa por
+       * ese filtro, así que necesita la regla escrita.
+       */
+      avoidExplosive: z.boolean(),
+      confidence: z.enum(CONFIDENCE_LEVELS),
+    })
+    .optional(),
+  /**
+   * Qué ofrecerle a alguien que avisa que le duele **en el medio** de la
+   * sesión, con el teléfono en la mano y la máquina adelante.
+   *
+   * Hasta acá la app solo preguntaba por molestias al cerrar, o sea cuando ya
+   * no se podía hacer nada al respecto. El dato servía para el plan siguiente
+   * y para nada más.
+   *
+   * `limitsMovementFrom` es el punto de `severityScale` en el que el dolor deja
+   * de ser algo que se aguanta: el 4 de esa escala es literalmente "duele
+   * bastante y me hace cambiar cómo hago el movimiento". De ahí para arriba se
+   * muestra `limitedText`, que suma la opción de cortar y la de preguntarle a
+   * un instructor. Abajo va `text`, que ofrece cambiar o saltear.
+   *
+   * **Ninguno de los dos bloquea nada.** Las dos pantallas dejan seguir: quien
+   * decide si sigue es la persona, no la app. Una app que le prohíbe entrenar
+   * a alguien que vino al gimnasio deja de usarse, y entonces tampoco se entera
+   * de la próxima molestia.
+   */
+  inSessionPain: z
+    .object({
+      limitsMovementFrom: z.number().int().positive(),
+      text: z.string().min(1),
+      limitedText: z.string().min(1),
+      confidence: z.enum(CONFIDENCE_LEVELS),
+    })
+    .optional(),
+  /**
    * Qué hacer cuando lo que el socio declaró es una **lesión**, no un dolor que
    * viene de arrastre.
    *
