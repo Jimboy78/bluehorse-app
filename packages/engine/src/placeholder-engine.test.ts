@@ -568,6 +568,57 @@ describe('reviewProgress', () => {
     expect(proposal?.toValue).toBe('65'); // 60 + 2.5% ajustado al escalón de 5
   });
 
+  /**
+   * VOLVER DE UNA AUSENCIA NO SE MEZCLA CON PROGRESAR
+   *
+   * Las reglas por ejercicio miran las últimas series del historial, y después
+   * de una ausencia esas series son de **antes** de la ausencia. Medido: a
+   * alguien que no entrenaba hacía 100 días el motor le daba las dos propuestas
+   * juntas — "arrancamos con menos volumen" y "te sobraron repeticiones las
+   * últimas 2 veces, ¿subimos la carga?" —, donde "las últimas 2 veces" fueron
+   * hace más de tres meses.
+   *
+   * No es solo incoherente de leer. `03-progresion-descarga.md` dice que las
+   * reglas de desentrenamiento existen "para evitar prescribir cargas lesivas
+   * tras ausencias de 10, 30 o 90 días", y que a los 90 "el tejido conectivo
+   * pierde rigidez y tolerancia a la tracción, elevando el riesgo de lesiones si
+   * se retorna con cargas máximas" (Mujika y Padilla, 2000 y 2001).
+   */
+  it('después de una ausencia no propone subir carga con datos viejos', () => {
+    const dias = V1_RESEARCH.prescription.hypertrophy?.default.deload.absenceDays;
+    expect(dias, 'el ruleset dejó de traer absenceDays').toBeDefined();
+    if (dias === undefined) return;
+
+    /** Dos sesiones fáciles seguidas, terminadas hace `hace` días. */
+    const historialDe = (hace: number): SetLog[] => {
+      const dia = (d: number) => new Date(Date.parse(context.now) - d * 86_400_000).toISOString();
+      return [
+        setLog({ workoutLogId: 'w2', completedAt: dia(hace), rir: 3 }),
+        setLog({ workoutLogId: 'w1', completedAt: dia(hace + 2), rir: 4 }),
+      ];
+    };
+    const revisar = (hace: number) =>
+      engine.reviewProgress({
+        context,
+        user: buildUser(),
+        gym: buildGym(),
+        plan,
+        history: historialDe(hace),
+        resolvedProposals: [],
+        ruleset: V1_RESEARCH,
+      });
+
+    // Justo debajo del umbral el historial sigue valiendo: se propone subir.
+    const reciente = revisar(dias - 1);
+    expect(reciente.map((p) => p.reasonCode)).toContain('rir_above_target');
+
+    // Pasado el umbral, y mucho más allá, solo queda la vuelta.
+    for (const hace of [dias, dias + 20, 100]) {
+      const codigos = revisar(hace).map((p) => p.reasonCode);
+      expect(codigos, `a los ${hace} días`).toEqual(['absence']);
+    }
+  });
+
   it('no repite una propuesta que ya se aceptó y todavía no se entrenó', () => {
     const history: SetLog[] = [
       setLog({ workoutLogId: 'w2', completedAt: '2026-09-03T10:00:00.000Z', rir: 3 }),

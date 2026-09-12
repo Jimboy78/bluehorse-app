@@ -957,7 +957,26 @@ function reviewProgress(input: ReviewProgressInput): readonly ProposalBlueprint[
     context.now,
     input.plan.id,
   );
-  if (absence) proposals.push(absence);
+  // VOLVER DESPUÉS DE UNA AUSENCIA NO SE MEZCLA CON PROGRESAR
+  //
+  // Las reglas por ejercicio miran las últimas series del historial. Después de
+  // una ausencia esas series son de **antes** de la ausencia, y no describen a
+  // la persona que volvió. Medido: a alguien que no entrenaba hacía 100 días el
+  // motor le daba las dos propuestas juntas —"arrancamos con menos volumen" y
+  // "te sobraron repeticiones las últimas 2 veces, ¿subimos la carga?"—, donde
+  // "las últimas 2 veces" fueron hace más de tres meses.
+  //
+  // No es solo incoherente de leer. `03-progresion-descarga.md` dice que las
+  // reglas de desentrenamiento existen "para evitar prescribir cargas lesivas
+  // tras ausencias de 10, 30 o 90 días", y que a los 90 "el tejido conectivo
+  // pierde rigidez y tolerancia a la tracción, elevando el riesgo de lesiones si
+  // se retorna con cargas máximas" (Mujika y Padilla, 2000 y 2001). Proponer
+  // subir carga al volver es exactamente lo que esa sección pide evitar.
+  //
+  // El plan nuevo ya baja la carga solo, con `detrainingMultiplier`. Lo único
+  // que agregaban estas propuestas encima era ruido calculado sobre datos que
+  // caducaron.
+  if (absence) return [absence];
 
   for (const [exerciseId, sets] of groupTopSetsByExercise(history)) {
     if (wasRecentlyRejected(resolvedProposals, exerciseId)) continue;
