@@ -14863,6 +14863,473 @@
           ]
         }
       ]
+    },
+    "ochenta años · potencia": {
+      "rulesetVersion": "v1-research",
+      "source": "research",
+      "warnings": [
+        "Para este objetivo tu nivel decide qué ejercicios entran al plan por la técnica que piden, pero no cambia las series ni las repeticiones.",
+        "Para potencia no hay una ventana de carga medida en mayores de 60, así que el plan sale con la prescripción general. Las que sí se midieron son fuerza e hipertrofia: si querés que la dosis vaya ajustada a tu edad, elegí uno de esos dos objetivos o hablalo con un instructor antes de arrancar.",
+        "Este plan no incluye ningún ejercicio explosivo: se entrena con series cortas y rápidas sobre los ejercicios de siempre. El gimnasio tiene con qué (cajones, wall ball, slam ball), pero todavía no entran solos al plan. Si buscás explosividad, consultalo con el staff."
+      ],
+      "sesiones": [
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Sentadilla goblet con kettlebell",
+              "series": 3,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 240,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Press de pecho en máquina",
+              "series": 3,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 240,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "1-5",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Press de hombro en máquina",
+              "series": 3,
+              "reps": "1-5",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Hip thrust en máquina",
+              "series": 3,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 240,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Dorsalera con agarre neutro",
+              "series": 3,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 240,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Subida al cajón",
+              "series": 3,
+              "reps": "1-5",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Remo sentado",
+              "series": 3,
+              "reps": "1-5",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Curl femoral acostado",
+              "series": 2,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Sentadilla goblet con kettlebell",
+              "series": 3,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 240,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Press de pecho en máquina",
+              "series": 3,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 240,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "1-5",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Press de hombro en máquina",
+              "series": 3,
+              "reps": "1-5",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Hip thrust en máquina",
+              "series": 3,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 240,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Dorsalera con agarre neutro",
+              "series": 3,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 240,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Subida al cajón",
+              "series": 3,
+              "reps": "1-5",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Remo sentado",
+              "series": 3,
+              "reps": "1-5",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Curl femoral acostado",
+              "series": 2,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Sentadilla goblet con kettlebell",
+              "series": 3,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 240,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Press de pecho en máquina",
+              "series": 3,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 240,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "1-5",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Press de hombro en máquina",
+              "series": 3,
+              "reps": "1-5",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Hip thrust en máquina",
+              "series": 3,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 240,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Dorsalera con agarre neutro",
+              "series": 3,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 240,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Subida al cajón",
+              "series": 3,
+              "reps": "1-5",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Remo sentado",
+              "series": 3,
+              "reps": "1-5",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Curl femoral acostado",
+              "series": 2,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Sentadilla goblet con kettlebell",
+              "series": 3,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 240,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Press de pecho en máquina",
+              "series": 3,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 240,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "1-5",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Press de hombro en máquina",
+              "series": 3,
+              "reps": "1-5",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Hip thrust en máquina",
+              "series": 3,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 240,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Dorsalera con agarre neutro",
+              "series": 3,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 240,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Subida al cajón",
+              "series": 3,
+              "reps": "1-5",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Remo sentado",
+              "series": 3,
+              "reps": "1-5",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Curl femoral acostado",
+              "series": 2,
+              "reps": "1-3",
+              "rir": null,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            }
+          ]
+        }
+      ]
     }
   }
 }

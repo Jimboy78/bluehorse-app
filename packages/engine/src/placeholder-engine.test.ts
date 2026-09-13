@@ -1,4 +1,5 @@
-import type { Equipment, Exercise, Profile, SetLog, UserGoal } from '@bh/domain';
+import type { Equipment, Exercise, Goal, Profile, SetLog, UserGoal } from '@bh/domain';
+import { GOALS } from '@bh/domain';
 import { describe, expect, it } from 'vitest';
 import type { EngineContext, GymSnapshot, UserSnapshot } from './contract.ts';
 import { V0_PLACEHOLDER, V1_RESEARCH } from './index.ts';
@@ -534,6 +535,88 @@ describe('generatePlan', () => {
 
     const item = plan.sessions.flatMap((s) => s.items).find((i) => i.exerciseId === 'ex-prensa');
     expect(item?.targetLoad).toEqual({ value: 65, unit: 'kg' });
+  });
+});
+
+/**
+ * LA EDAD NO PUEDE PASAR EN SILENCIO
+ *
+ * La ventana de `olderAdults` está medida para fuerza e hipertrofia. Para los
+ * otros cuatro objetivos no hay medición en esa edad, y extrapolarla sería
+ * inventar un número — pero callarse tampoco es gratis.
+ *
+ * Medido antes de esto: alguien de **85 años** con objetivo potencia recibía un
+ * plan byte a byte idéntico al de uno de 30 —3×1-3 explosivas— y **la misma
+ * cantidad de avisos**. El silencio se lee como "miramos tu edad y no hay nada
+ * que ajustar". Lo mismo en resistencia, cardio y recomposición.
+ *
+ * Es el mismo agujero que `safety.noRuleForRegion` tapó del lado de las zonas
+ * del cuerpo, y se cierra igual: no se inventa la ventana, se dice que no hay.
+ */
+describe('mayores de 60 en un objetivo sin ventana medida', () => {
+  const regla = V1_RESEARCH.modifiers?.olderAdults;
+
+  function planDe(birthDate: string, goal: Goal) {
+    const base = buildUser();
+    return engine.generatePlan({
+      context,
+      user: {
+        ...base,
+        profile: { ...base.profile, birthDate },
+        goals: [{ ...base.goals[0], goal } as UserGoal],
+      },
+      gym: buildGym(),
+      ruleset: V1_RESEARCH,
+    });
+  }
+
+  it('a ningún objetivo se le pasa la edad por alto', () => {
+    expect(regla, 'el ruleset dejó de traer olderAdults').toBeDefined();
+    if (!regla) return;
+
+    let conVentana = 0;
+    let sinVentana = 0;
+    for (const goal of GOALS) {
+      const viejo = planDe('1941-05-10', goal);
+      const joven = planDe('1996-05-10', goal);
+
+      if (regla.appliesToGoals.includes(goal)) {
+        conVentana += 1;
+        expect(viejo.warnings, `${goal}: falta la nota de la ventana`).toContain(regla.note);
+        continue;
+      }
+
+      sinVentana += 1;
+      // No se inventa una ventana: la dosis es la misma que a los 30.
+      expect(JSON.stringify(viejo.sessions), `${goal}: se inventó una ventana`).toBe(
+        JSON.stringify(joven.sessions),
+      );
+      // Pero se dice, y nombrando el objetivo en castellano.
+      const aviso = viejo.warnings.find((w) => !joven.warnings.includes(w));
+      expect(aviso, `${goal}: el plan salió igual y sin decir nada`).toBeDefined();
+      expect(aviso).not.toContain('{');
+      // Entrecomillado, no suelto: `cardio` es palabra del castellano además de
+      // identificador, y el aviso la usa legítimamente. Lo que no puede salir
+      // es el id crudo como lo escribe el ruleset.
+      expect(aviso).not.toContain(`"${goal}"`);
+    }
+
+    // Sin esto, un ruleset que cubriera todos los objetivos —o ninguno— haría
+    // que una de las dos ramas no se ejercitara nunca.
+    expect(conVentana, 'ningún objetivo tiene ventana').toBeGreaterThan(0);
+    expect(sinVentana, 'todos los objetivos tienen ventana').toBeGreaterThan(0);
+  });
+
+  it('debajo de la edad no se dice nada de edad', () => {
+    if (!regla) return;
+    for (const goal of GOALS) {
+      const joven = planDe('1996-05-10', goal);
+      expect(joven.warnings).not.toContain(regla.note);
+      expect(
+        joven.warnings.some((w) => w.includes(regla.noWindowForGoal.split('{objetivo}')[1] ?? '')),
+        `${goal}: a un treintañero le habló de la edad`,
+      ).toBe(false);
+    }
   });
 });
 

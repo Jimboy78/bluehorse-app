@@ -1180,6 +1180,7 @@
         "hypertrophy"
       ],
       "note": "A partir de los 60 la ventana medida es 70-79% del 1RM en series de 7 a 9 repeticiones. No es menos carga que a los 40: es la carga que se midió en esta edad, y bajarla no da más seguridad ni menos caídas. Si hay fragilidad, dolor o una lesión declarada, eso manda por encima de la edad.",
+      "noWindowForGoal": "Para {objetivo} no hay una ventana de carga medida en mayores de 60, así que el plan sale con la prescripción general. Las que sí se midieron son fuerza e hipertrofia: si querés que la dosis vaya ajustada a tu edad, elegí uno de esos dos objetivos o hablalo con un instructor antes de arrancar.",
       "confidence": "medium"
     },
     "experienceLevel": {

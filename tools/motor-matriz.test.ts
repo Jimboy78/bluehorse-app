@@ -493,6 +493,22 @@ const PERFILES: readonly Perfil[] = [
     sesiones: 2,
     minutos: 40,
   },
+  {
+    /*
+     * Los seis perfiles mayores de 60 que había usaban fuerza o hipertrofia,
+     * que son justo los dos objetivos que la ventana de `olderAdults` cubre.
+     * O sea que la matriz —el artefacto de regresión del proyecto— no
+     * ejercitaba nunca el caso contrario, y ahí había un agujero: alguien de 85
+     * con objetivo potencia recibía un plan byte a byte idéntico al de uno de
+     * 30, con la misma cantidad de avisos.
+     */
+    nombre: 'ochenta años · potencia',
+    goal: 'power',
+    nivel: 'beginner',
+    nacimiento: '1946-01-20',
+    sesiones: 2,
+    minutos: 60,
+  },
 ];
 
 function socioDe(p: Perfil): UserSnapshot {

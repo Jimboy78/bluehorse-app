@@ -556,6 +556,23 @@ const modifiersSchema = z.object({
        */
       appliesToGoals: z.array(z.enum(GOALS)).min(1),
       note: z.string().min(1),
+      /**
+       * Qué decirle a alguien que pasó `fromAge` y eligió un objetivo que la
+       * ventana no cubre.
+       *
+       * Hasta acá el motor salía en silencio: medido, alguien de **85 años** con
+       * objetivo potencia recibía un plan byte a byte idéntico al de uno de 30
+       * —3×1-3 explosivas— y **la misma cantidad de avisos**. Lo mismo en
+       * resistencia, cardio y recomposición: cuatro de los seis objetivos.
+       *
+       * Es el mismo agujero que `safety.noRuleForRegion` vino a tapar del lado
+       * de las zonas del cuerpo, y se cierra igual: no se inventa una ventana
+       * para los objetivos que nadie midió, se dice que no hay. El silencio se
+       * lee como "miramos tu edad y no hay nada que ajustar".
+       *
+       * `{objetivo}` se reemplaza por el objetivo en castellano.
+       */
+      noWindowForGoal: z.string().min(1),
       confidence: z.enum(CONFIDENCE_LEVELS),
     })
     .optional(),

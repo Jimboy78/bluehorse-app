@@ -337,12 +337,23 @@ function applyAgeModifier(
 ): GoalParams {
   const rule = ruleset.modifiers?.olderAdults;
   if (!rule || !profile.birthDate) return params;
-  // Borde midió fuerza y morfología. Fuera de esos objetivos no hay ventana que
-  // aplicar, y extrapolarla sería inventar un número.
-  if (!rule.appliesToGoals.includes(goal)) return params;
 
+  // La edad se mira PRIMERO. Antes el objetivo cortaba antes que la edad, y el
+  // motor ni se enteraba de que la persona había pasado los 60: con objetivo
+  // potencia alguien de 85 años recibía un plan byte a byte idéntico al de uno
+  // de 30 —3×1-3 explosivas— y la misma cantidad de avisos. Cuatro de los seis
+  // objetivos salían así.
   const age = ageAt(profile.birthDate, now);
   if (age === null || age < rule.fromAge) return params;
+
+  // Borde midió fuerza y morfología. Fuera de esos objetivos no hay ventana que
+  // aplicar, y extrapolarla sería inventar un número — pero callarse tampoco es
+  // gratis: el silencio se lee como "miramos tu edad y no hay nada que
+  // ajustar". Se dice que no hay, igual que con las zonas sin regla de dolor.
+  if (!rule.appliesToGoals.includes(goal)) {
+    warnings.push(rule.noWindowForGoal.replace('{objetivo}', goalLabel(goal)));
+    return params;
+  }
 
   warnings.push(rule.note);
   // Se reemplaza, no se multiplica: la ventana es la que se midió en esta edad,
