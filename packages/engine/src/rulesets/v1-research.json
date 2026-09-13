@@ -1165,6 +1165,10 @@
       "overTargetNote": "Dijiste que tenés {declarados} minutos por sesión, y solo en descansos este plan se lleva {descanso}. Podés hacerlo igual cortando los descansos, pero eso cambia el estímulo: el descanso está para llegar entero a la serie siguiente. Si el tiempo es fijo, avisale al staff y se arma con menos ejercicios en vez de con menos descanso.",
       "confidence": "low"
     },
+    "autoregulation": {
+      "noSignalForGoal": "En {objetivo} la app no te va a proponer sola cuándo subir la carga. Ese objetivo se regula por la velocidad a la que movés el peso, y eso no se puede medir anotando series: hace falta ojo encima o un sensor. Todo lo demás del plan corre igual, y si te quedás corto en las repeticiones te vamos a proponer bajar. Para subir, arreglalo con el staff del gimnasio.",
+      "confidence": "high"
+    },
     "olderAdults": {
       "fromAge": 60,
       "intensityWindowPct1RM": [

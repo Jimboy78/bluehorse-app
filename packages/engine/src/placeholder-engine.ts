@@ -201,6 +201,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
 
   warnings.push(...comebackWarnings(sessions, ruleset, daysAway, comeback, params));
   warnings.push(...sessionLengthWarnings(sessions, ruleset, goal));
+  warnings.push(...autoregulationWarnings(params, ruleset, goal));
   warnings.push(...weeklyVolumeWarnings(sessions, template, gym, params, goal));
   warnings.push(...interferenceWarnings(sessions, gym, ruleset));
   warnings.push(...powerWarnings(sessions, gym, goal));
@@ -1131,6 +1132,21 @@ function proposeDecrease(ctx: RuleContext): ProposalBlueprint | null {
  * estancamiento, es que todavía no le subimos la carga.
  */
 function proposeStallDeload(ctx: RuleContext): ProposalBlueprint | null {
+  // Esta guarda carga más peso del que parece en los objetivos sin `rirTarget`.
+  // En potencia `proposeIncrease` se corta antes por el RIR nulo, así que esto es
+  // lo único que separa "va sobrado" de "está clavado trabajando duro": con RIR
+  // alto no sale nada (y el plan avisa por qué), con RIR bajo sale la descarga.
+  // Eso está bien —el RIR sirve de filtro aunque el objetivo no lo prescriba como
+  // meta— pero depende de `triggerRirAtLeast`, y el de potencia es el único del
+  // ruleset que no se deriva de nada: en los otros doce bloques vale exactamente
+  // `rirTarget + 1`, y potencia no tiene `rirTarget`. Medido: puesto en 10, el
+  // socio que va sobrado recibe `stalled`, o sea una semana liviana a alguien al
+  // que le falta peso.
+  //
+  // Ningún test puede frenar eso leyendo el número del ruleset: se adapta al
+  // valor que encuentra. Lo que sí se fija es la relación entre los dos números
+  // y que potencia es la única excepción — `placeholder-engine.test.ts`, "un
+  // objetivo sin señal de RIR".
   if (isReadyToIncrease(ctx)) return null;
 
   const { deload } = ctx.params;
@@ -1313,6 +1329,20 @@ function frequencyWarnings(
  * Se mira la sesión más larga de la plantilla y no el promedio: el socio no
  * entrena promedios, entrena días.
  */
+/**
+ * Avisa cuando el objetivo elegido no tiene señal que la app pueda leer para
+ * decidir subir la carga.
+ *
+ * Se pregunta por `rirTarget` y no por `goal === 'power'` porque la condición es
+ * la falta de señal, no el nombre del objetivo: si mañana otro queda sin RIR
+ * objetivo, el aviso sale igual y nadie tiene que acordarse de agregarlo acá.
+ */
+function autoregulationWarnings(params: GoalParams, ruleset: Ruleset, goal: UserGoal): string[] {
+  const rule = ruleset.modifiers?.autoregulation;
+  if (!rule || params.primary.rirTarget !== null) return [];
+  return [rule.noSignalForGoal.replace('{objetivo}', goalLabel(goal.goal))];
+}
+
 function sessionLengthWarnings(
   sessions: readonly SessionBlueprint[],
   ruleset: Ruleset,

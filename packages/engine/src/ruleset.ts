@@ -543,6 +543,35 @@ const modifiersSchema = z.object({
       confidence: z.enum(CONFIDENCE_LEVELS),
     })
     .optional(),
+  /**
+   * Qué decir cuando el objetivo elegido no tiene señal que la app pueda leer
+   * para decidir subir la carga.
+   *
+   * La autorregulación del motor se apoya en el RIR, que es lo único que la app
+   * puede preguntar: no hay dinamómetro, ni sensor de velocidad, ni nadie
+   * mirando (`docs/research/20-arranque-sin-test.md`). En potencia el ruleset
+   * deja `rirTarget` nulo a propósito, porque la investigación regula ese
+   * objetivo por velocidad de ejecución (VBT, `03-progresion-descarga.md`, 15 %
+   * de pérdida de velocidad, confianza ALTA) — y eso la app no lo mide.
+   *
+   * Medido sobre un socio de potencia con series que le sobran: no recibe
+   * **ninguna** propuesta. `proposeIncrease` se corta por el `rirTarget` nulo, y
+   * `proposeStallDeload` se corta porque `isReadyToIncrease` da verdadero —el
+   * RIR se registra igual aunque el objetivo no lo use—, así que las dos guardas
+   * se ceden el paso. Con el `triggerRirAtLeast` de potencia en 10 el mismo
+   * socio recibe `stalled`: el silencio dependía de que ese número fuera bajo.
+   *
+   * Inventar un `velocityLossThresholdPct` sería peor: es el número correcto
+   * según la investigación, y no hay con qué alimentarlo. Lo accionable es
+   * decirlo, que es lo que la regla dura 4 sí deja avisar. `{objetivo}` es el
+   * nombre visible del objetivo.
+   */
+  autoregulation: z
+    .object({
+      noSignalForGoal: z.string().min(1),
+      confidence: z.enum(CONFIDENCE_LEVELS),
+    })
+    .optional(),
   olderAdults: z
     .object({
       fromAge: z.number().int().min(40).max(100),

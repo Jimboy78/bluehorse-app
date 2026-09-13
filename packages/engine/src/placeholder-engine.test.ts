@@ -845,6 +845,168 @@ describe('reviewProgress', () => {
   });
 });
 
+/**
+ * UN OBJETIVO SIN SEÑAL DE RIR
+ *
+ * `potencia` es el único objetivo con `primary.rirTarget` en nulo, y está así a
+ * propósito: `01-fuerza-hipertrofia-potencia.md` lo deja nulo porque "la meta es
+ * velocidad/explosividad, no fijarse en RIR específico", y
+ * `03-progresion-descarga.md` prescribe para ese objetivo el VBT —15 % de pérdida
+ * de velocidad, confianza ALTA—, que la app no puede medir: no hay dinamómetro ni
+ * sensor ni nadie mirando (`20-arranque-sin-test.md`).
+ *
+ * La consecuencia medida: al socio de potencia que va sobrado no le llega
+ * **ninguna** propuesta. `proposeIncrease` se corta por el RIR nulo, y la
+ * descarga por estancamiento se corta porque `isReadyToIncrease` da verdadero.
+ * Eso no se arregla inventando el umbral de velocidad; se dice.
+ *
+ * Y la guarda que hace de filtro depende de que `triggerRirAtLeast` sea
+ * alcanzable. Con el de potencia en 10, el socio que va sobrado recibe una semana
+ * liviana: el consejo al revés, porque lo que le falta es peso. Por eso los dos
+ * extremos se fijan acá.
+ */
+describe('un objetivo sin señal de RIR', () => {
+  const plan = {
+    id: 'plan-1',
+    userId: USER_ID,
+    gymId: GYM_ID,
+    rulesetVersion: V1_RESEARCH.version,
+    generatedAt: context.now,
+    status: 'active' as const,
+  };
+
+  const potencia = (): UserSnapshot =>
+    buildUser({
+      goals: [
+        {
+          goal: 'power',
+          sport: null,
+          seasonPhase: 'none',
+          priority: 1,
+          sessionsPerWeekTarget: 3,
+          sessionMinutesTarget: 60,
+        },
+      ],
+    });
+
+  /** Tres sesiones con la misma carga y el RIR que se le pase. */
+  const historial = (rir: number): SetLog[] =>
+    [0, 1, 2].map((i) =>
+      setLog({
+        workoutLogId: `w${i}`,
+        completedAt: new Date(Date.parse(context.now) - (i + 1) * 2 * 86_400_000).toISOString(),
+        rir,
+      }),
+    );
+
+  const propuestas = (user: UserSnapshot, history: SetLog[]) =>
+    engine.reviewProgress({
+      context,
+      user,
+      gym: buildGym(),
+      plan,
+      history,
+      resolvedProposals: [],
+      ruleset: V1_RESEARCH,
+    });
+
+  it('el plan dice que no va a proponer subir la carga solo', () => {
+    const aviso = V1_RESEARCH.modifiers?.autoregulation?.noSignalForGoal;
+    expect(aviso, 'el ruleset dejó de traer el aviso de autorregulación').toBeDefined();
+    if (aviso === undefined) return;
+
+    const sinPlantilla = aviso.replace('{objetivo}', '');
+    const marca = sinPlantilla.slice(sinPlantilla.indexOf(' ', 3), 60).trim();
+
+    const conPotencia = engine.generatePlan({
+      context,
+      user: potencia(),
+      gym: buildGym(),
+      ruleset: V1_RESEARCH,
+    });
+    const sano = engine.generatePlan({
+      context,
+      user: buildUser(),
+      gym: buildGym(),
+      ruleset: V1_RESEARCH,
+    });
+
+    expect(conPotencia.warnings.filter((w) => w.includes(marca))).toHaveLength(1);
+    // Y no se lo dice a quien sí tiene con qué autorregularse.
+    expect(sano.warnings.filter((w) => w.includes(marca))).toHaveLength(0);
+  });
+
+  it('al que va sobrado no le propone nada, ni subir ni descargar', () => {
+    const trigger = V1_RESEARCH.prescription.power?.default.progression.triggerRirAtLeast;
+    expect(trigger, 'el ruleset dejó de traer el trigger de potencia').toBeDefined();
+    if (trigger === undefined) return;
+
+    // Holgado por arriba del trigger: "le sobra" sin lugar a dudas.
+    const dePrensa = propuestas(potencia(), historial(trigger + 2)).filter(
+      (p) => p.targetRef.exerciseId === 'ex-prensa',
+    );
+    expect(dePrensa).toHaveLength(0);
+  });
+
+  /**
+   * El número que decide si "le sobra" tiene que derivarse de algo.
+   *
+   * `triggerRirAtLeast` vale `rirTarget + 1` en los doce bloques del ruleset que
+   * traen un RIR objetivo: "estás listo para subir cuando te sobró una
+   * repetición más de la prescrita". Potencia es el único que trae el número sin
+   * el `rirTarget` del que derivarlo, y ahí ese número hace algo distinto de lo
+   * que dice el esquema: es lo único que evita mandar a descargar a alguien que
+   * va sobrado (ver el comentario en `proposeStallDeload`).
+   *
+   * Los dos tests de arriba no pueden frenar un valor mal elegido, porque leen
+   * el número del ruleset y se adaptan. Este compara los dos números entre sí.
+   */
+  it('el umbral para subir se deriva del RIR objetivo, y potencia es la única excepción', () => {
+    const bloques = Object.entries(V1_RESEARCH.prescription).flatMap(([goal, pres]) =>
+      [['default', pres?.default] as const, ...Object.entries(pres?.byLevel ?? {})].flatMap(
+        ([nivel, b]) => {
+          const trigger = b?.progression?.triggerRirAtLeast;
+          // `rirTarget` nulo es el caso que importa; `primary` ausente en un nivel
+          // que hereda no lo es, y hay que distinguirlos.
+          if (trigger === undefined || !b?.primary) return [];
+          return [{ donde: `${goal}.${nivel}`, trigger, rirTarget: b.primary.rirTarget }];
+        },
+      ),
+    );
+
+    const derivados = bloques.filter((b) => b.rirTarget !== null);
+    const huerfanos = bloques.filter((b) => b.rirTarget === null);
+
+    // Verde y vacío no sirve: el barrido tiene que haber mirado el ruleset entero.
+    expect(bloques.length).toBeGreaterThan(10);
+
+    for (const b of derivados) {
+      expect(b.trigger, `${b.donde}: el umbral para subir no sale del RIR objetivo`).toBe(
+        (b.rirTarget ?? 0) + 1,
+      );
+    }
+
+    // Si aparece otro objetivo sin RIR objetivo, hereda el problema de potencia
+    // en silencio: sin propuesta de subir y con el umbral decidiendo descargas.
+    expect(huerfanos.map((b) => b.donde)).toEqual(['power.default']);
+  });
+
+  it('al que está clavado trabajando duro le propone descargar', () => {
+    const trigger = V1_RESEARCH.prescription.power?.default.progression.triggerRirAtLeast;
+    const stall = V1_RESEARCH.prescription.power?.default.deload.stallSessions;
+    expect(trigger, 'el ruleset dejó de traer el trigger de potencia').toBeDefined();
+    expect(stall, 'el ruleset dejó de traer stallSessions de potencia').toBeDefined();
+    if (trigger === undefined || stall === undefined) return;
+    // El historial tiene que alcanzar para que se pueda hablar de estancamiento.
+    expect(historial(0)).toHaveLength(stall);
+
+    const dePrensa = propuestas(potencia(), historial(trigger - 1)).filter(
+      (p) => p.targetRef.exerciseId === 'ex-prensa',
+    );
+    expect(dePrensa.map((p) => p.reasonCode)).toEqual(['stalled']);
+  });
+});
+
 describe('findSubstitutes', () => {
   it('ofrece un ejercicio del mismo patrón cuando la máquina está ocupada', () => {
     const options = engine.findSubstitutes({
