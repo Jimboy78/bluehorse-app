@@ -196,6 +196,18 @@ export function correrConsumo(nombre = 'v1-research') {
  *
  * No es un chequeo de error: es la foto que hay que poder sacar sin abrir el
  * JSON. Un bloque `low` no está mal — está mal que nadie sepa que es `low`.
+ *
+ * La etiqueta de cada hallazgo decía "avisa en pantalla", y eso era cierto con
+ * la versión anterior de la regla 4: el plan del socio llevaba el descargo de
+ * cuán firme era la evidencia detrás de cada número. La regla se reescribió el
+ * 13/09/2026 y ahora dice lo contrario — "si algo no está bien sostenido, se
+ * corrige o se saca, no se acompaña con un descargo" —, así que un bloque `low`
+ * ya no tiene mitigación: tiene pendiente. La etiqueta vieja lo mostraba como
+ * cerrado, que es justo al revés de lo que el dueño necesita leer acá.
+ *
+ * El `confidence` sigue publicándose en `/evidencia`, que la regla mantiene a
+ * propósito para quien lo quiera leer. Lo que ya no pasa es que se lo aclare
+ * sobre el plan.
  */
 export function correrConfianza(nombre = 'v1-research') {
   const ruleset = leerRuleset(nombre);
@@ -210,7 +222,7 @@ export function correrConfianza(nombre = 'v1-research') {
 
   const flojos = bloques
     .filter((b) => b.nivel === 'low')
-    .map((b) => hallazgo(b.camino, null, 'avisa en pantalla'));
+    .map((b) => hallazgo(b.camino, null, 'revalidar o sacar'));
 
   const medios = bloques.filter((b) => b.nivel === 'medium').length;
   const altos = bloques.filter((b) => b.nivel === 'high').length;

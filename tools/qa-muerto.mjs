@@ -171,9 +171,15 @@ function archivosHuerfanos() {
   for (const p of mirados) {
     const base = p.split('/').pop();
     const sinExt = base.replace(/\.tsx?$/, '');
-    const re = new RegExp(
-      `['"][^'"]*(?:/|\\./)?${sinExt.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\.tsx?)?['"]`,
-    );
+    // Solo cuenta si el nombre está en posición de import: después de `from`, de
+    // un `import(...)` o de un `export ... from`. Antes alcanzaba con que
+    // apareciera en **cualquier** string entrecomillado, y eso dejaba ciego al
+    // chequeo justo para los archivos con nombre de palabra común, que es casi
+    // todo `lib/`. Medido sobre `goal.ts`: se declaraba usado a sí mismo dos
+    // veces, primero por `queryKey: ['active-goal', ...]` y después por
+    // `.select('goal')`, y su nombre no aparecía en ningún import del proyecto.
+    const nombre = sinExt.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp(`\\b(?:from|import)\\s*\\(?\\s*['"](?:[^'"]*/)?${nombre}(\\.tsx?)?['"]`);
     if (!re.test(texto)) hallazgos.push(hallazgo(base, corta(p)));
   }
   return chequeo('archivos que nadie importa', mirados.length, hallazgos);
