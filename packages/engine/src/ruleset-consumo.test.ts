@@ -164,4 +164,54 @@ describe('bloques del ruleset sin consumir', () => {
     const yaNoEstan = [...DEUDA].filter((k) => !presentes.has(k));
     expect(yaNoEstan).toEqual([]);
   });
+
+  /**
+   * La otra forma de estar muerto: la clave se lee, pero una entrada no.
+   *
+   * El barrido de arriba busca cada **clave** del ruleset en el código, y eso
+   * deja pasar un catálogo con entradas que nadie referencia. `cardio.sessions`
+   * se lee —`cardioPrescription` la recorre— así que la clave pasa el chequeo,
+   * pero cada sesión se alcanza solo si algún slot de alguna plantilla la nombra
+   * por `cardioSessionId`, y eso nadie lo verificaba.
+   *
+   * Encontrado así: `continuo_largo_z2`, la sesión de 60 minutos en zona 2, está
+   * escrita con su zona y su duración y **ninguna plantilla la referencia**. Las
+   * otras dos sí (`continuo_z2` en "Continuo", `intervalos_4x4` en
+   * "Intervalos"), lo que hace el hueco más difícil de ver: el bloque funciona,
+   * solo que una de sus tres entradas no existe para nadie.
+   */
+  it('cada sesión de cardio es alcanzable desde alguna plantilla', () => {
+    const definidas = (V1_RESEARCH.cardio?.sessions ?? []).map((s) => s.id);
+    const referenciadas = new Set(
+      V1_RESEARCH.templates.flatMap((t) =>
+        t.sessions.flatMap((s) =>
+          s.slots.flatMap((sl) => (sl.cardioSessionId ? [sl.cardioSessionId] : [])),
+        ),
+      ),
+    );
+
+    // Verde y vacío no sirve: sin sesiones definidas no habría nada que mirar.
+    expect(definidas.length).toBeGreaterThan(0);
+
+    const inalcanzables = definidas.filter((id) => !referenciadas.has(id));
+    expect(
+      inalcanzables,
+      'hay sesiones de cardio escritas que ninguna plantilla referencia',
+    ).toEqual(['continuo_largo_z2']);
+  });
+
+  /** Y al revés: una plantilla no puede apuntar a una sesión que no existe. */
+  it('ninguna plantilla referencia una sesión de cardio inexistente', () => {
+    const definidas = new Set((V1_RESEARCH.cardio?.sessions ?? []).map((s) => s.id));
+    const colgadas = V1_RESEARCH.templates.flatMap((t) =>
+      t.sessions.flatMap((s) =>
+        s.slots.flatMap((sl) =>
+          sl.cardioSessionId && !definidas.has(sl.cardioSessionId)
+            ? [`${t.id}/${s.label}: ${sl.cardioSessionId}`]
+            : [],
+        ),
+      ),
+    );
+    expect(colgadas).toEqual([]);
+  });
 });
