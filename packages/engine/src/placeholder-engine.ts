@@ -1627,7 +1627,7 @@ function chooseExercise(input: ChooseExerciseInput): Exercise | undefined {
   // elección: es el mismo ejercicio —y la misma máquina— para todos los socios
   // del mismo perfil, aunque el catálogo tenga alternativas equivalentes.
   const floor = selection?.minPoolSize ?? 1;
-  const preferSoft = (list: readonly Exercise[], keep: (e: Exercise) => boolean) => {
+  const preferSoft = (list: readonly Exercise[], keep: (e: Exercise) => boolean, piso = floor) => {
     const kept = list.filter(keep);
     if (kept.length === 0) return list;
     // El piso se topea con lo que hay. Antes la guarda era
@@ -1642,7 +1642,7 @@ function chooseExercise(input: ChooseExerciseInput): Exercise | undefined {
     // compuestos, la tolerancia de nivel dejaba 1, y **el 100% de los socios
     // intermedios hacía remo con mancuerna a una mano, en las dos sesiones de
     // la semana**, con el remo sentado disponible y sin usar.
-    if (kept.length < Math.min(floor, list.length)) return list;
+    if (kept.length < Math.min(piso, list.length)) return list;
     return kept;
   };
 
@@ -1722,9 +1722,22 @@ function chooseExercise(input: ChooseExerciseInput): Exercise | undefined {
   //    piso, se saltea. Un futbolista no puede terminar con el mismo plan que
   //    todos los otros futbolistas — eso es el problema que acabamos de
   //    arreglar, y el deporte no lo puede reintroducir.
+  //
+  //    Pero el piso acá es el suyo, no `minPoolSize`. Compartirlo dejaba el
+  //    desempate casi sin efecto, porque el paso 6 ya deja el pool justo en ese
+  //    piso: medido sobre el catálogo real y los 34 perfiles de la matriz,
+  //    declarar el deporte cambiaba algo en 15 de 336 combinaciones con el piso
+  //    compartido y en 39 con el suyo. Y no compra variedad: los slots que
+  //    quedan con una sola opción para todos son los mismos 720 de 4320 con el
+  //    piso en 3 que con el piso en 2. El detalle y lo que costaría bajarlo a 1
+  //    están en `ruleset.ts`, sobre `emphasisMinPoolSize`.
   if (input.emphasis.length > 0) {
     const emphasized = new Set(input.emphasis);
-    eligible = preferSoft(eligible, (e) => e.primaryMuscles.some((m) => emphasized.has(m)));
+    eligible = preferSoft(
+      eligible,
+      (e) => e.primaryMuscles.some((m) => emphasized.has(m)),
+      selection?.emphasisMinPoolSize ?? floor,
+    );
   }
 
   // 8. Y entre los que quedaron igual de buenos, uno que no esté ya en OTRA

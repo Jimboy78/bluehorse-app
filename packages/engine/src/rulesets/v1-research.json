@@ -1716,6 +1716,7 @@
   ],
   "selection": {
     "minPoolSize": 3,
+    "emphasisMinPoolSize": 2,
     "levelTolerance": 1,
     "confidence": "low",
     "confidenceNote": "Variar el ejercicio entre socios no cambia cuánto músculo ni cuánta fuerza se gana: máquina, peso libre y polea dan lo mismo (Haugen 2023, SMD -0,055, IC 95% -0,397 a 0,287). Lo que sí cambia es la adherencia (Baz-Valle 2019, ES 1,28) y el desarrollo parejo del músculo (Fonseca 2014). En cambio, cuántos ejercicios conviene tener disponibles por slot y cuántos niveles de tolerancia dar son criterios de práctica: no hay ningún ensayo que los haya medido."

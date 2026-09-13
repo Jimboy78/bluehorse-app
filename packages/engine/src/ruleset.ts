@@ -731,6 +731,40 @@ export const rulesetSchema = z.object({
        */
       minPoolSize: z.number().int().min(1).max(10),
       /**
+       * El mismo piso, pero para el desempate por el deporte que practica.
+       *
+       * Va aparte de `minPoolSize` porque compartirlo dejaba al deporte casi sin
+       * efecto. La única palanca que la investigación sostiene para el campo
+       * "deporte" es esta (`06-deporte-y-temporada.md`: "el deporte se usa como
+       * sesgo de selección entre ejercicios ya equivalentes", CONFIANZA MEDIA,
+       * SMD 1,59 para el gesto local), y el paso anterior de la selección ya deja
+       * el pool justo en el piso, así que cualquier filtro posterior que comparta
+       * ese piso se saltea.
+       *
+       * Medido sobre el catálogo real, 336 combinaciones de los 34 perfiles de
+       * `tools/motor-matriz.test.ts` × los 13 deportes con músculos del gesto,
+       * contando en cuántas declarar el deporte cambia algún ejercicio:
+       *
+       * | piso | combinaciones donde el deporte cambia algo |
+       * |---|---|
+       * | 3 (el de `minPoolSize`) | 15 de 336 — 4,5 % |
+       * | 2 | 39 de 336 — 11,6 % |
+       *
+       * Y no cuesta variedad. Sobre otro barrido —4320 slots de 3 objetivos × 3
+       * niveles × 13 deportes × 30 socios—, los slots que quedan con una sola
+       * opción para todos los socios del perfil son los **mismos 720 (16,7 %)**
+       * con el piso en 3 que con el piso en 2. Bajarlo a 1 llevaría el efecto del
+       * deporte mucho más arriba (945 de 1296 en ese mismo barrido) pero sube los
+       * slots colapsados a 1104 (25,6 %), o sea reintroduce el problema que el
+       * piso existe para evitar. Ese último paso es decisión del dueño.
+       *
+       * Tiene que quedar **estrictamente por debajo** de `minPoolSize`: si se
+       * igualan, el deporte vuelve a los 15 de 336. Lo fija
+       * `tools/motor-matriz.test.ts`, "el deporte tiene que cambiar algún
+       * ejercicio".
+       */
+      emphasisMinPoolSize: z.number().int().min(1).max(10),
+      /**
        * Cuántos niveles por debajo del suyo se le pueden proponer a la persona.
        * Hacia arriba no hay tolerancia: eso lo sigue tapando el filtro de
        * seguridad, que nunca propone un ejercicio que exija más técnica de la

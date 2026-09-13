@@ -988,6 +988,101 @@ describe('el aviso de potencia sin explosivos', () => {
 });
 
 /**
+ * EL DEPORTE TIENE QUE CAMBIAR ALGO
+ *
+ * `06-deporte-y-temporada.md` tira casi todo el campo "deporte": la carga no
+ * cambia por deporte (CONFIANZA ALTA) y la especificidad direccional está
+ * refutada (22 estudios). Lo único que queda en pie es un sesgo de selección
+ * entre ejercicios ya equivalentes, y el documento lo dice así: "el deporte se
+ * usa como **sesgo de selección** entre ejercicios ya equivalentes (qué
+ * músculos priorizar), nunca como cambio de dosis".
+ *
+ * Eso estaba escrito en el motor y casi no hacía nada, porque el desempate
+ * compartía piso con `minPoolSize` y el paso anterior de la selección ya deja el
+ * pool justo en ese piso. Medido acá: declarar el deporte cambiaba algún
+ * ejercicio en **15 de 336** combinaciones (4,5 %) con el piso compartido, y en
+ * **39** (11,6 %) con el piso propio. Un número que el propio ruleset declara sin
+ * medir —`confidence: low`, "no hay ningún ensayo que los haya medido"— estaba
+ * recortando un hallazgo de confianza media.
+ *
+ * Lo primero que se probó acá fue "cambia al menos un ejercicio", y **pasaba con
+ * el piso compartido puesto**: 15 no es 0. Así que la aserción que cuida el
+ * hueco es la otra, la de los dos pisos, que no puede adaptarse al valor. La de
+ * comportamiento se queda igual, para el caso de que alguien saque el desempate
+ * entero.
+ */
+describe('el deporte tiene que cambiar algún ejercicio', () => {
+  /** El mismo perfil, con y sin el deporte declarado. */
+  function ejerciciosDe(p: Perfil, deporte: Perfil['deporte']): string[] {
+    return planDe({ ...p, deporte }, V1_RESEARCH).sessions.flatMap((s) =>
+      s.items.map((i) => i.exerciseId),
+    );
+  }
+
+  const conGesto = (V1_RESEARCH.sports?.catalog ?? []).filter((s) => s.emphasis.length > 0);
+
+  it('el ruleset trae deportes con músculos del gesto', () => {
+    // Sin esto el barrido de abajo no prueba nada: no habría nada que priorizar.
+    expect(conGesto.length).toBeGreaterThan(5);
+  });
+
+  it('el desempate por deporte tiene su propio piso, más bajo que el general', () => {
+    const { minPoolSize, emphasisMinPoolSize } = V1_RESEARCH.selection ?? {};
+    expect(minPoolSize, 'el ruleset dejó de traer minPoolSize').toBeDefined();
+    expect(emphasisMinPoolSize, 'el ruleset dejó de traer emphasisMinPoolSize').toBeDefined();
+    if (minPoolSize === undefined || emphasisMinPoolSize === undefined) return;
+
+    // Igualarlos no rompe nada visible —el deporte sigue cambiando algo en 15 de
+    // 336— y por eso hace falta decirlo acá: el paso 6 deja el pool justo en
+    // `minPoolSize`, así que un filtro posterior con ese mismo piso se saltea
+    // casi siempre. Ver `emphasisMinPoolSize` en `ruleset.ts`.
+    expect(emphasisMinPoolSize).toBeLessThan(minPoolSize);
+  });
+
+  it('declarar un deporte de gesto cambia al menos un ejercicio', () => {
+    let mirados = 0;
+    let cambiaron = 0;
+    for (const perfil of PERFILES.filter((p) => p.limitaciones === undefined)) {
+      const sinDeporte = ejerciciosDe(perfil, undefined);
+      for (const deporte of conGesto) {
+        mirados += 1;
+        const conDeporte = ejerciciosDe(perfil, deporte.id as Perfil['deporte']);
+        // Mismo largo siempre: el deporte desempata, no cambia la dosis.
+        expect(conDeporte).toHaveLength(sinDeporte.length);
+        if (conDeporte.some((id, i) => id !== sinDeporte[i])) cambiaron += 1;
+      }
+    }
+    // Verde y vacío no sirve: hay que haber mirado de verdad.
+    expect(mirados).toBeGreaterThan(100);
+    expect(cambiaron, 'el énfasis del deporte no cambia ningún ejercicio').toBeGreaterThan(0);
+  });
+
+  it('y no colapsa el slot: quedan varios ejercicios posibles entre socios', () => {
+    // Lo que el piso protege. Se mide lo que el socio experimenta: si dos socios
+    // del mismo perfil y deporte reciben el mismo plan entero, el piso no
+    // alcanzó. Las semillas son lo único que los distingue.
+    const perfil = PERFILES.find((p) => p.deporte !== undefined && p.limitaciones === undefined);
+    expect(perfil, 'la matriz dejó de traer un perfil con deporte').toBeDefined();
+    if (!perfil) return;
+
+    const planes = new Set(
+      [1, 2, 3, 4, 5, 6, 7, 8].map((seed) =>
+        engine
+          .generatePlan({
+            context: { now: AHORA, seed },
+            user: socioDe(perfil),
+            gym,
+            ruleset: V1_RESEARCH,
+          })
+          .sessions.flatMap((s) => s.items.map((i) => i.exerciseId))
+          .join(','),
+      ),
+    );
+    expect(planes.size).toBeGreaterThan(1);
+  });
+});
+
+/**
  * EL DÍA DEL PARTIDO: EL MÉTODO QUE NADIE LLAMA
  *
  * `adjustSession` es el único método del contrato que la matriz no ejercitaba, y

@@ -243,7 +243,7 @@ describe('generatePlan · variedad entre sesiones', () => {
 describe('generatePlan · variedad entre socios', () => {
   const conSeleccion: Ruleset = {
     ...V0_PLACEHOLDER,
-    selection: { minPoolSize: 3, levelTolerance: 1, confidence: 'low' },
+    selection: { minPoolSize: 3, emphasisMinPoolSize: 2, levelTolerance: 1, confidence: 'low' },
   };
 
   /** Tres sentadillas cargables, una por nivel, cada una en su propia estación. */
@@ -1160,7 +1160,7 @@ describe('findSubstitutes', () => {
 describe('deporte, temporada y día de partido', () => {
   const conDeporte: Ruleset = {
     ...V0_PLACEHOLDER,
-    selection: { minPoolSize: 3, levelTolerance: 1, confidence: 'low' },
+    selection: { minPoolSize: 3, emphasisMinPoolSize: 2, levelTolerance: 1, confidence: 'low' },
     sports: {
       categories: {
         local_gesture: { label: 'Gesto', hasMatches: true, volumeMultiplier: 1, note: 'gesto' },
