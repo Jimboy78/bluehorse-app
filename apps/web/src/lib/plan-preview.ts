@@ -309,7 +309,10 @@ export function useAvoidExercise() {
         user_id: user.id,
         type: 'avoid_exercise',
         exercise_id: exerciseId,
-        severity: 3,
+        // Sin `severity`: la columna trae `default 3` en `04_user.sql` y acá
+        // estaba repetido. Para un `avoid_exercise` el número no decide nada
+        // —las reglas de dolor miran `body_region`, que esta fila no tiene— así
+        // que tenerlo en dos lugares solo daba dos lugares donde desincronizarse.
       });
       if (error) throw error;
     },

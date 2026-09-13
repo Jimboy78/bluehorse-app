@@ -1,9 +1,11 @@
 import type { BodyRegion } from '@bh/domain';
 import { toKg } from '@bh/domain';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { useAuth } from './auth/AuthProvider.tsx';
 import { celebratePersonalRecord } from './celebrate.ts';
+import { activeRuleset } from './engine.ts';
 import { toPersonalRecordInsert } from './mappers/personal-record.ts';
 import {
   type SessionFeel,
@@ -515,6 +517,97 @@ export function useCloseSession() {
  * persona sigue entrenando; perder el registro es malo, trabarle la sesión por
  * eso es peor.
  */
+/**
+ * Desde qué severidad conviene registrar la molestia como restricción vigente.
+ *
+ * Sale de `safety.painRules`, que es quien decide si el motor hace algo: por
+ * debajo del `monitorFrom` de la zona, ninguna regla se activa y la fila solo
+ * ensuciaría la lista de Perfil. Se toma el menor de la zona, y si la zona no
+ * tiene regla medida, el menor de todas — para no ser más estricto justo donde
+ * hay menos evidencia, que es donde `noRuleForRegion` tiene algo que decir.
+ */
+export function umbralDeRestriccion(
+  region: BodyRegion,
+  // Inyectable para poder probarlo: hoy las seis reglas del ruleset tienen el
+  // mismo `monitorFrom` (3), así que un `return 3` hardcodeado pasa cualquier
+  // test que saque su expectativa del ruleset activo. Medido: falsificar la
+  // función con esa constante dejaba los diez tests en verde. Con las reglas por
+  // parámetro se puede probar con un ruleset que NO sea uniforme, y ahí la
+  // constante falla.
+  reglas: readonly {
+    readonly bodyRegion: BodyRegion;
+    readonly monitorFrom: number;
+  }[] = activeRuleset.safety?.painRules ?? [],
+): number {
+  const deLaZona = reglas.filter((r) => r.bodyRegion === region).map((r) => r.monitorFrom);
+  const fuente = deLaZona.length > 0 ? deLaZona : reglas.map((r) => r.monitorFrom);
+  return fuente.length > 0 ? Math.min(...fuente) : 1;
+}
+
+/**
+ * Deja la molestia anotada como restricción vigente, que es de donde lee el motor.
+ *
+ * `pain_reports` es el historial de lo que se fue reportando; `user_constraints`
+ * es lo VIGENTE, lo único que `generatePlan` y `findSubstitutes` miran. Hasta acá
+ * la app escribía el primero y nunca el segundo, así que **ningún socio podía
+ * producir una molestia ni una lesión**: el cribado de salud escribe
+ * `health_screenings`, el onboarding no pregunta por zonas, y Perfil solo lista
+ * y da de baja. La única restricción que la app sabía crear era el
+ * `avoid_exercise` de "no me lo propongas más".
+ *
+ * O sea que toda la maquinaria de dolor del motor —`painRules`,
+ * `painSubstitution`, `severityScale`, `noRuleForRegion`, `chooseComplement`—
+ * existía sin poder dispararse nunca, y la lista "Molestias y ejercicios
+ * descartados" de Perfil esperaba filas que no llegaban. El texto que el propio
+ * ruleset muestra al reportar dolor dice **"Lo tenemos en cuenta para el próximo
+ * plan"**, y eso no estaba pasando.
+ *
+ * Una fila por zona, no una por reporte: la severidad se actualiza a la del
+ * último reporte, no a la peor. El dolor baja, y la persona diciendo hoy que casi
+ * no le molesta es mejor señal que lo que dijo la semana pasada. Bajar de umbral
+ * deja la fila viva con severidad chica —el motor la ignora y sigue visible en
+ * Perfil— y darla de baja sigue siendo decisión del socio, con el botón que ya
+ * está.
+ */
+export async function anotarRestriccionDeDolor(
+  client: SupabaseClient,
+  userId: string,
+  region: BodyRegion,
+  severity: number,
+  note: string,
+): Promise<void> {
+  const { data: vigente, error: leerError } = await client
+    .from('user_constraints')
+    .select('id, severity')
+    .eq('user_id', userId)
+    .eq('type', 'pain')
+    .eq('body_region', region)
+    .is('active_to', null)
+    .maybeSingle();
+  if (leerError) throw leerError;
+
+  if (vigente) {
+    if (vigente.severity === severity) return;
+    const { error } = await client
+      .from('user_constraints')
+      .update({ severity, note })
+      .eq('id', vigente.id);
+    if (error) throw error;
+    return;
+  }
+
+  if (severity < umbralDeRestriccion(region)) return;
+
+  const { error } = await client.from('user_constraints').insert({
+    user_id: userId,
+    type: 'pain',
+    body_region: region,
+    severity,
+    note,
+  });
+  if (error) throw error;
+}
+
 export function useReportPain() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -541,9 +634,23 @@ export function useReportPain() {
           ),
         );
       if (error) throw error;
+
+      // Va después del historial a propósito: si esto falla, el reporte ya quedó
+      // guardado. Al revés se perdería el registro de que la molestia existió.
+      await anotarRestriccionDeDolor(
+        client,
+        user.id,
+        input.region,
+        input.severity,
+        input.exerciseName,
+      );
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['pain-history', user?.id] });
+      // La lista de Perfil y el plan leen de `user_constraints`: sin esto la
+      // molestia recién anotada no aparece hasta recargar.
+      void queryClient.invalidateQueries({ queryKey: ['constraints', user?.id] });
+      void queryClient.invalidateQueries({ queryKey: ['active-plan', user?.id] });
     },
   });
 }
