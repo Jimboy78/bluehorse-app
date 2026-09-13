@@ -21,6 +21,7 @@ import { useGymCatalog } from '../lib/catalog.ts';
 import { activeRuleset, engine, engineContext } from '../lib/engine.ts';
 import { fadeUp, listContainer, listItem, spring, tappable } from '../lib/motion.ts';
 import { useProfileStatus } from '../lib/onboarding.ts';
+import { paraElMotor, useConstraints } from '../lib/profile.ts';
 
 /**
  * EXPLORAR EJERCICIOS
@@ -246,6 +247,11 @@ function AlternativesPanel({
   readonly catalog: NonNullable<ReturnType<typeof useGymCatalog>['data']>;
   readonly userId: string | undefined;
 }) {
+  // Acá sí hacen falta las restricciones vigentes, y con más razón que en "Hoy":
+  // el original es cualquier ejercicio del catálogo, no uno que ya salió de un
+  // plan filtrado, así que nada más impide ofrecer lo que la lesión prohíbe.
+  const { data: constraints } = useConstraints();
+
   const options = useMemo<readonly SubstituteOption[]>(
     () =>
       engine.findSubstitutes({
@@ -262,11 +268,11 @@ function AlternativesPanel({
         // filtrada por una condición que en esta pantalla no se cumple.
         item: { exerciseId: exercise.id, equipmentId: null },
         gym: catalog.gym,
-        constraints: [],
+        constraints: paraElMotor(constraints),
         unavailableEquipmentIds: [],
         ruleset: activeRuleset,
       }),
-    [exercise, catalog, userId],
+    [exercise, catalog, userId, constraints],
   );
 
   const exerciseById = new Map(catalog.gym.exercises.map((e) => [e.id, e]));

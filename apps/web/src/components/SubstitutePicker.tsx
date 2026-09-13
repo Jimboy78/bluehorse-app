@@ -6,6 +6,7 @@ import { useMemo } from 'react';
 import { useGymCatalog } from '../lib/catalog.ts';
 import { activeRuleset, engine, engineContext } from '../lib/engine.ts';
 import { tappable } from '../lib/motion.ts';
+import { paraElMotor, useConstraints } from '../lib/profile.ts';
 import { Button, Card, Skeleton } from './ui/index.ts';
 
 /**
@@ -37,6 +38,7 @@ export function SubstitutePicker({
   onCancel: () => void;
 }) {
   const catalog = useGymCatalog(gymId);
+  const constraints = useConstraints();
 
   const options = useMemo<readonly SubstituteOption[]>(() => {
     if (!catalog.data) return [];
@@ -44,11 +46,11 @@ export function SubstitutePicker({
       context: engineContext(userId ?? 'sin-sesion'),
       item: { exerciseId, equipmentId },
       gym: catalog.data.gym,
-      constraints: [],
+      constraints: paraElMotor(constraints.data),
       unavailableEquipmentIds: equipmentId ? [equipmentId] : [],
       ruleset: activeRuleset,
     });
-  }, [catalog.data, userId, exerciseId, equipmentId]);
+  }, [catalog.data, constraints.data, userId, exerciseId, equipmentId]);
 
   const exerciseById = new Map((catalog.data?.gym.exercises ?? []).map((e) => [e.id, e]));
   const equipmentById = new Map((catalog.data?.gym.equipment ?? []).map((e) => [e.id, e]));

@@ -1,4 +1,4 @@
-import type { ExperienceLevel, Goal, Id, Sex } from '@bh/domain';
+import type { ExperienceLevel, Goal, Id, Sex, UserConstraint } from '@bh/domain';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './auth/AuthProvider.tsx';
 import { requireSupabase } from './supabase.ts';
@@ -147,6 +147,36 @@ export interface ConstraintDetail {
   readonly since: string;
   /** Nombre del ejercicio o de la estación, cuando la restricción apunta a uno. */
   readonly targetName: string | null;
+  /**
+   * Lo mismo pero por id, que es lo que el motor necesita. Va acá y no en una
+   * consulta aparte para no pedir dos veces las mismas filas.
+   */
+  readonly exerciseId: Id | null;
+  readonly equipmentId: Id | null;
+}
+
+/**
+ * Las restricciones en la forma que espera el motor.
+ *
+ * `generatePlan` ya las recibe (`plan.ts` las arma junto al resto del snapshot),
+ * pero `findSubstitutes` se llamaba con `constraints: []` en las tres pantallas
+ * que lo usan, así que el filtro por dolor que el motor tiene nunca corría.
+ * Medido contra el catálogo real: a un socio con la rodilla lesionada, **20 de
+ * los 58 ejercicios** le ofrecían un reemplazo que su lesión prohíbe, incluido el
+ * salto al cajón. En "Hoy" no pasaba, porque ahí el original ya salió de un plan
+ * filtrado y el reemplazo comparte patrón con él; en "Explorar" se arranca de
+ * cualquier ejercicio del catálogo y ese blindaje no existe.
+ */
+export function paraElMotor(
+  detalles: readonly ConstraintDetail[] | undefined,
+): readonly UserConstraint[] {
+  return (detalles ?? []).map((c) => ({
+    type: c.type,
+    bodyRegion: c.bodyRegion as UserConstraint['bodyRegion'],
+    exerciseId: c.exerciseId,
+    equipmentId: c.equipmentId,
+    severity: c.severity,
+  }));
 }
 
 /**
@@ -169,7 +199,7 @@ export function useConstraints() {
       const { data, error } = await client
         .from('user_constraints')
         .select(
-          'id, type, body_region, severity, note, active_from, exercises(name), equipment(name)',
+          'id, type, body_region, severity, note, active_from, exercise_id, equipment_id, exercises(name), equipment(name)',
         )
         .eq('user_id', user?.id as string)
         .is('active_to', null)
@@ -184,6 +214,8 @@ export function useConstraints() {
           severity: number;
           note: string | null;
           active_from: string;
+          exercise_id: string | null;
+          equipment_id: string | null;
           exercises: { name: string } | null;
           equipment: { name: string } | null;
         };
@@ -195,6 +227,8 @@ export function useConstraints() {
           note: row.note,
           since: row.active_from,
           targetName: row.exercises?.name ?? row.equipment?.name ?? null,
+          exerciseId: row.exercise_id,
+          equipmentId: row.equipment_id,
         };
       });
     },

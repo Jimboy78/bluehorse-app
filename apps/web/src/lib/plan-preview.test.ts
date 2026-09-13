@@ -1,4 +1,4 @@
-import type { Equipment, Exercise } from '@bh/domain';
+import type { Equipment, Exercise, UserConstraint } from '@bh/domain';
 import type {
   GymSnapshot,
   PlanBlueprint,
@@ -7,7 +7,7 @@ import type {
 } from '@bh/engine';
 import { describe, expect, it } from 'vitest';
 import type { PlanPreview, PreviewItem } from './plan-preview.ts';
-import { itemKey, swapPreviewItem, toPreview } from './plan-preview.ts';
+import { itemKey, previewSubstitutes, swapPreviewItem, toPreview } from './plan-preview.ts';
 
 /**
  * La previa es lo único entre "contesté el cuestionario" y "estoy entrenando",
@@ -219,5 +219,54 @@ describe('swapPreviewItem', () => {
     const preview = toPreview(blueprint, gym, 0);
     swapPreviewItem(preview, itemKey(0, 0), prensa);
     expect(fila(preview, 0, 0).name).toBe('Sentadilla');
+  });
+});
+
+/**
+ * LAS MOLESTIAS TIENEN QUE VIAJAR CON LA PREVIA
+ *
+ * `generatePlan` recibe las restricciones del socio y saca del plan lo que
+ * irrita una zona que duele. `findSubstitutes` tiene el mismo filtro adentro —
+ * se le agregó en `80ca67e` — pero las tres pantallas que lo llaman lo hacían
+ * con `constraints: []`, así que nunca corría.
+ *
+ * Medido contra el catálogo real: a un socio con la rodilla lesionada, **20 de
+ * los 58 ejercicios** le ofrecían como equivalente algo que su lesión prohíbe,
+ * incluido el salto al cajón. En "Hoy" no se notaba, porque ahí el original ya
+ * salió de un plan filtrado y el reemplazo comparte patrón con él; en "Explorar"
+ * se arranca de cualquier ejercicio y ese blindaje no existe.
+ *
+ * `toPreview` deja `constraints` en `[]` por defecto para no obligar a los
+ * fixtures a declararlas, así que lo que se fija acá es que cuando están,
+ * llegan: si alguien vuelve a poner `constraints: []` en `previewSubstitutes`,
+ * este test lo agarra.
+ */
+describe('previewSubstitutes con una lesión declarada', () => {
+  const rodilla: UserConstraint = {
+    type: 'injury',
+    bodyRegion: 'knee',
+    exerciseId: null,
+    equipmentId: null,
+    severity: 5,
+  };
+
+  function opciones(constraints: readonly UserConstraint[]) {
+    const preview = toPreview(blueprint, gym, 0, constraints);
+    const fila0 = fila(preview, 0, 0);
+    return previewSubstitutes(preview, fila0, 'user-1').map((o) => o.exerciseId);
+  }
+
+  it('sin lesión ofrece el equivalente del mismo patrón', () => {
+    // Control: si acá no hubiera ninguna opción, el test de abajo pasaría solo
+    // porque no hay nada que filtrar.
+    expect(opciones([]), 'sin lesión tampoco hay opciones').toContain('ex-prensa');
+  });
+
+  it('con la rodilla lesionada no ofrece un ejercicio de cuádriceps', () => {
+    const conLesion = opciones([rodilla]);
+    const cuadriceps = gym.exercises
+      .filter((e) => e.primaryMuscles.includes('quads'))
+      .map((e) => e.id);
+    expect(conLesion.filter((id) => cuadriceps.includes(id))).toEqual([]);
   });
 });
