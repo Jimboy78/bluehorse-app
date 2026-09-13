@@ -2,6 +2,7 @@ import type { Equipment, Exercise } from '@bh/domain';
 import { loadUnitLabel } from '@bh/domain';
 import { Loader2, Search } from 'lucide-react';
 import { useId, useMemo, useState } from 'react';
+import { buscarEjercicios, type MotivoCoincidencia } from '../lib/buscar-ejercicios.ts';
 import type { ManualItemDraft } from '../lib/mappers/manual-plan.ts';
 import { Button, Chip, Field, fieldClass, Notice } from './ui/index.ts';
 
@@ -19,6 +20,26 @@ import { Button, Chip, Field, fieldClass, Notice } from './ui/index.ts';
  * unidad permitiría escribir "60 kg" en una máquina que muestra libras (regla
  * dura 6). Sin estación elegida no hay unidad, así que no hay campo de carga.
  */
+
+/**
+ * Lo que se le dice al socio cuando el resultado no coincide con lo que escribió.
+ *
+ * Las tres primeras capas de `buscarEjercicios` matchean contra el nombre, así
+ * que explicarlas sería repetir el chip que está al lado. Las otras cinco sí
+ * necesitan una línea: sin ella, alguien que escribe "patada de burro" y recibe
+ * "Patada de glúteo en máquina" no sabe si la app entendió o le cambió el pedido.
+ *
+ * No son números de entrenamiento, así que no van al ruleset (regla dura 3): es
+ * cómo se le explica al socio una coincidencia de texto.
+ */
+const EXPLICACION: Partial<Record<MotivoCoincidencia, string>> = {
+  palabras: 'Estas tienen todas las palabras que escribiste.',
+  sinonimo: 'Por cómo se llama acá: lo de arriba es lo mismo que pediste.',
+  musculo: 'No hay un ejercicio con ese nombre; estos son los de ese músculo.',
+  patron: 'No hay un ejercicio con ese nombre; estos son los de ese movimiento.',
+  parecido: 'Ninguno se llama así exactamente. Estos se escriben parecido.',
+  regex: 'Lo tomamos como una expresión regular.',
+};
 
 /** Un campo numérico vacío es `null`, no cero: "no lo puse" y "puse cero" no son lo mismo. */
 function parseNum(raw: string): number | null {
@@ -62,13 +83,47 @@ export function ManualItemForm({
 
   const elegido = exercises.find((e) => e.id === exerciseId) ?? null;
 
+  /**
+   * BUSCAR POR COMO LA GENTE LO LLAMA, NO POR COMO LO ESCRIBIMOS NOSOTROS
+   *
+   * Era `e.name.toLowerCase().includes(q)`. Medido contra el catálogo real, de
+   * 15 consultas que un socio escribe en el celular **14 devolvían cero**: basta
+   * una tilde. El gimnasio tiene "Curl de bíceps" y quien escribe "biceps" veía
+   * "Ninguno con ese nombre", o sea que la app le decía que acá no hay nada de
+   * bíceps. Y fallaban también "cuadriceps", "triceps", "maquina", "gluteo",
+   * "salto al cajon" — 19 de los 58 nombres llevan tilde o ñ.
+   *
+   * `buscarEjercicios` ya existía, con 8 capas, la tabla de sinónimos y 78
+   * tests, y no estaba conectado a ninguna pantalla: su propio docblock describe
+   * este bug —"un `includes()` encuentra el primero y ninguno de los otros
+   * cuatro, y quien busca concluye que el gimnasio no lo tiene"— mientras el
+   * único buscador de la app era ese `includes()`.
+   */
   const candidatos = useMemo(() => {
-    const q = busqueda.trim().toLowerCase();
-    const filtrados = q ? exercises.filter((e) => e.name.toLowerCase().includes(q)) : exercises;
+    const q = busqueda.trim();
     // Se muestra un puñado: la lista completa son decenas de estaciones y el
     // formulario quedaría abajo del pliegue en un teléfono.
-    return filtrados.slice(0, 12);
+    if (!q) return exercises.slice(0, 12).map((exercise) => ({ exercise, motivo: null }));
+    return buscarEjercicios(q, exercises)
+      .slice(0, 12)
+      .map((c) => ({ exercise: c.exercise, motivo: c.motivo }));
   }, [exercises, busqueda]);
+
+  /**
+   * Por qué le ofrecemos esto, cuando no es obvio.
+   *
+   * Las tres primeras capas coinciden con el nombre, así que decirlo sería
+   * repetir lo que ya se lee en el chip. Las otras no: alguien que escribió
+   * "patada de burro" y ve "Patada de glúteo en máquina" merece saber que
+   * entró por un sinónimo y no que la app le cambió el pedido. El dato ya
+   * venía en `Coincidencia.detalle`, declarado "para poder decirlo en
+   * pantalla", y nadie lo decía.
+   */
+  const porQue = useMemo(() => {
+    const motivo = candidatos[0]?.motivo;
+    if (motivo === null || motivo === undefined) return null;
+    return EXPLICACION[motivo] ?? null;
+  }, [candidatos]);
 
   /** Las estaciones donde se puede hacer el ejercicio elegido, y ninguna más. */
   const estaciones = useMemo(() => {
@@ -132,7 +187,7 @@ export function ManualItemForm({
 
       <div className="-mx-3.5 overflow-x-auto px-3.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="flex w-max gap-1.5 pb-1">
-          {candidatos.map((ex) => (
+          {candidatos.map(({ exercise: ex }) => (
             <Chip
               key={ex.id}
               selected={exerciseId === ex.id}
@@ -147,10 +202,14 @@ export function ManualItemForm({
             </Chip>
           ))}
           {candidatos.length === 0 && (
-            <span className="py-1 text-xs text-slate">Ninguno con ese nombre.</span>
+            <span className="py-1 text-xs text-slate">
+              No encontramos nada así en el gimnasio. Probá con el músculo: "pecho", "pierna".
+            </span>
           )}
         </div>
       </div>
+
+      {porQue && <p className="text-xs leading-snug text-slate">{porQue}</p>}
 
       {elegido && estaciones.length > 0 && (
         <Field

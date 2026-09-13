@@ -342,10 +342,41 @@ export function buscarEjercicios(
     })
     .sort((a, b) => {
       const porMotivo = ORDEN.indexOf(a.motivo) - ORDEN.indexOf(b.motivo);
-      // Dentro del mismo motivo, alfabético: da un orden estable y previsible,
-      // no el que traiga el catálogo.
-      return porMotivo !== 0 ? porMotivo : a.exercise.name.localeCompare(b.exercise.name, 'es');
+      if (porMotivo !== 0) return porMotivo;
+      // A igual capa gana el que explica más de lo que la persona escribió.
+      const porCobertura =
+        tokensCubiertos(b.exercise, criterios) - tokensCubiertos(a.exercise, criterios);
+      if (porCobertura !== 0) return porCobertura;
+      // Y después alfabético: un orden estable y previsible, no el del catálogo.
+      return a.exercise.name.localeCompare(b.exercise.name, 'es');
     });
+}
+
+/**
+ * CUÁNTAS DE LAS PALABRAS QUE ESCRIBIÓ EXPLICA ESTE EJERCICIO
+ *
+ * El desempate dentro de una capa era alfabético, y alcanzaba para ser
+ * determinista pero no significaba nada. **"jalón al pecho" devolvía "Aperturas
+ * en máquina"** — el ejemplo que el docblock de arriba usa de titular para
+ * explicar por qué existe este módulo.
+ *
+ * El motivo: `pecho` es sinónimo de cinco cosas de pecho y `jalon` de
+ * `dorsalera`, así que las dos entran por la capa `sinonimo` y empatan; ahí la A
+ * de Aperturas le gana a la D de Dorsalera. Pero "Dorsalera al pecho" explica
+ * **las dos** palabras que la persona escribió (`jalon` por sinónimo, `pecho`
+ * literal en el nombre) y "Aperturas en máquina" explica una.
+ *
+ * Contar eso es una regla general y no un caso especial: el que da cuenta de más
+ * de la consulta va primero, y recién después el alfabeto.
+ */
+function tokensCubiertos(ejercicio: Exercise, { tokens }: Consulta): number {
+  const nombre = normalizar(ejercicio.name);
+  return tokens.filter((t) => {
+    if (nombre.includes(t)) return true;
+    // El sinónimo de UNA palabra, no los de la consulta entera: acá se pregunta
+    // qué explica cada palabra por separado.
+    return (SINONIMOS[t] ?? []).some((s) => s.split(' ').every((p) => nombre.includes(p)));
+  }).length;
 }
 
 /** Una etiqueta (músculo o patrón) coincide si la consulta la nombra. */

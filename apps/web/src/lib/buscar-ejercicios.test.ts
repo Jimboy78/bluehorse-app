@@ -280,3 +280,82 @@ describe('la tabla de sinónimos no apunta al vacío', () => {
     );
   });
 });
+
+/**
+ * LAS CINCO CONSULTAS QUE EL MÓDULO PROMETE EN SU PRIMER PÁRRAFO
+ *
+ * El docblock de `buscar-ejercicios.ts` nombra cinco: "dominadas" (ese sí
+ * está), "patada de burro", "bench press", "jalón al pecho" y "pierna". Son la
+ * justificación de que el módulo exista.
+ *
+ * Una de las cinco estaba mal, y los 73 tests de arriba no la miraban: probaban
+ * alias de **una** palabra, y el que fallaba es el único de la lista que mezcla
+ * un alias específico con uno genérico. "jalón al pecho" devolvía **"Aperturas
+ * en máquina"**, porque `pecho` es sinónimo de cinco cosas de pecho, las dos
+ * entran por la capa `sinonimo`, y el desempate era alfabético: la A de
+ * Aperturas le ganaba a la D de Dorsalera.
+ *
+ * Si el propio ejemplo de titular no andaba, el test que faltaba es este.
+ */
+describe('los ejemplos que el módulo usa para justificarse', () => {
+  it('cada uno cae en el ejercicio que el docblock dice', () => {
+    expect(primero('dominadas')).toBe('Dominadas');
+    expect(primero('patada de burro')).toBe('Patada de glúteo en máquina');
+    expect(primero('jalon al pecho')).toBe('Dorsalera al pecho');
+    expect(primero('jalón al pecho')).toBe('Dorsalera al pecho');
+    // Los dos flojos del docblock, que no nombran un ejercicio sino una familia:
+    // alcanza con que caigan en algo de esa familia.
+    expect(primero('bench press')).toMatch(/^Press de banc/);
+    expect(primero('pierna')).toMatch(/pierna|Sentadilla|Prensa/i);
+  });
+
+  it('agregar una palabra genérica no cambia a qué ejercicio lleva la específica', () => {
+    // La forma del bug, no el caso: `jalon` solo acertaba y `jalon al pecho` no.
+    // Lo que una palabra de más puede hacer es traer MÁS resultados, nunca mover
+    // el primero a otra cosa.
+    for (const extra of ['', ' al pecho', ' pecho', ' en polea']) {
+      expect(primero(`jalon${extra}`), `jalon${extra}`).toBe('Dorsalera al pecho');
+    }
+  });
+});
+
+/**
+ * El desempate dentro de una capa, medido como regla y no como caso.
+ *
+ * Era alfabético, que es determinista pero no significa nada. Ahora gana el que
+ * explica más de lo que la persona escribió, y el alfabeto queda de tercero.
+ */
+describe('a igual capa, gana el que explica más palabras', () => {
+  /** Dos candidatos con el orden alfabético en contra de la cobertura. */
+  const FIXTURE: readonly Exercise[] = [
+    { ...CATALOGO[0], id: 'a', name: 'Aperturas en máquina' } as Exercise,
+    { ...CATALOGO[0], id: 'd', name: 'Dorsalera al pecho' } as Exercise,
+  ];
+
+  it('el fixture tiene el alfabeto en contra', () => {
+    // Sin esto el test podría pasar porque el orden alfabético ya daba lo mismo.
+    expect([...FIXTURE].map((e) => e.name).sort((x, y) => x.localeCompare(y, 'es'))[0]).toBe(
+      'Aperturas en máquina',
+    );
+  });
+
+  it('gana Dorsalera, que cubre las dos palabras, no Aperturas, que cubre una', () => {
+    const r = buscarEjercicios('jalon al pecho', FIXTURE);
+    // Las dos tienen que entrar: si una quedara afuera, esto no probaría el orden.
+    expect(r).toHaveLength(2);
+    expect(r[0]?.exercise.name).toBe('Dorsalera al pecho');
+  });
+
+  it('con cobertura igual sigue mandando el alfabeto', () => {
+    // El desempate viejo no se sacó, se bajó de prioridad. Hace falta un empate
+    // de verdad: los dos entran por `sinonimo` de `pecho` (la tabla lleva a
+    // "aperturas" y a "cruce") y los dos cubren esa única palabra.
+    const empatados: readonly Exercise[] = [
+      { ...CATALOGO[0], id: 'c', name: 'Cruce en polea' } as Exercise,
+      { ...CATALOGO[0], id: 'a', name: 'Aperturas en máquina' } as Exercise,
+    ];
+    const r = buscarEjercicios('pecho', empatados);
+    expect(r.map((c) => c.motivo)).toEqual(['sinonimo', 'sinonimo']);
+    expect(r.map((c) => c.exercise.name)).toEqual(['Aperturas en máquina', 'Cruce en polea']);
+  });
+});

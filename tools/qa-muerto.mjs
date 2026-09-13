@@ -159,7 +159,23 @@ function exportsMuertos() {
 /** Archivos que ninguna cadena de import menciona — contando los `import()` de las rutas. */
 function archivosHuerfanos() {
   const paths = archivos('apps/web/src').concat(archivos('packages'));
-  const texto = [...leerTodo(paths).values()].join('\n');
+  /**
+   * Los imports que cuentan son los de producción: **un test no mantiene vivo a
+   * su propio módulo.**
+   *
+   * Antes el texto donde se buscaba incluía los `.test.ts`, así que un módulo
+   * importado únicamente por su test se declaraba usado. Es la misma forma del
+   * bug anterior de este chequeo —se conformaba con algo que no es uso real— y
+   * tapaba exactamente un archivo: `lib/buscar-ejercicios.ts`, 8 capas de
+   * búsqueda, tabla de sinónimos y 78 tests en verde, conectado a ninguna
+   * pantalla. Mientras tanto el único buscador de la app era el
+   * `name.includes(q)` que el docblock de ese módulo denuncia.
+   *
+   * Medido al cambiarlo: de 123 archivos mirados, ése es el único que pasa de
+   * vivo a huérfano. Cero falsos positivos.
+   */
+  const deProduccion = paths.filter((p) => !p.split('/').pop().includes('.test.'));
+  const texto = [...leerTodo(deProduccion).values()].join('\n');
   const RAICES = ['main.tsx'];
 
   const hallazgos = [];
