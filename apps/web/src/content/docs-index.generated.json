@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-12T20:55:57.367Z",
+ "generatedAt": "2026-09-13T04:31:02.442Z",
  "docs": [
   {
    "id": "metodo",
@@ -207,7 +207,7 @@
    "titulo": "Un tercio del gimnasio no entra en ningún plan",
    "resumen": "Revisión del 10 de septiembre de 2026. El catálogo es la pieza que ninguna herramienta había mirado: qa barre datos muertos y código muerto, y qa docs cruza el ruleset con la investigación, pero nadie preguntaba nunca qué pasa con los 58…",
    "archivo": "25-cobertura-del-catalogo.md",
-   "bloques": 61
+   "bloques": 70
   },
   {
    "id": "26-acsm-2026",

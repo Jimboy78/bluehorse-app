@@ -1734,15 +1734,67 @@ describe('el aviso de énfasis que el plan no cubre', () => {
     expect(problemas.join('\n')).toBe('');
   });
 
-  it('hoy hay al menos un caso de cada tipo', () => {
-    // Si esto falla es una buena noticia y hay que revisar `25`: o el catálogo
-    // creció, o las plantillas cambiaron, o el énfasis se corrigió.
+  /**
+   * PEDÍA UN CASO DE CADA TIPO, Y UNO DE LOS DOS DEJÓ DE EXISTIR
+   *
+   * Este test exigía que los 35 perfiles produjeran al menos un aviso de cada
+   * nota. Y estaba bien exigirlo: el otro test de acá verifica que cada aviso
+   * caiga en la categoría correcta, y eso pasa en verde si no hay ningún aviso.
+   *
+   * `emphasisOnlyBySwapNote` —"no lo trae de entrada, pero podés cambiarlo"— se
+   * quedó en cero al aplicar `requireSameMeasure`. El único caso eran los
+   * oblicuos, que diez deportes del catálogo enfatizan y que en este gimnasio
+   * existen en un solo ejercicio: la plancha, que se mide en segundos. Llegaba a
+   * los equivalentes porque `findSubstitutes` no miraba la modalidad, o sea que
+   * el consejo "cambialo en la sesión" era cierto solo a través de ese bug: si
+   * el socio lo seguía, quedaba con "Plancha, 3 series de 15 repeticiones".
+   *
+   * Así que lo que se fija ahora es el estado medido, no un caso que ya no hay:
+   * `unreachable` tiene que seguir saliendo (los oblicuos ahora caen ahí) y
+   * `onlyBySwap` tiene que seguir en cero. Si vuelve a aparecer es una buena
+   * noticia —el gimnasio cargó un ejercicio de oblicuos con carga— y hay que
+   * revisar `25`, que es lo que decía el comentario original.
+   */
+  it('el aviso de "el gimnasio no tiene" sale, y el de "cambialo" ya no tiene caso', () => {
     const avisos = PERFILES.flatMap((p) => planDe(p, V1_RESEARCH).warnings);
-    for (const clave of ['emphasisOnlyBySwapNote', 'emphasisUnreachableNote'] as const) {
+    // Verde y vacío no sirve: sin avisos, las dos aserciones de abajo se cumplen
+    // solas y este test no mira nada.
+    expect(avisos.length).toBeGreaterThan(30);
+
+    expect(avisos.some((a) => a.includes(marcaDe('emphasisUnreachableNote')))).toBe(true);
+    expect(
+      avisos.filter((a) => a.includes(marcaDe('emphasisOnlyBySwapNote'))),
+      'volvió a haber un músculo alcanzable solo cambiando: revisar docs/research/25',
+    ).toEqual([]);
+  });
+
+  /**
+   * La razón por la que el caso de arriba desapareció, medida donde se origina.
+   *
+   * Sin esto, "onlyBySwap está en cero" queda como un hecho sin causa, y el día
+   * que alguien afloje `requireSameMeasure` el test de arriba falla sin decir por
+   * qué. Acá falla el que explica.
+   */
+  it('la plancha no es un reemplazo de un ejercicio por repeticiones', () => {
+    const plancha = gym.exercises.find((e) => e.modality === 'time' && e.pattern === 'core');
+    expect(plancha, 'el catálogo dejó de tener un ejercicio de core por tiempo').toBeDefined();
+    if (!plancha) return;
+
+    const porReps = gym.exercises.filter((e) => e.pattern === 'core' && e.modality !== 'time');
+    expect(porReps.length).toBeGreaterThan(1);
+
+    for (const item of porReps) {
+      const opciones = engine.findSubstitutes({
+        item: { exerciseId: item.id, equipmentId: null },
+        gym,
+        constraints: [],
+        unavailableEquipmentIds: [],
+        ruleset: V1_RESEARCH,
+      });
       expect(
-        avisos.some((a) => a.includes(marcaDe(clave))),
-        clave,
-      ).toBe(true);
+        opciones.map((o) => o.exerciseId),
+        item.name,
+      ).not.toContain(plancha.id);
     }
   });
 });

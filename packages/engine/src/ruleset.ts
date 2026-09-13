@@ -804,6 +804,45 @@ export const rulesetSchema = z.object({
      * escribió que dos ejercicios se reemplazan, sabe algo que el puntaje no.
      */
     requireSamePattern: z.boolean(),
+    /**
+     * Un reemplazo se mide con la misma unidad: segundos o repeticiones.
+     *
+     * El mismo agujero que `requireSamePattern`, un eje más allá. El puntaje
+     * mira patrón y músculos primarios, y nada más, así que **Plancha** (que se
+     * sostiene, `modality: time`) y **Abdominales en máquina** (3×15) se
+     * ofrecían como equivalentes: mismo patrón `core`, abs en los dos. Medido
+     * sobre el catálogo real, 4 de los 123 ofrecimientos cruzan de tiempo a
+     * repeticiones.
+     *
+     * Y aceptar el cambio no reescribe la prescripción —`handlePickSubstitute`
+     * cambia el ejercicio y la estación, no las series— así que el socio en
+     * "Abdominales en máquina, 3 series de 15" tocaba cambiar y quedaba con
+     * "Plancha, 3 series de 15 repeticiones". La plancha no tiene
+     * repeticiones.
+     *
+     * Lo que NO pide es la misma `modality` exacta: `reps_weight` y
+     * `reps_bodyweight` se miden igual, y ahí están los equivalentes más
+     * obvios del gimnasio —Press de banco → Flexiones, Dorsalera → Dominadas—.
+     * Exigir modalidad exacta costaba 29 ofrecimientos y dejaba 5 ejercicios
+     * más sin ningún reemplazo; esto cuesta 6 y uno solo (Plancha, el único por
+     * tiempo de su patrón, que honestamente no tiene equivalente en esta sala).
+     */
+    requireSameMeasure: z.boolean(),
+    /**
+     * Un ejercicio explosivo no se reemplaza por uno que no lo es, ni al revés.
+     *
+     * El caso que lo destapó es el peor de todos porque sale **primero**:
+     * `Sentadilla` → `Salto al cajón` puntúa 1,00 (mismo patrón `squat`, mismos
+     * primarios) y encabeza la lista con un 100% en pantalla. Alguien con
+     * objetivo de fuerza en 4 series de 5 con carga toca "cambiar ejercicio" y
+     * la primera opción es saltar a un cajón 5 veces, con la carga del original.
+     *
+     * Al revés es igual de malo y es el que importa para `power`: el salto y el
+     * swing son el ejercicio *por ser* explosivos. Cambiarlos por una prensa o
+     * un peso muerto rumano saca justo lo que el objetivo pide. Medido: 19 de
+     * los 123 ofrecimientos cruzan esta línea.
+     */
+    requireSameExplosiveness: z.boolean(),
     maxOptions: z.number().int().min(1).max(10),
   }),
   /** Plantillas de texto para el "por qué va acá". `{exercise}` se reemplaza. */

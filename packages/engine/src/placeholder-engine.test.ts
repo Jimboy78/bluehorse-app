@@ -1715,3 +1715,128 @@ describe('volver al cardio después de una pausa', () => {
     expect(avisos.some((w) => w.includes('tendones'))).toBe(true);
   });
 });
+
+/**
+ * UN REEMPLAZO SE CUENTA IGUAL Y SE MUEVE IGUAL
+ *
+ * `scoreEquivalence` mira patrón y músculos primarios, y nada más, así que dos
+ * ejercicios que se hacen de forma incompatible pueden puntuar 1,00. Medido
+ * sobre el catálogo real del gimnasio, de 123 ofrecimientos 4 cruzaban de tiempo
+ * a repeticiones y 19 cruzaban la línea de explosivo.
+ *
+ * Los dos importan porque aceptar el reemplazo **no** reescribe la prescripción:
+ * el socio se queda con las series del original. Ver `requireSameMeasure` y
+ * `requireSameExplosiveness` en `ruleset.ts`, y la corrección del 13/09/2026 en
+ * `docs/research/25-cobertura-del-catalogo.md`.
+ */
+describe('un reemplazo tiene que hacerse como el original', () => {
+  const PLANCHA = exercise('ex-plancha', 'Plancha', {
+    pattern: 'core',
+    primaryMuscles: ['abs', 'obliques'],
+    modality: 'time',
+    isCompound: false,
+    // La plancha del catálogo real va sobre colchoneta. Sin estación,
+    // `hasUsableEquipment` descarta todo lo que no sea `reps_bodyweight`, y
+    // entonces estos tests pasarían por el equipamiento y no por la regla.
+    equipmentIds: ['eq-camilla'],
+  });
+  const SALTO = exercise('ex-salto', 'Salto al cajón', {
+    pattern: 'squat',
+    primaryMuscles: ['quads'],
+    modality: 'reps_bodyweight',
+    isExplosive: true,
+    equipmentIds: [],
+  });
+
+  function gymCon(...extra: Exercise[]): GymSnapshot {
+    const gym = buildGym();
+    return { ...gym, exercises: [...gym.exercises, ...extra] };
+  }
+
+  function opcionesDe(exerciseId: string, gym: GymSnapshot, ruleset = V0_PLACEHOLDER) {
+    return engine
+      .findSubstitutes({
+        context,
+        item: { exerciseId, equipmentId: null },
+        gym,
+        constraints: [],
+        unavailableEquipmentIds: [],
+        ruleset,
+      })
+      .map((o) => o.exerciseId);
+  }
+
+  it('el fixture hace alcanzables los dos casos', () => {
+    // Sin esto los tests de abajo podrían pasar porque el candidato no existe,
+    // no porque la regla lo descarte. El puntaje de los dos pares supera el piso.
+    const { patternWeight, muscleWeight, minEquivalence } = V0_PLACEHOLDER.substitution;
+    // Plancha (abs+obliques) vs Abdominales (abs): mismo patrón, jaccard 1/2.
+    expect(patternWeight + muscleWeight * 0.5).toBeGreaterThanOrEqual(minEquivalence);
+    // Salto (quads) vs Prensa (quads): mismo patrón, mismos primarios.
+    expect(patternWeight + muscleWeight).toBeGreaterThanOrEqual(minEquivalence);
+  });
+
+  it('no ofrece la plancha para un ejercicio que se cuenta por repeticiones', () => {
+    // El caso vivo: el socio está en "Abdominales, 3 series de 15", toca cambiar,
+    // y la plancha no tiene repeticiones.
+    expect(opcionesDe('ex-abs', gymCon(PLANCHA))).not.toContain('ex-plancha');
+  });
+
+  it('ni al revés: para la plancha no ofrece un ejercicio por repeticiones', () => {
+    expect(opcionesDe('ex-plancha', gymCon(PLANCHA))).not.toContain('ex-abs');
+  });
+
+  it('no ofrece un salto para una sentadilla, que es la opción que salía primero', () => {
+    // Puntuaba 1,00 y encabezaba la lista con un 100% en pantalla: alguien con
+    // objetivo de fuerza en 4×5 con carga recibía "saltá a un cajón 5 veces".
+    expect(opcionesDe('ex-prensa', gymCon(SALTO))).not.toContain('ex-salto');
+  });
+
+  it('ni al revés: lo explosivo no se reemplaza por lo que no lo es', () => {
+    // Esta dirección es la que importa para `power`: el salto es el ejercicio
+    // **por ser** explosivo.
+    expect(opcionesDe('ex-salto', gymCon(SALTO))).not.toContain('ex-prensa');
+  });
+
+  it('una equivalencia cargada a mano cruza las dos reglas', () => {
+    // Misma excepción que `requireSamePattern`: si el staff la escribió, sabe
+    // algo que el puntaje no. Sin esto, una curación se guardaba en /panel y no
+    // le llegaba a nadie, que es un bug que este proyecto ya tuvo.
+    const gym = gymCon(PLANCHA, SALTO);
+    const conCuradas: GymSnapshot = {
+      ...gym,
+      substitutions: [
+        ...gym.substitutions,
+        {
+          exerciseId: 'ex-abs',
+          substituteId: 'ex-plancha',
+          equivalence: 0.9,
+          note: 'El staff la cargó a propósito.',
+        },
+        {
+          exerciseId: 'ex-prensa',
+          substituteId: 'ex-salto',
+          equivalence: 0.9,
+          note: 'El staff la cargó a propósito.',
+        },
+      ],
+    };
+    expect(opcionesDe('ex-abs', conCuradas)).toContain('ex-plancha');
+    expect(opcionesDe('ex-prensa', conCuradas)).toContain('ex-salto');
+  });
+
+  it('las dos reglas se pueden apagar desde el ruleset, no están en el código', () => {
+    // Regla dura 3 aplicada a una regla booleana: el motor no decide esto.
+    const flojo = {
+      ...V0_PLACEHOLDER,
+      substitution: {
+        ...V0_PLACEHOLDER.substitution,
+        requireSameMeasure: false,
+        requireSameExplosiveness: false,
+      },
+    };
+    const gym = gymCon(PLANCHA, SALTO);
+    expect(opcionesDe('ex-abs', gym, flojo)).toContain('ex-plancha');
+    expect(opcionesDe('ex-prensa', gym, flojo)).toContain('ex-salto');
+  });
+});

@@ -1180,6 +1180,18 @@ function equipmentOf(
 
 // ------------------------------------------------------------------ sustitución
 
+/**
+ * Con qué se cuenta el ejercicio: segundos o repeticiones.
+ *
+ * No es la `modality` entera. `reps_weight` y `reps_bodyweight` se cuentan
+ * igual —el press de banco y las flexiones son 10 repeticiones— y separarlas
+ * descartaría los equivalentes más obvios del gimnasio. Lo que no se puede
+ * mezclar es sostener con repetir: ver `requireSameMeasure` en `ruleset.ts`.
+ */
+function porTiempo(exercise: Exercise): boolean {
+  return exercise.modality === 'time';
+}
+
 function findSubstitutes(input: FindSubstitutesInput): readonly SubstituteOption[] {
   const { item, gym, constraints, unavailableEquipmentIds, ruleset } = input;
   const cfg = ruleset.substitution;
@@ -1214,16 +1226,30 @@ function findSubstitutes(input: FindSubstitutesInput): readonly SubstituteOption
   // equivalencia mirando el ejercicio, no la lesión de cada socio.
   const avoidRules = activePainRules(ruleset, constraints, 'avoid');
 
-  /** Lo que descalifica a un candidato antes de mirar cuánto se parece. */
+  /**
+   * Lo que descalifica a un candidato antes de mirar cuánto se parece.
+   *
+   * Los tres `require*` son la misma idea en tres ejes, y ninguno se puede
+   * expresar con el puntaje: `scoreEquivalence` solo mira patrón y músculos
+   * primarios, así que dos ejercicios que se hacen de forma incompatible pueden
+   * puntuar 1,00. Una equivalencia curada a mano los cruza los tres: si el
+   * staff la escribió, sabe algo que el puntaje no.
+   */
   const descartado = (candidate: Exercise, curatedEdge: SubstitutionEdge | undefined) =>
     candidate.id === original.id ||
     isBlocked(candidate, constraints) ||
     isBlockedByPain(candidate, avoidRules) ||
     !hasUsableEquipment(candidate, gym, [...blocked]) ||
-    // El mismo trabajo de otra forma, no otro trabajo. Una equivalencia curada
-    // sí puede cruzar patrones: si el staff la escribió, sabe algo que el
-    // puntaje no.
-    (!curatedEdge && cfg.requireSamePattern && candidate.pattern !== original.pattern);
+    // El mismo trabajo de otra forma, no otro trabajo.
+    (!curatedEdge && cfg.requireSamePattern && candidate.pattern !== original.pattern) ||
+    // Medido en segundos o en repeticiones, no en las dos. Aceptar el cambio no
+    // reescribe la prescripción, así que cruzar acá deja al socio con las series
+    // del original sobre un ejercicio que no se cuenta así.
+    (!curatedEdge && cfg.requireSameMeasure && porTiempo(candidate) !== porTiempo(original)) ||
+    // Explosivo o no: en un salto o un swing, la velocidad ES el ejercicio.
+    (!curatedEdge &&
+      cfg.requireSameExplosiveness &&
+      candidate.isExplosive !== original.isExplosive);
 
   const options: SubstituteOption[] = [];
 

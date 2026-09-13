@@ -148,10 +148,11 @@ textos viven en el ruleset (`sports.emphasisOnlyBySwapNote` y `sports.emphasisUn
 en el código:
 
 - **"No lo trae de entrada, pero podés cambiarlo."** El músculo no está en el plan y sí entre los
-  equivalentes. Es el caso de los oblicuos en fútbol, futsal, tenis y pádel. El aviso manda a "otras
-  formas de hacerlo", que es la función que existe justo para esto.
+  equivalentes. El aviso manda a "otras formas de hacerlo", que es la función que existe justo para
+  esto.
 - **"El gimnasio no tiene hoy con qué."** No está en el plan ni entre los equivalentes. Es el caso
-  del hombro posterior y los antebrazos en tenis y pádel.
+  del hombro posterior y los antebrazos en tenis y pádel, **y desde la revisión del 13 de septiembre
+  también el de los oblicuos** — ver abajo.
 
 Se avisa en vez de arreglar la selección, y es a propósito:
 
@@ -161,6 +162,46 @@ Se avisa en vez de arreglar la selección, y es a propósito:
   patear y el de golpear una pelota sí pasan por ahí.
 - **Aflojar la regla del tiempo** para que entre la plancha llevaría a prescribir "3×10 de plancha",
   que es exactamente lo que esa regla existe para evitar.
+
+## Corrección del 13 de septiembre de 2026: la regla valía en una puerta y no en la otra
+
+El párrafo de arriba dice que aflojar la regla del tiempo llevaría a "3×10 de plancha". Eso ya
+estaba pasando, por la otra puerta.
+
+`chooseExercise` descarta los ejercicios por tiempo al **armar** el plan, y `findSubstitutes` no
+mira la modalidad al **reemplazar**: su puntaje son patrón y músculos primarios, nada más. La
+plancha (`core`, abs + oblicuos) y los abdominales en máquina (`core`, abs) puntuaban 0,70 entre
+sí. Medido sobre el catálogo real, **4 de los 123 ofrecimientos cruzaban de tiempo a
+repeticiones**.
+
+Y aceptar un reemplazo no reescribe la prescripción —`handlePickSubstitute` cambia el ejercicio y
+la estación, no las series— así que alguien en "Abdominales en máquina, 3 series de 15" tocaba
+cambiar, elegía la plancha y se quedaba con **"Plancha, 3 series de 15 repeticiones"**. Textual lo
+que este documento declaraba evitado.
+
+Eso invalida la conclusión de la sección anterior en su parte más citada: el aviso "podés
+cambiarlo" para los oblicuos **era cierto solo a través del bug**. Diez de los 26 deportes del
+catálogo enfatizan oblicuos y el gimnasio tiene un solo ejercicio con oblicuos primario, que es de
+tiempo. Con la regla aplicada en las dos puertas, los oblicuos pasan a "el gimnasio no tiene hoy con
+qué", que es lo que siempre fue.
+
+Lo que se agregó, en el ruleset y no en el código (`substitution.requireSameMeasure` y
+`substitution.requireSameExplosiveness`):
+
+| Regla | Qué descarta | Costo medido |
+|---|---|---|
+| `requireSameMeasure` | Sostener por repetir: plancha ↔ abdominales | 6 de 123 ofrecimientos; 1 ejercicio queda sin reemplazo (la plancha, que no tiene equivalente por tiempo en esta sala) |
+| `requireSameExplosiveness` | Salto al cajón ↔ sentadilla, swing ↔ peso muerto rumano | 8 de 123; ninguno queda sin reemplazo |
+| Las dos juntas | | 123 → 109 ofrecimientos, 7 → 8 sin reemplazo |
+
+El segundo es el que salía **primero** en pantalla: `Sentadilla` → `Salto al cajón` puntuaba 1,00
+—mismo patrón, mismos primarios— así que encabezaba la lista con un 100%. Alguien con objetivo de
+fuerza en 4×5 con carga tocaba "cambiar ejercicio" y la primera opción era saltar a un cajón cinco
+veces. Al revés importa para `power`: el salto y el swing son el ejercicio **por ser** explosivos.
+
+No se pidió la `modality` exacta. `reps_weight` y `reps_bodyweight` se cuentan igual, y ahí están
+los equivalentes más obvios de la sala —press de banco → flexiones, dorsalera → dominadas—.
+Exigirla costaba 29 ofrecimientos y cinco ejercicios más sin reemplazo.
 
 Es la regla dura 4 aplicada a la cobertura: si el plan no está cubriendo algo que el deporte pide,
 el plan lo dice.
@@ -180,9 +221,10 @@ el plan lo dice.
 1. **Una plantilla que use `carry`.** Es el único patrón huérfano. Con eso entrarían la caminata del
    granjero y con ella los antebrazos — aunque sigue siendo de tiempo, así que habría que ver cómo
    se prescribe.
-2. **Si vale la pena un ejercicio de oblicuos con carga.** Giro ruso con mancuerna, leñador en
-   polea, rotación en polea: si alguno existe físicamente en el gimnasio y no está cargado, se
-   resuelve cargándolo, no tocando el motor.
+2. **Si vale la pena un ejercicio de oblicuos con carga.** Subió de prioridad con la corrección de
+   arriba: era la única pregunta que el aviso "podés cambiarlo" hacía parecer contestada. Giro ruso
+   con mancuerna, leñador en polea, rotación en polea: si alguno existe físicamente en el gimnasio y
+   no está cargado, se resuelve cargándolo, no tocando el motor.
 3. **Si los gemelos merecen su propio slot.** Hoy compiten en `isolation` contra todo lo demás y
    nunca ganan. Es la misma pregunta que ya se contestó para el core, que sí tiene slot propio.
 

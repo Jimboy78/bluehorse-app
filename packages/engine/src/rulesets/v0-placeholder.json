@@ -806,6 +806,8 @@
     "patternWeight": 0.4,
     "muscleWeight": 0.6,
     "requireSamePattern": true,
+    "requireSameMeasure": true,
+    "requireSameExplosiveness": true,
     "maxOptions": 3
   },
   "rationale": {
