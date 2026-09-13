@@ -222,7 +222,73 @@ function selectsSinLeer() {
   return chequeo('columnas pedidas y no leídas', pedidas.size, hallazgos);
 }
 
-/** Campos de un tipo `*Props` que ningún archivo lee. */
+/**
+ * Tipos de objeto anotados inline sobre un destructurado: `({ a }: { a: X })`.
+ *
+ * Se busca `}: {` y se avanza **balanceando llaves** hasta cerrar. Con un
+ * `[\s\S]*?\n\}\)` no alcanza: en un componente de una línea —
+ * `function Tramo({ span }: { readonly span: Span })` — ese patrón sigue
+ * buscando el cierre y se come el JSX de abajo hasta el próximo `})`, así que
+ * devuelve los `case` del switch como si fueran campos.
+ */
+function tiposInline(txt) {
+  const out = [];
+  for (const m of txt.matchAll(/\}:\s*\{/g)) {
+    let i = m.index + m[0].length;
+    let prof = 1;
+    while (i < txt.length && prof > 0) {
+      if (txt[i] === '{') prof += 1;
+      else if (txt[i] === '}') prof -= 1;
+      i += 1;
+    }
+    if (prof === 0) out.push(txt.slice(m.index + m[0].length, i - 1));
+  }
+  return out;
+}
+
+/** Los campos de primer nivel de un cuerpo de tipo. Lo anidado no cuenta. */
+function camposDe(cuerpo) {
+  const plano = cuerpo.replace(/\{[^{}]*\}/g, '');
+  return [...plano.matchAll(/(?:^|[;,{]|\n)\s*(?:readonly\s+)?(\w+)\??\s*:/g)].map((m) => m[1]);
+}
+
+/**
+ * Campos de props que ningún archivo lee.
+ *
+ * Mira las dos formas de declararlas. Antes solo miraba los tipos con nombre
+ * terminado en `Props`, y de esos hay **7 en toda la app**: los otros 114 sitios
+ * las anotan inline sobre el destructurado. Medido: 33 campos mirados contra 349
+ * que quedaban afuera, o sea menos del 9 % — y el chequeo imprimía ese 33 como
+ * si fuera la cobertura.
+ *
+ * El criterio es el mismo para las dos: un campo que aparece una sola vez en
+ * todo el proyecto está declarado y no lo lee nadie. Para las inline eso
+ * significa que no está ni en el destructurado; si está ahí y no se usa, lo
+ * agarra Biome (`noUnusedVariables`), que es más preciso que contar palabras.
+ *
+ * Límite conocido: el conteo es por palabra sobre el corpus entero, así que un
+ * campo con nombre de palabra común (`label`, `value`, `id`) nunca se va a
+ * marcar, porque otro archivo lo nombra por su cuenta. Verificado plantando los
+ * tres: solo salta el de nombre único. Es un falso negativo, no un falso
+ * positivo: lo que reporta es cierto, lo que calla puede no serlo.
+ */
+/** Los grupos de campos que un archivo declara, por tipo nombrado y por inline. */
+function camposDeclarados(txt) {
+  const grupos = [];
+  for (const [, tipo, cuerpo] of txt.matchAll(
+    /(?:interface|type)\s+(\w*Props)\b[^{]*\{([\s\S]*?)\n\}/g,
+  )) {
+    grupos.push({
+      etiqueta: (campo) => `${tipo}.${campo}`,
+      campos: [...cuerpo.matchAll(/^\s*(?:readonly\s+)?(\w+)\??\s*:/gm)].map((m) => m[1]),
+    });
+  }
+  for (const cuerpo of tiposInline(txt)) {
+    grupos.push({ etiqueta: (campo) => campo, campos: camposDe(cuerpo) });
+  }
+  return grupos;
+}
+
 function propsMuertas() {
   const paths = archivos('apps/web/src').filter((f) => !GENERADOS.test(f) && !f.includes('.test.'));
   const codigo = leerTodo(paths);
@@ -232,13 +298,10 @@ function propsMuertas() {
   let miradas = 0;
 
   for (const [ruta, txt] of codigo) {
-    for (const [, tipo, cuerpo] of txt.matchAll(
-      /(?:interface|type)\s+(\w*Props)\b[^{]*\{([\s\S]*?)\n\}/g,
-    )) {
-      const campos = [...cuerpo.matchAll(/^\s*(?:readonly\s+)?(\w+)\??\s*:/gm)].map((m) => m[1]);
+    for (const { etiqueta, campos } of camposDeclarados(txt)) {
       miradas += campos.length;
       for (const campo of campos) {
-        if (cuentaDe(texto, campo) <= 1) hallazgos.push(hallazgo(`${tipo}.${campo}`, ruta));
+        if (cuentaDe(texto, campo) <= 1) hallazgos.push(hallazgo(etiqueta(campo), ruta));
       }
     }
   }
