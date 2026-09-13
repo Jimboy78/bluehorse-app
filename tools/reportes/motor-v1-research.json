@@ -15333,6 +15333,413 @@
           ]
         }
       ]
+    },
+    "siete por semana": {
+      "rulesetVersion": "v1-research",
+      "source": "research",
+      "warnings": [
+        "Ninguna plantilla cubre 7 sesiones por semana para hipertrofia. Se usó \"Torso / pierna\".",
+        "Con 6 sesiones por semana, estos músculos pasan las 24 series semanales que la evidencia marca como techo útil: glúteos (36). Más volumen ahí no rinde más.",
+        "Con 6 sesiones por semana, estos músculos quedan abajo de las 6 series semanales mínimas: isquiotibiales (4). Sumar una sesión más por semana los cubre."
+      ],
+      "sesiones": [
+        {
+          "label": "Torso A",
+          "focus": "Torso · empuje",
+          "minutos": 60,
+          "items": [
+            {
+              "ejercicio": "Press de banco",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Dorsalera con agarre neutro",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Press de hombro con mancuernas",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Remo con mancuerna a una mano",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Patada de glúteo en máquina",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            }
+          ]
+        },
+        {
+          "label": "Pierna A",
+          "focus": "Tren inferior",
+          "minutos": 60,
+          "items": [
+            {
+              "ejercicio": "Sentadilla con cinturón",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Hip thrust con barra",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Zancadas",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Abdominales en camilla",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            }
+          ]
+        },
+        {
+          "label": "Torso B",
+          "focus": "Torso · tracción",
+          "minutos": 60,
+          "items": [
+            {
+              "ejercicio": "Remo sentado",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Press inclinado con mancuernas",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Dorsalera al pecho",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Curl con barra Z",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            }
+          ]
+        },
+        {
+          "label": "Pierna B",
+          "focus": "Tren inferior · cadena posterior",
+          "minutos": 60,
+          "items": [
+            {
+              "ejercicio": "Peso muerto rumano",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Salto al cajón",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Subida al cajón",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            }
+          ]
+        },
+        {
+          "label": "Torso A",
+          "focus": "Torso · empuje",
+          "minutos": 60,
+          "items": [
+            {
+              "ejercicio": "Press de banco",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Dorsalera con agarre neutro",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Press de hombro con mancuernas",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Remo con mancuerna a una mano",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Patada de glúteo en máquina",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            }
+          ]
+        },
+        {
+          "label": "Pierna A",
+          "focus": "Tren inferior",
+          "minutos": 60,
+          "items": [
+            {
+              "ejercicio": "Sentadilla con cinturón",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Hip thrust con barra",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Zancadas",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Abdominales en camilla",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            }
+          ]
+        },
+        {
+          "label": "Torso B",
+          "focus": "Torso · tracción",
+          "minutos": 60,
+          "items": [
+            {
+              "ejercicio": "Remo sentado",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Press inclinado con mancuernas",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Dorsalera al pecho",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Curl con barra Z",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            }
+          ]
+        },
+        {
+          "label": "Pierna B",
+          "focus": "Tren inferior · cadena posterior",
+          "minutos": 60,
+          "items": [
+            {
+              "ejercicio": "Peso muerto rumano",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Salto al cajón",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Subida al cajón",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null
+            }
+          ]
+        }
+      ]
     }
   }
 }

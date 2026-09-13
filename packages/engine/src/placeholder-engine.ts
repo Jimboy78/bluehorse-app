@@ -1274,6 +1274,19 @@ function primaryGoal(goals: readonly UserGoal[]): UserGoal {
   return first;
 }
 
+/**
+ * Cuántas sesiones de diferencia hay entre lo que la persona declaró y el rango
+ * que la plantilla pide. Cero si cae adentro.
+ */
+function distanciaDeFrecuencia(
+  declaradas: number,
+  [minimo, maximo]: readonly [number, number],
+): number {
+  if (declaradas < minimo) return minimo - declaradas;
+  if (declaradas > maximo) return declaradas - maximo;
+  return 0;
+}
+
 function pickTemplate(ruleset: Ruleset, goal: UserGoal, warnings: string[]) {
   const forGoal = ruleset.templates.filter((t) => t.goals.includes(goal.goal));
   const byFrequency = forGoal.find(
@@ -1283,7 +1296,24 @@ function pickTemplate(ruleset: Ruleset, goal: UserGoal, warnings: string[]) {
   );
   if (byFrequency) return byFrequency;
 
-  const fallback = forGoal[0] ?? ruleset.templates[0];
+  // Cuando ninguna cubre la frecuencia declarada se usa la **más cercana**, no
+  // la primera del array. Era `forGoal[0]`, que acertaba por casualidad en el
+  // extremo bajo y elegía la más lejana en el alto: medido, quien declaraba 7
+  // sesiones de hipertrofia, fuerza o recomposición recibía "Full body AB" (2 a
+  // 3) teniendo "Torso/pierna" (4 a 6) disponible, y el de 6 sesiones de
+  // resistencia recibía la de 2-3 en vez de "Base de cardio" (3 a 5). El slider
+  // del onboarding va de 1 a 7 y la base acepta ese rango, así que no era un
+  // caso imposible.
+  //
+  // Es la misma forma que las dos trampas de `CLAUDE.md`: elegir por posición en
+  // un array y depender de que alguien lo haya ordenado bien. Acá ni siquiera
+  // había un orden que lo justificara.
+  const porCercania = [...forGoal].sort(
+    (a, b) =>
+      distanciaDeFrecuencia(goal.sessionsPerWeekTarget, a.sessionsPerWeek) -
+      distanciaDeFrecuencia(goal.sessionsPerWeekTarget, b.sessionsPerWeek),
+  );
+  const fallback = porCercania[0] ?? ruleset.templates[0];
   if (!fallback) throw new Error(`El ruleset ${ruleset.version} no tiene ninguna plantilla.`);
   warnings.push(
     `Ninguna plantilla cubre ${sesiones(goal.sessionsPerWeekTarget)} por semana para ${goalLabel(goal.goal)}. Se usó "${fallback.label}".`,

@@ -23,6 +23,7 @@ import type {
 } from '@bh/domain';
 import {
   BODY_REGIONS,
+  GOALS,
   MOVEMENT_PATTERNS,
   MUSCLE_GROUPS,
   nextLoad,
@@ -509,6 +510,22 @@ const PERFILES: readonly Perfil[] = [
     sesiones: 2,
     minutos: 60,
   },
+  {
+    /*
+     * El onboarding deja pedir hasta 7 sesiones por semana y la base las acepta
+     * (`04_user.sql`), pero ninguna plantilla pasa de 6 — y la matriz no tenía
+     * un solo perfil arriba de 5. O sea que el fallback de `pickTemplate`, el
+     * único camino que esos socios recorren, no aparecía nunca en el reporte
+     * commiteado. Ahí estaba el agujero: con 7 sesiones declaradas el motor
+     * elegía "Full body AB" (2 a 3) teniendo "Torso/pierna" (4 a 6) disponible.
+     */
+    nombre: 'siete por semana',
+    goal: 'hypertrophy',
+    nivel: 'intermediate',
+    nacimiento: '1996-03-14',
+    sesiones: 7,
+    minutos: 60,
+  },
 ];
 
 function socioDe(p: Perfil): UserSnapshot {
@@ -984,6 +1001,73 @@ describe('el aviso de potencia sin explosivos', () => {
     for (const perfil of PERFILES.filter((p) => p.goal !== 'power')) {
       expect(avisaDeExplosivos(perfil)).toBe(false);
     }
+  });
+});
+
+/**
+ * CUANDO NINGUNA PLANTILLA CUBRE LA FRECUENCIA DECLARADA
+ *
+ * El slider del onboarding va de 1 a 7 sesiones por semana y la base acepta ese
+ * rango (`04_user.sql`: "between 1 and 7"), pero las plantillas del ruleset
+ * cubren de 2 a 6. Los extremos caen en un fallback, y ese fallback era
+ * `forGoal[0]`: la primera del array.
+ *
+ * Medido antes del arreglo: quien declaraba **7** sesiones de hipertrofia,
+ * fuerza o recomposición recibía "Full body AB" —2 a 3 sesiones— teniendo
+ * "Torso/pierna" (4 a 6) disponible y mucho más cerca. Y con 6 sesiones de
+ * resistencia, la de 2-3 en vez de "Base de cardio" (3 a 5). En el extremo bajo
+ * acertaba, pero por casualidad: la primera del array también era la más cercana.
+ *
+ * Es la tercera vez que aparece la misma forma en este proyecto —elegir por
+ * posición y confiar en que alguien ordenó el array— y las dos anteriores están
+ * en `CLAUDE.md`. Acá no había ni un orden declarado en el que confiar.
+ */
+describe('la plantilla que se elige cuando ninguna cubre la frecuencia', () => {
+  /** Todas las frecuencias que la base y el onboarding permiten. */
+  const FRECUENCIAS = [1, 2, 3, 4, 5, 6, 7] as const;
+
+  function plantillaDe(goal: Perfil['goal'], sesiones: number) {
+    const base = PERFILES.find((p) => p.limitaciones === undefined);
+    expect(base, 'la matriz se quedó sin perfiles sin limitaciones').toBeDefined();
+    if (!base) throw new Error('sin perfil');
+    const plan = planDe(
+      { ...base, goal, sesiones, deporte: undefined, fase: undefined },
+      V1_RESEARCH,
+    );
+    // `templateId` y no `sessions.length`: el motor replica las sesiones de la
+    // plantilla en una cola, así que "Full body AB" —2 sesiones— sale con 8.
+    return { templateId: plan.templateId, avisos: plan.warnings };
+  }
+
+  it('nunca se elige una plantilla más lejana que otra disponible', () => {
+    const plantillas = V1_RESEARCH.templates;
+    let mirados = 0;
+    for (const goal of GOALS) {
+      const paraElObjetivo = plantillas.filter((t) => t.goals.includes(goal));
+      if (paraElObjetivo.length < 2) continue;
+      for (const n of FRECUENCIAS) {
+        mirados += 1;
+        const distancia = (r: readonly [number, number]) =>
+          n < r[0] ? r[0] - n : n > r[1] ? n - r[1] : 0;
+        const mejor = Math.min(...paraElObjetivo.map((t) => distancia(t.sessionsPerWeek)));
+        const posibles = paraElObjetivo
+          .filter((t) => distancia(t.sessionsPerWeek) === mejor)
+          .map((t) => t.id);
+        expect(
+          posibles,
+          `${goal} con ${n} sesiones: se eligió una plantilla más lejana de la que había`,
+        ).toContain(plantillaDe(goal, n).templateId);
+      }
+    }
+    // Verde y vacío no sirve: si ningún objetivo tuviera dos plantillas, el
+    // bucle entero se saltearía sin una sola aserción.
+    expect(mirados).toBeGreaterThan(10);
+  });
+
+  it('y lo sigue avisando cuando no la cubre', () => {
+    // El arreglo mejora la elección; no tapa que la frecuencia no entra.
+    const { avisos } = plantillaDe('hypertrophy', 7);
+    expect(avisos.some((w) => w.includes('7 sesiones'))).toBe(true);
   });
 });
 
