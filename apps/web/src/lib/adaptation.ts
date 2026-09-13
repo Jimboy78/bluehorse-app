@@ -24,7 +24,57 @@ import { requireSupabase } from './supabase.ts';
  * evita duplicar la misma propuesta en cada visita a la pantalla.
  */
 
-const HISTORY_LIMIT = 200;
+/**
+ * CUÁNTO HISTORIAL HAY QUE LEER, Y POR QUÉ NO ES UN NÚMERO SUELTO
+ *
+ * Acá había `const HISTORY_LIMIT = 200` y un `.limit(HISTORY_LIMIT)` sobre
+ * `set_logs`. Ese 200 decidía qué reglas del ruleset podían dispararse, así que
+ * era un número de entrenamiento viviendo en el código (regla dura 3) — y estaba
+ * corto.
+ *
+ * Medido sobre los 35 perfiles del reporte, contando cuántas series hay que leer
+ * para que **cada** ejercicio del plan acumule las 3 apariciones que pide
+ * `deload.stallSessions`: dos perfiles —"recomposición · avanzado" y "frecuencia
+ * alta", los dos con 17 ejercicios distintos— necesitan **201**. Una más que el
+ * límite. Para esos socios el ejercicio que cae último en la rotación nunca
+ * llegaba a su tercera aparición, así que `proposeStallDeload` no podía
+ * dispararse para él nunca, en silencio.
+ *
+ * La derivación que reemplaza al número: una pasada completa de la cola contiene
+ * cada ejercicio del plan al menos una vez, así que `N` pasadas garantizan `N`
+ * apariciones de cada uno. Con `N` = el mayor de los tres requisitos del ruleset
+ * (`deload.stallSessions`, `progression.consecutiveSessions`,
+ * `regression.missedRepsSessions`), leer `N × (sesiones de la cola)` sesiones
+ * alcanza siempre, y se ajusta solo si cambian las plantillas o el ruleset.
+ *
+ * Se limita por sesiones y no por series porque la sesión es la unidad en la que
+ * habla el ruleset. De paso saca el otro problema del límite por filas: los
+ * calentamientos lo consumían sin aportar nada —el motor los descarta
+ * (`if (set.isWarmup) continue`)— aunque hoy la app nunca escriba uno
+ * (`is_warmup: false` está fijo en el mapper, así que eso era latente).
+ */
+export function sesionesDeHistorialNecesarias(sesionesEnLaCola: number): number {
+  const bloques: number[] = [];
+  const caminar = (o: unknown): void => {
+    if (Array.isArray(o)) {
+      for (const x of o) caminar(x);
+      return;
+    }
+    if (o === null || typeof o !== 'object') return;
+    for (const [k, v] of Object.entries(o)) {
+      if (
+        typeof v === 'number' &&
+        (k === 'stallSessions' || k === 'consecutiveSessions' || k === 'missedRepsSessions')
+      ) {
+        bloques.push(v);
+      }
+      caminar(v);
+    }
+  };
+  caminar(activeRuleset);
+  const pasadas = bloques.length > 0 ? Math.max(...bloques) : 1;
+  return pasadas * Math.max(sesionesEnLaCola, 1);
+}
 
 export function usePendingProposals() {
   const { user, status } = useAuth();
@@ -81,10 +131,20 @@ async function generateProposals(
     toAdaptationProposal(proposalRowSchema.parse(raw)),
   );
 
+  // Cuántas sesiones tiene la cola de este plan: es lo que hace falta para saber
+  // cuántas sesiones de historial leer (ver `sesionesDeHistorialNecesarias`).
+  const { count: sesionesEnLaCola, error: colaError } = await client
+    .from('plan_sessions')
+    .select('id', { count: 'exact', head: true })
+    .eq('plan_id', planId);
+  if (colaError) throw colaError;
+
   const { data: workoutRows, error: workoutError } = await client
     .from('workout_logs')
     .select('id')
-    .eq('user_id', userId);
+    .eq('user_id', userId)
+    .order('started_at', { ascending: false })
+    .limit(sesionesDeHistorialNecesarias(sesionesEnLaCola ?? 1));
   if (workoutError) throw workoutError;
   const workoutLogIds = (workoutRows ?? []).map((w) => w.id);
   if (workoutLogIds.length === 0) return [];
@@ -95,8 +155,7 @@ async function generateProposals(
       'id, plan_session_item_id, exercise_id, equipment_id, set_index, load_value, load_unit, load_kg_normalized, reps, reps_target, rir, duration_seconds, distance_meters, rest_prescribed_seconds, rest_actual_seconds, is_warmup, completed_at, client_id, workout_log_id',
     )
     .in('workout_log_id', workoutLogIds)
-    .order('completed_at', { ascending: false })
-    .limit(HISTORY_LIMIT);
+    .order('completed_at', { ascending: false });
   if (setError) throw setError;
   const history = (setRows ?? []).map((raw) => toSetLog(setLogHistoryRowSchema.parse(raw)));
   if (history.length === 0) return [];
