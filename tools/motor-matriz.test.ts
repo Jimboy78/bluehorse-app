@@ -1164,6 +1164,25 @@ describe('el deporte tiene que cambiar algún ejercicio', () => {
     );
     expect(planes.size).toBeGreaterThan(1);
   });
+
+  /**
+   * La lista del paso 1 del onboarding no ofrece `ninguno`: la opción "No
+   * practico ninguno" guarda `null`, que es lo que el motor espera para "sin
+   * deporte". Eso deja un id del catálogo inalcanzable desde la app, y vale solo
+   * si las dos cosas producen el mismo plan. Su categoría es `recreational`
+   * —multiplicador 1, `emphasis: []`— así que debería; esto lo mide en vez de
+   * confiar en leer la tabla.
+   */
+  it('elegir "ninguno" y no elegir nada dan el mismo plan', () => {
+    let mirados = 0;
+    for (const perfil of PERFILES) {
+      expect(ejerciciosDe(perfil, 'ninguno'), perfil.nombre).toEqual(
+        ejerciciosDe(perfil, undefined),
+      );
+      mirados += 1;
+    }
+    expect(mirados).toBeGreaterThan(30);
+  });
 });
 
 /**

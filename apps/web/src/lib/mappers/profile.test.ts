@@ -4,7 +4,11 @@ import { toBodyMetricInsert, toProfileUpdate, toUserGoalInsert } from './profile
 
 const input: OnboardingInput = {
   goal: 'hypertrophy',
-  sport: '  Fútbol  ',
+  // Un id del catálogo con espacios al costado: el valor válido es el id, y lo
+  // que el mapper hace es recortarlo. Decía '  Fútbol  ', que desde que el paso 1
+  // es una lista no puede llegar: el motor busca por id exacto y 'Fútbol' no matchea
+  // con nada. Un fixture que usa un valor imposible prueba el recorte y enseña mal.
+  sport: '  futbol  ',
   birthDate: '1994-05-10',
   sex: 'male',
   weightKg: 78.5,
@@ -47,7 +51,7 @@ describe('toUserGoalInsert', () => {
     expect(toUserGoalInsert('user-1', input)).toEqual({
       user_id: 'user-1',
       goal: 'hypertrophy',
-      sport: 'Fútbol',
+      sport: 'futbol',
       priority: 1,
       sessions_per_week_target: 4,
       session_minutes_target: 60,

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { activeRuleset } from '../../lib/engine.ts';
 import {
   calibrationStepSchema,
   experienceStepSchema,
@@ -102,5 +103,61 @@ describe('calibrationStepSchema', () => {
     expect(calibrationStepSchema.safeParse({ baselineMode: 'declared' }).success).toBe(true);
     expect(calibrationStepSchema.safeParse({ baselineMode: 'calibrate' }).success).toBe(true);
     expect(calibrationStepSchema.safeParse({ baselineMode: 'ya_se' }).success).toBe(false);
+  });
+});
+
+/**
+ * EL DEPORTE TIENE QUE SER UN ID DEL CATÁLOGO
+ *
+ * `user_goals.sport` guarda el id de una entrada de `sports.catalog`, y el
+ * comentario del esquema de la base lo dice: "no texto libre: un string suelto no
+ * se puede mapear y el motor lo ignoraría en silencio". El motor busca por id
+ * exacto, y cuando no encuentra sigue sin deporte sin avisar nada —
+ * `entry?.emphasis ?? []`, `category?.volumeMultiplier ?? 1`.
+ *
+ * El paso era un `<input type="text">` con placeholder "Fútbol, running,
+ * ninguno…". Medido sobre 17 formas de escribirlo, solo 6 matchean: fallan todas
+ * las que llevan mayúscula o tilde, o sea justo la que el placeholder sugería.
+ * Alguien que contestaba "Fútbol" recibía el plan de alguien que no practica
+ * nada.
+ */
+describe('el deporte del paso 1', () => {
+  const catalogo = activeRuleset.sports?.catalog ?? [];
+
+  it('el ruleset trae un catálogo de deportes', () => {
+    // Verde y vacío no sirve: sin catálogo, el `refine` aceptaría solo el vacío y
+    // los casos de abajo no probarían la regla sino su ausencia.
+    expect(catalogo.length).toBeGreaterThan(5);
+  });
+
+  it('acepta todos los ids del catálogo', () => {
+    for (const d of catalogo) {
+      const r = goalStepSchema.safeParse({ goal: 'strength', sport: d.id });
+      expect(r.success, `${d.id}`).toBe(true);
+    }
+  });
+
+  it('acepta el vacío, que es "no practico ninguno"', () => {
+    expect(goalStepSchema.safeParse({ goal: 'strength', sport: '' }).success).toBe(true);
+    expect(goalStepSchema.safeParse({ goal: 'strength' }).success).toBe(true);
+  });
+
+  it('rechaza las formas que el motor no sabe mapear', () => {
+    // Las que un socio escribiría naturalmente, y que antes se guardaban tal cual.
+    for (const escrito of ['Fútbol', 'Futbol', 'fútbol', 'FUTBOL', 'Tenis', 'vóley', 'soccer']) {
+      const r = goalStepSchema.safeParse({ goal: 'strength', sport: escrito });
+      expect(r.success, `"${escrito}" no debería pasar`).toBe(false);
+    }
+  });
+
+  it('lo que el schema acepta es exactamente lo que el motor sabe mapear', () => {
+    // La aserción que importa: no que rechace una lista de ejemplos, sino que el
+    // conjunto aceptado coincida con el catálogo. Si alguien agrega un deporte al
+    // ruleset, pasa solo; si el schema se afloja, esto cae.
+    const ids = catalogo.map((d) => d.id);
+    const aceptados = [...ids, 'Fútbol', 'soccer', 'fulbo', 'Tenis'].filter(
+      (v) => goalStepSchema.safeParse({ goal: 'strength', sport: v }).success,
+    );
+    expect(aceptados.sort()).toEqual([...ids].sort());
   });
 });

@@ -802,7 +802,7 @@
     "catalog": [
       {
         "id": "futbol",
-        "label": "Futbol",
+        "label": "Fútbol",
         "category": "local_gesture",
         "emphasis": [
           "quads",
@@ -835,7 +835,7 @@
       },
       {
         "id": "padel",
-        "label": "Padel",
+        "label": "Pádel",
         "category": "local_gesture",
         "emphasis": [
           "obliques",
@@ -846,7 +846,7 @@
       },
       {
         "id": "voley",
-        "label": "Voley",
+        "label": "Vóley",
         "category": "local_gesture",
         "emphasis": [
           "quads",
@@ -867,7 +867,7 @@
       },
       {
         "id": "basquet",
-        "label": "Basquet",
+        "label": "Básquet",
         "category": "local_gesture",
         "emphasis": [
           "quads",
@@ -897,7 +897,7 @@
       },
       {
         "id": "beisbol",
-        "label": "Beisbol",
+        "label": "Béisbol",
         "category": "local_gesture",
         "emphasis": [
           "obliques",
@@ -945,13 +945,13 @@
       },
       {
         "id": "natacion",
-        "label": "Natacion",
+        "label": "Natación",
         "category": "global_endurance",
         "emphasis": []
       },
       {
         "id": "triatlon",
-        "label": "Triatlon",
+        "label": "Triatlón",
         "category": "global_endurance",
         "emphasis": []
       },

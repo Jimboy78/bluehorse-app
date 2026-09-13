@@ -29,6 +29,7 @@ import {
   Wordmark,
 } from '../components/ui/index.ts';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
+import { activeRuleset } from '../lib/engine.ts';
 import { EXPERIENCE_LABELS, GOAL_LABELS, SEX_LABELS } from '../lib/labels.ts';
 import { fadeUp, screen, spring } from '../lib/motion.ts';
 import {
@@ -522,21 +523,48 @@ function GoalStep({ initial, onNext }: { initial: Draft; onNext: (patch: Draft) 
         </p>
       )}
 
+      {/*
+       * Una lista y no un campo de texto.
+       *
+       * `user_goals.sport` guarda el id de una entrada de `sports.catalog`, y el
+       * comentario del esquema lo dice: "no texto libre: un string suelto no se
+       * puede mapear y el motor lo ignoraría en silencio". Era un `<input
+       * type="text">` con el placeholder "Fútbol, running, ninguno…", y el motor
+       * busca por id exacto (`catalog.find((s) => s.id === goal.sport)`).
+       *
+       * Medido sobre 17 formas de escribirlo: solo 6 matchean. Fallan todas las
+       * que llevan mayúscula o tilde —"Fútbol", "Futbol", "Tenis", "vóley"—, o
+       * sea justo la que el placeholder sugería. Y falla callado: `entry?.emphasis
+       * ?? []` y `category?.volumeMultiplier ?? 1`, así que el socio contesta y el
+       * plan sale como si no hubiera contestado.
+       */}
       <Field label="Deporte que practicás (opcional)" htmlFor="sport">
-        <input
+        <select
           id="sport"
-          type="text"
           value={sport}
           onChange={(e) => setSport(e.target.value)}
-          placeholder="Fútbol, running, ninguno…"
           className={fieldClass}
-        />
+        >
+          <option value="">No practico ninguno</option>
+          {DEPORTES.map((d) => (
+            <option key={d.id} value={d.id}>
+              {d.label}
+            </option>
+          ))}
+        </select>
       </Field>
 
       <StepNav />
     </motion.form>
   );
 }
+
+/**
+ * Los deportes que el ruleset sabe mapear, en el orden en que los trae el
+ * catálogo (agrupados por categoría). `ninguno` no entra en la lista: esa es la
+ * opción vacía, que guarda `null` y es lo que el motor espera para "sin deporte".
+ */
+const DEPORTES = (activeRuleset.sports?.catalog ?? []).filter((d) => d.id !== 'ninguno');
 
 // ---------------------------------------------------------------- paso 2
 

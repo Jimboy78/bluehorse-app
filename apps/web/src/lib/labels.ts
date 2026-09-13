@@ -1,4 +1,5 @@
 import type { BodyRegion, ExperienceLevel, Goal, MuscleGroup, Sex } from '@bh/domain';
+import { activeRuleset } from './engine.ts';
 
 /**
  * NOMBRES EN CASTELLANO DE LOS ENUMS DEL DOMINIO
@@ -56,6 +57,27 @@ export const CONSTRAINT_TYPE_LABELS: Record<
   avoid_exercise: 'Ejercicio descartado',
   avoid_equipment: 'Máquina descartada',
 };
+
+/**
+ * EL NOMBRE DEL DEPORTE QUE PRACTICA EL SOCIO
+ *
+ * `user_goals.sport` guarda el id de una entrada de `sports.catalog`, no lo que
+ * el socio escribió: el motor busca por id exacto. Así que mostrarlo crudo le
+ * deja leer "Deporte: futbol", o peor, "Deporte: padel".
+ *
+ * Es la quinta vez de la misma clase en este proyecto —objetivos, músculos,
+ * zonas del cuerpo y patrones de movimiento ya se arreglaron uno por uno— y la
+ * única que no se podía ver antes, porque mientras el campo era texto libre lo
+ * crudo y lo legible coincidían. La traducción no se escribe acá: el catálogo
+ * del ruleset ya trae `label`, y duplicarla sería tener dos nombres para el
+ * mismo deporte y que divergan.
+ */
+export function deporteLabel(id: string): string {
+  const entrada = (activeRuleset.sports?.catalog ?? []).find((d) => d.id === id);
+  // Sin entrada devolvemos el id: es un valor viejo, de cuando el campo era
+  // texto libre. Mejor que el socio lea lo que cargó que un hueco.
+  return entrada?.label ?? id;
+}
 
 /**
  * REGIONES DEL CUERPO, PARA AGRUPAR LISTAS EN PANTALLA

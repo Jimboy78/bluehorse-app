@@ -1,5 +1,6 @@
 import { EXPERIENCE_LEVELS, GOALS, SEXES } from '@bh/domain';
 import { z } from 'zod';
+import { activeRuleset } from '../../lib/engine.ts';
 
 /**
  * Validación del wizard de onboarding, un schema por paso. Vive en la app web
@@ -7,9 +8,28 @@ import { z } from 'zod';
  * dominio: la entidad (`Profile`, `UserGoal`) ya está en @bh/domain/entities.
  */
 
+/**
+ * Los ids que el motor sabe mapear. Era `z.string().trim().max(60)`, o sea texto
+ * libre, y `user_goals.sport` guarda el id de una entrada de `sports.catalog`:
+ * el motor busca por id exacto y si no encuentra sigue sin deporte, callado.
+ *
+ * Medido sobre 17 formas de escribir un deporte, solo 6 matchean: fallan todas
+ * las que llevan mayúscula o tilde. La pantalla ahora es una lista, pero el
+ * límite va acá igual — la validación es el lugar donde se dice qué vale, y un
+ * schema más permisivo que la pantalla es una puerta que alguien va a usar.
+ */
+const SPORT_IDS = (activeRuleset.sports?.catalog ?? []).map((s) => s.id);
+
 export const goalStepSchema = z.object({
   goal: z.enum(GOALS, { message: 'Elegí un objetivo.' }),
-  sport: z.string().trim().max(60).optional(),
+  sport: z
+    .string()
+    .trim()
+    // El vacío es "no practico ninguno" y se guarda como `null` (`mappers/profile.ts`).
+    .refine((v) => v === '' || SPORT_IDS.includes(v), {
+      message: 'Elegí un deporte de la lista.',
+    })
+    .optional(),
 });
 
 /**

@@ -48,6 +48,7 @@ import { useScreeningState } from '../lib/health-screening.ts';
 import {
   BODY_REGION_LABELS,
   CONSTRAINT_TYPE_LABELS,
+  deporteLabel,
   EXPERIENCE_LABELS,
   GOAL_LABELS,
   SEX_LABELS,
@@ -418,7 +419,9 @@ function GoalCard({
               <p className="font-display text-lg font-semibold uppercase leading-tight tracking-tight">
                 {GOAL_LABELS[goal.goal]}
               </p>
-              {goal.sport && <p className="text-xs text-slate">Deporte: {goal.sport}</p>}
+              {goal.sport && (
+                <p className="text-xs text-slate">Deporte: {deporteLabel(goal.sport)}</p>
+              )}
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3 border-t border-line/60 pt-3">

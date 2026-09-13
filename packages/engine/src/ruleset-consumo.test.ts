@@ -215,3 +215,53 @@ describe('bloques del ruleset sin consumir', () => {
     expect(colgadas).toEqual([]);
   });
 });
+
+/**
+ * EL ID ES PARA EL MOTOR, EL LABEL ES PARA EL SOCIO
+ *
+ * `sports.catalog` tiene las dos cosas en la misma entrada, y hasta hace poco
+ * eso no importaba: el onboarding guardaba texto libre y el label no se mostraba
+ * en ninguna pantalla. Ahora el paso 1 es una lista hecha con estos labels y el
+ * perfil los lee de acá, así que son texto visible y les corresponde la
+ * convención de texto visible — castellano con tildes.
+ *
+ * Los ids no: son la clave con la que el motor busca (`catalog.find`) y lo que
+ * viaja a `user_goals.sport`. Si un id llevara tilde, cualquier lugar que lo
+ * escriba a mano —una URL, un script de carga, una consulta— tiene una forma
+ * silenciosa de fallar, porque el motor no encuentra y sigue sin deporte.
+ */
+describe('el catálogo de deportes', () => {
+  const catalogo = V1_RESEARCH.sports?.catalog ?? [];
+
+  it('tiene deportes', () => {
+    expect(catalogo.length).toBeGreaterThan(5);
+  });
+
+  it('los ids son ascii en minúscula, para que se puedan escribir a mano', () => {
+    const raros = catalogo.filter((d) => !/^[a-z0-9_]+$/.test(d.id)).map((d) => d.id);
+    expect(raros).toEqual([]);
+  });
+
+  it('no hay dos deportes con el mismo id ni con el mismo nombre', () => {
+    expect(new Set(catalogo.map((d) => d.id)).size).toBe(catalogo.length);
+    expect(new Set(catalogo.map((d) => d.label)).size).toBe(catalogo.length);
+  });
+
+  it('ningún label es el id con otro nombre', () => {
+    // Un label igual a su id es un label que nadie escribió: el socio termina
+    // leyendo el identificador. Ya pasó cuatro veces en este proyecto con
+    // objetivos, músculos, zonas y patrones.
+    const sinTraducir = catalogo.filter((d) => d.label === d.id).map((d) => d.id);
+    expect(sinTraducir).toEqual([]);
+  });
+
+  it('las palabras que en castellano llevan tilde la llevan', () => {
+    // No se puede revisar la ortografía de un label arbitrario, pero sí se puede
+    // fijar que ninguno sea la forma sin tilde de una palabra que la lleva. Esta
+    // lista salió de leer los 26: siete estaban sin tilde, incluido "Futbol",
+    // que es el deporte más probable del gimnasio.
+    const sinTilde = ['Futbol', 'Padel', 'Voley', 'Basquet', 'Beisbol', 'Natacion', 'Triatlon'];
+    const mal = catalogo.filter((d) => sinTilde.includes(d.label)).map((d) => d.label);
+    expect(mal).toEqual([]);
+  });
+});
