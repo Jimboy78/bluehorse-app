@@ -129,9 +129,10 @@ Por qué, en `docs/03-contrato-motor.md`.
 
 ## Deploy de prueba
 
-**https://bluehorse-app.vercel.app** — build de Vercel apuntando a `main`, sin variables de
-entorno configuradas todavía. Sin `.env` la app no rompe: cada pantalla lo indica en su lugar
-("Supabase no está configurado") en vez de tirar un error. El panel técnico de configuración
+**https://bluehorse-app.vercel.app** — build de Vercel apuntando a `main`, con `VITE_SUPABASE_URL`
+y `VITE_SUPABASE_ANON_KEY` configuradas contra un proyecto Supabase en la nube (no el local de
+Docker). Sin esas variables la app tampoco rompe: cada pantalla lo indica en su lugar ("Supabase
+no está configurado") en vez de tirar un error. El panel técnico de configuración
 (`import.meta.env.DEV`) no sale en esta build — eso es solo para desarrollo local. La
 configuración de build está en `vercel.json` — necesaria porque es un monorepo con npm
 workspaces: instalar solo desde `apps/web` rompe la resolución de `@bh/domain`/`@bh/engine`. El
