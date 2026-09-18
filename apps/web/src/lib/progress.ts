@@ -12,6 +12,7 @@ import {
   type WeeklyVolumePoint,
   workoutLogRowSchema,
 } from './mappers/progress.ts';
+import { fetchRestDays, hoyEnElGimnasio } from './rest-days.ts';
 import { requireSupabase } from './supabase.ts';
 
 /**
@@ -48,7 +49,28 @@ export function useProgress() {
       if (workoutError) throw workoutError;
 
       const workoutLogs = (workoutRows ?? []).map((raw) => workoutLogRowSchema.parse(raw));
-      const adherence = computeAdherence(workoutLogs.map((w) => ({ startedAt: w.started_at })));
+      // La racha necesita saber qué días fueron descanso: los marcados, y los
+      // que la frecuencia del socio le deja (ver `computeAdherence`).
+      const [restDays, goal] = await Promise.all([
+        fetchRestDays(user?.id as string, since.slice(0, 10)),
+        client
+          .from('user_goals')
+          .select('sessions_per_week_target')
+          .eq('user_id', user?.id as string)
+          .eq('is_active', true)
+          .order('priority')
+          .limit(1)
+          .maybeSingle(),
+      ]);
+      if (goal.error) throw goal.error;
+      const adherence = computeAdherence(
+        workoutLogs.map((w) => ({ startedAt: w.started_at })),
+        {
+          restDays,
+          sessionsPerWeekTarget: goal.data?.sessions_per_week_target ?? null,
+          today: hoyEnElGimnasio(),
+        },
+      );
 
       if (workoutLogs.length === 0) {
         return { adherence, weeklyVolume: [], records: [], setsByExercise: new Map() };

@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-13T04:31:02.442Z",
+ "generatedAt": "2026-09-18T17:11:32.585Z",
  "docs": [
   {
    "id": "metodo",
@@ -288,6 +288,14 @@
    "resumen": "Revisión del 13 de septiembre de 2026. Sale de auditar 01-fuerza-hipertrofia-potencia.md, que sostiene el núcleo del ruleset (series, reps, RIR y descanso de fuerza, hipertrofia y potencia) sin ninguna cita verificable. Se tomó un paráme…",
    "archivo": "35-proximidad-al-fallo.md",
    "bloques": 27
+  },
+  {
+   "id": "36-descanso-y-racha",
+   "orden": 36,
+   "titulo": "La racha cortaba por descansar, que es justo lo que el plan pide",
+   "resumen": "Revisión del 18 de septiembre de 2026. Sale de un pedido de un socio: poder decir \"hoy descanso\", y que si un día sin entrenar entre dos sesiones no se anotó, la app lo tome como el descanso que fue, no como una falta. Para cualquier rut…",
+   "archivo": "36-descanso-y-racha.md",
+   "bloques": 19
   },
   {
    "id": "auditoria",

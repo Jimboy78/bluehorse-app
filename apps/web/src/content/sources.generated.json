@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-09-12",
-  "resolved": 66,
+  "generatedAt": "2026-09-18",
+  "resolved": 67,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -389,6 +389,25 @@
       "documentos": [
         "06-deporte-y-temporada.md",
         "07-dias-pre-y-post-partido.md"
+      ]
+    },
+    {
+      "doi": "10.1002/ejsp.674",
+      "title": "How are habits formed: Modelling habit formation in the real world",
+      "authors": [
+        "Lally",
+        "van Jaarsveld",
+        "Potts"
+      ],
+      "moreAuthors": 1,
+      "year": 2009,
+      "journal": "European Journal of Social Psychology",
+      "type": "journal-article",
+      "temas": [
+        "Descanso y racha"
+      ],
+      "documentos": [
+        "36-descanso-y-racha.md"
       ]
     },
     {

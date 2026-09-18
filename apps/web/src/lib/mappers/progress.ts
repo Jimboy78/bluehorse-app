@@ -78,34 +78,120 @@ export function toSetRecord(row: SetLogRow): SetRecord {
 
 export interface AdherenceSummary {
   readonly totalSessions: number;
-  /** Días calendario consecutivos con al menos una sesión, terminando en la más reciente. */
+  /** Días entrenados en la seguidilla actual, sin contar descansos. Ver `computeAdherence`. */
   readonly currentStreakDays: number;
   readonly lastSessionAt: string | null;
 }
 
-export function computeAdherence(workoutLogs: readonly { startedAt: string }[]): AdherenceSummary {
+export interface AdherenceContext {
+  /** Días que el socio marcó como descanso, `YYYY-MM-DD` del gimnasio. */
+  readonly restDays: readonly string[];
+  /** La frecuencia que declaró en su objetivo. `null` si no tiene uno. */
+  readonly sessionsPerWeekTarget: number | null;
+  /** Hoy, `YYYY-MM-DD` del gimnasio. Por parámetro para que la función no lea el reloj. */
+  readonly today: string;
+}
+
+const DIAS_DE_LA_SEMANA = 7;
+
+/**
+ * LA RACHA NO SE CORTA POR DESCANSAR
+ *
+ * Antes contaba días calendario seguidos con sesión: quien entrena lunes,
+ * miércoles y viernes —que es exactamente lo que el plan le pide— nunca
+ * pasaba de 1. Y un sábado sin entrenar le borraba la semana entera.
+ *
+ * Ahora cuenta días ENTRENADOS en una seguidilla que no se cortó, y un día
+ * sin sesión no la corta si:
+ *
+ * - el socio lo marcó como descanso, o
+ * - entra en los descansos que su propia frecuencia le deja: quien declaró N
+ *   sesiones por semana tiene 7 − N días libres en cualquier ventana de siete.
+ *   El número no es de la app, es del socio.
+ *
+ * Lally et al. 2010 (doi 10.1002/ejsp.674), 96 personas durante 12 semanas:
+ * faltar una oportunidad no afectó de forma material la formación del hábito,
+ * pero la constancia sí predijo el ajuste. Una falta suelta no es un corte;
+ * faltar más de lo que el plan prevé, sí.
+ *
+ * El descanso declarado consume el cupo igual que el inferido, pero nunca
+ * corta: si el socio dice que descansó, descansó. Y no suma a la racha —
+ * la racha cuenta entrenamientos, no días que pasaron.
+ *
+ * Hoy sin sesión no corta nada: el día no terminó.
+ */
+export function computeAdherence(
+  workoutLogs: readonly { startedAt: string }[],
+  context: AdherenceContext,
+): AdherenceSummary {
   if (workoutLogs.length === 0) {
     return { totalSessions: 0, currentStreakDays: 0, lastSessionAt: null };
   }
 
-  const sorted = [...workoutLogs].sort((a, b) => b.startedAt.localeCompare(a.startedAt));
+  // Por instante, no por texto: dos ISO del mismo momento se escriben distinto.
+  const sorted = [...workoutLogs].sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt));
   // Por día del gimnasio, no por día UTC: ver `lib/gym-time.ts`. Lunes 22:00 y
   // martes 10:00 de acá son el mismo día allá, y la racha se comía uno.
-  const distinctDays = [...new Set(sorted.map((w) => diaDelGimnasio(w.startedAt)))];
+  const entrenados = new Set(sorted.map((w) => diaDelGimnasio(w.startedAt)));
+  const declarados = new Set(context.restDays);
+  const cupo =
+    context.sessionsPerWeekTarget === null
+      ? 0
+      : Math.max(0, DIAS_DE_LA_SEMANA - context.sessionsPerWeekTarget);
+  const primero = [...entrenados].reduce((a, b) => (diasEntre(a, b) < 0 ? a : b));
 
-  let streak = 1;
-  for (let i = 1; i < distinctDays.length; i++) {
-    const anterior = distinctDays[i - 1] as string;
-    const actual = distinctDays[i] as string;
-    if (diasEntre(anterior, actual) === 1) streak++;
-    else break;
+  // Índice k = el día `hoy - k`, hasta la primera sesión que hay en la historia.
+  const dias: string[] = [];
+  for (let k = 0; diasEntre(sumarDias(context.today, -k), primero) >= 0; k++) {
+    dias.push(sumarDias(context.today, -k));
+  }
+  const pendiente = (k: number) =>
+    k === 0 && !entrenados.has(context.today) && !declarados.has(context.today);
+  const libre = (k: number) => !pendiente(k) && !entrenados.has(dias[k] as string);
+
+  let racha = 0;
+  for (let k = 0; k < dias.length; k++) {
+    const dia = dias[k] as string;
+    if (entrenados.has(dia)) {
+      racha++;
+      continue;
+    }
+    if (pendiente(k) || declarados.has(dia)) continue;
+    if (sePasaDelCupo(k, dias.length, libre, cupo)) break;
   }
 
   return {
     totalSessions: workoutLogs.length,
-    currentStreakDays: streak,
+    currentStreakDays: racha,
     lastSessionAt: sorted[0]?.startedAt ?? null,
   };
+}
+
+/**
+ * Si alguna ventana de siete días que contiene el día `k` tiene más días libres
+ * que el cupo. Todas, no solo la que arranca en `k`: los descansos marcados
+ * antes de la falta también gastan el cupo.
+ */
+function sePasaDelCupo(
+  k: number,
+  total: number,
+  libre: (j: number) => boolean,
+  cupo: number,
+): boolean {
+  for (let inicio = k; inicio < k + DIAS_DE_LA_SEMANA; inicio++) {
+    let enLaVentana = 0;
+    for (let j = Math.min(inicio, total - 1); j > inicio - DIAS_DE_LA_SEMANA && j >= 0; j--) {
+      if (libre(j)) enLaVentana++;
+    }
+    if (enLaVentana > cupo) return true;
+  }
+  return false;
+}
+
+function sumarDias(clave: string, dias: number): string {
+  const fecha = new Date(`${clave}T00:00:00Z`);
+  fecha.setUTCDate(fecha.getUTCDate() + dias);
+  return fecha.toISOString().slice(0, 10);
 }
 
 export interface WeeklyVolumePoint {

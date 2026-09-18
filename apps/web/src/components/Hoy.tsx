@@ -10,6 +10,7 @@ import {
   HeartPulse,
   Loader2,
   MapPin,
+  Moon,
   Repeat2,
   Trophy,
   Undo2,
@@ -23,6 +24,7 @@ import { checkPop, fadeUp, listContainer, listItem, screen, tappable } from '../
 import { onboardingUnavailable, useProfileStatus } from '../lib/onboarding.ts';
 import type { ActiveSessionItem } from '../lib/plan.ts';
 import { useActivePlan, useGeneratePlan, useRequestNextPlan } from '../lib/plan.ts';
+import { useRestToday, useSetRestToday } from '../lib/rest-days.ts';
 import { useSessionLog } from '../lib/session-log.ts';
 import { useRestoredSession } from '../lib/session-restore.ts';
 import { carriesLoad } from './LoadInput.tsx';
@@ -68,6 +70,7 @@ export function Hoy() {
   const plan = useActivePlan();
 
   const profile = useProfileStatus();
+  const restToday = useRestToday();
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   // Por ejercicio, no una lista sola: en el gimnasio se vuelve a la lista todo
   // el tiempo (a ver qué máquina está libre) y las series que ya hiciste no se
@@ -245,6 +248,11 @@ export function Hoy() {
     (total, i) => total + Math.min((hechasPorItem[i.id] ?? []).length, i.sets),
     0,
   );
+  const puedeDescansar = sinEmpezar(seriesCompletas, workoutLogId);
+
+  if (descansaHoy(restToday.data, puedeDescansar)) {
+    return <DiaDeDescanso focus={session.focus} />;
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -336,6 +344,8 @@ export function Hoy() {
             >
               Terminar sesión
             </Button>
+
+            <MarcarDescanso visible={puedeDescansar} />
           </motion.section>
         )}
       </AnimatePresence>
@@ -987,5 +997,75 @@ function QueueDone() {
     >
       Las próximas arrancan con las cargas donde las dejaste.
     </EmptyState>
+  );
+}
+
+/**
+ * Hoy marcado como descanso. La sesión no se saltea: el plan no tiene fechas,
+ * así que la próxima vez sigue tocando la misma. Por eso se nombra.
+ */
+function DiaDeDescanso({ focus }: { focus: string }) {
+  const setRest = useSetRestToday();
+  return (
+    <EmptyState
+      icon={<Moon size={24} aria-hidden="true" />}
+      title="Hoy es día de descanso"
+      action={
+        <div className="flex flex-col items-center gap-2">
+          <Button
+            variant="ghost"
+            size="lg"
+            disabled={setRest.isPending}
+            onClick={() => setRest.mutate(false)}
+          >
+            {setRest.isPending && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
+            Entrenar igual
+          </Button>
+          {setRest.isError && (
+            <p role="alert" className="text-xs text-orange">
+              No se pudo cambiar. Probá de nuevo en un momento.
+            </p>
+          )}
+        </div>
+      }
+    >
+      No corta tu racha. La próxima vez que vengas te toca {focus}.
+    </EmptyState>
+  );
+}
+
+/**
+ * Descansar solo se ofrece antes de la primera serie: con algo ya registrado,
+ * el día fue de entrenamiento, se haya terminado o no.
+ */
+function sinEmpezar(seriesCompletas: number, workoutLogId: string | null): boolean {
+  return seriesCompletas === 0 && workoutLogId === null;
+}
+
+/** Marcado como descanso y todavía sin ninguna serie: se muestra el descanso. */
+function descansaHoy(marcado: boolean | undefined, sinEmpezarHoy: boolean): boolean {
+  return marcado === true && sinEmpezarHoy;
+}
+
+function MarcarDescanso({ visible }: { visible: boolean }) {
+  const setRest = useSetRestToday();
+  if (!visible) return null;
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <Button
+        variant="quiet"
+        size="md"
+        disabled={setRest.isPending}
+        onClick={() => setRest.mutate(true)}
+      >
+        <Moon size={15} aria-hidden="true" />
+        Hoy descanso
+      </Button>
+      {setRest.isError && (
+        <p role="alert" className="text-xs text-orange">
+          No se pudo marcar. Probá de nuevo en un momento.
+        </p>
+      )}
+    </div>
   );
 }

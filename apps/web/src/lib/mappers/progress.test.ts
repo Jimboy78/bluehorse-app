@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  type AdherenceContext,
   computeAdherence,
   computeRecords,
   computeWeeklyVolume,
@@ -76,33 +77,126 @@ describe('toSetRecord', () => {
 });
 
 describe('computeAdherence', () => {
+  // Mediodía de acá (15:00 UTC) para que ningún caso dependa de la zona.
+  const sesion = (dia: string) => ({ startedAt: `${dia}T15:00:00Z` });
+  const ctx = (over: Partial<AdherenceContext> = {}): AdherenceContext => ({
+    restDays: [],
+    sessionsPerWeekTarget: null,
+    today: '2026-08-10',
+    ...over,
+  });
+
   it('sin sesiones, todo en cero', () => {
-    expect(computeAdherence([])).toEqual({
+    expect(computeAdherence([], ctx())).toEqual({
       totalSessions: 0,
       currentStreakDays: 0,
       lastSessionAt: null,
     });
   });
 
-  it('cuenta días consecutivos terminando en la sesión más reciente', () => {
-    const summary = computeAdherence([
-      { startedAt: '2026-08-10T09:00:00Z' },
-      { startedAt: '2026-08-09T09:00:00Z' },
-      { startedAt: '2026-08-08T09:00:00Z' },
-      { startedAt: '2026-08-05T09:00:00Z' }, // corta la racha
-    ]);
+  it('sin frecuencia declarada, solo días seguidos cuentan', () => {
+    const summary = computeAdherence(
+      [sesion('2026-08-10'), sesion('2026-08-09'), sesion('2026-08-08'), sesion('2026-08-05')],
+      ctx(),
+    );
     expect(summary.totalSessions).toBe(4);
     expect(summary.currentStreakDays).toBe(3);
-    expect(summary.lastSessionAt).toBe('2026-08-10T09:00:00Z');
+    expect(summary.lastSessionAt).toBe('2026-08-10T15:00:00Z');
   });
 
   it('dos sesiones el mismo día cuentan como un solo día de racha', () => {
-    const summary = computeAdherence([
-      { startedAt: '2026-08-10T09:00:00Z' },
-      { startedAt: '2026-08-10T18:00:00Z' },
-    ]);
+    const summary = computeAdherence(
+      [{ startedAt: '2026-08-10T12:00:00Z' }, { startedAt: '2026-08-10T21:00:00Z' }],
+      ctx(),
+    );
     expect(summary.currentStreakDays).toBe(1);
     expect(summary.totalSessions).toBe(2);
+  });
+
+  it('elige la más reciente por instante, no por el orden en que llegan', () => {
+    const summary = computeAdherence([sesion('2026-08-08'), sesion('2026-08-10')], ctx());
+    expect(summary.lastSessionAt).toBe('2026-08-10T15:00:00Z');
+  });
+
+  it('hoy sin entrenar todavía no corta la racha de ayer', () => {
+    const summary = computeAdherence(
+      [sesion('2026-08-09'), sesion('2026-08-08')],
+      ctx({ today: '2026-08-10' }),
+    );
+    expect(summary.currentStreakDays).toBe(2);
+  });
+
+  it('un día sin anotar entre dos sesiones es descanso si la frecuencia lo deja', () => {
+    // Lunes, (martes sin nada), miércoles: 3 por semana deja 4 días libres.
+    const summary = computeAdherence(
+      [sesion('2026-08-12'), sesion('2026-08-10')],
+      ctx({ sessionsPerWeekTarget: 3, today: '2026-08-12' }),
+    );
+    expect(summary.currentStreakDays).toBe(2);
+  });
+
+  it('lunes a viernes con el fin de semana libre sigue la racha con 5 por semana', () => {
+    const dias = [
+      '2026-08-03',
+      '2026-08-04',
+      '2026-08-05',
+      '2026-08-06',
+      '2026-08-07',
+      '2026-08-10',
+    ];
+    const summary = computeAdherence(
+      dias.map(sesion),
+      ctx({ sessionsPerWeekTarget: 5, today: '2026-08-10' }),
+    );
+    expect(summary.currentStreakDays).toBe(6);
+  });
+
+  it('faltar más de lo que la frecuencia deja corta la racha', () => {
+    // 5 por semana deja 2 libres; lunes → viernes son 3 días sin nada.
+    const summary = computeAdherence(
+      [sesion('2026-08-07'), sesion('2026-08-03')],
+      ctx({ sessionsPerWeekTarget: 5, today: '2026-08-07' }),
+    );
+    expect(summary.currentStreakDays).toBe(1);
+  });
+
+  it('huecos chicos repartidos también cortan si en una semana suman de más', () => {
+    // 5 por semana: cada hueco es de 2 días, pero una sesión cada tres días son
+    // 4 libres en cualquier ventana de siete.
+    const summary = computeAdherence(
+      ['2026-08-01', '2026-08-04', '2026-08-07', '2026-08-10'].map(sesion),
+      ctx({ sessionsPerWeekTarget: 5, today: '2026-08-10' }),
+    );
+    expect(summary.currentStreakDays).toBeLessThan(4);
+  });
+
+  it('un descanso marcado nunca corta, aunque la frecuencia no lo deje', () => {
+    const summary = computeAdherence(
+      [sesion('2026-08-10'), sesion('2026-08-08')],
+      ctx({ sessionsPerWeekTarget: 7, restDays: ['2026-08-09'], today: '2026-08-10' }),
+    );
+    expect(summary.currentStreakDays).toBe(2);
+  });
+
+  it('el descanso marcado no suma a la racha: la racha cuenta entrenamientos', () => {
+    const summary = computeAdherence(
+      [sesion('2026-08-08')],
+      ctx({ restDays: ['2026-08-09', '2026-08-10'], today: '2026-08-10' }),
+    );
+    expect(summary.currentStreakDays).toBe(1);
+  });
+
+  it('el descanso marcado gasta el cupo: una falta más ya corta', () => {
+    // 5 por semana, 2 libres. Martes marcado + miércoles marcado + jueves sin nada.
+    const summary = computeAdherence(
+      [sesion('2026-08-07'), sesion('2026-08-03')],
+      ctx({
+        sessionsPerWeekTarget: 5,
+        restDays: ['2026-08-04', '2026-08-05'],
+        today: '2026-08-07',
+      }),
+    );
+    expect(summary.currentStreakDays).toBe(1);
   });
 });
 
@@ -183,10 +277,10 @@ describe('la hora del gimnasio, no la de Greenwich', () => {
   it('lunes a la noche y martes a la mañana son dos días de racha', () => {
     // Lunes 2026-09-07 22:00 y martes 2026-09-08 10:00 en Arroyo Seco: los dos
     // caen en el martes UTC, así que la racha se comía uno de los dos días.
-    const summary = computeAdherence([
-      { startedAt: '2026-09-08T13:00:00Z' },
-      { startedAt: '2026-09-08T01:00:00Z' },
-    ]);
+    const summary = computeAdherence(
+      [{ startedAt: '2026-09-08T13:00:00Z' }, { startedAt: '2026-09-08T01:00:00Z' }],
+      { restDays: [], sessionsPerWeekTarget: null, today: '2026-09-08' },
+    );
     expect(summary.currentStreakDays).toBe(2);
   });
 

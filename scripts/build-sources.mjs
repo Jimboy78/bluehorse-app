@@ -64,6 +64,7 @@ const TEMAS = {
   33: 'Red flags cervicales',
   34: 'Red flags hombro y muñeca',
   35: 'Proximidad al fallo',
+  36: 'Descanso y racha',
 };
 
 // El `]` y el `(` cierran un enlace de markdown: sin ellos, un DOI escrito como

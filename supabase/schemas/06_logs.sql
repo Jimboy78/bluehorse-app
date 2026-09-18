@@ -84,3 +84,21 @@ create table pain_reports (
 );
 
 create index pain_reports_user_idx on pain_reports (user_id, reported_at desc);
+
+-- Un día que el socio dice que descansó. Existe para que la racha no lo cuente
+-- como falta: ver `computeAdherence` en apps/web/src/lib/mappers/progress.ts.
+--
+-- `day` es la fecha de calendario del gimnasio y no un `timestamptz`: "descansé
+-- el martes" no pasó a ninguna hora, y guardar un instante obligaría a
+-- volver a decidir la zona cada vez que se lee. Los días sin anotar que la
+-- frecuencia del socio permite se infieren al leer; acá solo va lo declarado.
+--
+-- Único por socio y día: marcarlo dos veces no son dos descansos.
+create table rest_days (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references profiles (id) on delete cascade,
+  gym_id uuid not null references gyms (id) on delete restrict,
+  day date not null,
+  created_at timestamptz not null default now(),
+  unique (user_id, day)
+);
