@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-18T21:48:03.971Z",
+ "generatedAt": "2026-09-18T22:04:01.537Z",
  "docs": [
   {
    "id": "metodo",
@@ -344,6 +344,14 @@
    "resumen": "Fecha: 18/09/2026. Tanda: T1d del plan de variables. En el checklist, \"menopausia\" es motor, con la nota del dueño \"deducir por edad\". Se deduce del sexo y la edad; no se pregunta.",
    "archivo": "42-menopausia-y-hueso.md",
    "bloques": 14
+  },
+  {
+   "id": "43-salud-con-puerta",
+   "orden": 43,
+   "titulo": "Salud con puerta: quién necesita autorización y qué cambia en el plan",
+   "resumen": "Fecha: 18/09/2026. Tanda: T2a del plan de variables. El dueño pidió que en lo médico, antes de marcar veinte opciones, haya una pregunta de sí o no, y que recién con un \"sí\" se abra la lista.",
+   "archivo": "43-salud-con-puerta.md",
+   "bloques": 21
   },
   {
    "id": "auditoria",

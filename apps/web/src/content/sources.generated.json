@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-18",
-  "resolved": 100,
+  "resolved": 104,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -1880,6 +1880,82 @@
       ],
       "documentos": [
         "23-resistencia-muscular.md"
+      ]
+    },
+    {
+      "doi": "10.1249/MSS.0000000000000664",
+      "title": "Updating ACSM’s Recommendations for Exercise Preparticipation Health Screening",
+      "authors": [
+        "Riebe",
+        "Franklin",
+        "Thompson"
+      ],
+      "moreAuthors": 4,
+      "year": 2015,
+      "journal": "Medicine & Science in Sports & Exercise",
+      "type": "journal-article",
+      "temas": [
+        "Salud con puerta"
+      ],
+      "documentos": [
+        "43-salud-con-puerta.md"
+      ]
+    },
+    {
+      "doi": "10.3390/healthcare13151837",
+      "title": "The Singapore Physical Activity Readiness Questionnaire 2021 (SPARQ 2021)—Results of Public Feedback",
+      "authors": [
+        "Teo",
+        "Hong",
+        "Ho"
+      ],
+      "moreAuthors": 2,
+      "year": 2025,
+      "journal": "Healthcare",
+      "type": "journal-article",
+      "temas": [
+        "Salud con puerta"
+      ],
+      "documentos": [
+        "43-salud-con-puerta.md"
+      ]
+    },
+    {
+      "doi": "10.1139/h11-044",
+      "title": "Enhancing the effectiveness of clearance for physical activity participation: background and overall process1This paper is one of a selection of papers published in the Special Issue entitled Evidence-based risk assessment and recommendations for physical activity clearance, and has undergone the Journal's usual peer-review process.",
+      "authors": [
+        "Jamnik",
+        "Warburton",
+        "Makarski"
+      ],
+      "moreAuthors": 5,
+      "year": 2011,
+      "journal": "Applied Physiology, Nutrition, and Metabolism",
+      "type": "journal-article",
+      "temas": [
+        "Salud con puerta"
+      ],
+      "documentos": [
+        "43-salud-con-puerta.md"
+      ]
+    },
+    {
+      "doi": "10.1139/h11-062",
+      "title": "Evidence-based risk assessment and recommendations for physical activity clearance: Consensus Document 20111This paper is one of a selection of papers published in this Special Issue, entitled Evidence-based risk assessment and recommendations for physical activity clearance, and has undergone the Journal’s usual peer review process.",
+      "authors": [
+        "Warburton",
+        "Gledhill",
+        "Jamnik"
+      ],
+      "moreAuthors": 5,
+      "year": 2011,
+      "journal": "Applied Physiology, Nutrition, and Metabolism",
+      "type": "journal-article",
+      "temas": [
+        "Salud con puerta"
+      ],
+      "documentos": [
+        "43-salud-con-puerta.md"
       ]
     },
     {

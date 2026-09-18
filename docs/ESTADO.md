@@ -1,6 +1,14 @@
 # Estado del trabajo
 
-## Última actualización: 18 de septiembre de 2026 (T1d: menopausia y hueso; T1 cerrada)
+## Última actualización: 18 de septiembre de 2026 (T2a: salud con puerta, investigada)
+
+`docs/research/43`. La propuesta es adoptar la estructura del PAR-Q+ 2023: 7 preguntas, y con un
+"sí", seguimiento solo del grupo de la condición. Hoy la app bloquea por cualquier diagnóstico de
+presión alta o su medicación (ACSM 2015: deriva de más). Esperan al dueño dos cosas: aflojar el
+bloqueo y pedir permiso por la licencia. Mientras tanto se avanza con T2b a T2e en el motor, que no
+depende de cómo se pregunte.
+
+## 18 de septiembre de 2026 (T1d: menopausia y hueso; T1 cerrada)
 
 `docs/research/42`. Mujeres de 50 o más sin molestias: cada sesión cierra con 50 impactos (5 × 10,
 pisadas fuertes o saltitos), antes del equilibrio. Patrón `impact` nuevo (migración
