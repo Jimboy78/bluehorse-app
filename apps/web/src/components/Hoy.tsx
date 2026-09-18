@@ -19,6 +19,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
+import { muestraElPulso, useHealthConditions } from '../lib/health-conditions.ts';
 import type { SetActual } from '../lib/mappers/session-log.ts';
 import { checkPop, fadeUp, listContainer, listItem, screen, tappable } from '../lib/motion.ts';
 import { objetivoDeLaFila, repsDeLaSerie } from '../lib/objetivo.ts';
@@ -1197,8 +1198,10 @@ function Superserie({ companeros, descanso }: { companeros: readonly string[]; d
 /**
  * La zona como la describe el ruleset. El número solo ("zona 2") no le dice
  * nada a quien no usa pulsómetro: por eso va cómo se siente.
+ * El % de pulso, solo si le sirve (`muestraElPulso`).
  */
 function ZonaCardio({ zone }: { zone: NonNullable<ActiveSessionItem['zone']> }) {
+  const conPulso = muestraElPulso(useHealthConditions().data);
   const [desde, hasta] = zone.hrPercentMax;
   return (
     <Card animate={false} className="flex flex-col gap-1.5 px-4 py-3">
@@ -1206,9 +1209,11 @@ function ZonaCardio({ zone }: { zone: NonNullable<ActiveSessionItem['zone']> }) 
         Zona {zone.zone} · {zone.label}
       </p>
       <p className="text-sm leading-relaxed text-ink">{zone.feels}</p>
-      <p className="text-xs text-slate">
-        Con pulsómetro: {desde}-{hasta} % de tu frecuencia cardíaca máxima.
-      </p>
+      {conPulso && (
+        <p className="text-xs text-slate">
+          Con pulsómetro: {desde}-{hasta} % de tu frecuencia cardíaca máxima.
+        </p>
+      )}
     </Card>
   );
 }

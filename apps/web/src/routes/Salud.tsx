@@ -2,6 +2,7 @@ import { AlertCircle, Loader2, ShieldCheck } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { CondicionesDeSalud } from '../components/CondicionesDeSalud.tsx';
 import { BrandMark, Button, Card, Notice, SectionLabel, Wordmark } from '../components/ui/index.ts';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
 import { activeRuleset } from '../lib/engine.ts';
@@ -24,6 +25,8 @@ export function Salud() {
   const state = useScreeningState();
   const submit = useSubmitScreening();
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
+  // Con el cribado aprobado, la puerta de las condiciones antes del onboarding.
+  const [paso, setPaso] = useState<'cribado' | 'condiciones'>('cribado');
 
   const safety = activeRuleset.safety;
 
@@ -77,12 +80,26 @@ export function Salud() {
     );
   }
 
+  if (paso === 'condiciones') {
+    return (
+      <Shell>
+        <SectionLabel>Una más</SectionLabel>
+        <CondicionesDeSalud
+          inicial={[]}
+          sex={null}
+          textoBoton="Seguir"
+          onGuardado={() => void navigate('/onboarding')}
+        />
+      </Shell>
+    );
+  }
+
   const allAnswered = screening.questions.every((q) => answers[q.id] !== undefined);
   const wouldBlock = allAnswered && !isCleared(answers);
 
   async function onSubmit() {
     const cleared = await submit.mutateAsync(answers);
-    if (cleared) await navigate('/onboarding');
+    if (cleared) setPaso('condiciones');
   }
 
   return (

@@ -1,3 +1,4 @@
+import type { Sex } from '@bh/domain';
 import {
   Activity,
   AlertCircle,
@@ -28,6 +29,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { AppShell } from '../components/AppShell.tsx';
 import { BodyMetricsForm } from '../components/BodyMetricsForm.tsx';
+import { CondicionesDeSalud } from '../components/CondicionesDeSalud.tsx';
 import { ProfileForm } from '../components/ProfileForm.tsx';
 import {
   Button,
@@ -44,6 +46,7 @@ import { useAuth } from '../lib/auth/AuthProvider.tsx';
 import { useBodyMetrics, useRecordBodyMetric } from '../lib/body-metrics.ts';
 import { documentos } from '../lib/docs.ts';
 import { GYM_TZ } from '../lib/gym-time.ts';
+import { useHealthConditions } from '../lib/health-conditions.ts';
 import { useScreeningState } from '../lib/health-screening.ts';
 import {
   BODY_REGION_LABELS,
@@ -152,6 +155,7 @@ function PerfilBody({
       <GoalCard profile={profile.data} />
       <PersonalDataCard profile={profile.data} />
       <HealthCard />
+      <HealthConditionsSection sex={profile.data.sex} />
       <ConstraintsSection />
       <PainHistorySection />
       <EvidenceLink />
@@ -687,6 +691,51 @@ function HealthCard() {
         Cada respuesta queda guardada tal como la diste: ni vos ni el staff pueden reescribirla. Si
         cambió algo, se responde de nuevo y queda como la vigente.
       </p>
+    </section>
+  );
+}
+
+/**
+ * Lo marcado detrás de la puerta de salud, editable. A diferencia del cribado,
+ * esto sí se cambia: cambia cómo entrena, y se aplica en el próximo plan.
+ */
+function HealthConditionsSection({ sex }: { readonly sex: Sex }) {
+  const conditions = useHealthConditions();
+  const [guardado, setGuardado] = useState(false);
+
+  return (
+    <section className="flex flex-col gap-2.5">
+      <SectionLabel icon={<HeartPulse size={13} aria-hidden="true" />}>
+        Problemas de salud y medicación
+      </SectionLabel>
+
+      {conditions.isPending && (
+        <div role="status" className="flex flex-col gap-1.5">
+          <Skeleton className="h-24 w-full" />
+          <span className="sr-only">Cargando…</span>
+        </div>
+      )}
+
+      {conditions.isError && (
+        <Notice tone="error" role="alert" icon={<AlertCircle size={15} aria-hidden="true" />}>
+          No se pudieron leer tus problemas de salud.
+        </Notice>
+      )}
+
+      {conditions.data && (
+        <CondicionesDeSalud
+          inicial={conditions.data}
+          sex={sex}
+          textoBoton="Guardar"
+          onGuardado={() => setGuardado(true)}
+        />
+      )}
+
+      {guardado && (
+        <Notice tone="info" role="status">
+          Guardado. Se aplica en tu próximo plan.
+        </Notice>
+      )}
     </section>
   );
 }

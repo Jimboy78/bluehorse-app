@@ -7,8 +7,12 @@
 carga no se toca: la presión la sube acercarse al fallo, no el peso. El disparador de progresión
 se corre con el piso, y `reviewProgress` usa ahora la misma dosis del contexto que el plan. Con
 betabloqueantes, `ocultaElPulso()` le dice a la pantalla que saque el % de frecuencia máxima.
-**Falta** la pantalla para marcar las condiciones. Hoy la presión y su medicación bloquean de
-entrada (decisión T2a del dueño), así que el módulo actúa recién cuando esa puerta se abra.
+**Pantalla:** `CondicionesDeSalud` hace primero la pregunta de sí o no y recién con un sí abre la
+lista agrupada. Aparece después del cribado aprobado, antes del onboarding, y en Perfil, donde se
+edita y se aplica en el próximo plan. La tarjeta de cardio saca el % de pulso con betabloqueantes
+(`muestraElPulso`). Hoy la presión y su medicación bloquean de entrada (decisión T2a del dueño),
+así que para esas condiciones el módulo actúa recién cuando esa puerta se abra. **Sin probar en
+el navegador:** la base local no tiene usuarios.
 
 ## 18 de septiembre de 2026 (T2a: salud con puerta, investigada)
 
