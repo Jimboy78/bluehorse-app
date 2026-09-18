@@ -1840,3 +1840,77 @@ describe('un reemplazo tiene que hacerse como el original', () => {
     expect(opcionesDe('ex-prensa', gym, flojo)).toContain('ex-salto');
   });
 });
+
+/**
+ * LO EXPLOSIVO NO SE RECETA POR RIR
+ *
+ * Un salto se corta cuando cae la velocidad, no cuando se acerca el fallo. El
+ * selector no lo distinguía y lo explosivo entraba a planes de hipertrofia con
+ * la receta de hipertrofia: en la matriz, "Salto al cajón 3×8-15, RIR 2, 90 s"
+ * en dos perfiles. Ver el paso 2b de `chooseExercise` y
+ * `docs/research/22-carga-de-potencia.md`.
+ */
+describe('lo explosivo en un plan regulado por RIR', () => {
+  /** Un salto con carga: explosivo y `reps_weight`, como el salto con barra hexagonal. */
+  const SALTO_CARGADO = exercise('ex-salto-hex', 'Salto con barra hexagonal', {
+    pattern: 'squat',
+    primaryMuscles: ['quads'],
+    isExplosive: true,
+    equipmentIds: ['eq-prensa'],
+  });
+
+  function gymCon(...extra: Exercise[]): GymSnapshot {
+    const gym = buildGym();
+    return { ...gym, exercises: [...gym.exercises, ...extra] };
+  }
+
+  function nombresDelPlan(gym: GymSnapshot, user: UserSnapshot, ruleset: Ruleset, seed: number) {
+    return engine
+      .generatePlan({ context: { ...context, seed }, user, gym, ruleset })
+      .sessions.flatMap((s) => s.items.map((i) => i.exerciseId));
+  }
+
+  const SEMILLAS = Array.from({ length: 20 }, (_, i) => i + 1);
+
+  it('el fixture hace que el salto compita: mismo patrón y músculo que la prensa', () => {
+    // Sin esto el test de abajo podría pasar porque el salto no entra a ningún
+    // pool, no porque la regla lo deje afuera.
+    const prensa = buildGym().exercises.find((e) => e.id === 'ex-prensa');
+    expect(prensa?.pattern).toBe(SALTO_CARGADO.pattern);
+    expect(prensa?.primaryMuscles).toEqual(SALTO_CARGADO.primaryMuscles);
+    expect(V0_PLACEHOLDER.prescription.hypertrophy?.default?.primary.rirTarget).not.toBeNull();
+  });
+
+  it('en hipertrofia no entra, en ninguna semilla', () => {
+    const gym = gymCon(SALTO_CARGADO);
+    for (const seed of SEMILLAS) {
+      expect(
+        nombresDelPlan(gym, buildUser(), V0_PLACEHOLDER, seed),
+        `semilla ${seed}`,
+      ).not.toContain('ex-salto-hex');
+    }
+  });
+
+  it('pero cubre el patrón si es lo único que hay: prefiere, no filtra', () => {
+    const base = buildGym();
+    const soloSalto: GymSnapshot = {
+      ...base,
+      exercises: [...base.exercises.filter((e) => e.pattern !== 'squat'), SALTO_CARGADO],
+    };
+    expect(nombresDelPlan(soloSalto, buildUser(), V0_PLACEHOLDER, 1)).toContain('ex-salto-hex');
+  });
+
+  it('en potencia, donde el principal no se regula por RIR, sí puede entrar', () => {
+    // El control: si la regla sacara lo explosivo de todos lados, el test de
+    // hipertrofia pasaría igual. Potencia tiene `rirTarget: null` en el principal.
+    expect(V1_RESEARCH.prescription.power?.default?.primary.rirTarget).toBeNull();
+    const potencia = buildUser({
+      goals: [{ ...buildUser().goals[0], goal: 'power' } as UserGoal],
+    });
+    const gym = gymCon(SALTO_CARGADO);
+    const alguna = SEMILLAS.some((seed) =>
+      nombresDelPlan(gym, potencia, V1_RESEARCH, seed).includes('ex-salto-hex'),
+    );
+    expect(alguna).toBe(true);
+  });
+});

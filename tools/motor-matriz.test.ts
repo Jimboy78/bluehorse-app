@@ -1348,16 +1348,33 @@ describe('el ajuste por día de partido', () => {
     }
   });
 
-  it('algún plan real todavía trae un explosivo sobre el que la regla actúe', () => {
-    const conExplosivo = SESIONES.filter((s) =>
-      s.items.some((i) => gym.exercises.find((e) => e.id === i.exerciseId)?.isExplosive),
-    ).map((s) => `${s.perfil.nombre} / ${s.label}`);
-
-    // Hoy es exactamente uno, y no es de potencia: los tres explosivos del
-    // gimnasio son de peso corporal y el selector prefiere `reps_weight` en el
-    // slot principal (ver `22-carga-de-potencia.md`). Que sea uno solo es el
-    // hallazgo, no el requisito — el test pide que no sea cero.
-    expect(conExplosivo.length, 'ningún plan trae explosivos').toBeGreaterThan(0);
+  /**
+   * EL ÚNICO CASO REAL ERA UN BUG
+   *
+   * Este test pedía que algún plan de la matriz trajera un explosivo, para que
+   * la regla del día de partido tuviera sobre qué actuar. El único que había
+   * era "Salto al cajón 3×8-15, RIR 2" en un plan de hipertrofia: un salto con
+   * dos en reserva, que no es una prescripción de nada. El paso 2b de
+   * `chooseExercise` lo sacó, y con él se fue la cobertura.
+   *
+   * Lo que un explosivo necesita para entrar a un plan real es un rol que no se
+   * regule por RIR, y hoy eso es solo el principal de potencia, donde el
+   * selector todavía prefiere lo cargable sin distinguir explosivo
+   * (`22-carga-de-potencia.md`, decisión 2, que es del dueño). La rama de la
+   * regla la cubre el test de arriba armando el caso a mano; lo que se fija acá
+   * es la invariante que el bug rompía, sobre todos los planes reales.
+   */
+  it('ningún explosivo de un plan real sale con RIR', () => {
+    const conRir = SESIONES.flatMap((s) =>
+      s.items
+        .filter((i) => gym.exercises.find((e) => e.id === i.exerciseId)?.isExplosive)
+        .filter((i) => i.targetRir !== null)
+        .map((i) => `${s.perfil.nombre} / ${s.label} / ${i.exerciseId}`),
+    );
+    expect(conRir).toEqual([]);
+    // Verde y vacío no sirve: tiene que haber explosivos en el catálogo que
+    // puedan competir por un slot.
+    expect(gym.exercises.filter((e) => e.isExplosive).length).toBeGreaterThan(3);
   });
 
   it('recorta la pierna al menos tanto como el tren superior', () => {

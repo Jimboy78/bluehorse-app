@@ -159,6 +159,29 @@ const SINONIMOS: Readonly<Record<string, readonly string[]>> = {
   'farmer carry': ['caminata granjero'],
 };
 
+/**
+ * Palabras que están en los nombres pero no dicen qué ejercicio es: "Press
+ * **de** banco", "Remo **con** mancuerna", "Crunch **en** polea". Son idioma,
+ * igual que los sinónimos. Solo cuentan para el desempate por cobertura; las
+ * capas de nombre exacto, prefijo y "contiene" las siguen viendo.
+ */
+const PALABRAS_VACIAS: ReadonlySet<string> = new Set([
+  'a',
+  'al',
+  'con',
+  'de',
+  'del',
+  'el',
+  'en',
+  'la',
+  'las',
+  'los',
+  'para',
+  'por',
+  'sin',
+  'y',
+]);
+
 /** Por qué entró un resultado. Se muestra, no se usa solo para ordenar. */
 export type MotivoCoincidencia =
   | 'exacto'
@@ -372,6 +395,10 @@ export function buscarEjercicios(
 function tokensCubiertos(ejercicio: Exercise, { tokens }: Consulta): number {
   const nombre = normalizar(ejercicio.name);
   return tokens.filter((t) => {
+    // Las palabras de relleno no explican nada. Sin esto, "jalón en polea"
+    // llevaba a "Crunch en polea": el crunch "cubría" `en` y `polea`, la
+    // dorsalera `jalon` y `polea`, empataban en dos y ganaba la C.
+    if (PALABRAS_VACIAS.has(t)) return false;
     if (nombre.includes(t)) return true;
     // El sinónimo de UNA palabra, no los de la consulta entera: acá se pregunta
     // qué explica cada palabra por separado.

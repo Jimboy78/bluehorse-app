@@ -136,6 +136,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
         level: user.profile.experienceLevel,
         selection: ruleset.selection,
         emphasis: sport?.emphasis ?? [],
+        regulatedByRir: params[slot.role].rirTarget !== null,
         rng,
       });
 
@@ -1501,6 +1502,12 @@ interface ChooseExerciseInput {
    * I² = 0%). Vacío si no practica ninguno.
    */
   readonly emphasis: readonly MuscleGroup[];
+  /**
+   * Si la dosis de este rol se regula por repeticiones en reserva. Sale del
+   * ruleset (`rirTarget !== null`), no de una lista de objetivos: hoy es todo
+   * menos potencia.
+   */
+  readonly regulatedByRir: boolean;
   readonly rng: () => number;
 }
 
@@ -1711,6 +1718,25 @@ function chooseExercise(input: ChooseExerciseInput): Exercise | undefined {
   //    nada.
   if (pattern !== 'cardio') {
     eligible = prefer(eligible, (e) => e.modality !== 'time');
+  }
+
+  // 2b. Donde la dosis se regula por RIR, uno que no sea explosivo.
+  //
+  //     Un salto no se hace "dejando dos en reserva": se corta cuando cae la
+  //     velocidad, no cuando se acerca el fallo. El propio ruleset lo dice al
+  //     poner `rirTarget: null` en potencia ("se regula por velocidad"), y
+  //     `22-carga-de-potencia.md` lo sostiene con dos metaanálisis: la carga y
+  //     la dosis de lo explosivo dependen del ejercicio, no del objetivo.
+  //
+  //     Sin esto el selector no distinguía, y lo explosivo entraba a planes de
+  //     hipertrofia con la receta de hipertrofia. Medido en la matriz: "Salto al
+  //     cajón 3×8-15, RIR 2, 90 s" en dos perfiles. Quince saltos al cajón con
+  //     dos en reserva no es una prescripción de nada.
+  //
+  //     Es `prefer` y no un filtro: si el patrón solo tuviera explosivos, se
+  //     cubre igual antes que dejar el slot vacío.
+  if (input.regulatedByRir) {
+    eligible = prefer(eligible, (e) => !e.isExplosive);
   }
 
   // 3. En el ejercicio principal, uno al que se le pueda subir la carga. Toda la

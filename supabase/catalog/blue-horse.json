@@ -229,6 +229,13 @@
       "quantity": 1
     },
     {
+      "name": "Barras de calistenia",
+      "category": "bodyweight",
+      "load_unit": "bodyweight",
+      "quantity": 2,
+      "location_note": "zona funcional, fondo del gimnasio"
+    },
+    {
       "name": "Bicis semi-acostadas (reclinadas)",
       "category": "cardio",
       "load_unit": "none",
@@ -340,7 +347,7 @@
     {
       "name": "Porta-barras (Z, hexagonal/trap, recta)",
       "category": "accessory",
-      "load_unit": "none",
+      "load_unit": "plates_kg",
       "quantity": 1,
       "setup_notes": "cantidad sin confirmar"
     },
@@ -808,7 +815,10 @@
       "modality": "reps_bodyweight",
       "skillLevel": "advanced",
       "cues": "Arrancás con los omóplatos abajo, no colgado muerto. Subís hasta pasar el mentón.",
-      "equipment": ["Rig de pared (dominadas + bolsa de boxeo + soga + TRX)"]
+      "equipment": [
+        "Rig de pared (dominadas + bolsa de boxeo + soga + TRX)",
+        "Barras de calistenia"
+      ]
     },
     {
       "name": "Abdominales en máquina",
@@ -1113,6 +1123,114 @@
       "skillLevel": "novice",
       "cues": "Hombros atrás y abajo, pasos cortos. Cuando el agarre se abre, terminó la serie.",
       "equipment": ["Mancuernas sueltas (set)", "Kettlebells", "Sandbags"]
+    },
+    {
+      "name": "Salto con vallas",
+      "pattern": "squat",
+      "primaryMuscles": ["quads", "glutes"],
+      "secondaryMuscles": ["calves"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "isExplosive": true,
+      "modality": "reps_bodyweight",
+      "skillLevel": "novice",
+      "cues": "Caés suave y rebotás enseguida: el suelo se toca poco. Si aterrizás pesado, frená.",
+      "equipment": ["Mini-vallas de agilidad"]
+    },
+    {
+      "name": "Pogo jumps",
+      "pattern": "isolation",
+      "primaryMuscles": ["calves"],
+      "secondaryMuscles": [],
+      "isCompound": false,
+      "isUnilateral": false,
+      "isExplosive": true,
+      "modality": "reps_bodyweight",
+      "skillLevel": "beginner",
+      "cues": "Rodillas casi rectas, rebote de tobillo. El talón no llega a apoyar.",
+      "equipment": []
+    },
+    {
+      "name": "Salto en profundidad",
+      "pattern": "squat",
+      "primaryMuscles": ["quads", "glutes"],
+      "secondaryMuscles": ["calves"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "isExplosive": true,
+      "modality": "reps_bodyweight",
+      "skillLevel": "intermediate",
+      "cues": "Te dejás caer del cajón, no saltás de él, y salís hacia arriba apenas tocás el piso.",
+      "equipment": ["Cajones pliométricos"]
+    },
+    {
+      "name": "Zancada con salto",
+      "pattern": "lunge",
+      "primaryMuscles": ["quads", "glutes"],
+      "secondaryMuscles": ["calves"],
+      "isCompound": true,
+      "isUnilateral": true,
+      "isExplosive": true,
+      "modality": "reps_bodyweight",
+      "skillLevel": "intermediate",
+      "cues": "Cambiás de pierna en el aire y caés con la rodilla de adelante sobre el pie.",
+      "equipment": []
+    },
+    {
+      "name": "Salto con barra hexagonal",
+      "pattern": "squat",
+      "primaryMuscles": ["quads", "glutes"],
+      "secondaryMuscles": ["hamstrings", "calves"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "isExplosive": true,
+      "modality": "reps_weight",
+      "skillLevel": "intermediate",
+      "cues": "Carga liviana y cada salto a máxima velocidad. Si la altura cae, terminó la serie.",
+      "equipment": ["Porta-barras (Z, hexagonal/trap, recta)"]
+    },
+    {
+      "name": "Remo con barra (Pendlay)",
+      "pattern": "horizontal_pull",
+      "primaryMuscles": ["back", "lats"],
+      "secondaryMuscles": ["rear_delts", "lower_back"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "isExplosive": false,
+      "modality": "reps_weight",
+      "skillLevel": "intermediate",
+      "cues": "Torso paralelo al piso y la barra vuelve al suelo en cada repetición.",
+      "equipment": ["Porta-barras (Z, hexagonal/trap, recta)"]
+    },
+    {
+      "name": "Crunch en polea",
+      "pattern": "core",
+      "primaryMuscles": ["abs"],
+      "secondaryMuscles": [],
+      "isCompound": false,
+      "isUnilateral": false,
+      "isExplosive": false,
+      "modality": "reps_weight",
+      "skillLevel": "novice",
+      "cues": "De rodillas, la cadera quieta: el que baja es el pecho hacia las rodillas, no los brazos.",
+      "equipment": ["Cross Over funcional doble (Dual Cable Cross)"]
+    },
+    {
+      "name": "Elevación de piernas colgado",
+      "pattern": "core",
+      "primaryMuscles": ["abs"],
+      "secondaryMuscles": ["forearms"],
+      "isCompound": false,
+      "isUnilateral": false,
+      "isExplosive": false,
+      "modality": "reps_bodyweight",
+      "skillLevel": "intermediate",
+      "cues": "Sin balanceo: subís las piernas enrollando la pelvis y bajás controlado.",
+      "equipment": [
+        "Barras de calistenia",
+        "Rig de pared (dominadas + bolsa de boxeo + soga + TRX)",
+        "Cross Over funcional doble (Dual Cable Cross)"
+      ]
     }
   ]
 }
