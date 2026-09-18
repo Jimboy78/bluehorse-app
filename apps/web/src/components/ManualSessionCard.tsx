@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { activeRuleset } from '../lib/engine.ts';
 import type { ManualPlanItem, ManualPlanSession } from '../lib/manual-plan.ts';
 import { resumenDelItem, zonaDe } from '../lib/objetivo.ts';
+import { textoDelDescanso } from '../lib/superserie.ts';
 import { Button, Card, ConfirmDialog } from './ui/index.ts';
 
 /**
@@ -41,6 +42,10 @@ export function ManualSessionCard({
   const [borrando, setBorrando] = useState(false);
   const [sacando, setSacando] = useState<ManualPlanItem | null>(null);
   const yaEntrenada = session.status !== 'pending';
+  const vuelta = session.items.map((it) => ({
+    name: it.exerciseName,
+    supersetGroup: it.supersetGroup,
+  }));
 
   return (
     <Card className="flex flex-col gap-3 p-4">
@@ -72,10 +77,11 @@ export function ManualSessionCard({
 
       {session.items.length > 0 && (
         <ul className="flex flex-col divide-y divide-line/70">
-          {session.items.map((item) => (
+          {session.items.map((item, index) => (
             <li key={item.id}>
               <ItemRow
                 item={item}
+                descanso={textoDelDescanso(vuelta, index, item.restSeconds)}
                 onDelete={() => (yaEntrenada ? setSacando(item) : onDeleteItem(item.id))}
               />
             </li>
@@ -129,9 +135,12 @@ export function ManualSessionCard({
 
 function ItemRow({
   item,
+  descanso,
   onDelete,
 }: {
   readonly item: ManualPlanItem;
+  /** "90s de descanso", o en una superserie "sin descanso, seguí con …". */
+  readonly descanso: string;
   readonly onDelete: () => void;
 }) {
   const resumen = resumenDelItem({
@@ -149,7 +158,7 @@ function ItemRow({
           {/* La carga se muestra cruda, en la unidad de la máquina (regla dura 6). */}
           {item.targetLoad && ` · ${formatLoad(item.targetLoad)}`}
           {item.targetRir !== null && ` · RIR ${item.targetRir}`}
-          {!cardio && ` · ${item.restSeconds}s de descanso`}
+          {!cardio && ` · ${descanso}`}
         </p>
         {item.equipmentName && (
           <p className="truncate text-[0.6rem] text-slate-dim">{item.equipmentName}</p>

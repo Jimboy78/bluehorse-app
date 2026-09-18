@@ -2,8 +2,8 @@
   "generadoEl": "2026-09-10T12:00:00.000Z",
   "ruleset": "v1-research",
   "catalogo": {
-    "estaciones": 59,
-    "ejercicios": 67
+    "estaciones": 62,
+    "ejercicios": 68
   },
   "perfiles": {
     "fuerza · intermedio": {
@@ -37,7 +37,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -47,7 +47,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -104,7 +104,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -151,7 +151,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -161,7 +161,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -218,7 +218,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -265,7 +265,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -275,7 +275,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -332,7 +332,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -379,7 +379,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -389,7 +389,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -446,7 +446,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -936,8 +936,7 @@
       "rulesetVersion": "v1-research",
       "source": "research",
       "warnings": [
-        "Con 4 sesiones por semana, estos músculos pasan las 15 series semanales que la evidencia marca como techo útil: glúteos (21). Más volumen ahí no rinde más.",
-        "Con 4 sesiones por semana, estos músculos quedan abajo de las 4 series semanales mínimas: hombro anterior (3). Sumar una sesión más por semana los cubre."
+        "Con 4 sesiones por semana, estos músculos pasan las 15 series semanales que la evidencia marca como techo útil: glúteos (21). Más volumen ahí no rinde más."
       ],
       "sesiones": [
         {
@@ -946,7 +945,7 @@
           "minutos": 60,
           "items": [
             {
-              "ejercicio": "Press de pecho en máquina",
+              "ejercicio": "Press inclinado con barra",
               "series": 4,
               "reps": "1-5",
               "rir": 2,
@@ -1060,7 +1059,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de banco",
+              "ejercicio": "Press de pecho en máquina",
               "series": 4,
               "reps": "1-5",
               "rir": 2,
@@ -1144,7 +1143,7 @@
           "minutos": 60,
           "items": [
             {
-              "ejercicio": "Press de pecho en máquina",
+              "ejercicio": "Press inclinado con barra",
               "series": 4,
               "reps": "1-5",
               "rir": 2,
@@ -1258,7 +1257,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de banco",
+              "ejercicio": "Press de pecho en máquina",
               "series": 4,
               "reps": "1-5",
               "rir": 2,
@@ -1371,7 +1370,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -1381,7 +1380,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -1438,7 +1437,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -1485,7 +1484,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -1495,7 +1494,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -1552,7 +1551,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -1599,7 +1598,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -1609,7 +1608,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -1666,7 +1665,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -1713,7 +1712,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -1723,7 +1722,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -1780,7 +1779,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -2305,7 +2304,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "1-5",
               "rir": null,
@@ -2315,7 +2314,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "1-5",
               "rir": null,
@@ -2372,7 +2371,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "1-5",
               "rir": null,
@@ -2419,7 +2418,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "1-5",
               "rir": null,
@@ -2429,7 +2428,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "1-5",
               "rir": null,
@@ -2486,7 +2485,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "1-5",
               "rir": null,
@@ -2533,7 +2532,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "1-5",
               "rir": null,
@@ -2543,7 +2542,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "1-5",
               "rir": null,
@@ -2600,7 +2599,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "1-5",
               "rir": null,
@@ -2647,7 +2646,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "1-5",
               "rir": null,
@@ -2657,7 +2656,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "1-5",
               "rir": null,
@@ -2714,7 +2713,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "1-5",
               "rir": null,
@@ -3204,8 +3203,7 @@
       "rulesetVersion": "v1-research",
       "source": "research",
       "warnings": [
-        "Con 4 sesiones por semana, estos músculos pasan las 24 series semanales que la evidencia marca como techo útil: glúteos (27). Más volumen ahí no rinde más.",
-        "Con 4 sesiones por semana, estos músculos quedan abajo de las 6 series semanales mínimas: hombro anterior (4). Sumar una sesión más por semana los cubre."
+        "Con 4 sesiones por semana, estos músculos pasan las 24 series semanales que la evidencia marca como techo útil: glúteos (27). Más volumen ahí no rinde más."
       ],
       "sesiones": [
         {
@@ -3214,7 +3212,7 @@
           "minutos": 60,
           "items": [
             {
-              "ejercicio": "Press de pecho en máquina",
+              "ejercicio": "Press inclinado con barra",
               "series": 5,
               "reps": "6-12",
               "rir": 1,
@@ -3328,7 +3326,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de banco",
+              "ejercicio": "Press de pecho en máquina",
               "series": 5,
               "reps": "6-12",
               "rir": 1,
@@ -3412,7 +3410,7 @@
           "minutos": 60,
           "items": [
             {
-              "ejercicio": "Press de pecho en máquina",
+              "ejercicio": "Press inclinado con barra",
               "series": 5,
               "reps": "6-12",
               "rir": 1,
@@ -3526,7 +3524,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de banco",
+              "ejercicio": "Press de pecho en máquina",
               "series": 5,
               "reps": "6-12",
               "rir": 1,
@@ -3640,7 +3638,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "12-15",
               "rir": 2,
@@ -3650,7 +3648,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "12-15",
               "rir": 2,
@@ -3707,7 +3705,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "12-15",
               "rir": 2,
@@ -3754,7 +3752,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "12-15",
               "rir": 2,
@@ -3764,7 +3762,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "12-15",
               "rir": 2,
@@ -3821,7 +3819,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "12-15",
               "rir": 2,
@@ -3868,7 +3866,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "12-15",
               "rir": 2,
@@ -3878,7 +3876,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "12-15",
               "rir": 2,
@@ -3935,7 +3933,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "12-15",
               "rir": 2,
@@ -3982,7 +3980,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "12-15",
               "rir": 2,
@@ -3992,7 +3990,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "12-15",
               "rir": 2,
@@ -4049,7 +4047,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "12-15",
               "rir": 2,
@@ -5305,7 +5303,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -5315,7 +5313,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -5372,7 +5370,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -5419,7 +5417,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -5429,7 +5427,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -5486,7 +5484,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -5533,7 +5531,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -5543,7 +5541,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -5600,7 +5598,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -5647,7 +5645,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -5657,7 +5655,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -5714,7 +5712,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -5750,7 +5748,7 @@
           "minutos": 60,
           "items": [
             {
-              "ejercicio": "Press de pecho en máquina",
+              "ejercicio": "Press inclinado con barra",
               "series": 5,
               "reps": "6-12",
               "rir": 1,
@@ -5864,7 +5862,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de banco",
+              "ejercicio": "Press de pecho en máquina",
               "series": 5,
               "reps": "6-12",
               "rir": 1,
@@ -5948,7 +5946,7 @@
           "minutos": 60,
           "items": [
             {
-              "ejercicio": "Press de pecho en máquina",
+              "ejercicio": "Press inclinado con barra",
               "series": 5,
               "reps": "6-12",
               "rir": 1,
@@ -6062,7 +6060,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de banco",
+              "ejercicio": "Press de pecho en máquina",
               "series": 5,
               "reps": "6-12",
               "rir": 1,
@@ -6175,7 +6173,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -6185,7 +6183,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -6242,7 +6240,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -6289,7 +6287,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -6299,7 +6297,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -6356,7 +6354,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -6403,7 +6401,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -6413,7 +6411,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -6470,7 +6468,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -6517,7 +6515,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -6527,7 +6525,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -6584,7 +6582,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -6642,7 +6640,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 2,
               "reps": "3-8",
               "rir": 3,
@@ -6652,7 +6650,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 2,
               "reps": "3-8",
               "rir": 3,
@@ -6709,7 +6707,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 2,
               "reps": "3-8",
               "rir": 3,
@@ -6756,7 +6754,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 2,
               "reps": "3-8",
               "rir": 3,
@@ -6766,7 +6764,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 2,
               "reps": "3-8",
               "rir": 3,
@@ -6823,7 +6821,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 2,
               "reps": "3-8",
               "rir": 3,
@@ -6870,7 +6868,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 2,
               "reps": "3-8",
               "rir": 3,
@@ -6880,7 +6878,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 2,
               "reps": "3-8",
               "rir": 3,
@@ -6937,7 +6935,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 2,
               "reps": "3-8",
               "rir": 3,
@@ -6984,7 +6982,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 2,
               "reps": "3-8",
               "rir": 3,
@@ -6994,7 +6992,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 2,
               "reps": "3-8",
               "rir": 3,
@@ -7051,7 +7049,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 2,
               "reps": "3-8",
               "rir": 3,
@@ -7112,7 +7110,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 2,
               "reps": "1-5",
               "rir": null,
@@ -7122,7 +7120,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 2,
               "reps": "1-5",
               "rir": null,
@@ -7179,7 +7177,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 2,
               "reps": "1-5",
               "rir": null,
@@ -7226,7 +7224,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 2,
               "reps": "1-5",
               "rir": null,
@@ -7236,7 +7234,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 2,
               "reps": "1-5",
               "rir": null,
@@ -7293,7 +7291,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 2,
               "reps": "1-5",
               "rir": null,
@@ -7340,7 +7338,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 2,
               "reps": "1-5",
               "rir": null,
@@ -7350,7 +7348,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 2,
               "reps": "1-5",
               "rir": null,
@@ -7407,7 +7405,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 2,
               "reps": "1-5",
               "rir": null,
@@ -7454,7 +7452,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 2,
               "reps": "1-5",
               "rir": null,
@@ -7464,7 +7462,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 2,
               "reps": "1-5",
               "rir": null,
@@ -7521,7 +7519,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 2,
               "reps": "1-5",
               "rir": null,
@@ -8023,7 +8021,7 @@
           "minutos": 60,
           "items": [
             {
-              "ejercicio": "Press de banco",
+              "ejercicio": "Press inclinado con mancuernas",
               "series": 4,
               "reps": "6-12",
               "rir": 1,
@@ -8033,7 +8031,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Dorsalera con agarre neutro",
+              "ejercicio": "Dorsalera al pecho",
               "series": 4,
               "reps": "6-12",
               "rir": 1,
@@ -8043,7 +8041,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro con mancuernas",
+              "ejercicio": "Press militar con barra",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -8053,7 +8051,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -8063,7 +8061,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Patada de glúteo en máquina",
+              "ejercicio": "Aductores en máquina",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -8080,7 +8078,7 @@
           "minutos": 60,
           "items": [
             {
-              "ejercicio": "Sentadilla con cinturón",
+              "ejercicio": "Sentadilla hack",
               "series": 4,
               "reps": "6-12",
               "rir": 1,
@@ -8137,7 +8135,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press inclinado con mancuernas",
+              "ejercicio": "Press inclinado con barra",
               "series": 4,
               "reps": "6-12",
               "rir": 1,
@@ -8147,7 +8145,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Dorsalera al pecho",
+              "ejercicio": "Dorsalera con agarre neutro",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -8157,7 +8155,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Curl con barra Z",
+              "ejercicio": "Extensión de tríceps con mancuerna",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -8221,7 +8219,7 @@
           "minutos": 60,
           "items": [
             {
-              "ejercicio": "Press de banco",
+              "ejercicio": "Press inclinado con mancuernas",
               "series": 4,
               "reps": "6-12",
               "rir": 1,
@@ -8231,7 +8229,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Dorsalera con agarre neutro",
+              "ejercicio": "Dorsalera al pecho",
               "series": 4,
               "reps": "6-12",
               "rir": 1,
@@ -8241,7 +8239,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro con mancuernas",
+              "ejercicio": "Press militar con barra",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -8251,7 +8249,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -8261,7 +8259,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Patada de glúteo en máquina",
+              "ejercicio": "Aductores en máquina",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -8278,7 +8276,7 @@
           "minutos": 60,
           "items": [
             {
-              "ejercicio": "Sentadilla con cinturón",
+              "ejercicio": "Sentadilla hack",
               "series": 4,
               "reps": "6-12",
               "rir": 1,
@@ -8335,7 +8333,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press inclinado con mancuernas",
+              "ejercicio": "Press inclinado con barra",
               "series": 4,
               "reps": "6-12",
               "rir": 1,
@@ -8345,7 +8343,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Dorsalera al pecho",
+              "ejercicio": "Dorsalera con agarre neutro",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -8355,7 +8353,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Curl con barra Z",
+              "ejercicio": "Extensión de tríceps con mancuerna",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -8448,7 +8446,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -8458,7 +8456,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -8515,7 +8513,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -8562,7 +8560,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -8572,7 +8570,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -8629,7 +8627,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -8676,7 +8674,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -8686,7 +8684,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -8743,7 +8741,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -8790,7 +8788,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -8800,7 +8798,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -8857,7 +8855,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -8916,7 +8914,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -8926,7 +8924,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -8983,7 +8981,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -9030,7 +9028,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -9040,7 +9038,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -9097,7 +9095,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -9144,7 +9142,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -9154,7 +9152,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -9211,7 +9209,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -9258,7 +9256,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -9268,7 +9266,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -9325,7 +9323,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -9395,7 +9393,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Extensión de cuádriceps",
+              "ejercicio": "Curl de bíceps",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -9412,7 +9410,7 @@
           "minutos": 60,
           "items": [
             {
-              "ejercicio": "Sentadilla",
+              "ejercicio": "Sentadilla hack",
               "series": 4,
               "reps": "1-5",
               "rir": 2,
@@ -9422,7 +9420,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Peso muerto rumano",
+              "ejercicio": "Hip thrust con barra",
               "series": 4,
               "reps": "1-5",
               "rir": 2,
@@ -9432,7 +9430,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Sentadilla búlgara",
+              "ejercicio": "Zancadas",
               "series": 3,
               "reps": "3-8",
               "rir": 2,
@@ -9442,7 +9440,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Elevación de piernas colgado",
+              "ejercicio": "Abdominales en máquina",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -9489,7 +9487,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Encogimientos de hombros",
+              "ejercicio": "Extensión de tríceps con mancuerna",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -9506,7 +9504,7 @@
           "minutos": 60,
           "items": [
             {
-              "ejercicio": "Hip thrust con barra",
+              "ejercicio": "Hip thrust en máquina",
               "series": 4,
               "reps": "1-5",
               "rir": 2,
@@ -9516,7 +9514,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Sentadilla en Smith",
+              "ejercicio": "Sentadilla con cinturón",
               "series": 3,
               "reps": "3-8",
               "rir": 2,
@@ -9526,7 +9524,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Subida al cajón",
+              "ejercicio": "Sentadilla búlgara",
               "series": 3,
               "reps": "3-8",
               "rir": 2,
@@ -9583,7 +9581,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Extensión de cuádriceps",
+              "ejercicio": "Curl de bíceps",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -9600,7 +9598,7 @@
           "minutos": 60,
           "items": [
             {
-              "ejercicio": "Sentadilla",
+              "ejercicio": "Sentadilla hack",
               "series": 4,
               "reps": "1-5",
               "rir": 2,
@@ -9610,7 +9608,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Peso muerto rumano",
+              "ejercicio": "Hip thrust con barra",
               "series": 4,
               "reps": "1-5",
               "rir": 2,
@@ -9620,7 +9618,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Sentadilla búlgara",
+              "ejercicio": "Zancadas",
               "series": 3,
               "reps": "3-8",
               "rir": 2,
@@ -9630,7 +9628,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Elevación de piernas colgado",
+              "ejercicio": "Abdominales en máquina",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -9677,7 +9675,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Encogimientos de hombros",
+              "ejercicio": "Extensión de tríceps con mancuerna",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -9694,7 +9692,7 @@
           "minutos": 60,
           "items": [
             {
-              "ejercicio": "Hip thrust con barra",
+              "ejercicio": "Hip thrust en máquina",
               "series": 4,
               "reps": "1-5",
               "rir": 2,
@@ -9704,7 +9702,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Sentadilla en Smith",
+              "ejercicio": "Sentadilla con cinturón",
               "series": 3,
               "reps": "3-8",
               "rir": 2,
@@ -9714,7 +9712,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Subida al cajón",
+              "ejercicio": "Sentadilla búlgara",
               "series": 3,
               "reps": "3-8",
               "rir": 2,
@@ -11642,7 +11640,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -11652,7 +11650,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -11709,7 +11707,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -11756,7 +11754,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -11766,7 +11764,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -11823,7 +11821,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -11870,7 +11868,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -11880,7 +11878,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -11937,7 +11935,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -11984,7 +11982,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -11994,7 +11992,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12051,7 +12049,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12108,7 +12106,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12118,7 +12116,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12175,7 +12173,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12222,7 +12220,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12232,7 +12230,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12289,7 +12287,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12336,7 +12334,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12346,7 +12344,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12403,7 +12401,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12450,7 +12448,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12460,7 +12458,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12517,7 +12515,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12574,7 +12572,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12584,7 +12582,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12641,7 +12639,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12688,7 +12686,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12698,7 +12696,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12755,7 +12753,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12802,7 +12800,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12812,7 +12810,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12869,7 +12867,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12916,7 +12914,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12926,7 +12924,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -12983,7 +12981,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -13040,7 +13038,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -13050,7 +13048,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -13107,7 +13105,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -13154,7 +13152,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -13164,7 +13162,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -13221,7 +13219,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -13268,7 +13266,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -13278,7 +13276,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -13335,7 +13333,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -13382,7 +13380,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -13392,7 +13390,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -13449,7 +13447,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -13503,7 +13501,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -13513,7 +13511,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -13570,7 +13568,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -13617,7 +13615,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -13627,7 +13625,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -13684,7 +13682,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -13731,7 +13729,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -13741,7 +13739,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -13798,7 +13796,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -13845,7 +13843,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -13855,7 +13853,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -13912,7 +13910,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "3-8",
               "rir": 3,
@@ -13968,7 +13966,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "7-9",
               "rir": 3,
@@ -13978,7 +13976,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "7-9",
               "rir": 3,
@@ -14035,7 +14033,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "7-9",
               "rir": 3,
@@ -14082,7 +14080,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "7-9",
               "rir": 3,
@@ -14092,7 +14090,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "7-9",
               "rir": 3,
@@ -14149,7 +14147,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "7-9",
               "rir": 3,
@@ -14196,7 +14194,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "7-9",
               "rir": 3,
@@ -14206,7 +14204,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "7-9",
               "rir": 3,
@@ -14263,7 +14261,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "7-9",
               "rir": 3,
@@ -14310,7 +14308,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con barra (Pendlay)",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "7-9",
               "rir": 3,
@@ -14320,7 +14318,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro en máquina",
+              "ejercicio": "Press de hombro con mancuernas",
               "series": 3,
               "reps": "7-9",
               "rir": 3,
@@ -14377,7 +14375,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo con barra (Pendlay)",
               "series": 3,
               "reps": "7-9",
               "rir": 3,
@@ -15339,8 +15337,8 @@
       "source": "research",
       "warnings": [
         "Ninguna plantilla cubre 7 sesiones por semana para hipertrofia. Se usó \"Torso / pierna\".",
-        "Con 6 sesiones por semana, estos músculos pasan las 24 series semanales que la evidencia marca como techo útil: glúteos (36). Más volumen ahí no rinde más.",
-        "Con 6 sesiones por semana, estos músculos quedan abajo de las 6 series semanales mínimas: isquiotibiales (4), lumbares (4). Sumar una sesión más por semana los cubre."
+        "Con 6 sesiones por semana, estos músculos pasan las 24 series semanales que la evidencia marca como techo útil: glúteos (32). Más volumen ahí no rinde más.",
+        "Con 6 sesiones por semana, estos músculos quedan abajo de las 6 series semanales mínimas: lumbares (4). Sumar una sesión más por semana los cubre."
       ],
       "sesiones": [
         {
@@ -15349,7 +15347,7 @@
           "minutos": 60,
           "items": [
             {
-              "ejercicio": "Press de banco",
+              "ejercicio": "Press inclinado con barra",
               "series": 4,
               "reps": "6-12",
               "rir": 1,
@@ -15359,7 +15357,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Dorsalera con agarre neutro",
+              "ejercicio": "Dorsalera al pecho",
               "series": 4,
               "reps": "6-12",
               "rir": 1,
@@ -15369,7 +15367,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro con mancuernas",
+              "ejercicio": "Press militar con barra",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -15379,7 +15377,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -15389,7 +15387,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Patada de glúteo en máquina",
+              "ejercicio": "Curl de bíceps",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -15406,7 +15404,7 @@
           "minutos": 60,
           "items": [
             {
-              "ejercicio": "Sentadilla con cinturón",
+              "ejercicio": "Sentadilla hack",
               "series": 4,
               "reps": "6-12",
               "rir": 1,
@@ -15473,7 +15471,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Dorsalera al pecho",
+              "ejercicio": "Dorsalera con agarre neutro",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -15483,7 +15481,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Curl con barra Z",
+              "ejercicio": "Curl femoral acostado",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -15547,7 +15545,7 @@
           "minutos": 60,
           "items": [
             {
-              "ejercicio": "Press de banco",
+              "ejercicio": "Press inclinado con barra",
               "series": 4,
               "reps": "6-12",
               "rir": 1,
@@ -15557,7 +15555,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Dorsalera con agarre neutro",
+              "ejercicio": "Dorsalera al pecho",
               "series": 4,
               "reps": "6-12",
               "rir": 1,
@@ -15567,7 +15565,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Press de hombro con mancuernas",
+              "ejercicio": "Press militar con barra",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -15577,7 +15575,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Remo con mancuerna a una mano",
+              "ejercicio": "Remo invertido en TRX",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -15587,7 +15585,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Patada de glúteo en máquina",
+              "ejercicio": "Curl de bíceps",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -15604,7 +15602,7 @@
           "minutos": 60,
           "items": [
             {
-              "ejercicio": "Sentadilla con cinturón",
+              "ejercicio": "Sentadilla hack",
               "series": 4,
               "reps": "6-12",
               "rir": 1,
@@ -15671,7 +15669,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Dorsalera al pecho",
+              "ejercicio": "Dorsalera con agarre neutro",
               "series": 3,
               "reps": "8-15",
               "rir": 2,
@@ -15681,7 +15679,7 @@
               "zona": null
             },
             {
-              "ejercicio": "Curl con barra Z",
+              "ejercicio": "Curl femoral acostado",
               "series": 2,
               "reps": "10-15",
               "rir": 2,

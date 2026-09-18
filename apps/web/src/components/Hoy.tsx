@@ -28,6 +28,7 @@ import { useActivePlan, useGeneratePlan, useRequestNextPlan } from '../lib/plan.
 import { useRestToday, useSetRestToday } from '../lib/rest-days.ts';
 import { useSessionLog } from '../lib/session-log.ts';
 import { useRestoredSession } from '../lib/session-restore.ts';
+import { proximoDeLaVuelta, superserieDe } from '../lib/superserie.ts';
 import { CardioRow } from './CardioRow.tsx';
 import { CargaPorMaximo } from './CargaPorMaximo.tsx';
 import { ElegirDia } from './ElegirDia.tsx';
@@ -173,6 +174,13 @@ export function Hoy() {
 
   const seriesHechas = activeItemId ? (hechasPorItem[activeItemId] ?? []) : [];
 
+  const { superserie, destinoId } = vueltaDeHoy(
+    session.items,
+    substitutions,
+    activeItemId,
+    hechasPorItem,
+  );
+
   function markDone(indice: number) {
     if (!activeItemId || !item) return;
     const previas = hechasPorItem[activeItemId] ?? [];
@@ -217,6 +225,8 @@ export function Hoy() {
       );
     }
     setRestingIndex(null);
+    // En una superserie, terminada la serie se pasa solo al otro ejercicio.
+    if (destinoId) setActiveItemId(destinoId);
   }
 
   async function handlePickSubstitute(
@@ -278,6 +288,7 @@ export function Hoy() {
             showingSubstitutes={showingSubstitutes}
             reportandoDolor={reportandoDolor}
             restingIndex={restingIndex}
+            superserie={superserie}
             seriesHechas={seriesHechas}
             cargaDeSerie={(setIndex) =>
               cargaDeSerie(
@@ -645,6 +656,7 @@ function ExerciseDetail({
   showingSubstitutes,
   reportandoDolor,
   restingIndex,
+  superserie,
   seriesHechas,
   cargaDeSerie: cargaDe,
   onCargaSerie,
@@ -669,6 +681,8 @@ function ExerciseDetail({
   showingSubstitutes: boolean;
   reportandoDolor: boolean;
   restingIndex: number | null;
+  /** Si va en superserie: con quién, y qué se hace después de cada serie. */
+  superserie: ReturnType<typeof superserieDe>;
   seriesHechas: number[];
   /** Con cuánto se está trabajando hoy: lo del plan, o lo que la persona anotó. */
   /** Con cuánto va cada serie, resuelto arriba (lo propio, lo heredado o lo del plan). */
@@ -731,6 +745,7 @@ function ExerciseDetail({
           barra azul al costado de un párrafo vacío, con cara de cita del
           motor y sin motor detrás. */}
       {item.zone && <ZonaCardio zone={item.zone} />}
+      {superserie && <Superserie {...superserie} />}
       <CargaPorMaximo item={item} />
 
       {item.rationale && (
@@ -793,6 +808,7 @@ function ExerciseDetail({
             <RestTimer
               cardio={item.durationSeconds !== null}
               prescribedSeconds={item.restSeconds}
+              siguiente={superserie?.siguiente ?? null}
               repsTarget={item.repsTarget}
               targetRir={item.targetRir}
               targetLoad={cargaDe(restingIndex)}
@@ -1135,6 +1151,47 @@ function textoDeLaFila(item: ActiveSessionItem): string {
   if (item.durationSeconds !== null) return objetivo;
   const carga = item.pct1rm ? `${item.pct1rm.min}-${item.pct1rm.max} % 1RM` : item.load;
   return `${objetivo} · ${carga}`;
+}
+
+/**
+ * La superserie del ejercicio abierto y a cuál se pasa después de una serie
+ * (solo si a ese le quedan series). La vuelta se arma con los nombres que se
+ * ven hoy: si se sustituyó un ejercicio, "seguí con" nombra al que se hace.
+ */
+function vueltaDeHoy(
+  items: readonly ActiveSessionItem[],
+  substitutions: Record<string, Substitution>,
+  activeItemId: string | null,
+  hechasPorItem: Record<string, number[]>,
+): { superserie: ReturnType<typeof superserieDe>; destinoId: string | null } {
+  const indice = items.findIndex((i) => i.id === activeItemId);
+  const activo = items[indice];
+  if (!activo) return { superserie: null, destinoId: null };
+  const vuelta = items.map((i) => ({
+    name: substitutions[i.id]?.name ?? i.name,
+    supersetGroup: i.supersetGroup,
+  }));
+  const destino = proximoDeLaVuelta(vuelta, indice);
+  const siguiente = destino === null ? undefined : items[destino];
+  const pendiente = siguiente && (hechasPorItem[siguiente.id] ?? []).length < siguiente.sets;
+  return {
+    superserie: superserieDe(vuelta, indice, activo.restSeconds),
+    destinoId: pendiente ? siguiente.id : null,
+  };
+}
+
+/** Una serie de cada uno, y el descanso recién al cerrar la vuelta. */
+function Superserie({ companeros, descanso }: { companeros: readonly string[]; descanso: string }) {
+  return (
+    <Card animate={false} className="flex flex-col gap-1.5 px-4 py-3">
+      <p className="font-display text-sm font-semibold uppercase tracking-[0.12em] text-brand">
+        Superserie con {companeros.join(' y ')}
+      </p>
+      <p className="text-sm leading-relaxed text-ink">
+        Una serie de cada uno. Después de cada serie de este: {descanso}.
+      </p>
+    </Card>
+  );
 }
 
 /**

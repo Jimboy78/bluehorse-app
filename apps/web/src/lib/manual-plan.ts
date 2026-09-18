@@ -194,6 +194,8 @@ export interface ManualPlanItem {
   readonly toFailure: boolean;
   readonly pct1rm: { readonly min: number; readonly max: number } | null;
   readonly isUnilateral: boolean;
+  /** Vuelta de superserie a la que pertenece, o `null`. Ver `lib/superserie.ts`. */
+  readonly supersetGroup: number | null;
 }
 
 export interface ManualPlanSession {
@@ -266,7 +268,7 @@ async function fetchManualSessions(
   const { data: items, error: itemsError } = await client
     .from('plan_session_items')
     .select(
-      'id, plan_session_id, order_index, exercise_id, target_sets, target_reps_min, target_reps_max, target_load, target_load_unit, target_rir, rest_seconds, target_duration_seconds, target_intensity_zone, target_interval_rest_seconds, target_to_failure, target_pct_1rm_min, target_pct_1rm_max, exercises(name, is_unilateral), equipment(name)',
+      'id, plan_session_id, order_index, exercise_id, target_sets, target_reps_min, target_reps_max, target_load, target_load_unit, target_rir, rest_seconds, target_duration_seconds, target_intensity_zone, target_interval_rest_seconds, target_to_failure, target_pct_1rm_min, target_pct_1rm_max, superset_group, exercises(name, is_unilateral), equipment(name)',
     )
     .in(
       'plan_session_id',
@@ -306,6 +308,7 @@ interface RawManualItem {
   readonly target_to_failure: boolean;
   readonly target_pct_1rm_min: number | null;
   readonly target_pct_1rm_max: number | null;
+  readonly superset_group: number | null;
   readonly exercises: { name: string; is_unilateral: boolean } | null;
   readonly equipment: { name: string } | null;
 }
@@ -341,6 +344,7 @@ function groupItems(rows: readonly unknown[]): Map<string, ManualPlanItem[]> {
           ? { min: row.target_pct_1rm_min, max: row.target_pct_1rm_max }
           : null,
       isUnilateral: row.exercises?.is_unilateral ?? false,
+      supersetGroup: row.superset_group,
     });
     bySession.set(row.plan_session_id, lista);
   }

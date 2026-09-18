@@ -1,4 +1,4 @@
-import { formatLoad, type SinMaximo } from '@bh/domain';
+import { formatLoad, type MaximoEstimado, type SinMaximo } from '@bh/domain';
 import { Percent } from 'lucide-react';
 import { bloqueoDelPorcentaje, useCargaDelPorcentaje } from '../lib/maximo.ts';
 import type { ActiveSessionItem } from '../lib/plan.ts';
@@ -18,6 +18,21 @@ const QUE_FALTA: Record<SinMaximo, string> = {
   'sin-series':
     'Todavía no hay de dónde estimar tu máximo acá. Anotá la carga y cuántas te quedaron en reserva (3 o menos) y la próxima vez te calcula los kilos.',
 };
+
+/**
+ * De dónde sale el número. La barra se nombra: el cálculo supone la de esta
+ * estación, y quien use otra (la de 15, la corta) tiene que saber que cambia.
+ */
+function detalleDelMaximo(
+  maximo: MaximoEstimado,
+  unidad: string,
+  barra: number | undefined,
+): string {
+  const serie = maximo.desde;
+  const conBarra = barra === undefined ? '' : `, contando la barra de ${barra} kg`;
+  const carga = serie.load.value !== null ? formatLoad(serie.load) : '—';
+  return `Tu máximo estimado ronda los ${Math.round(maximo.total)} ${unidad.endsWith('lb') ? 'lb' : 'kg'} en total${conBarra}, de tu serie de ${carga} × ${serie.reps} con ${serie.rir} en reserva.`;
+}
 
 export function CargaPorMaximo({ item }: { item: ActiveSessionItem }) {
   const consulta = useCargaDelPorcentaje({
@@ -42,8 +57,7 @@ export function CargaPorMaximo({ item }: { item: ActiveSessionItem }) {
     const a = formatLoad({ value: consulta.data.min, unit: unidad });
     const b = formatLoad({ value: consulta.data.max, unit: unidad });
     cuerpo = a === b ? `Cargá ${a}.` : `Cargá entre ${a} y ${b}.`;
-    const serie = maximo.desde;
-    detalle = `Tu máximo estimado ronda los ${Math.round(maximo.total)} ${unidad.endsWith('lb') ? 'lb' : 'kg'} en total, de tu serie de ${serie.load.value !== null ? formatLoad(serie.load) : '—'} × ${serie.reps} con ${serie.rir} en reserva.`;
+    detalle = detalleDelMaximo(maximo, unidad, item.equipmentLoadSpec?.baseWeightKg);
   }
   if (!cuerpo) return null;
 

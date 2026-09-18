@@ -825,6 +825,8 @@ export interface ActiveSessionItem {
   readonly isUnilateral: boolean;
   /** La carga como porcentaje del máximo del socio, si el plan la escribió así. */
   readonly pct1rm: { readonly min: number; readonly max: number } | null;
+  /** Vuelta de superserie a la que pertenece, o `null`. Ver `lib/superserie.ts`. */
+  readonly supersetGroup: number | null;
 }
 
 export interface ActiveSession {
@@ -892,7 +894,7 @@ export function useActivePlan() {
       const { data: items, error: itemsError } = await client
         .from('plan_session_items')
         .select(
-          'id, exercise_id, equipment_id, order_index, target_sets, target_reps_min, target_reps_max, target_rir, target_load, target_load_unit, rest_seconds, rationale, is_placeholder, target_duration_seconds, target_intensity_zone, target_interval_rest_seconds, target_to_failure, target_pct_1rm_min, target_pct_1rm_max, exercises(name, pattern, primary_muscles, is_unilateral), equipment(location_note, load_unit, load_min, load_max, load_increment, stack_kg, base_weight_kg)',
+          'id, exercise_id, equipment_id, order_index, target_sets, target_reps_min, target_reps_max, target_rir, target_load, target_load_unit, rest_seconds, rationale, is_placeholder, target_duration_seconds, target_intensity_zone, target_interval_rest_seconds, target_to_failure, target_pct_1rm_min, target_pct_1rm_max, superset_group, exercises(name, pattern, primary_muscles, is_unilateral), equipment(location_note, load_unit, load_min, load_max, load_increment, stack_kg, base_weight_kg)',
         )
         .eq('plan_session_id', session.id)
         .order('order_index');
@@ -935,6 +937,7 @@ interface PlanSessionItemRow {
   readonly target_to_failure: boolean;
   readonly target_pct_1rm_min: number | null;
   readonly target_pct_1rm_max: number | null;
+  readonly superset_group: number | null;
   readonly exercises: {
     name: string;
     pattern: MovementPattern;
@@ -999,6 +1002,7 @@ function toActiveSessionItem(raw: unknown): ActiveSessionItem {
       row.target_pct_1rm_min !== null && row.target_pct_1rm_max !== null
         ? { min: row.target_pct_1rm_min, max: row.target_pct_1rm_max }
         : null,
+    supersetGroup: row.superset_group,
   };
 }
 

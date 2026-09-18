@@ -33,9 +33,14 @@ dos cosas más: poder decir "hoy descanso" sin perder la racha, y elegir por qu�
 
 **Lo que falta, y es del gimnasio, no del código:**
 
-- **El peso de las barras.** Las 17 estaciones de discos tienen `base_weight_kg` vacío. Sin eso
-  el %1RM no se pasa a kilos (el 80 % de los discos no es el 80 % del levantamiento) y la app lo
-  dice en vez de calcular. Es el mismo relevamiento que `load_min`/`load_max`.
+- **El peso de las barras que faltan.** Ya cargadas (18/09): las tres barras olímpicas como
+  estaciones propias (20 y 15 kg por norma IWF, la corta de 10 según el gimnasio) y los dos racks
+  y dos bancos con rack a 20 kg. Faltan la barra hexagonal (no tiene norma: de 11 a 40 kg según
+  fabricante, hay que pesarla), la Z, la guiada del Smith y del Multipower, y los carros de las
+  máquinas de discos. Sin eso el %1RM de esas estaciones sigue diciendo que falta el dato.
+- **Los racks de mancuernas en `none`.** "Rack de mancuernas hexagonales" y "Rack en A" son
+  estaciones de ejercicios con mancuernas y se registran sin carga. Falta saber si las
+  mancuernas están en kg o en lb para pasarlos a su unidad.
 - Verificar a mano una muestra de DOIs, como antes.
 
 El plan del socio (`3b2620da…`) quedó cargado con su rutina tal cual: 5 días, 20 ítems.

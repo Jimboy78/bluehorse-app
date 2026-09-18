@@ -69,6 +69,12 @@ interface RestTimerProps {
   readonly cardio?: boolean;
   /** Descanso prescripto por el motor, en segundos. */
   readonly prescribedSeconds: number;
+  /**
+   * En una superserie, el ejercicio que sigue sin pausa. Con descanso 0 no hay
+   * cuenta regresiva que termine sola: la pantalla queda para anotar la serie
+   * y el botón dice a dónde se va.
+   */
+  readonly siguiente?: string | null;
   /** Repeticiones que pedía el plan. Es el valor por defecto: el caso común. */
   readonly repsTarget: number;
   /** RIR prescripto por el ruleset para esta serie, si lo hay. */
@@ -84,6 +90,7 @@ interface RestTimerProps {
 export function RestTimer({
   cardio = false,
   prescribedSeconds,
+  siguiente = null,
   repsTarget,
   targetRir,
   targetLoad,
@@ -148,13 +155,20 @@ export function RestTimer({
     };
   }, []);
 
+  // Sin descanso (el primero de una superserie) la cuenta llega a cero apenas
+  // arranca, y terminar solo cerraba la pantalla antes de poder anotar
+  // repeticiones y reserva: la serie quedaba con el objetivo del plan y sin
+  // RIR, que es justo lo que necesita el máximo estimado. El cardio sí sigue
+  // de largo: sus minutos se anotan en la fila, no acá.
+  const sinPausa = prescribedSeconds === 0 && !cardio;
+
   useEffect(() => {
-    if (remaining === 0 && !finishedRef.current) {
+    if (remaining === 0 && !finishedRef.current && !sinPausa) {
       finishedRef.current = true;
       haptic(hapticPattern.timerFinished);
       onFinish(prescribedSeconds, actualRef.current);
     }
-  }, [remaining, prescribedSeconds, onFinish]);
+  }, [remaining, prescribedSeconds, onFinish, sinPausa]);
 
   const elapsed = prescribedSeconds - remaining;
   const progress = prescribedSeconds === 0 ? 1 : elapsed / prescribedSeconds;
@@ -163,7 +177,7 @@ export function RestTimer({
 
   return (
     <div className="flex flex-col items-center gap-6">
-      <RestDial remaining={remaining} progress={progress} phase={phase} />
+      {!sinPausa && <RestDial remaining={remaining} progress={progress} phase={phase} />}
 
       {!cardio && (
         <SetOutcome
@@ -192,10 +206,10 @@ export function RestTimer({
             onFinish(elapsed, actualRef.current);
           }}
         >
-          {isDone ? 'Seguir' : 'Estoy listo'}
+          {textoDelBoton(isDone, siguiente)}
         </Button>
 
-        {!isDone && (
+        {!isDone && !sinPausa && (
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -208,6 +222,11 @@ export function RestTimer({
       </div>
     </div>
   );
+}
+
+function textoDelBoton(isDone: boolean, siguiente: string | null): string {
+  if (siguiente) return `Seguir con ${siguiente}`;
+  return isDone ? 'Seguir' : 'Estoy listo';
 }
 
 /**

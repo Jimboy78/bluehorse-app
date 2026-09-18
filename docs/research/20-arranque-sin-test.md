@@ -142,9 +142,11 @@ máximo de antes de un parate le pondría a alguien una carga que hoy no mueve.
 **Lo que NO se hace, a propósito:**
 
 - **Estaciones de discos sin el peso de la barra.** El porcentaje es del levantamiento, no de los
-  discos: con una barra de 20 kg, el 80 % de "60 de discos" no es el 80 % de 80. Las 17 estaciones
-  de discos del catálogo real tienen `base_weight_kg` vacío, así que hoy la app dice que falta ese
-  dato en vez de calcular. Es el mismo relevamiento pendiente de `load_min`/`load_max`.
+  discos: con una barra de 20 kg, el 80 % de "60 de discos" no es el 80 % de 80. Las barras
+  olímpicas tienen peso por norma (IWF: 20 kg la de hombre, 15 kg la de mujer) y están cargadas;
+  la hexagonal no tiene norma (de 11 a 40 kg según fabricante) y, como la guiada del Smith y los
+  carros de las máquinas, sigue vacía hasta pesarla. En esas la app dice que falta el dato en vez
+  de calcular.
 - **Pin.** No existe medio pin (CLAUDE.md): un porcentaje no tiene escala ahí.
 - **Series sin RIR.** Sin saber cuán lejos quedó del fallo, las repeticiones no dicen nada del
   máximo.

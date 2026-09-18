@@ -175,13 +175,15 @@
       "name": "Banco de press inclinado con rack",
       "category": "rack",
       "load_unit": "plates_kg",
-      "quantity": 1
+      "quantity": 1,
+      "base_weight_kg": 20
     },
     {
       "name": "Banco de press plano con rack",
       "category": "rack",
       "load_unit": "plates_kg",
-      "quantity": 1
+      "quantity": 1,
+      "base_weight_kg": 20
     },
     {
       "name": "Máquina Smith",
@@ -206,14 +208,16 @@
       "name": "Rack de sentadilla libre",
       "category": "rack",
       "load_unit": "plates_kg",
-      "quantity": 1
+      "quantity": 1,
+      "base_weight_kg": 20
     },
     {
       "name": "Rack de sentadilla para armar",
       "category": "rack",
       "load_unit": "plates_kg",
       "quantity": 1,
-      "location_note": "zona funcional, fondo del gimnasio"
+      "location_note": "zona funcional, fondo del gimnasio",
+      "base_weight_kg": 20
     },
     {
       "name": "Rack en A de mancuernas livianas",
@@ -350,6 +354,30 @@
       "load_unit": "plates_kg",
       "quantity": 1,
       "setup_notes": "cantidad sin confirmar"
+    },
+    {
+      "name": "Barra olímpica 20 kg",
+      "category": "free_weight",
+      "load_unit": "plates_kg",
+      "base_weight_kg": 20,
+      "quantity": 1,
+      "setup_notes": "Barra olímpica de hombre: 20 kg, 2,20 m, agarre de 28 mm (norma IWF). Cantidad sin confirmar. La carga que se anota es la de los discos; la barra la suma la app."
+    },
+    {
+      "name": "Barra olímpica 15 kg",
+      "category": "free_weight",
+      "load_unit": "plates_kg",
+      "base_weight_kg": 15,
+      "quantity": 1,
+      "setup_notes": "Barra olímpica de mujer: 15 kg, 2,01 m, agarre de 25 mm (norma IWF). Cantidad sin confirmar. La carga que se anota es la de los discos; la barra la suma la app."
+    },
+    {
+      "name": "Barra olímpica corta 10 kg",
+      "category": "free_weight",
+      "load_unit": "plates_kg",
+      "base_weight_kg": 10,
+      "quantity": 1,
+      "setup_notes": "Barra corta de técnica: 10 kg según el gimnasio (no tiene norma). Mangas cortas: para cargas livianas. Cantidad sin confirmar. La carga que se anota es la de los discos; la barra la suma la app."
     },
     {
       "name": "Rack de discos olímpicos (árbol)",
@@ -547,7 +575,8 @@
       "cues": "La barra roza la pierna todo el recorrido. Empujás el piso, no tirás con la espalda.",
       "equipment": [
         "Multifunción (búlgaras/peso muerto/remo unilateral)",
-        "Porta-barras (Z, hexagonal/trap, recta)"
+        "Barra olímpica 20 kg",
+        "Barra olímpica 15 kg"
       ]
     },
     {
@@ -650,11 +679,7 @@
       "modality": "reps_weight",
       "skillLevel": "novice",
       "cues": "Los codos a unos 45 grados del cuerpo, no abiertos del todo. Bajás hasta la altura del pecho.",
-      "equipment": [
-        "Banco de press plano con rack",
-        "Mancuernas sueltas (set)",
-        "Rack de mancuernas hexagonales"
-      ]
+      "equipment": ["Mancuernas sueltas (set)", "Rack de mancuernas hexagonales"]
     },
     {
       "name": "Press de banco",
@@ -678,7 +703,19 @@
       "modality": "reps_weight",
       "skillLevel": "novice",
       "cues": "Banco a 30-45 grados. Más inclinado que eso y trabaja el hombro en vez del pecho.",
-      "equipment": ["Banco de press inclinado con rack", "Mancuernas sueltas (set)"]
+      "equipment": ["Mancuernas sueltas (set)"]
+    },
+    {
+      "name": "Press inclinado con barra",
+      "pattern": "horizontal_push",
+      "primaryMuscles": ["chest", "front_delts"],
+      "secondaryMuscles": ["triceps"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_weight",
+      "skillLevel": "intermediate",
+      "cues": "Omóplatos juntos y apoyados. La barra baja a la parte alta del pecho, justo debajo de las clavículas.",
+      "equipment": ["Banco de press inclinado con rack"]
     },
     {
       "name": "Flexiones de brazos",
@@ -717,7 +754,6 @@
       "equipment": [
         "Mancuernas sueltas (set)",
         "Rack de mancuernas hexagonales",
-        "Banco de press plano con rack",
         "Multifunción (búlgaras/peso muerto/remo unilateral)"
       ]
     },
@@ -779,7 +815,13 @@
       "modality": "reps_weight",
       "skillLevel": "intermediate",
       "cues": "La barra sube por delante de la cara, nunca por detrás de la nuca. Glúteo y abdomen firmes.",
-      "equipment": ["Máquina Smith", "Multipower", "Porta-barras (Z, hexagonal/trap, recta)"]
+      "equipment": [
+        "Máquina Smith",
+        "Multipower",
+        "Barra olímpica 20 kg",
+        "Barra olímpica 15 kg",
+        "Barra olímpica corta 10 kg"
+      ]
     },
     {
       "name": "Dorsalera al pecho",
@@ -1200,7 +1242,7 @@
       "modality": "reps_weight",
       "skillLevel": "intermediate",
       "cues": "Torso paralelo al piso y la barra vuelve al suelo en cada repetición.",
-      "equipment": ["Porta-barras (Z, hexagonal/trap, recta)"]
+      "equipment": ["Barra olímpica 20 kg", "Barra olímpica 15 kg", "Barra olímpica corta 10 kg"]
     },
     {
       "name": "Crunch en polea",
