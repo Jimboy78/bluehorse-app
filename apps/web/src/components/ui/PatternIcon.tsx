@@ -8,6 +8,7 @@ import {
   Footprints,
   HeartPulse,
   type LucideIcon,
+  PersonStanding,
   Shield,
   Target,
   Weight,
@@ -43,6 +44,7 @@ const PATTERN_ICONS: Record<MovementPattern, LucideIcon> = {
   core: Shield,
   isolation: Target,
   cardio: HeartPulse,
+  mobility: PersonStanding,
 };
 
 export const PATTERN_LABELS: Record<MovementPattern, string> = {
@@ -57,6 +59,7 @@ export const PATTERN_LABELS: Record<MovementPattern, string> = {
   core: 'Zona media',
   isolation: 'Aislamiento',
   cardio: 'Cardio',
+  mobility: 'Movilidad',
 };
 
 export const MUSCLE_LABELS: Record<MuscleGroup, string> = {

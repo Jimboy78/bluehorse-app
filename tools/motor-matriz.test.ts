@@ -1377,6 +1377,20 @@ describe('el ajuste por día de partido', () => {
     expect(gym.exercises.filter((e) => e.isExplosive).length).toBeGreaterThan(3);
   });
 
+  it('el motor nunca prescribe movilidad: existe solo para los planes a mano', () => {
+    const movilidad = new Set(
+      gym.exercises.filter((e) => e.pattern === 'mobility').map((e) => e.id),
+    );
+    // Verde y vacío no sirve: tiene que haber movilidad en el catálogo real.
+    expect(movilidad.size).toBeGreaterThan(0);
+    const elegidas = SESIONES.flatMap((s) =>
+      s.items
+        .filter((i) => movilidad.has(i.exerciseId))
+        .map((i) => `${s.perfil.nombre} / ${s.label} / ${i.exerciseId}`),
+    );
+    expect(elegidas).toEqual([]);
+  });
+
   it('recorta la pierna al menos tanto como el tren superior', () => {
     // La asimetría es el resultado principal del documento: el daño se
     // concentra abajo. Si algún estado recortara más arriba que abajo, el

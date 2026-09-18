@@ -78,6 +78,14 @@ export const MOVEMENT_PATTERNS = [
   'core',
   'isolation',
   'cardio',
+  /**
+   * Movilidad: se hace por minutos, sin carga ni zona. Ningún template del
+   * ruleset la pide, así que el motor no la elige nunca; existe para que un
+   * plan armado a mano pueda tener "15 min de movilidad de cadera" sin
+   * disfrazarla de cardio (que la haría candidata a un bloque en zona 2) ni de
+   * aislamiento (que la haría candidata a un ejercicio de gemelos).
+   */
+  'mobility',
 ] as const;
 export type MovementPattern = (typeof MOVEMENT_PATTERNS)[number];
 

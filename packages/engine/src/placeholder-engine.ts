@@ -1597,6 +1597,12 @@ function chooseComplement(input: {
       e.pattern !== pattern &&
       !used.has(e.id) &&
       !(avoidExplosive && e.isExplosive) &&
+      // El complemento hereda la prescripción del slot: series y repeticiones.
+      // Cardio y movilidad declaran músculos (la escaladora, glúteos) y por
+      // solapamiento le ganaban el lugar del peso muerto a la patada de glúteo.
+      !porTiempo(e) &&
+      e.pattern !== 'cardio' &&
+      e.pattern !== 'mobility' &&
       e.primaryMuscles.some((m) => nucleo.has(m)),
   );
   if (candidatos.length === 0) return undefined;
@@ -2010,6 +2016,7 @@ const PATTERN_LABELS: Readonly<Record<MovementPattern, string>> = {
   core: 'zona media',
   isolation: 'aislamiento',
   cardio: 'cardio',
+  mobility: 'movilidad',
 };
 
 function patternLabel(pattern: MovementPattern): string {

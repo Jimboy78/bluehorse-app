@@ -717,6 +717,7 @@ const PATTERN_LABELS: Record<MovementPattern, string> = {
   core: 'Core',
   isolation: 'Aislamiento',
   cardio: 'Cardio',
+  mobility: 'Movilidad',
 };
 
 const MODALITY_LABELS: Record<Modality, string> = {

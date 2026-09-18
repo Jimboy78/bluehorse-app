@@ -1612,6 +1612,62 @@ describe('sustitución por molestia', () => {
     expect(elegidos.length).toBe(sano.sessions.flatMap((s) => s.items).length);
   });
 
+  /**
+   * El complemento se elige por músculo, y el cardio y la movilidad también
+   * declaran músculos. En el catálogo real la escaladora lista glúteos y la
+   * movilidad de cadera también: por solapamiento podían quedarse con el lugar
+   * del peso muerto de alguien con lumbalgia, y salir prescriptas en series y
+   * repeticiones. "4 × 8 de escaladora" no es un ejercicio.
+   */
+  it('no reemplaza una molestia por cardio ni por movilidad', () => {
+    const base = gimnasioConRareza();
+    const gym: GymSnapshot = {
+      ...base,
+      exercises: [
+        ...base.exercises,
+        // Tocan los dos músculos del núcleo de la bisagra: le ganan a la patada
+        // de glúteo por solapamiento si nadie los filtra.
+        exercise('ex-escaladora', 'Escaladora', {
+          pattern: 'cardio',
+          modality: 'time',
+          primaryMuscles: ['glutes', 'hamstrings'],
+          equipmentIds: ['eq-mancuernas'],
+        }),
+        exercise('ex-movilidad', 'Movilidad de cadera', {
+          pattern: 'mobility',
+          modality: 'time',
+          primaryMuscles: ['glutes', 'hamstrings'],
+          equipmentIds: ['eq-mancuernas'],
+        }),
+      ],
+    };
+    const plan = engine.generatePlan({
+      context,
+      user: buildUser({
+        constraints: [
+          {
+            type: 'injury',
+            bodyRegion: 'lower_back',
+            exerciseId: null,
+            equipmentId: null,
+            severity: 5,
+          },
+        ],
+      }),
+      gym,
+      ruleset: V1_RESEARCH,
+    });
+
+    const elegidos = plan.sessions.flatMap((s) => s.items.map((i) => i.exerciseId));
+    expect(elegidos.length, 'el plan salió vacío').toBeGreaterThan(0);
+    expect(elegidos, 'entró cardio como reemplazo').not.toContain('ex-escaladora');
+    expect(elegidos, 'entró movilidad como reemplazo').not.toContain('ex-movilidad');
+
+    // Y el día no se quedó corto: el lugar lo ocupó algo que sí es de sala.
+    const sano = engine.generatePlan({ context, user: buildUser(), gym, ruleset: V1_RESEARCH });
+    expect(elegidos.length).toBe(sano.sessions.flatMap((s) => s.items).length);
+  });
+
   it('el día no queda más corto que el de alguien sano', () => {
     const gym = gimnasioConRareza();
     const sano = engine.generatePlan({ context, user: buildUser(), gym, ruleset: V1_RESEARCH });

@@ -1231,6 +1231,19 @@
         "Rig de pared (dominadas + bolsa de boxeo + soga + TRX)",
         "Cross Over funcional doble (Dual Cable Cross)"
       ]
+    },
+    {
+      "name": "Movilidad de cadera y tobillo",
+      "pattern": "mobility",
+      "primaryMuscles": ["glutes"],
+      "secondaryMuscles": ["calves", "hamstrings"],
+      "isCompound": false,
+      "isUnilateral": false,
+      "isExplosive": false,
+      "modality": "time",
+      "skillLevel": "beginner",
+      "cues": "Sin rebote y sin dolor: llevá cada posición hasta donde llegás con control y sostenela. Cadera (90/90, estocada baja) y tobillo (rodilla a la pared).",
+      "equipment": ["Colchonetas plegables"]
     }
   ]
 }

@@ -174,6 +174,16 @@ function rangoDePorcentaje(n: Numeros): { min: number; max: number } | null {
   return { min, max: parseNum(n.pctMax) ?? min };
 }
 
+function unidadEscribible(estacion: Equipment | null): LoadUnit | null {
+  if (!estacion) return null;
+  const { unit } = estacion.load;
+  return unit === 'bodyweight' || unit === 'none' ? null : unit;
+}
+
+function vaPorMinutos(ejercicio: Exercise | null): boolean {
+  return ejercicio?.pattern === 'cardio' || ejercicio?.pattern === 'mobility';
+}
+
 export function ManualItemForm({
   exercises,
   equipment,
@@ -254,13 +264,17 @@ export function ManualItemForm({
    * que no llevan carga (colchoneta, TRX). Ahí el campo no se muestra — un
    * input vacío que no se puede completar es peor que no tenerlo.
    */
-  const unidad =
-    estacion && estacion.load.unit !== 'bodyweight' && estacion.load.unit !== 'none'
-      ? estacion.load.unit
-      : null;
+  const unidad = unidadEscribible(estacion);
 
-  const cardio = elegido?.pattern === 'cardio';
-  const item = armarItem(exerciseId, equipmentId, n, { cardio, alFallo, porcentaje }, unidad);
+  // Cardio y movilidad van por minutos; solo el cardio tiene zona.
+  const porMinutos = vaPorMinutos(elegido);
+  const item = armarItem(
+    exerciseId,
+    equipmentId,
+    n,
+    { cardio: porMinutos, alFallo, porcentaje },
+    unidad,
+  );
 
   function agregar() {
     if (!item) return;
@@ -340,8 +354,8 @@ export function ManualItemForm({
         </p>
       )}
 
-      {cardio ? (
-        <CamposCardio baseId={baseId} n={n} setN={setN} />
+      {porMinutos ? (
+        <CamposCardio baseId={baseId} n={n} setN={setN} conZona={elegido?.pattern === 'cardio'} />
       ) : (
         <CamposSala
           baseId={baseId}
@@ -515,7 +529,17 @@ function CamposSala({
   );
 }
 
-function CamposCardio({ baseId, n, setN }: { baseId: string; n: Numeros; setN: SetN }) {
+function CamposCardio({
+  baseId,
+  n,
+  setN,
+  conZona,
+}: {
+  baseId: string;
+  n: Numeros;
+  setN: SetN;
+  conZona: boolean;
+}) {
   const zonas = activeRuleset.cardio?.zones ?? [];
   const zona = zonas.find((z) => String(z.zone) === n.zone) ?? null;
   const vueltas = parseNum(n.sets) ?? 1;
@@ -545,21 +569,23 @@ function CamposCardio({ baseId, n, setN }: { baseId: string; n: Numeros; setN: S
           decimal
         />
       )}
-      <Field label="Zona" htmlFor={`${baseId}-zona`} hint={zona?.feels ?? 'Opcional.'}>
-        <select
-          id={`${baseId}-zona`}
-          value={n.zone}
-          onChange={(e) => setN({ ...n, zone: e.target.value })}
-          className={fieldClass}
-        >
-          <option value="">Sin zona</option>
-          {zonas.map((z) => (
-            <option key={z.zone} value={String(z.zone)}>
-              Zona {z.zone} · {z.label}
-            </option>
-          ))}
-        </select>
-      </Field>
+      {conZona && (
+        <Field label="Zona" htmlFor={`${baseId}-zona`} hint={zona?.feels ?? 'Opcional.'}>
+          <select
+            id={`${baseId}-zona`}
+            value={n.zone}
+            onChange={(e) => setN({ ...n, zone: e.target.value })}
+            className={fieldClass}
+          >
+            <option value="">Sin zona</option>
+            {zonas.map((z) => (
+              <option key={z.zone} value={String(z.zone)}>
+                Zona {z.zone} · {z.label}
+              </option>
+            ))}
+          </select>
+        </Field>
+      )}
     </>
   );
 }
