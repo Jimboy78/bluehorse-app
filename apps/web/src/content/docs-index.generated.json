@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-18T19:55:16.904Z",
+ "generatedAt": "2026-09-18T21:17:27.975Z",
  "docs": [
   {
    "id": "metodo",
@@ -312,6 +312,22 @@
    "resumen": "Fecha: 18/09/2026. Pedido del dueño: el motor tiene que analizar un contexto muy amplio (edad, deporte, lesiones, vuelta después de una pausa, gente que sabe mucho y gente que no sabe nada) y usar todo lo que hay en el gimnasio. Buscar l…",
    "archivo": "38-como-procesa-el-motor.md",
    "bloques": 48
+  },
+  {
+   "id": "39-equilibrio-en-mayores",
+   "orden": 39,
+   "titulo": "Equilibrio para mayores: qué, cuánto y dónde en la sesión",
+   "resumen": "Fecha: 18/09/2026. Tanda: T1a del plan de variables (docs/PLAN-VARIABLES-DEL-SOCIO.md). Viene de: 38-como-procesa-el-motor.md, hueco 1. La edad cambiaba el plan en el 25 % de los casos, y a un socio de 76 le tocaba fuerza sola.",
+   "archivo": "39-equilibrio-en-mayores.md",
+   "bloques": 18
+  },
+  {
+   "id": "40-fragilidad",
+   "orden": 40,
+   "titulo": "Fragilidad: qué cambia en el plan y cómo se detecta sin preguntar",
+   "resumen": "Fecha: 18/09/2026. Tanda: T1b del plan de variables. En el checklist el dueño marcó \"fragilidad\" como motor: se deduce, no se le pregunta al socio.",
+   "archivo": "40-fragilidad.md",
+   "bloques": 16
   },
   {
    "id": "auditoria",

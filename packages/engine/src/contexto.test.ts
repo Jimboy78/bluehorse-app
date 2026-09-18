@@ -151,6 +151,42 @@ describe('resolverContexto', () => {
     ).toEqual(['m1', 'm2', 'v', 'n']);
   });
 
+  it('el equilibrio entra justo desde la edad del ruleset, con cualquier objetivo', () => {
+    const desde = V1_RESEARCH.balance?.fromAge ?? 0;
+    expect(desde).toBeGreaterThan(0);
+    expect(resolverContexto(input({ edad: desde - 1 })).equilibrio).toBeNull();
+    for (const goal of ['strength', 'cardio', 'power'] as const) {
+      expect(resolverContexto(input({ edad: desde + 1, goal })).equilibrio).not.toBeNull();
+    }
+    // Sin fecha de nacimiento no se inventa una edad.
+    const sinFecha = input({ edad: desde + 10 });
+    const perfil = { ...sinFecha.user.profile, birthDate: null };
+    expect(
+      resolverContexto({ ...sinFecha, user: { ...sinFecha.user, profile: perfil } }).equilibrio,
+    ).toBeNull();
+  });
+
+  it('con menos sesiones de las que pide el equilibrio, avisa cómo completarlas', () => {
+    const cfg = V1_RESEARCH.balance;
+    if (!cfg) throw new Error('sin bloque de equilibrio');
+    const equilibrio = ex('talon-punta', { pattern: 'balance', primaryMuscles: ['calves'] });
+    const conEquilibrio = { ...gym, exercises: [...gym.exercises, equilibrio] };
+    const engine = createPlaceholderEngine();
+    const plan = (sesiones: number) => {
+      const i = input({ edad: cfg.fromAge + 5 });
+      const goals = [
+        { ...i.user.goals[0], sessionsPerWeekTarget: sesiones },
+      ] as typeof i.user.goals;
+      return engine.generatePlan({ ...i, gym: conEquilibrio, user: { ...i.user, goals } });
+    };
+    const aviso = (w: readonly string[]) => w.some((t) => t.includes('mesada firme'));
+
+    const pocas = plan(cfg.minSessionsPerWeek - 1);
+    expect(pocas.sessions[0]?.items.at(-1)?.exerciseId).toBe('talon-punta');
+    expect(aviso(pocas.warnings)).toBe(true);
+    expect(aviso(plan(cfg.minSessionsPerWeek).warnings)).toBe(false);
+  });
+
   it('con una molestia declarada no hay bloque explosivo, aunque el deporte lo pida', () => {
     const leve: UserConstraint = { ...lesionRodilla, type: 'pain', severity: 1 };
     expect(resolverContexto(input({ sport: 'futbol', edad: 25 })).explosivos).not.toBeNull();

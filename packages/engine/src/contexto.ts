@@ -56,6 +56,7 @@ export const ORDEN_DE_AVISOS = [
   'tiempo',
   'frecuencia',
   'volumen',
+  'equilibrio',
   'plantilla',
   'deporte',
   'edad',
@@ -95,6 +96,8 @@ export interface ContextoDelSocio {
   readonly avoidRules: readonly PainRule[];
   /** El bloque explosivo si este socio lo recibe. */
   readonly explosivos: ExplosiveConfig | null;
+  /** El bloque de equilibrio si este socio lo recibe. */
+  readonly equilibrio: BalanceConfig | null;
   readonly exclusiones: readonly Exclusion[];
   /** Los avisos del contexto, antes de armar las sesiones. */
   readonly avisos: readonly Aviso[];
@@ -168,6 +171,8 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
     hasPain: user.constraints.some((c) => c.type === 'pain' || c.type === 'injury'),
   });
 
+  const equilibrio = balanceBlock(ruleset, user.profile, context.now);
+
   return {
     goal,
     sport,
@@ -178,6 +183,7 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
     painRules,
     avoidRules,
     explosivos,
+    equilibrio,
     exclusiones,
     avisos,
   };
@@ -199,6 +205,24 @@ export function ordenarAvisos(avisos: readonly Aviso[]): string[] {
 /** Si algún módulo saca este ejercicio. Las exclusiones se suman. */
 export function excluido(ctx: Pick<ContextoDelSocio, 'exclusiones'>, exercise: Exercise): boolean {
   return ctx.exclusiones.some((e) => e.excluye(exercise));
+}
+
+// ------------------------------------------------------------------ equilibrio
+
+export type BalanceConfig = NonNullable<Ruleset['balance']>;
+
+/**
+ * El bloque de equilibrio si la persona llegó a la edad del ruleset. Con
+ * cualquier objetivo: la guía mundial de caídas lo recomienda a todo mayor que
+ * vive en la comunidad, entrene para lo que entrene (`docs/research/39`).
+ *
+ * Sin fecha de nacimiento no se agrega: no se inventa una edad.
+ */
+function balanceBlock(ruleset: Ruleset, profile: Profile, now: string): BalanceConfig | null {
+  const cfg = ruleset.balance;
+  if (!cfg || !profile.birthDate) return null;
+  const age = ageAt(profile.birthDate, now);
+  return age !== null && age >= cfg.fromAge ? cfg : null;
 }
 
 // ------------------------------------------------------------------ explosivos

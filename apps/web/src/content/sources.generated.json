@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-18",
-  "resolved": 83,
+  "resolved": 93,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -347,10 +347,12 @@
       "journal": "Cochrane Database of Systematic Reviews",
       "type": "journal-article",
       "temas": [
-        "Cómo procesa el motor"
+        "Cómo procesa el motor",
+        "Equilibrio en mayores"
       ],
       "documentos": [
-        "38-como-procesa-el-motor.md"
+        "38-como-procesa-el-motor.md",
+        "39-equilibrio-en-mayores.md"
       ]
     },
     {
@@ -872,6 +874,142 @@
       ]
     },
     {
+      "doi": "10.1136/bjsports-2016-096547",
+      "title": "Exercise to prevent falls in older adults: an updated systematic review and meta-analysis",
+      "authors": [
+        "Sherrington",
+        "Michaleff",
+        "Fairhall"
+      ],
+      "moreAuthors": 7,
+      "year": 2016,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Equilibrio en mayores"
+      ],
+      "documentos": [
+        "39-equilibrio-en-mayores.md"
+      ]
+    },
+    {
+      "doi": "10.1093/ageing/afac205",
+      "title": "World guidelines for falls prevention and management for older adults: a global initiative",
+      "authors": [
+        "Montero-Odasso",
+        "van der Velde",
+        "Martin"
+      ],
+      "moreAuthors": 192,
+      "year": 2022,
+      "journal": "Age and Ageing",
+      "type": "journal-article",
+      "temas": [
+        "Equilibrio en mayores",
+        "Fragilidad"
+      ],
+      "documentos": [
+        "39-equilibrio-en-mayores.md",
+        "40-fragilidad.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s40279-015-0375-y",
+      "title": "Effects of Balance Training on Balance Performance in Healthy Older Adults: A Systematic Review and Meta-analysis",
+      "authors": [
+        "Lesinski",
+        "Hortobágyi",
+        "Muehlbauer"
+      ],
+      "moreAuthors": 2,
+      "year": 2015,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Equilibrio en mayores"
+      ],
+      "documentos": [
+        "39-equilibrio-en-mayores.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bmj.315.7115.1065",
+      "title": "Randomised controlled trial of a general practice programme of home based exercise to prevent falls in elderly women",
+      "authors": [
+        "Campbell",
+        "Robertson",
+        "Gardner"
+      ],
+      "moreAuthors": 3,
+      "year": 1997,
+      "journal": "BMJ",
+      "type": "journal-article",
+      "temas": [
+        "Equilibrio en mayores"
+      ],
+      "documentos": [
+        "39-equilibrio-en-mayores.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s40279-016-0515-z",
+      "title": "Specificity of Balance Training in Healthy Individuals: A Systematic Review and Meta-Analysis",
+      "authors": [
+        "Kümmel",
+        "Kramer",
+        "Giboin"
+      ],
+      "moreAuthors": 1,
+      "year": 2016,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Equilibrio en mayores"
+      ],
+      "documentos": [
+        "39-equilibrio-en-mayores.md"
+      ]
+    },
+    {
+      "doi": "10.1097/PHM.0000000000002966",
+      "title": "Comparative Effectiveness of Unstable Versus Stable Resistance Training on Lower Limb Strength, Mobility, and Fear of Falling in Older Adults",
+      "authors": [
+        "Doan",
+        "Chang"
+      ],
+      "moreAuthors": 0,
+      "year": 2026,
+      "journal": "American Journal of Physical Medicine & Rehabilitation",
+      "type": "journal-article",
+      "temas": [
+        "Equilibrio en mayores"
+      ],
+      "documentos": [
+        "39-equilibrio-en-mayores.md"
+      ]
+    },
+    {
+      "doi": "10.1016/j.tjfa.2026.100187",
+      "title": "Exercise to prevent falls in older adults with physical frailty: A systematic review and meta-analysis",
+      "authors": [
+        "Mehta",
+        "Costa",
+        "Galliano"
+      ],
+      "moreAuthors": 5,
+      "year": 2026,
+      "journal": "The Journal of Frailty & Aging",
+      "type": "journal-article",
+      "temas": [
+        "Equilibrio en mayores",
+        "Fragilidad"
+      ],
+      "documentos": [
+        "39-equilibrio-en-mayores.md",
+        "40-fragilidad.md"
+      ]
+    },
+    {
       "doi": "10.1080/02640414.2024.2391657",
       "title": "Effects of complex training compared to resistance training alone on physical fitness of healthy individuals: A systematic review with meta-analysis",
       "authors": [
@@ -1097,6 +1235,62 @@
       ],
       "documentos": [
         "21-fragilidad.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s12603-021-1665-8",
+      "title": "International Exercise Recommendations in Older Adults (ICFSR): Expert Consensus Guidelines",
+      "authors": [
+        "Izquierdo",
+        "Merchant",
+        "Morley"
+      ],
+      "moreAuthors": 33,
+      "year": 2021,
+      "journal": "The Journal of nutrition, health and aging",
+      "type": "journal-article",
+      "temas": [
+        "Fragilidad"
+      ],
+      "documentos": [
+        "40-fragilidad.md"
+      ]
+    },
+    {
+      "doi": "10.1080/02701367.1999.10608028",
+      "title": "A 30-s Chair-Stand Test as a Measure of Lower Body Strength in Community-Residing Older Adults",
+      "authors": [
+        "Jones",
+        "Rikli",
+        "Beam"
+      ],
+      "moreAuthors": 0,
+      "year": 1999,
+      "journal": "Research Quarterly for Exercise and Sport",
+      "type": "journal-article",
+      "temas": [
+        "Fragilidad"
+      ],
+      "documentos": [
+        "40-fragilidad.md"
+      ]
+    },
+    {
+      "doi": "10.1093/geront/gns071",
+      "title": "Development and Validation of Criterion-Referenced Clinically Relevant Fitness Standards for Maintaining Physical Independence in Later Years",
+      "authors": [
+        "Rikli",
+        "Jones"
+      ],
+      "moreAuthors": 0,
+      "year": 2012,
+      "journal": "The Gerontologist",
+      "type": "journal-article",
+      "temas": [
+        "Fragilidad"
+      ],
+      "documentos": [
+        "40-fragilidad.md"
       ]
     },
     {

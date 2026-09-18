@@ -14,7 +14,7 @@ import type {
   UserGoal,
 } from '@bh/domain';
 import { EXPERIENCE_LEVELS, nextLoad, snapToEquipment } from '@bh/domain';
-import type { Aviso, ExplosiveConfig, Modulo, ResolvedSport } from './contexto.ts';
+import type { Aviso, BalanceConfig, ExplosiveConfig, Modulo, ResolvedSport } from './contexto.ts';
 import {
   activePainRules,
   excluido,
@@ -82,9 +82,13 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
   const placeholder = isPlaceholder(ruleset);
 
   const equipmentById = new Map(gym.equipment.map((e) => [e.id, e]));
-  const usableExercises = gym.exercises.filter(
+  const disponibles = gym.exercises.filter(
     (ex) => !excluido(ctx, ex) && hasUsableEquipment(ex, gym, []),
   );
+  // El equilibrio entra como bloque propio y nunca por un slot: si no, un
+  // aislamiento de glúteos o el complemento de una bisagra bloqueada podían
+  // salir "caminata de costado" con la dosis de fuerza.
+  const usableExercises = disponibles.filter((ex) => ex.pattern !== 'balance');
 
   // Rotar los ejercicios del plan anterior hace que el músculo trabaje en
   // ángulos distintos. Es preferencia, no requisito: si rotar dejaría un patrón
@@ -188,6 +192,33 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
     }
   }
 
+  // Al final, igual que Otago: primero la fuerza, después el equilibrio. Y
+  // después de los pares, para no mover ninguna elección anterior.
+  const equilibrio = ctx.equilibrio;
+  let conEquilibrio = false;
+  if (equilibrio) {
+    const pool = disponibles.filter((ex) => ex.pattern === 'balance');
+    for (const resolved of resolvedTemplateSessions) {
+      resolved.items = addBalanceBlock({
+        items: resolved.items,
+        cfg: equilibrio,
+        pool,
+        equipmentById,
+        usedInPlan,
+        placeholder,
+        rng,
+      });
+      conEquilibrio ||= resolved.items.some((i) => pool.some((ex) => ex.id === i.exerciseId));
+    }
+    if (conEquilibrio && goal.sessionsPerWeekTarget < equilibrio.minSessionsPerWeek) {
+      decir('equilibrio', [
+        equilibrio.fewSessionsNote
+          .replace('{sesiones}', sesiones(goal.sessionsPerWeekTarget))
+          .replace('{minimo}', String(equilibrio.minSessionsPerWeek)),
+      ]);
+    }
+  }
+
   const sessions: SessionBlueprint[] = [];
   for (let i = 0; i < ruleset.planning.sessionsAhead; i += 1) {
     const resolved = resolvedTemplateSessions[i % resolvedTemplateSessions.length];
@@ -274,6 +305,69 @@ function buildItem(input: BuildItemInput): SessionItemBlueprint {
     targetIntervalRestSeconds: cardio?.intervalRestSeconds ?? null,
     supersetGroup: null,
   };
+}
+
+// ------------------------------------------------------------------ equilibrio
+
+/**
+ * Suma al final de la sesión los ejercicios de equilibrio del ruleset.
+ *
+ * Entre sesiones rota: prefiere los que todavía no están en el plan, así una
+ * semana de tres sesiones recorre los seis del catálogo en vez de repetir los
+ * mismos tres. Orden por nombre antes de sortear, para que el resultado no
+ * dependa del orden en que llegó el catálogo.
+ */
+function addBalanceBlock(input: {
+  readonly items: readonly SessionItemBlueprint[];
+  readonly cfg: BalanceConfig;
+  readonly pool: readonly Exercise[];
+  readonly equipmentById: ReadonlyMap<Id, Equipment>;
+  readonly usedInPlan: Set<Id>;
+  readonly placeholder: boolean;
+  readonly rng: () => number;
+}): SessionItemBlueprint[] {
+  const { cfg } = input;
+  const out = [...input.items];
+  const usedHere = new Set(out.map((i) => i.exerciseId));
+  const ordenados = [...input.pool].sort((a, b) => a.name.localeCompare(b.name, 'es'));
+
+  for (let n = 0; n < cfg.exercisesPerSession; n += 1) {
+    const libres = ordenados.filter((e) => !usedHere.has(e.id));
+    const frescos = libres.filter((e) => !input.usedInPlan.has(e.id));
+    const exercise = pickDeterministic(frescos.length > 0 ? frescos : libres, input.rng);
+    if (!exercise) break;
+    usedHere.add(exercise.id);
+    input.usedInPlan.add(exercise.id);
+    out.push({
+      exerciseId: exercise.id,
+      equipmentId: pickEquipment(exercise, input.equipmentById, input.rng)?.id ?? null,
+      orderIndex: out.length,
+      targetSets: cfg.sets,
+      targetRepsMin: cfg.repsMin,
+      targetRepsMax: cfg.repsMax,
+      targetLoad: null,
+      targetRir: null,
+      restSeconds: cfg.restSeconds,
+      rationale: cfg.rationale,
+      isPlaceholder: input.placeholder,
+      targetDurationSeconds: null,
+      targetIntensityZone: null,
+      targetIntervalRestSeconds: null,
+      supersetGroup: null,
+    });
+  }
+  return out;
+}
+
+/**
+ * Lo que no se dosifica como fuerza: ni suma al volumen semanal, que se midió
+ * con series cerca del fallo, ni recibe propuestas de subir carga o
+ * repeticiones. Lo explosivo se regula por la calidad de cada repetición
+ * (`docs/research/22`, `37`); el equilibrio progresa soltando el apoyo, no con
+ * kilos (`39`).
+ */
+function fueraDeLaDosis(exercise: Exercise): boolean {
+  return exercise.isExplosive || exercise.pattern === 'balance';
 }
 
 // ------------------------------------------------------------------ explosivos
@@ -513,7 +607,7 @@ function weeklyVolumeWarnings(
     // fuerza llevadas cerca del fallo (`docs/research/35`), y cinco saltos que
     // se cortan cuando baja la altura no son eso. Contarlos avisaba "glúteos
     // 27, pasás el techo" a un futbolista por los saltos del par.
-    if (!exercise || exercise.isExplosive) continue;
+    if (!exercise || fueraDeLaDosis(exercise)) continue;
     for (const muscle of exercise.primaryMuscles) {
       setsByMuscle.set(muscle, (setsByMuscle.get(muscle) ?? 0) + item.targetSets);
       if (exercise.isCompound) targeted.add(muscle);
@@ -713,7 +807,9 @@ function interferenceWarnings(
     const exercise = exerciseById.get(item.exerciseId);
     if (!exercise) continue;
     if (exercise.pattern === 'cardio') cardio = true;
-    else if (isLowerBody(exercise)) pierna = true;
+    // Caminar talón-punta no es "pierna" en el sentido de la interferencia,
+    // que se midió con fuerza de tren inferior.
+    else if (exercise.pattern !== 'balance' && isLowerBody(exercise)) pierna = true;
   }
 
   return cardio && pierna ? [rule.note] : [];
@@ -805,7 +901,7 @@ function reviewProgress(input: ReviewProgressInput): readonly ProposalBlueprint[
     // velocidad), no por repeticiones en reserva ni por kilos: subirle la carga
     // a un salto porque "le sobraron" lo vuelve más lento, que es lo contrario
     // de lo que busca. `docs/research/22` y `37`.
-    if (!exercise || exercise.isExplosive) continue;
+    if (!exercise || fueraDeLaDosis(exercise)) continue;
 
     const ctx: RuleContext = {
       exerciseId,

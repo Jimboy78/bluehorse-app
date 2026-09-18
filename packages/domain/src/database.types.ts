@@ -1289,6 +1289,7 @@ export type Database = {
         | "isolation"
         | "cardio"
         | "mobility"
+        | "balance"
       muscle_group:
         | "quads"
         | "hamstrings"
@@ -1507,6 +1508,7 @@ export const Constants = {
         "isolation",
         "cardio",
         "mobility",
+        "balance",
       ],
       muscle_group: [
         "quads",

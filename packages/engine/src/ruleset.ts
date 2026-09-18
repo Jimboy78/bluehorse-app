@@ -824,6 +824,31 @@ export const rulesetSchema = z.object({
     })
     .refine((e) => e.repsMin <= e.repsMax, { message: 'repsMin > repsMax' })
     .optional(),
+  /**
+   * Bloque de equilibrio y ejercicio funcional para mayores
+   * (`docs/research/39`). Se agrega al final de cada sesión desde `fromAge`,
+   * con cualquier objetivo: la guía mundial de caídas lo recomienda a todo
+   * mayor que vive en la comunidad, no según para qué entrena.
+   */
+  balance: z
+    .object({
+      fromAge: z.number().int().min(1).max(120),
+      exercisesPerSession: z.number().int().min(1).max(6),
+      sets: z.number().int().min(1).max(6),
+      repsMin: z.number().int().min(1).max(30),
+      repsMax: z.number().int().min(1).max(30),
+      restSeconds: z.number().int().min(0).max(600),
+      /** Sesiones por semana que pide la evidencia; con menos se avisa cómo completarlas. */
+      minSessionsPerWeek: z.number().int().min(1).max(7),
+      /** Se muestra en cada ejercicio del bloque. */
+      rationale: z.string().min(1),
+      /** Con menos sesiones que `minSessionsPerWeek`. Usa {sesiones} ("2 sesiones") y {minimo}. */
+      fewSessionsNote: z.string().min(1),
+      confidence: z.enum(CONFIDENCE_LEVELS),
+      confidenceNote: z.string().min(1).optional(),
+    })
+    .refine((b) => b.repsMin <= b.repsMax, { message: 'repsMin > repsMax' })
+    .optional(),
   safety: safetySchema.optional(),
   modifiers: modifiersSchema.optional(),
   substitution: z.object({

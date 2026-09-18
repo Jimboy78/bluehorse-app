@@ -867,6 +867,13 @@ describe('los números del plan salen del ruleset', () => {
       olderAdults?: { fromAge: number; repsWindow: [number, number]; appliesToGoals: string[] };
     };
     sports?: { seasonPhases?: Record<string, { volumeMultiplier: number }> };
+    balance?: {
+      fromAge: number;
+      sets: number;
+      repsMin: number;
+      repsMax: number;
+      restSeconds: number;
+    };
   };
 
   type Slot = {
@@ -904,14 +911,20 @@ describe('los números del plan salen del ruleset', () => {
 
     const multiplicador = reglas.sports?.seasonPhases?.[p.fase ?? 'none']?.volumeMultiplier ?? 1;
 
-    const firmas = new Set<string>();
-    for (const familia of familias) {
-      for (const slot of Object.values(familia)) {
-        if (typeof slot?.sets !== 'number') continue;
-        for (const firma of firmasDeUnSlot(slot, ventana, multiplicador)) firmas.add(firma);
-      }
-    }
+    const slots = familias
+      .flatMap((familia) => Object.values(familia))
+      .filter((slot) => typeof slot?.sets === 'number');
+    const firmas = new Set(slots.flatMap((slot) => firmasDeUnSlot(slot, ventana, multiplicador)));
+    const equilibrio = firmaDeEquilibrio(p);
+    if (equilibrio) firmas.add(equilibrio);
     return firmas;
+  }
+
+  /** El bloque de equilibrio lleva su propia dosis, desde la edad del ruleset. */
+  function firmaDeEquilibrio(p: Perfil): string | null {
+    const eq = reglas.balance;
+    if (!eq || edadDe(p.nacimiento) < eq.fromAge) return null;
+    return `${eq.sets}×${eq.repsMin}-${eq.repsMax} RIR null d${eq.restSeconds}s`;
   }
 
   /**
@@ -2353,8 +2366,9 @@ describe('el aviso de volumen semanal', () => {
 
     for (const item of plan.sessions.slice(0, porSemana).flatMap((s) => s.items)) {
       const ex = gym.exercises.find((e) => e.id === item.exerciseId);
-      // Los saltos del par no son series de fuerza cerca del fallo: no cuentan.
-      if (!ex || ex.isExplosive) continue;
+      // Los saltos del par y el equilibrio no son series de fuerza cerca del
+      // fallo: no cuentan.
+      if (!ex || ex.isExplosive || ex.pattern === 'balance') continue;
       for (const m of ex.primaryMuscles) {
         series.set(m, (series.get(m) ?? 0) + item.targetSets);
         // El piso se mide solo donde hay un compuesto: dos series de curl no son

@@ -16,7 +16,8 @@ create type season_phase as enum ('preseason', 'in_season', 'off_season', 'none'
 
 create type movement_pattern as enum (
   'squat', 'hinge', 'lunge', 'horizontal_push', 'horizontal_pull',
-  'vertical_push', 'vertical_pull', 'carry', 'core', 'isolation', 'cardio', 'mobility'
+  'vertical_push', 'vertical_pull', 'carry', 'core', 'isolation', 'cardio', 'mobility',
+  'balance'
 );
 
 create type exercise_modality as enum ('reps_weight', 'reps_bodyweight', 'time', 'distance');

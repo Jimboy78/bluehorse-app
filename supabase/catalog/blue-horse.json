@@ -1314,6 +1314,78 @@
       "skillLevel": "novice",
       "cues": "De costado a la pared. El giro arranca en la cadera y los pies, no en los brazos. Mismas repeticiones de cada lado.",
       "equipment": ["Wall balls"]
+    },
+    {
+      "name": "Caminata talón-punta",
+      "pattern": "balance",
+      "primaryMuscles": ["glutes", "calves"],
+      "secondaryMuscles": ["abs"],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_bodyweight",
+      "skillLevel": "beginner",
+      "cues": "Caminá en línea recta apoyando el talón justo delante de la punta del otro pie. Mirada al frente, no al piso.",
+      "equipment": []
+    },
+    {
+      "name": "Caminata de costado",
+      "pattern": "balance",
+      "primaryMuscles": ["glutes"],
+      "secondaryMuscles": ["quads"],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_bodyweight",
+      "skillLevel": "beginner",
+      "cues": "Pasos de costado, rodillas apenas flexionadas, sin cruzar los pies. Ida para un lado y vuelta para el otro.",
+      "equipment": []
+    },
+    {
+      "name": "Caminata hacia atrás",
+      "pattern": "balance",
+      "primaryMuscles": ["glutes", "hamstrings"],
+      "secondaryMuscles": ["calves"],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_bodyweight",
+      "skillLevel": "beginner",
+      "cues": "Pasos largos hacia atrás, apoyando primero la punta. Mirá antes de empezar que el camino esté libre.",
+      "equipment": []
+    },
+    {
+      "name": "Caminata en talones",
+      "pattern": "balance",
+      "primaryMuscles": ["calves"],
+      "secondaryMuscles": [],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_bodyweight",
+      "skillLevel": "beginner",
+      "cues": "Caminá sobre los talones, con las puntas de los pies levantadas. Mirada al frente.",
+      "equipment": []
+    },
+    {
+      "name": "Caminata en puntas de pie",
+      "pattern": "balance",
+      "primaryMuscles": ["calves"],
+      "secondaryMuscles": [],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_bodyweight",
+      "skillLevel": "beginner",
+      "cues": "Caminá en puntas de pie, bien alto, sin apurarte. Mirada al frente.",
+      "equipment": []
+    },
+    {
+      "name": "Pararse y sentarse",
+      "pattern": "balance",
+      "primaryMuscles": ["quads", "glutes"],
+      "secondaryMuscles": ["hamstrings"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_bodyweight",
+      "skillLevel": "beginner",
+      "cues": "Sentate en el cajón o el banco y parate sin usar las manos, con los pies apoyados enteros. Si todavía no podés, empujate con una mano.",
+      "equipment": ["Cajones pliométricos", "Banco de press plano con rack"]
     }
   ]
 }

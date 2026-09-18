@@ -22,33 +22,33 @@
     "Sandbags"
   ],
   "ejerciciosMasUsados": [
-    "Abdominales en máquina: 7 % de los ítems",
-    "Remo sentado: 6 % de los ítems",
-    "Remo invertido en TRX: 5 % de los ítems",
-    "Dorsalera con agarre neutro: 4 % de los ítems",
-    "Dorsalera al pecho: 4 % de los ítems",
-    "Subida al cajón: 4 % de los ítems",
-    "Press de hombro en máquina: 4 % de los ítems",
-    "Press de pecho en máquina: 4 % de los ítems",
-    "Remo con mancuerna a una mano: 3 % de los ítems",
-    "Hip thrust en máquina: 3 % de los ítems"
+    "Caminata talón-punta: 6 % de los ítems",
+    "Caminata en puntas de pie: 6 % de los ítems",
+    "Caminata hacia atrás: 6 % de los ítems",
+    "Caminata de costado: 6 % de los ítems",
+    "Caminata en talones: 6 % de los ítems",
+    "Abdominales en máquina: 5 % de los ítems",
+    "Pararse y sentarse: 4 % de los ítems",
+    "Remo sentado: 4 % de los ítems",
+    "Remo invertido en TRX: 3 % de los ítems",
+    "Dorsalera con agarre neutro: 3 % de los ítems"
   ],
   "estacionesMasUsadas": [
-    "Mancuernas sueltas (set): 9 % de los ítems",
-    "Abdominal Isolator (crunch): 7 % de los ítems",
-    "Dual Lat Pulldown & Row: 6 % de los ítems",
-    "Rack de mancuernas hexagonales: 5 % de los ítems",
-    "Rig de pared (dominadas + bolsa de boxeo + soga + TRX): 5 % de los ítems"
+    "Mancuernas sueltas (set): 6 % de los ítems",
+    "Abdominal Isolator (crunch): 5 % de los ítems",
+    "Dual Lat Pulldown & Row: 4 % de los ítems",
+    "Cajones pliométricos: 4 % de los ítems",
+    "Rack de mancuernas hexagonales: 4 % de los ítems"
   ],
   "avisosPorPlan": {
-    "media": 6.7,
-    "max": 14
+    "media": 6.8,
+    "max": 15
   },
-  "sesionesQuePasanLosMinutosDeclarados": "15 %",
+  "sesionesQuePasanLosMinutosDeclarados": "22 %",
   "cambiaElPlanAlCambiarSolo": {
     "goal": "97 %",
     "nivel": "99 %",
-    "edad": "25 %",
+    "edad": "68 %",
     "sesiones": "41 %",
     "minutos": "0 %",
     "deporte": "51 %",

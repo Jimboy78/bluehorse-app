@@ -267,6 +267,27 @@ describe('barrido de socios generados', () => {
   const sensibilidad = Object.fromEntries(claves.map((k) => [k, { mirados: 0, cambia: 0 }]));
   let items = 0;
   let conMolestia = 0;
+  let conEquilibrio = 0;
+
+  /**
+   * Desde la edad del ruleset, toda sesión cierra con equilibrio; antes, ninguna
+   * lo trae. Y va al final: Otago hace primero la fuerza (`docs/research/39`).
+   */
+  function chequearEquilibrio(p: Perfil, items: readonly SessionItemBlueprint[]) {
+    const cfg = V1_RESEARCH.balance;
+    const id = JSON.stringify(p);
+    const marca = items.map((i) => exPorId.get(i.exerciseId)?.pattern === 'balance');
+    const cuantos = marca.filter(Boolean).length;
+    if (!cfg || p.edad < cfg.fromAge) {
+      if (cuantos > 0) violaciones.push(`equilibrio antes de los ${cfg?.fromAge}: ${id}`);
+      return;
+    }
+    conEquilibrio += 1;
+    if (cuantos === 0) violaciones.push(`sesión sin equilibrio a los ${p.edad}: ${id}`);
+    if (marca.indexOf(true) !== marca.length - cuantos) {
+      violaciones.push(`el equilibrio no va al final: ${id}`);
+    }
+  }
 
   /**
    * Los avisos del contexto están todos en el plan, y los de molestia van
@@ -351,6 +372,7 @@ describe('barrido de socios generados', () => {
         if (it.equipmentId) usoEq.set(it.equipmentId, (usoEq.get(it.equipmentId) ?? 0) + 1);
       });
       medirSesion(p, s.items);
+      chequearEquilibrio(p, s.items);
     }
     // Una dimensión distinta, misma semilla: ¿cambia el plan?
     const k = elegir(claves);
@@ -369,6 +391,7 @@ describe('barrido de socios generados', () => {
   it('recorrió de verdad', () => {
     expect(items).toBeGreaterThan(N * 10);
     expect(conMolestia).toBeGreaterThan(N / 3);
+    expect(conEquilibrio).toBeGreaterThan(N);
   });
 
   it('ninguna combinación rompe una invariante', () => {

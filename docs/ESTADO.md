@@ -1,6 +1,32 @@
 # Estado del trabajo
 
-## Última actualización: 18 de septiembre de 2026 (T0: el contexto del socio en un solo lugar)
+## Última actualización: 18 de septiembre de 2026 (T1a: equilibrio para mayores)
+
+Investigación en `docs/research/39`. Desde los 60 (a confirmar: la OMS usa 65), cada sesión cierra
+con 4 ejercicios de equilibrio y funcionales de la tabla de Otago, 2 × 10 con 60 s de descanso, con
+cualquier objetivo. Con menos de 3 sesiones por semana, un aviso dice cómo completarlo en casa.
+
+- Patrón `balance` nuevo: enum en la base (migración `20260918210209`, aplicada en prod), dominio,
+  etiquetas e ícono. Seis ejercicios en el catálogo y en prod (verificados por bytes).
+- Ruleset: bloque `balance`, sincronizado en prod.
+- Motor: `contexto.ts` resuelve `equilibrio` por edad; `addBalanceBlock` lo suma al final de cada
+  sesión. No entra por ningún slot, no suma al volumen semanal, no recibe propuestas de progresión y
+  no cuenta como pierna para la interferencia.
+- Barrido: invariante nueva (desde la edad de corte, toda sesión con equilibrio y al final; antes,
+  ninguna). La sensibilidad de la edad pasó del 25 % al 68 %. Las sesiones que pasan los minutos
+  declarados subieron del 15 % al 22 %: lo resuelve T4.
+- Falsificado: corte de edad, exclusión de los slots y posición al final; las tres dan rojo.
+- **Sin verificar en el navegador**: `db:reset` dejó la base local sin usuarios, y entrar necesita
+  una cuenta.
+- Queda afuera: el apoyo en un pie y el tándem estático, que van en segundos. La app todavía no
+  registra segundos.
+
+T1b (fragilidad): investigada en `docs/research/40`. El ICFSR no tiene una receta aparte para la
+fragilidad, y pide 4 a 10 ejercicios de equilibrio (por eso el bloque pasó de 3 a 4). No se deduce
+de la edad sola. Se propone medirla en la sesión, con la prueba de pararse de la silla en 30 s y
+los cortes del CDC. Espera la decisión del dueño; se construiría con T7.
+
+## 18 de septiembre de 2026 (T0: el contexto del socio en un solo lugar)
 
 Primera tanda del plan de variables (`docs/PLAN-VARIABLES-DEL-SOCIO.md`). Sin cambios de plan: los
 dos reportes (`tools/reportes/`) quedan byte a byte iguales.

@@ -86,6 +86,13 @@ export const MOVEMENT_PATTERNS = [
    * aislamiento (que la haría candidata a un ejercicio de gemelos).
    */
   'mobility',
+  /**
+   * Equilibrio y ejercicio funcional: caminar talón-punta, de costado, hacia
+   * atrás, pararse de la silla. Es lo que baja las caídas en mayores
+   * (`docs/research/39`); el motor lo agrega como bloque desde la edad que
+   * fija el ruleset, no por plantilla.
+   */
+  'balance',
 ] as const;
 export type MovementPattern = (typeof MOVEMENT_PATTERNS)[number];
 
