@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-18T21:24:40.114Z",
+ "generatedAt": "2026-09-18T21:48:03.971Z",
  "docs": [
   {
    "id": "metodo",
@@ -336,6 +336,14 @@
    "resumen": "Fecha: 18/09/2026. Tanda: T1c del plan de variables. En el checklist, \"adolescente\" es motor: se deduce de la fecha de nacimiento. La app acepta desde los 13 años (onboarding/schemas.ts).",
    "archivo": "41-adolescentes.md",
    "bloques": 13
+  },
+  {
+   "id": "42-menopausia-y-hueso",
+   "orden": 42,
+   "titulo": "Después de la menopausia: impacto para el hueso",
+   "resumen": "Fecha: 18/09/2026. Tanda: T1d del plan de variables. En el checklist, \"menopausia\" es motor, con la nota del dueño \"deducir por edad\". Se deduce del sexo y la edad; no se pregunta.",
+   "archivo": "42-menopausia-y-hueso.md",
+   "bloques": 14
   },
   {
    "id": "auditoria",

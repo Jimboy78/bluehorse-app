@@ -3,6 +3,7 @@ import type {
   Exercise,
   ExperienceLevel,
   Goal,
+  MovementPattern,
   MuscleGroup,
   Profile,
   UserConstraint,
@@ -58,6 +59,7 @@ export const ORDEN_DE_AVISOS = [
   'frecuencia',
   'volumen',
   'equilibrio',
+  'impacto',
   'plantilla',
   'deporte',
   'edad',
@@ -99,6 +101,8 @@ export interface ContextoDelSocio {
   readonly explosivos: ExplosiveConfig | null;
   /** El bloque de equilibrio si este socio lo recibe. */
   readonly equilibrio: BalanceConfig | null;
+  /** Los bloques que se suman al final de cada sesión, en orden. */
+  readonly bloques: readonly BloqueDeContexto[];
   readonly exclusiones: readonly Exclusion[];
   /** Los avisos del contexto, antes de armar las sesiones. */
   readonly avisos: readonly Aviso[];
@@ -165,19 +169,26 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
     { modulo: 'nivel', excluye: (ex) => !isWithinSkillLevel(ex, level) },
   ];
 
+  // Cualquier molestia o lesión declarada, aunque sea leve y no active ninguna
+  // regla de dolor: sumar impacto no es lo que se ajusta, es lo que se evita.
+  // Vale para los saltos del par y para el bloque de impacto.
+  const conMolestia = user.constraints.some((c) => c.type === 'pain' || c.type === 'injury');
   const explosivos = explosivePairing({
     ruleset,
     goal,
     sport,
     profile: user.profile,
     now: context.now,
-    // Cualquier molestia o lesión declarada, aunque sea leve y no active
-    // ninguna regla de dolor: sumar impacto no es lo que se ajusta, es lo que
-    // se evita.
-    hasPain: user.constraints.some((c) => c.type === 'pain' || c.type === 'injury'),
+    hasPain: conMolestia,
   });
 
   const equilibrio = balanceBlock(ruleset, user.profile, context.now);
+  const impacto = conMolestia ? null : impactBlock(ruleset, user.profile, context.now);
+  // Van al final de la sesión en este orden: el impacto antes que el
+  // equilibrio, que cierra (Otago hace el equilibrio después de la fuerza).
+  const bloques: BloqueDeContexto[] = [];
+  if (impacto) bloques.push({ ...impacto, modulo: 'impacto', pattern: 'impact' });
+  if (equilibrio) bloques.push({ ...equilibrio, modulo: 'equilibrio', pattern: 'balance' });
 
   return {
     goal,
@@ -190,6 +201,7 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
     avoidRules,
     explosivos,
     equilibrio,
+    bloques,
     exclusiones,
     avisos,
   };
@@ -250,6 +262,41 @@ function applyYouthModifier(
     secondary: adjust(params.secondary),
     isolation: adjust(params.isolation),
   };
+}
+
+// ------------------------------------------------------------------ bloques
+
+/**
+ * Un bloque que un módulo suma al final de cada sesión, con su propia dosis.
+ * No entra por ningún slot, no suma al volumen semanal ni recibe propuestas de
+ * progresión.
+ */
+export interface BloqueDeContexto {
+  readonly modulo: Modulo;
+  readonly pattern: MovementPattern;
+  readonly exercisesPerSession: number;
+  readonly sets: number;
+  readonly repsMin: number;
+  readonly repsMax: number;
+  readonly restSeconds: number;
+  readonly rationale: string;
+}
+
+/** Los patrones que solo entran como bloque. */
+export const PATRONES_DE_BLOQUE: readonly MovementPattern[] = ['balance', 'impact'];
+
+export type ImpactConfig = NonNullable<Ruleset['impact']>;
+
+/**
+ * Impacto para el hueso: mujeres desde la edad en que casi todas pasaron la
+ * menopausia (`docs/research/42`). Se deduce del sexo y la edad, sin preguntar;
+ * con el sexo sin declarar no se agrega.
+ */
+function impactBlock(ruleset: Ruleset, profile: Profile, now: string): ImpactConfig | null {
+  const cfg = ruleset.impact;
+  if (!cfg || !profile.birthDate || !cfg.sexes.includes(profile.sex)) return null;
+  const age = ageAt(profile.birthDate, now);
+  return age !== null && age >= cfg.fromAge ? cfg : null;
 }
 
 // ------------------------------------------------------------------ equilibrio

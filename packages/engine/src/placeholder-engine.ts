@@ -14,7 +14,13 @@ import type {
   UserGoal,
 } from '@bh/domain';
 import { EXPERIENCE_LEVELS, nextLoad, snapToEquipment } from '@bh/domain';
-import type { Aviso, BalanceConfig, ExplosiveConfig, Modulo, ResolvedSport } from './contexto.ts';
+import type {
+  Aviso,
+  BloqueDeContexto,
+  ExplosiveConfig,
+  Modulo,
+  ResolvedSport,
+} from './contexto.ts';
 import {
   activePainRules,
   excluido,
@@ -22,6 +28,7 @@ import {
   isBlockedByPain,
   isWithinSkillLevel,
   ordenarAvisos,
+  PATRONES_DE_BLOQUE,
   primaryGoal,
   resolverContexto,
 } from './contexto.ts';
@@ -85,10 +92,10 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
   const disponibles = gym.exercises.filter(
     (ex) => !excluido(ctx, ex) && hasUsableEquipment(ex, gym, []),
   );
-  // El equilibrio entra como bloque propio y nunca por un slot: si no, un
-  // aislamiento de glúteos o el complemento de una bisagra bloqueada podían
-  // salir "caminata de costado" con la dosis de fuerza.
-  const usableExercises = disponibles.filter((ex) => ex.pattern !== 'balance');
+  // El equilibrio y el impacto entran como bloque propio y nunca por un slot:
+  // si no, un aislamiento de glúteos o el complemento de una bisagra bloqueada
+  // podían salir "caminata de costado" con la dosis de fuerza.
+  const usableExercises = disponibles.filter((ex) => !PATRONES_DE_BLOQUE.includes(ex.pattern));
 
   // Rotar los ejercicios del plan anterior hace que el músculo trabaje en
   // ángulos distintos. Es preferencia, no requisito: si rotar dejaría un patrón
@@ -192,24 +199,30 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
     }
   }
 
-  // Al final, igual que Otago: primero la fuerza, después el equilibrio. Y
-  // después de los pares, para no mover ninguna elección anterior.
-  const equilibrio = ctx.equilibrio;
-  let conEquilibrio = false;
-  if (equilibrio) {
-    const pool = disponibles.filter((ex) => ex.pattern === 'balance');
+  // Los bloques de contexto van al final (Otago: primero la fuerza, después el
+  // equilibrio) y después de los pares, para no mover ninguna elección anterior.
+  for (const bloque of ctx.bloques) {
+    const pool = disponibles.filter((ex) => ex.pattern === bloque.pattern);
     for (const resolved of resolvedTemplateSessions) {
-      resolved.items = addBalanceBlock({
+      resolved.items = addBloque({
         items: resolved.items,
-        cfg: equilibrio,
+        bloque,
         pool,
         equipmentById,
         usedInPlan,
         placeholder,
         rng,
       });
-      conEquilibrio ||= resolved.items.some((i) => pool.some((ex) => ex.id === i.exerciseId));
     }
+  }
+  const equilibrio = ctx.equilibrio;
+  if (equilibrio) {
+    const deEquilibrio = new Set(
+      disponibles.filter((ex) => ex.pattern === 'balance').map((ex) => ex.id),
+    );
+    const conEquilibrio = resolvedTemplateSessions.some((r) =>
+      r.items.some((i) => deEquilibrio.has(i.exerciseId)),
+    );
     if (conEquilibrio && goal.sessionsPerWeekTarget < equilibrio.minSessionsPerWeek) {
       decir('equilibrio', [
         equilibrio.fewSessionsNote
@@ -310,23 +323,23 @@ function buildItem(input: BuildItemInput): SessionItemBlueprint {
 // ------------------------------------------------------------------ equilibrio
 
 /**
- * Suma al final de la sesión los ejercicios de equilibrio del ruleset.
+ * Suma al final de la sesión los ejercicios de un bloque de contexto.
  *
  * Entre sesiones rota: prefiere los que todavía no están en el plan, así una
- * semana de tres sesiones recorre los seis del catálogo en vez de repetir los
- * mismos tres. Orden por nombre antes de sortear, para que el resultado no
+ * semana de tres sesiones recorre todo el catálogo del bloque en vez de repetir
+ * los mismos. Orden por nombre antes de sortear, para que el resultado no
  * dependa del orden en que llegó el catálogo.
  */
-function addBalanceBlock(input: {
+function addBloque(input: {
   readonly items: readonly SessionItemBlueprint[];
-  readonly cfg: BalanceConfig;
+  readonly bloque: BloqueDeContexto;
   readonly pool: readonly Exercise[];
   readonly equipmentById: ReadonlyMap<Id, Equipment>;
   readonly usedInPlan: Set<Id>;
   readonly placeholder: boolean;
   readonly rng: () => number;
 }): SessionItemBlueprint[] {
-  const { cfg } = input;
+  const cfg = input.bloque;
   const out = [...input.items];
   const usedHere = new Set(out.map((i) => i.exerciseId));
   const ordenados = [...input.pool].sort((a, b) => a.name.localeCompare(b.name, 'es'));
@@ -367,7 +380,7 @@ function addBalanceBlock(input: {
  * kilos (`39`).
  */
 function fueraDeLaDosis(exercise: Exercise): boolean {
-  return exercise.isExplosive || exercise.pattern === 'balance';
+  return exercise.isExplosive || PATRONES_DE_BLOQUE.includes(exercise.pattern);
 }
 
 // ------------------------------------------------------------------ explosivos
@@ -809,7 +822,7 @@ function interferenceWarnings(
     if (exercise.pattern === 'cardio') cardio = true;
     // Caminar talón-punta no es "pierna" en el sentido de la interferencia,
     // que se midió con fuerza de tren inferior.
-    else if (exercise.pattern !== 'balance' && isLowerBody(exercise)) pierna = true;
+    else if (!PATRONES_DE_BLOQUE.includes(exercise.pattern) && isLowerBody(exercise)) pierna = true;
   }
 
   return cardio && pierna ? [rule.note] : [];

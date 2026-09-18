@@ -1104,6 +1104,20 @@
     "confidence": "high",
     "confidenceNote": "Que el equilibrio y el ejercicio funcional bajan las caídas tiene certeza alta (Cochrane 2019, guía mundial 2022, 1A). La dosis por ejercicio sale de Otago (2 × 10) y cuántos ejercicios por sesión, del piso del ICFSR (4 a 10). docs/research/39 y 40."
   },
+  "impact": {
+    "sexes": [
+      "female"
+    ],
+    "fromAge": 50,
+    "exercisesPerSession": 1,
+    "sets": 5,
+    "repsMin": 10,
+    "repsMax": 10,
+    "restSeconds": 30,
+    "rationale": "Impacto para el hueso: 5 series de 10, pisando fuerte o saltando bajito, con los pies firmes y las rodillas apenas flexionadas. Entre series, caminá. Lo que fortalece el hueso es hacerlo casi todos los días: los días que no venís, 50 pisadas fuertes en casa alcanzan.",
+    "confidence": "medium",
+    "confidenceNote": "Fuerza con impacto mejora la densidad ósea en posmenopáusicas (Kistler-Fischbacher 2021, 53 ensayos; efecto chico). La dosis de 50 impactos sale del consenso británico de osteoporosis 2022. La pausa de 30 s es criterio de práctica. docs/research/42."
+  },
   "cardio": {
     "zones": [
       {

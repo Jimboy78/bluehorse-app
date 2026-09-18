@@ -219,6 +219,28 @@ describe('resolverContexto', () => {
     }
   });
 
+  it('impacto para el hueso: mujeres desde la edad del ruleset, sin molestias, antes del equilibrio', () => {
+    const cfg = V1_RESEARCH.impact;
+    if (!cfg) throw new Error('sin bloque de impacto');
+    const con = (edad: number, sex: 'female' | 'male' | 'undisclosed', molestia = false) => {
+      const i = input({ edad, constraints: molestia ? [lesionRodilla] : [] });
+      const profile = { ...i.user.profile, sex };
+      return resolverContexto({ ...i, user: { ...i.user, profile } }).bloques.map((b) => b.modulo);
+    };
+
+    expect(con(cfg.fromAge, 'female')).toContain('impacto');
+    expect(con(cfg.fromAge - 1, 'female')).not.toContain('impacto');
+    expect(con(cfg.fromAge + 5, 'male')).not.toContain('impacto');
+    // Sin sexo declarado no se deduce una menopausia.
+    expect(con(cfg.fromAge + 5, 'undisclosed')).not.toContain('impacto');
+    expect(con(cfg.fromAge + 5, 'female', true)).not.toContain('impacto');
+    // Con equilibrio también, el impacto va antes: el equilibrio cierra la sesión.
+    expect(con(Math.max(cfg.fromAge, V1_RESEARCH.balance?.fromAge ?? 0), 'female')).toEqual([
+      'impacto',
+      'equilibrio',
+    ]);
+  });
+
   it('con una molestia declarada no hay bloque explosivo, aunque el deporte lo pida', () => {
     const leve: UserConstraint = { ...lesionRodilla, type: 'pain', severity: 1 };
     expect(resolverContexto(input({ sport: 'futbol', edad: 25 })).explosivos).not.toBeNull();

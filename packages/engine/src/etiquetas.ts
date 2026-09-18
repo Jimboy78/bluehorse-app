@@ -76,6 +76,7 @@ export const PATTERN_LABELS: Readonly<Record<MovementPattern, string>> = {
   cardio: 'cardio',
   mobility: 'movilidad',
   balance: 'equilibrio',
+  impact: 'impacto',
 };
 
 export function patternLabel(pattern: MovementPattern): string {

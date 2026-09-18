@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-18",
-  "resolved": 96,
+  "resolved": 100,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -1444,6 +1444,82 @@
       ],
       "documentos": [
         "17-lesion-aguda.md"
+      ]
+    },
+    {
+      "doi": "10.1016/j.bone.2020.115697",
+      "title": "The effect of exercise intensity on bone in postmenopausal women (part 2): A meta-analysis",
+      "authors": [
+        "Kistler-Fischbacher",
+        "Weeks",
+        "Beck"
+      ],
+      "moreAuthors": 0,
+      "year": 2021,
+      "journal": "Bone",
+      "type": "journal-article",
+      "temas": [
+        "Menopausia y hueso"
+      ],
+      "documentos": [
+        "42-menopausia-y-hueso.md"
+      ]
+    },
+    {
+      "doi": "10.1002/jbmr.3284",
+      "title": "High-Intensity Resistance and Impact Training Improves Bone Mineral Density and Physical Function in Postmenopausal Women With Osteopenia and Osteoporosis: The LIFTMOR Randomized Controlled Trial",
+      "authors": [
+        "Watson",
+        "Weeks",
+        "Weis"
+      ],
+      "moreAuthors": 3,
+      "year": 2017,
+      "journal": "Journal of Bone and Mineral Research",
+      "type": "journal-article",
+      "temas": [
+        "Menopausia y hueso"
+      ],
+      "documentos": [
+        "42-menopausia-y-hueso.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2021-104634",
+      "title": "Strong, steady and straight: UK consensus statement on physical activity and exercise for osteoporosis",
+      "authors": [
+        "Brooke-Wavell",
+        "Skelton",
+        "Barker"
+      ],
+      "moreAuthors": 10,
+      "year": 2022,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Menopausia y hueso"
+      ],
+      "documentos": [
+        "42-menopausia-y-hueso.md"
+      ]
+    },
+    {
+      "doi": "10.1093/ije/dyu094",
+      "title": "Socioeconomic position, lifestyle factors and age at natural menopause: a systematic review and meta-analyses of studies across six continents",
+      "authors": [
+        "Schoenaker",
+        "Jackson",
+        "Rowlands"
+      ],
+      "moreAuthors": 1,
+      "year": 2014,
+      "journal": "International Journal of Epidemiology",
+      "type": "journal-article",
+      "temas": [
+        "Menopausia y hueso"
+      ],
+      "documentos": [
+        "42-menopausia-y-hueso.md"
       ]
     },
     {

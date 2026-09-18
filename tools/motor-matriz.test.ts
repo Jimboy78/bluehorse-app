@@ -140,6 +140,8 @@ interface Perfil {
   readonly goal: Goal;
   readonly nivel: ExperienceLevel;
   readonly nacimiento: string;
+  /** Sin declarar si no se pasa, que es lo que no activa nada por sexo. */
+  readonly sexo?: Profile['sex'];
   readonly sesiones: number;
   readonly minutos: number;
   /** Deporte del catálogo del ruleset (`sports.catalog[].id`). */
@@ -470,6 +472,29 @@ const PERFILES: readonly Perfil[] = [
   // ------------------------------------------------------ el borde de los 60
   // `modifiers.olderAdults.fromAge` es 60. Un umbral con una fecha de
   // nacimiento adentro es donde se esconden los errores de un día.
+  // Después de la menopausia (`docs/research/42`): impacto para el hueso, salvo
+  // con una molestia declarada.
+  {
+    nombre: 'mujer de 55 · hipertrofia',
+    goal: 'hypertrophy',
+    nivel: 'intermediate',
+    nacimiento: '1971-03-01',
+    sexo: 'female',
+    sesiones: 3,
+    minutos: 60,
+  },
+  {
+    nombre: 'mujer de 55 con molestia lumbar',
+    goal: 'hypertrophy',
+    nivel: 'intermediate',
+    nacimiento: '1971-03-01',
+    sexo: 'female',
+    sesiones: 3,
+    minutos: 60,
+    limitaciones: [
+      { type: 'pain', bodyRegion: 'lower_back', exerciseId: null, equipmentId: null, severity: 2 },
+    ],
+  },
   // Adolescentes (`docs/research/41`): el que recién empieza recibe la dosis de
   // inicio; el que ya entrena, la del adulto.
   {
@@ -552,7 +577,7 @@ function socioDe(p: Perfil): UserSnapshot {
     gymId: GYM_ID,
     displayName: p.nombre,
     birthDate: p.nacimiento,
-    sex: 'undisclosed',
+    sex: p.sexo ?? 'undisclosed',
     experienceLevel: p.nivel,
   };
   const goal: UserGoal = {
@@ -899,6 +924,14 @@ describe('los números del plan salen del ruleset', () => {
       repsMax: number;
       restSeconds: number;
     };
+    impact?: {
+      sexes: string[];
+      fromAge: number;
+      sets: number;
+      repsMin: number;
+      repsMax: number;
+      restSeconds: number;
+    };
   };
 
   type Slot = {
@@ -950,9 +983,18 @@ describe('los números del plan salen del ruleset', () => {
       .filter((slot) => typeof slot?.sets === 'number')
       .map((slot) => (joven ? { ...slot, sets: Math.min(slot.sets, joven.maxSets) } : slot));
     const firmas = new Set(slots.flatMap((slot) => firmasDeUnSlot(slot, ventana, multiplicador)));
-    const equilibrio = firmaDeEquilibrio(p);
-    if (equilibrio) firmas.add(equilibrio);
+    for (const firma of [firmaDeEquilibrio(p), firmaDeImpacto(p)]) if (firma) firmas.add(firma);
     return firmas;
+  }
+
+  /** El bloque de impacto: mujeres desde la edad del ruleset, sin molestias. */
+  function firmaDeImpacto(p: Perfil): string | null {
+    const im = reglas.impact;
+    if (!im?.sexes.includes(p.sexo ?? 'undisclosed') || edadDe(p.nacimiento) < im.fromAge) {
+      return null;
+    }
+    if ((p.limitaciones ?? []).some((c) => c.type === 'pain' || c.type === 'injury')) return null;
+    return `${im.sets}×${im.repsMin}-${im.repsMax} RIR null d${im.restSeconds}s`;
   }
 
   /** El bloque de equilibrio lleva su propia dosis, desde la edad del ruleset. */
@@ -2403,7 +2445,7 @@ describe('el aviso de volumen semanal', () => {
       const ex = gym.exercises.find((e) => e.id === item.exerciseId);
       // Los saltos del par y el equilibrio no son series de fuerza cerca del
       // fallo: no cuentan.
-      if (!ex || ex.isExplosive || ex.pattern === 'balance') continue;
+      if (!ex || ex.isExplosive || ex.pattern === 'balance' || ex.pattern === 'impact') continue;
       for (const m of ex.primaryMuscles) {
         series.set(m, (series.get(m) ?? 0) + item.targetSets);
         // El piso se mide solo donde hay un compuesto: dos series de curl no son

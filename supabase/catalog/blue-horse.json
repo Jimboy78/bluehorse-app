@@ -1386,6 +1386,30 @@
       "skillLevel": "beginner",
       "cues": "Sentate en el cajón o el banco y parate sin usar las manos, con los pies apoyados enteros. Si todavía no podés, empujate con una mano.",
       "equipment": ["Cajones pliométricos", "Banco de press plano con rack"]
+    },
+    {
+      "name": "Pisadas fuertes",
+      "pattern": "impact",
+      "primaryMuscles": ["calves", "quads"],
+      "secondaryMuscles": ["glutes"],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_bodyweight",
+      "skillLevel": "beginner",
+      "cues": "Parada, levantá una rodilla y apoyá el pie fuerte contra el piso, con el talón. Alterná las piernas. Cada pisada es una repetición.",
+      "equipment": []
+    },
+    {
+      "name": "Saltitos en el lugar",
+      "pattern": "impact",
+      "primaryMuscles": ["calves", "quads"],
+      "secondaryMuscles": ["glutes"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "modality": "reps_bodyweight",
+      "skillLevel": "beginner",
+      "cues": "Saltos bajos con los dos pies, apenas despegando del piso. Caé suave, sobre la parte de adelante del pie y con las rodillas flojas.",
+      "equipment": []
     }
   ]
 }

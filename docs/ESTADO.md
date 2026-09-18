@@ -1,6 +1,18 @@
 # Estado del trabajo
 
-## Última actualización: 18 de septiembre de 2026 (T1c: adolescentes)
+## Última actualización: 18 de septiembre de 2026 (T1d: menopausia y hueso; T1 cerrada)
+
+`docs/research/42`. Mujeres de 50 o más sin molestias: cada sesión cierra con 50 impactos (5 × 10,
+pisadas fuertes o saltitos), antes del equilibrio. Patrón `impact` nuevo (migración
+`20260918214303`, aplicada en prod), dos ejercicios en el catálogo y en prod, ruleset `impact`. El
+equilibrio y el impacto ahora son `BloqueDeContexto` en `contexto.ts`, y el motor los suma con un
+solo `addBloque`. El barrido suma la dimensión sexo (sensibilidad 7 %) y la invariante de impacto; la
+matriz, dos perfiles de mujer de 55. Falsificado (sexo y molestia).
+
+**T1 cerrada** (equilibrio, fragilidad investigada, adolescentes, menopausia). Siguiente: T2, salud
+con puerta.
+
+## 18 de septiembre de 2026 (T1c: adolescentes)
 
 `docs/research/41`. De 13 a 17, principiante o novato: como máximo 2 series de 8–15 con cualquier
 objetivo (CSEP 2008), y un aviso de entrenar con el profe mirando la técnica, en el módulo

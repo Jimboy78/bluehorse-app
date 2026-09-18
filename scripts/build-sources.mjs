@@ -70,6 +70,7 @@ const TEMAS = {
   39: 'Equilibrio en mayores',
   40: 'Fragilidad',
   41: 'Adolescentes',
+  42: 'Menopausia y hueso',
 };
 
 // El `]` y el `(` cierran un enlace de markdown: sin ellos, un DOI escrito como

@@ -93,6 +93,12 @@ export const MOVEMENT_PATTERNS = [
    * fija el ruleset, no por plantilla.
    */
   'balance',
+  /**
+   * Impacto para el hueso: pisadas fuertes, saltitos bajos. Unos 50 impactos
+   * por sesión (`docs/research/42`); el motor lo agrega como bloque, nunca por
+   * plantilla.
+   */
+  'impact',
 ] as const;
 export type MovementPattern = (typeof MOVEMENT_PATTERNS)[number];
 

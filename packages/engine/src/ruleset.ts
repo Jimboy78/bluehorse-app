@@ -8,6 +8,7 @@ import {
   MUSCLE_GROUPS,
   RULESET_SOURCES,
   SEASON_PHASES,
+  SEXES,
   SPORT_CATEGORIES,
 } from '@bh/domain';
 import { z } from 'zod';
@@ -866,6 +867,27 @@ export const rulesetSchema = z.object({
       rationale: z.string().min(1),
       /** Con menos sesiones que `minSessionsPerWeek`. Usa {sesiones} ("2 sesiones") y {minimo}. */
       fewSessionsNote: z.string().min(1),
+      confidence: z.enum(CONFIDENCE_LEVELS),
+      confidenceNote: z.string().min(1).optional(),
+    })
+    .refine((b) => b.repsMin <= b.repsMax, { message: 'repsMin > repsMax' })
+    .optional(),
+  /**
+   * Impacto para el hueso después de la menopausia (`docs/research/42`): unos
+   * 50 impactos por sesión, sin molestias declaradas. La menopausia se deduce
+   * del sexo y la edad; no se pregunta.
+   */
+  impact: z
+    .object({
+      sexes: z.array(z.enum(SEXES)).min(1),
+      fromAge: z.number().int().min(1).max(120),
+      exercisesPerSession: z.number().int().min(1).max(4),
+      sets: z.number().int().min(1).max(10),
+      repsMin: z.number().int().min(1).max(50),
+      repsMax: z.number().int().min(1).max(50),
+      restSeconds: z.number().int().min(0).max(600),
+      /** Se muestra en el ejercicio del bloque. */
+      rationale: z.string().min(1),
       confidence: z.enum(CONFIDENCE_LEVELS),
       confidenceNote: z.string().min(1).optional(),
     })

@@ -47,6 +47,7 @@ const PATTERN_ICONS: Record<MovementPattern, LucideIcon> = {
   cardio: HeartPulse,
   mobility: PersonStanding,
   balance: Scale,
+  impact: Footprints,
 };
 
 export const PATTERN_LABELS: Record<MovementPattern, string> = {
@@ -63,6 +64,7 @@ export const PATTERN_LABELS: Record<MovementPattern, string> = {
   cardio: 'Cardio',
   mobility: 'Movilidad',
   balance: 'Equilibrio',
+  impact: 'Impacto',
 };
 
 export const MUSCLE_LABELS: Record<MuscleGroup, string> = {

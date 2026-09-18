@@ -12,6 +12,7 @@ import type {
   MovementPattern,
   MuscleGroup,
   SeasonPhase,
+  Sex,
   UserConstraint,
   UserGoal,
 } from '@bh/domain';
@@ -136,6 +137,9 @@ const DIM = {
   }),
   edad: dim([15, 22, 40, 58, 66, 76, 84], (b, v) => {
     b.profile.birthDate = `${2026 - v}-03-01`;
+  }),
+  sexo: dim(['female', 'male', 'undisclosed'] as Sex[], (b, v) => {
+    b.profile.sex = v;
   }),
   sesiones: dim([2, 3, 4, 5, 6], (b, v) => {
     b.goal.sessionsPerWeekTarget = v;
@@ -268,11 +272,29 @@ describe('barrido de socios generados', () => {
   let items = 0;
   let conMolestia = 0;
   let conEquilibrio = 0;
+  let conImpacto = 0;
 
   /**
    * Desde la edad del ruleset, toda sesión cierra con equilibrio; antes, ninguna
    * lo trae. Y va al final: Otago hace primero la fuerza (`docs/research/39`).
    */
+  /**
+   * El impacto para el hueso: mujeres desde la edad del ruleset y sin molestias
+   * declaradas, en toda sesión; nadie más (`docs/research/42`).
+   */
+  function chequearImpacto(p: Perfil, items: readonly SessionItemBlueprint[]) {
+    const cfg = V1_RESEARCH.impact;
+    const id = JSON.stringify(p);
+    const cuantos = items.filter((i) => exPorId.get(i.exerciseId)?.pattern === 'impact').length;
+    const corresponde =
+      !!cfg && cfg.sexes.includes(p.sexo) && p.edad >= cfg.fromAge && p.molestia === null;
+    if (!corresponde && cuantos > 0) violaciones.push(`impacto sin corresponder: ${id}`);
+    if (corresponde) {
+      conImpacto += 1;
+      if (cuantos === 0) violaciones.push(`sesión sin impacto: ${id}`);
+    }
+  }
+
   function chequearEquilibrio(p: Perfil, items: readonly SessionItemBlueprint[]) {
     const cfg = V1_RESEARCH.balance;
     const id = JSON.stringify(p);
@@ -390,6 +412,7 @@ describe('barrido de socios generados', () => {
       });
       medirSesion(p, s.items);
       chequearEquilibrio(p, s.items);
+      chequearImpacto(p, s.items);
     }
     // Una dimensión distinta, misma semilla: ¿cambia el plan?
     const k = elegir(claves);
@@ -409,6 +432,7 @@ describe('barrido de socios generados', () => {
     expect(items).toBeGreaterThan(N * 10);
     expect(conMolestia).toBeGreaterThan(N / 3);
     expect(conEquilibrio).toBeGreaterThan(N);
+    expect(conImpacto).toBeGreaterThan(N / 10);
   });
 
   it('ninguna combinación rompe una invariante', () => {
