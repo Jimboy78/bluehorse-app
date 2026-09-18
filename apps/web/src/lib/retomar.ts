@@ -1,52 +1,18 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { z } from 'zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './auth/AuthProvider.tsx';
-import { conPlazo } from './con-plazo.ts';
-import { retomarDesde, type SesionDeCola, tandasDeEscritura } from './mappers/retomar.ts';
+import { retomarDesde, tandasDeEscritura } from './mappers/retomar.ts';
+import type { PlanSessionSummary } from './plan.ts';
 import { requireSupabase } from './supabase.ts';
 
 /** Ver `mappers/retomar.ts`: por qué se rota la cola y cuándo se reinicia. */
 
-const sesionRowSchema = z.object({
-  id: z.uuid(),
-  sequence_index: z.number().int(),
-  label: z.string(),
-  focus: z.string(),
-  status: z.enum(['pending', 'in_progress', 'completed', 'skipped']),
-});
-
-export interface SesionDelPlan extends SesionDeCola {
-  readonly label: string;
-  readonly focus: string;
-}
-
-export function useSesionesDelPlan(planId: string | null) {
-  const { user, status } = useAuth();
-  return useQuery<SesionDelPlan[]>({
-    queryKey: ['plan-sessions', user?.id, planId],
-    enabled: status === 'signed-in' && !!user && !!planId,
-    queryFn: async () => {
-      const { data, error } = await conPlazo(
-        requireSupabase()
-          .from('plan_sessions')
-          .select('id, sequence_index, label, focus, status')
-          .eq('plan_id', planId as string)
-          .order('sequence_index'),
-      );
-      if (error) throw error;
-      return (data ?? []).map((raw) => {
-        const row = sesionRowSchema.parse(raw);
-        return {
-          id: row.id,
-          sequenceIndex: row.sequence_index,
-          label: row.label,
-          focus: row.focus,
-          status: row.status,
-        };
-      });
-    },
-  });
-}
+/**
+ * Las sesiones salen de `usePlanSessions` (lib/plan.ts), no de una consulta
+ * propia. Hubo una: usaba la misma clave de caché con otra forma de dato, y
+ * abrir "Cambiar de día" en Hoy rompía "Ver las sesiones" en Planes, que leía
+ * de la caché filas sin `exercises`. Medido en producción: pantalla de error.
+ */
+export type SesionDelPlan = PlanSessionSummary;
 
 export function useRetomarDesde() {
   const { user } = useAuth();

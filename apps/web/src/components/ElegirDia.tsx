@@ -1,7 +1,8 @@
 import { CalendarDays, Check, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { elegibles } from '../lib/mappers/retomar.ts';
-import { useRetomarDesde, useSesionesDelPlan } from '../lib/retomar.ts';
+import { usePlanSessions } from '../lib/plan.ts';
+import { useRetomarDesde } from '../lib/retomar.ts';
 import { Button } from './ui/index.ts';
 
 /**
@@ -23,7 +24,7 @@ export function ElegirDia({
   abierto?: boolean;
 }) {
   const [abierto, setAbierto] = useState(abiertoInicial);
-  const sesiones = useSesionesDelPlan(abierto ? planId : null);
+  const sesiones = usePlanSessions(abierto ? planId : null);
   const retomar = useRetomarDesde();
 
   if (!abierto) {

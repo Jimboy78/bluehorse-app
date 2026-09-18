@@ -172,6 +172,11 @@ antes de hacerlo.
   algo que ya pasó va con `vi.waitFor`**, que espera la condición en vez de un tiempo. El tick
   fijo solo sirve para lo contrario: comprobar que algo **no** pasó.
 
+- **Dos `useQuery` con la misma clave comparten caché aunque traigan datos distintos.** Un hook de
+  "Cambiar de día" guardaba sesiones sin `exercises` bajo `['plan-sessions', user, plan]`, la misma
+  clave que `usePlanSessions`; abrirlo en Hoy rompía "Ver las sesiones" en Planes con un `.join`
+  sobre `undefined`. Medido en producción. Cada hook pasaba sus tests solo. Si ya hay una consulta
+  que trae lo que necesitás, reusala; si no, clave nueva. Lo frena `lib/query-keys.test.ts`.
 - **Para medir tiempos en el navegador, la pestaña tiene que estar a la vista.** Chrome estrangula
   los timers de una pestaña oculta: medido acá, un `setTimeout` de 1500 ms tardó 11 s. Cualquier
   cosa que dependa de un plazo (`conPlazo`, los reintentos de TanStack, el `refetchInterval`) se
