@@ -14,13 +14,14 @@ import type {
   UserGoal,
 } from '@bh/domain';
 import { EXPERIENCE_LEVELS, nextLoad, snapToEquipment } from '@bh/domain';
-import type { ExplosiveConfig, ResolvedSport } from './contexto.ts';
+import type { Aviso, ExplosiveConfig, Modulo, ResolvedSport } from './contexto.ts';
 import {
   activePainRules,
   excluido,
   isBlocked,
   isBlockedByPain,
   isWithinSkillLevel,
+  ordenarAvisos,
   primaryGoal,
   resolverContexto,
 } from './contexto.ts';
@@ -72,7 +73,12 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
   // Todo lo que depende de quién es la persona, resuelto antes de elegir nada.
   const ctx = resolverContexto(input);
   const { goal, sport, params, template, daysAway, comeback, avoidRules } = ctx;
-  const warnings: string[] = ctx.avisos.map((a) => a.texto);
+  const avisos: Aviso[] = [...ctx.avisos];
+  const decir = (modulo: Modulo, textos: readonly string[]) => {
+    for (const texto of textos) avisos.push({ modulo, texto });
+  };
+  // Solo los escribe un ruleset mal armado (una sesión de cardio que no existe).
+  const avisosDelRuleset: string[] = [];
   const placeholder = isPlaceholder(ruleset);
 
   const equipmentById = new Map(gym.equipment.map((e) => [e.id, e]));
@@ -131,7 +137,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
           setsByMuscle,
           rng,
         });
-        warnings.push(salida.warning);
+        decir('cobertura', [salida.warning]);
         if (!salida.exercise) continue;
         exercise = salida.exercise;
       }
@@ -156,7 +162,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
           comeback,
           ruleset,
           placeholder,
-          warnings,
+          warnings: avisosDelRuleset,
         }),
       );
     }
@@ -195,14 +201,16 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
     });
   }
 
-  warnings.push(...comebackWarnings(sessions, ruleset, daysAway, comeback, params));
-  warnings.push(...sessionLengthWarnings(sessions, ruleset, goal));
-  warnings.push(...autoregulationWarnings(params, ruleset, goal));
-  warnings.push(...weeklyVolumeWarnings(sessions, template, gym, params, goal));
-  warnings.push(...interferenceWarnings(sessions, gym, ruleset));
-  warnings.push(...powerWarnings(sessions, gym, goal, ruleset));
-  warnings.push(
-    ...emphasisWarnings({
+  decir('ruleset', avisosDelRuleset);
+  decir('ausencia', comebackWarnings(sessions, ruleset, daysAway, comeback, params));
+  decir('tiempo', sessionLengthWarnings(sessions, ruleset, goal));
+  decir('autorregulacion', autoregulationWarnings(params, ruleset, goal));
+  decir('volumen', weeklyVolumeWarnings(sessions, template, gym, params, goal));
+  decir('interferencia', interferenceWarnings(sessions, gym, ruleset));
+  decir('potencia', powerWarnings(sessions, gym, goal, ruleset));
+  decir(
+    'deporte',
+    emphasisWarnings({
       context,
       ruleset,
       gym,
@@ -213,9 +221,9 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
   );
 
   if (placeholder) {
-    warnings.push(
+    decir('provisorio', [
       'Plan generado con contenido provisorio: los números no salen todavía de la investigación.',
-    );
+    ]);
   }
 
   return {
@@ -223,7 +231,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
     source: ruleset.source,
     templateId: template.id,
     sessions,
-    warnings,
+    warnings: ordenarAvisos(avisos),
   };
 }
 

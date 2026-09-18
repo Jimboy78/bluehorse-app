@@ -3,6 +3,7 @@ import { Info, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AppShell } from './components/AppShell.tsx';
 import { Hoy } from './components/Hoy.tsx';
+import { PlanWarnings } from './components/PlanWarnings.tsx';
 import { Proposals } from './components/Proposals.tsx';
 import { Card, Notice, SectionLabel } from './components/ui/index.ts';
 import { useAuth } from './lib/auth/AuthProvider.tsx';
@@ -180,11 +181,7 @@ function PlanWarningsNotice() {
 
   return (
     <Notice tone="warn" icon={<Info size={16} aria-hidden="true" />}>
-      <span className="flex flex-col gap-1">
-        {plan.data.planWarnings.map((warning) => (
-          <span key={warning}>{warning}</span>
-        ))}
-      </span>
+      <PlanWarnings warnings={plan.data.planWarnings} />
     </Notice>
   );
 }

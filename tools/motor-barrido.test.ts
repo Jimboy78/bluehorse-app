@@ -16,8 +16,14 @@ import type {
   UserGoal,
 } from '@bh/domain';
 import { EXPERIENCE_LEVELS } from '@bh/domain';
-import type { GymSnapshot, PlanBlueprint, SessionItemBlueprint, UserSnapshot } from '@bh/engine';
-import { createPlaceholderEngine, V1_RESEARCH } from '@bh/engine';
+import type {
+  GeneratePlanInput,
+  GymSnapshot,
+  PlanBlueprint,
+  SessionItemBlueprint,
+  UserSnapshot,
+} from '@bh/engine';
+import { createPlaceholderEngine, resolverContexto, V1_RESEARCH } from '@bh/engine';
 import { describe, expect, it } from 'vitest';
 import catalogo from '../supabase/catalog/blue-horse.json' with { type: 'json' };
 
@@ -216,9 +222,9 @@ const engine = createPlaceholderEngine();
 const gym = gimnasio();
 const exPorId = new Map(gym.exercises.map((e) => [e.id, e]));
 
-function plan(p: Perfil, seed: number): PlanBlueprint {
+function entrada(p: Perfil, seed: number): GeneratePlanInput {
   const b = borrador(p);
-  return engine.generatePlan({
+  return {
     context: { now: AHORA, seed },
     user: { profile: b.profile, goals: [b.goal], constraints: b.constraints, baselines: [] },
     gym,
@@ -226,7 +232,11 @@ function plan(p: Perfil, seed: number): PlanBlueprint {
     ...(b.daysSinceLastSession === undefined
       ? {}
       : { daysSinceLastSession: b.daysSinceLastSession }),
-  });
+  };
+}
+
+function plan(p: Perfil, seed: number): PlanBlueprint {
+  return engine.generatePlan(entrada(p, seed));
 }
 
 /** Firma comparable: ejercicio, series, reps, rir, descanso por ítem. */
@@ -256,6 +266,26 @@ describe('barrido de socios generados', () => {
   const violaciones: string[] = [];
   const sensibilidad = Object.fromEntries(claves.map((k) => [k, { mirados: 0, cambia: 0 }]));
   let items = 0;
+  let conMolestia = 0;
+
+  /**
+   * Los avisos del contexto están todos en el plan, y los de molestia van
+   * primero: la pantalla muestra los primeros y guarda el resto, y "cuándo
+   * consultar" no puede quedar detrás de "ver más".
+   */
+  function chequearAvisos(p: Perfil, inp: GeneratePlanInput, b: PlanBlueprint) {
+    const avisos = resolverContexto(inp).avisos;
+    const id = JSON.stringify(p);
+    for (const a of avisos) {
+      if (!b.warnings.includes(a.texto)) violaciones.push(`aviso de ${a.modulo} perdido: ${id}`);
+    }
+    const molestia = avisos.filter((a) => a.modulo === 'molestia').map((a) => a.texto);
+    if (molestia.length === 0) return;
+    conMolestia += 1;
+    if (b.warnings.slice(0, molestia.length).join('|') !== molestia.join('|')) {
+      violaciones.push(`los avisos de molestia no van primero: ${id}`);
+    }
+  }
 
   function chequearItem(
     p: Perfil,
@@ -308,8 +338,10 @@ describe('barrido de socios generados', () => {
   for (let n = 0; n < N; n++) {
     const p = Object.fromEntries(claves.map((k) => [k, elegir(DIM[k].valores)])) as Perfil;
     const seed = Math.floor(r() * 1e9);
-    const b = plan(p, seed);
+    const inp = entrada(p, seed);
+    const b = engine.generatePlan(inp);
     avisosPorPlan.push(b.warnings.length);
+    chequearAvisos(p, inp, b);
     for (const s of b.sessions) {
       if (s.items.length === 0) violaciones.push(`sesión vacía: ${JSON.stringify(p)}`);
       s.items.forEach((it, i) => {
@@ -336,6 +368,7 @@ describe('barrido de socios generados', () => {
 
   it('recorrió de verdad', () => {
     expect(items).toBeGreaterThan(N * 10);
+    expect(conMolestia).toBeGreaterThan(N / 3);
   });
 
   it('ninguna combinación rompe una invariante', () => {

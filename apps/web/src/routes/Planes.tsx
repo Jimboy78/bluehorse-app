@@ -18,6 +18,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { AppShell } from '../components/AppShell.tsx';
+import { PlanWarnings } from '../components/PlanWarnings.tsx';
 import {
   Button,
   buttonClass,
@@ -649,10 +650,10 @@ function PlanCard({
             vez, en la vista previa, y se perdía para siempre — acá queda a
             mano mientras el plan siga guardado. */}
         {plan.warnings.length > 0 && (
-          <p className="flex items-start gap-1.5 text-[0.7rem] leading-relaxed text-amber">
+          <div className="flex items-start gap-1.5 text-[0.7rem] leading-relaxed text-amber">
             <Info size={12} className="mt-0.5 shrink-0" aria-hidden="true" />
-            <span>{plan.warnings.join(' ')}</span>
-          </p>
+            <PlanWarnings warnings={plan.warnings} />
+          </div>
         )}
 
         {/* Pausar y borrar juntos y en gris: son las dos salidas del plan, y

@@ -35,15 +35,38 @@ import { detrainingMultiplier, levelChangesDose, resolveParams } from './ruleset
  *   los lee.
  */
 
-/** De qué parte del contexto sale una exclusión o un aviso. */
-export type Modulo =
-  | 'nivel'
-  | 'edad'
-  | 'deporte'
-  | 'plantilla'
-  | 'frecuencia'
-  | 'molestia'
-  | 'restriccion';
+/**
+ * De qué parte del contexto sale una exclusión o un aviso.
+ *
+ * El orden de esta lista es el orden en que el socio lee los avisos: la app
+ * muestra los primeros y guarda el resto detrás de "ver más". Primero lo que
+ * pide hacer algo —cuándo consultar, cómo volver, qué falta cubrir, qué no
+ * entra en su tiempo— y después lo que explica por qué el plan es como es
+ * (regla dura 4: se avisa lo accionable). Dentro de un módulo se respeta el
+ * orden en que el motor los escribió: la regla de una zona va con su "consultá
+ * si", pegada.
+ */
+export const ORDEN_DE_AVISOS = [
+  // Estado del producto, no del socio. Con un ruleset de investigación no sale.
+  'provisorio',
+  'ruleset',
+  'molestia',
+  'ausencia',
+  'cobertura',
+  'tiempo',
+  'frecuencia',
+  'volumen',
+  'plantilla',
+  'deporte',
+  'edad',
+  'interferencia',
+  'potencia',
+  'autorregulacion',
+  'nivel',
+  'restriccion',
+] as const;
+
+export type Modulo = (typeof ORDEN_DE_AVISOS)[number];
 
 export interface Aviso {
   readonly modulo: Modulo;
@@ -158,6 +181,19 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
     exclusiones,
     avisos,
   };
+}
+
+/**
+ * Los textos de los avisos, en el orden en que se leen: por módulo según
+ * `ORDEN_DE_AVISOS` y, dentro de un módulo, como se escribieron. No se saca
+ * ninguno; cuántos se ven de entrada lo decide la pantalla.
+ */
+export function ordenarAvisos(avisos: readonly Aviso[]): string[] {
+  const rango = (m: Modulo) => ORDEN_DE_AVISOS.indexOf(m);
+  return avisos
+    .map((a, i) => ({ a, i }))
+    .sort((x, y) => rango(x.a.modulo) - rango(y.a.modulo) || x.i - y.i)
+    .map(({ a }) => a.texto);
 }
 
 /** Si algún módulo saca este ejercicio. Las exclusiones se suman. */

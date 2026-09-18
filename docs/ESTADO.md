@@ -15,8 +15,14 @@ dos reportes (`tools/reportes/`) quedan byte a byte iguales.
 - `contexto.test.ts`: módulo de cada exclusión y aviso; el plan empieza por los avisos del contexto
   en el mismo orden. Falsificado: con `excluido()` roto caen 13 tests (barrido, matriz, motor).
 
-Pendiente de T0: la prioridad de los avisos (mostrar dos primero). Cambia lo que ve el socio, así
-que va como paso aparte y medido.
+Segundo paso de T0, prioridad de avisos: todo aviso del motor sale etiquetado con su módulo y
+ordenado por `ORDEN_DE_AVISOS` (`contexto.ts`): primero molestia, ausencia, cobertura, tiempo,
+frecuencia y volumen (lo accionable); después plantilla, deporte, edad y el resto (lo que explica).
+La app muestra dos y el resto detrás de "Ver N avisos más" (`components/PlanWarnings.tsx`, en Hoy,
+Planes y la vista previa). No se borra ninguno. Matriz: solo cambia el orden (22 líneas). Barrido:
+invariante nueva, los avisos de molestia van primero y ninguno del contexto se pierde; falsificado
+sin ordenar, rojo. **Sin verificar en el navegador**: la extensión de Chrome no estaba conectada.
+Los planes ya guardados conservan su orden viejo hasta que se regeneren.
 
 ## 18 de septiembre de 2026 (barrido del motor y plan de mejora)
 

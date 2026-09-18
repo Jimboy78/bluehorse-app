@@ -18,6 +18,7 @@ import { useState } from 'react';
 import { listContainer, listItem, spring, tappable } from '../lib/motion.ts';
 import type { PlanPreview as Preview, PreviewItem, PreviewSession } from '../lib/plan-preview.ts';
 import { previewSubstitutes, swapPreviewItem } from '../lib/plan-preview.ts';
+import { PlanWarnings } from './PlanWarnings.tsx';
 import {
   Button,
   Card,
@@ -107,11 +108,7 @@ export function PlanPreview({
 
       {preview.warnings.length > 0 && (
         <Notice tone="warn" icon={<AlertCircle size={15} aria-hidden="true" />}>
-          <span className="flex flex-col gap-1">
-            {preview.warnings.map((warning) => (
-              <span key={warning}>{warning}</span>
-            ))}
-          </span>
+          <PlanWarnings warnings={preview.warnings} />
         </Notice>
       )}
 

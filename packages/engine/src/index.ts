@@ -3,6 +3,8 @@ import { parseRuleset } from './ruleset.ts';
 import rawV0 from './rulesets/v0-placeholder.json' with { type: 'json' };
 import rawV1 from './rulesets/v1-research.json' with { type: 'json' };
 
+export type { Aviso, ContextoDelSocio, Modulo } from './contexto.ts';
+export { ORDEN_DE_AVISOS, resolverContexto } from './contexto.ts';
 export * from './contract.ts';
 export { createPlaceholderEngine } from './placeholder-engine.ts';
 export { createRng } from './rng.ts';

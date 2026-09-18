@@ -1,6 +1,6 @@
 import type { Exercise, UserConstraint } from '@bh/domain';
 import { describe, expect, it } from 'vitest';
-import { excluido, resolverContexto } from './contexto.ts';
+import { excluido, ordenarAvisos, resolverContexto } from './contexto.ts';
 import type { GeneratePlanInput, GymSnapshot, UserSnapshot } from './contract.ts';
 import { V1_RESEARCH } from './index.ts';
 import { createPlaceholderEngine } from './placeholder-engine.ts';
@@ -120,23 +120,35 @@ describe('resolverContexto', () => {
     expect(modulos(input({ constraints: [lesionRodilla] }))).toContain('molestia');
   });
 
-  it('el plan empieza por los avisos del contexto, en el mismo orden', () => {
-    // Es lo que garantiza que mover la resolución acá no cambió lo que lee el
-    // socio: `generatePlan` no agrega nada antes de ellos.
+  it('el plan trae todos los avisos del contexto, y los de molestia primero', () => {
     const engine = createPlaceholderEngine();
     const casos = [
       input({}),
       input({ edad: 70, constraints: [lesionRodilla] }),
       input({ sport: 'futbol', goal: 'power' }),
-      input({ sport: 'deporte-inventado', goal: 'cardio' }),
+      input({ sport: 'deporte-inventado', goal: 'cardio', constraints: [lesionRodilla] }),
     ];
-    let conAvisos = 0;
+    let conMolestia = 0;
     for (const i of casos) {
-      const textos = resolverContexto(i).avisos.map((a) => a.texto);
-      if (textos.length > 0) conAvisos += 1;
-      expect(engine.generatePlan(i).warnings.slice(0, textos.length)).toEqual(textos);
+      const avisos = resolverContexto(i).avisos;
+      const plan = engine.generatePlan(i).warnings;
+      for (const a of avisos) expect(plan).toContain(a.texto);
+      const molestia = avisos.filter((a) => a.modulo === 'molestia').map((a) => a.texto);
+      if (molestia.length > 0) conMolestia += 1;
+      expect(plan.slice(0, molestia.length)).toEqual(molestia);
     }
-    expect(conAvisos).toBeGreaterThan(2);
+    expect(conMolestia).toBe(2);
+  });
+
+  it('ordena por módulo y, dentro de un módulo, como se escribieron', () => {
+    expect(
+      ordenarAvisos([
+        { modulo: 'nivel', texto: 'n' },
+        { modulo: 'molestia', texto: 'm1' },
+        { modulo: 'volumen', texto: 'v' },
+        { modulo: 'molestia', texto: 'm2' },
+      ]),
+    ).toEqual(['m1', 'm2', 'v', 'n']);
   });
 
   it('con una molestia declarada no hay bloque explosivo, aunque el deporte lo pida', () => {
