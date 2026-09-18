@@ -13,6 +13,7 @@ import type {
   MuscleGroup,
   SeasonPhase,
   UserConstraint,
+  UserGoal,
 } from '@bh/domain';
 import { EXPERIENCE_LEVELS } from '@bh/domain';
 import type { GymSnapshot, PlanBlueprint, SessionItemBlueprint, UserSnapshot } from '@bh/engine';
@@ -95,26 +96,82 @@ function gimnasio(): GymSnapshot {
   return { gymId: GYM_ID, equipment, exercises, substitutions: [] };
 }
 
+/** Lo que una dimensión puede tocar al armar el socio. */
+interface Borrador {
+  profile: { -readonly [K in keyof UserSnapshot['profile']]: UserSnapshot['profile'][K] };
+  goal: { -readonly [K in keyof UserGoal]: UserGoal[K] };
+  constraints: UserConstraint[];
+  daysSinceLastSession: number | undefined;
+}
+
+/**
+ * Una dimensión es sus valores y cómo se escriben en el socio. Sumar una variable
+ * nueva al barrido es sumar una entrada acá: el sorteo, las invariantes y la
+ * sensibilidad la toman solas.
+ *
+ * El orden importa: se aplican en el orden en que están declaradas (la fase
+ * mira el deporte), y sumar una dimensión cambia la secuencia del sorteo, así
+ * que el reporte cambia entero. Eso es esperable; lo que no, es que cambie sin
+ * sumar nada.
+ */
+function dim<T>(valores: readonly T[], aplicar: (b: Borrador, v: T) => void) {
+  return { valores, aplicar };
+}
+
 const DIM = {
-  goal: ['strength', 'hypertrophy', 'power', 'endurance', 'recomposition', 'cardio'] as Goal[],
-  nivel: ['beginner', 'novice', 'intermediate', 'advanced'] as ExperienceLevel[],
-  edad: [22, 40, 58, 66, 76, 84],
-  sesiones: [2, 3, 4, 5, 6],
-  minutos: [30, 45, 60, 90],
-  deporte: [null, 'futbol', 'tenis', 'running', 'rugby', 'golf'] as (string | null)[],
-  fase: ['none', 'preseason', 'in_season'] as SeasonPhase[],
-  molestia: [
-    null,
-    ['lower_back', 2, 'pain'],
-    ['lower_back', 5, 'pain'],
-    ['knee', 4, 'injury'],
-    ['shoulder', 3, 'pain'],
-    ['hip', 3, 'pain'],
-  ] as ([BodyRegion, number, UserConstraint['type']] | null)[],
-  ausencia: [undefined, 20, 120, 400] as (number | undefined)[],
+  goal: dim(
+    ['strength', 'hypertrophy', 'power', 'endurance', 'recomposition', 'cardio'] as Goal[],
+    (b, v) => {
+      b.goal.goal = v;
+    },
+  ),
+  nivel: dim(['beginner', 'novice', 'intermediate', 'advanced'] as ExperienceLevel[], (b, v) => {
+    b.profile.experienceLevel = v;
+  }),
+  edad: dim([22, 40, 58, 66, 76, 84], (b, v) => {
+    b.profile.birthDate = `${2026 - v}-03-01`;
+  }),
+  sesiones: dim([2, 3, 4, 5, 6], (b, v) => {
+    b.goal.sessionsPerWeekTarget = v;
+  }),
+  minutos: dim([30, 45, 60, 90], (b, v) => {
+    b.goal.sessionMinutesTarget = v;
+  }),
+  deporte: dim(
+    [null, 'futbol', 'tenis', 'running', 'rugby', 'golf'] as (string | null)[],
+    (b, v) => {
+      b.goal.sport = v;
+    },
+  ),
+  fase: dim(['none', 'preseason', 'in_season'] as SeasonPhase[], (b, v) => {
+    b.goal.seasonPhase = b.goal.sport ? v : 'none';
+  }),
+  molestia: dim(
+    [
+      null,
+      ['lower_back', 2, 'pain'],
+      ['lower_back', 5, 'pain'],
+      ['knee', 4, 'injury'],
+      ['shoulder', 3, 'pain'],
+      ['hip', 3, 'pain'],
+    ] as ([BodyRegion, number, UserConstraint['type']] | null)[],
+    (b, v) => {
+      if (!v) return;
+      b.constraints.push({
+        type: v[2],
+        bodyRegion: v[0],
+        exerciseId: null,
+        equipmentId: null,
+        severity: v[1],
+      });
+    },
+  ),
+  ausencia: dim([undefined, 20, 120, 400] as (number | undefined)[], (b, v) => {
+    b.daysSinceLastSession = v;
+  }),
 };
 type Clave = keyof typeof DIM;
-type Perfil = { [K in Clave]: (typeof DIM)[K][number] };
+type Perfil = { [K in Clave]: (typeof DIM)[K]['valores'][number] };
 
 function rng(seed: number) {
   let s = seed >>> 0;
@@ -127,39 +184,32 @@ function rng(seed: number) {
   };
 }
 
-function socio(p: Perfil): UserSnapshot {
-  return {
+function borrador(p: Perfil): Borrador {
+  const b: Borrador = {
     profile: {
       id: 'u',
       gymId: GYM_ID,
       displayName: 'x',
-      birthDate: `${2026 - p.edad}-03-01`,
+      birthDate: null,
       sex: 'undisclosed',
-      experienceLevel: p.nivel,
+      experienceLevel: 'beginner',
     },
-    goals: [
-      {
-        goal: p.goal,
-        sport: p.deporte,
-        seasonPhase: p.deporte ? p.fase : 'none',
-        priority: 1,
-        sessionsPerWeekTarget: p.sesiones,
-        sessionMinutesTarget: p.minutos,
-      },
-    ],
-    constraints: p.molestia
-      ? [
-          {
-            type: p.molestia[2],
-            bodyRegion: p.molestia[0],
-            exerciseId: null,
-            equipmentId: null,
-            severity: p.molestia[1],
-          },
-        ]
-      : [],
-    baselines: [],
+    goal: {
+      goal: 'strength',
+      sport: null,
+      seasonPhase: 'none',
+      priority: 1,
+      sessionsPerWeekTarget: 3,
+      sessionMinutesTarget: 60,
+    },
+    constraints: [],
+    daysSinceLastSession: undefined,
   };
+  for (const k of Object.keys(DIM) as Clave[]) {
+    const d = DIM[k] as { aplicar: (b: Borrador, v: unknown) => void };
+    d.aplicar(b, p[k]);
+  }
+  return b;
 }
 
 const engine = createPlaceholderEngine();
@@ -167,12 +217,15 @@ const gym = gimnasio();
 const exPorId = new Map(gym.exercises.map((e) => [e.id, e]));
 
 function plan(p: Perfil, seed: number): PlanBlueprint {
+  const b = borrador(p);
   return engine.generatePlan({
     context: { now: AHORA, seed },
-    user: socio(p),
+    user: { profile: b.profile, goals: [b.goal], constraints: b.constraints, baselines: [] },
     gym,
     ruleset: V1_RESEARCH,
-    ...(p.ausencia === undefined ? {} : { daysSinceLastSession: p.ausencia }),
+    ...(b.daysSinceLastSession === undefined
+      ? {}
+      : { daysSinceLastSession: b.daysSinceLastSession }),
   });
 }
 
@@ -253,7 +306,7 @@ describe('barrido de socios generados', () => {
   }
 
   for (let n = 0; n < N; n++) {
-    const p = Object.fromEntries(claves.map((k) => [k, elegir(DIM[k])])) as Perfil;
+    const p = Object.fromEntries(claves.map((k) => [k, elegir(DIM[k].valores)])) as Perfil;
     const seed = Math.floor(r() * 1e9);
     const b = plan(p, seed);
     avisosPorPlan.push(b.warnings.length);
@@ -269,7 +322,11 @@ describe('barrido de socios generados', () => {
     }
     // Una dimensión distinta, misma semilla: ¿cambia el plan?
     const k = elegir(claves);
-    const otro = elegir(DIM[k].filter((v) => JSON.stringify(v) !== JSON.stringify(p[k])));
+    const otro = elegir(
+      (DIM[k].valores as readonly unknown[]).filter(
+        (v) => JSON.stringify(v) !== JSON.stringify(p[k]),
+      ),
+    );
     const sk = sensibilidad[k];
     if (sk) {
       sk.mirados += 1;
@@ -286,7 +343,7 @@ describe('barrido de socios generados', () => {
   });
 
   it('es determinista: mismo socio y misma semilla, mismo plan', () => {
-    const p = Object.fromEntries(claves.map((k) => [k, DIM[k][1]])) as Perfil;
+    const p = Object.fromEntries(claves.map((k) => [k, DIM[k].valores[1]])) as Perfil;
     expect(firma(plan(p, 123))).toBe(firma(plan(p, 123)));
   });
 

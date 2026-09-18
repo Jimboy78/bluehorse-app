@@ -1,6 +1,24 @@
 # Estado del trabajo
 
-## Última actualización: 18 de septiembre de 2026 (barrido del motor y plan de mejora)
+## Última actualización: 18 de septiembre de 2026 (T0: el contexto del socio en un solo lugar)
+
+Primera tanda del plan de variables (`docs/PLAN-VARIABLES-DEL-SOCIO.md`). Sin cambios de plan: los
+dos reportes (`tools/reportes/`) quedan byte a byte iguales.
+
+- `packages/engine/src/contexto.ts`: `resolverContexto()` junta todo lo que depende de la persona
+  (nivel, edad, deporte, plantilla, frecuencia, ausencia, molestias, explosivos). Devuelve las
+  exclusiones y los avisos etiquetados con su módulo; `generatePlan` solo los consume. Las
+  etiquetas en castellano pasaron a `etiquetas.ts`. `placeholder-engine.ts` bajó de 2.432 a ~1.850
+  líneas.
+- Barrido: cada dimensión declara sus valores y cómo se escribe en el socio. Sumar una variable es
+  sumar una entrada.
+- `contexto.test.ts`: módulo de cada exclusión y aviso; el plan empieza por los avisos del contexto
+  en el mismo orden. Falsificado: con `excluido()` roto caen 13 tests (barrido, matriz, motor).
+
+Pendiente de T0: la prioridad de los avisos (mostrar dos primero). Cambia lo que ve el socio, así
+que va como paso aparte y medido.
+
+## 18 de septiembre de 2026 (barrido del motor y plan de mejora)
 
 `tools/motor-barrido.test.ts`: 3.000 socios generados sobre nueve dimensiones, invariantes en cada
 uno y un reporte de cobertura y sensibilidad (`tools/reportes/barrido-v1-research.json`, se

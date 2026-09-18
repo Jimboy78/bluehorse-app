@@ -53,6 +53,13 @@ prescripcion merece. Para comparar dos corridas sueltas, `npm run qa motor-diff 
 dimensiones: chequea invariantes en cada uno y escribe `tools/reportes/barrido-v1-research.json`
 (cobertura del gimnasio y qué dato del socio mueve el plan). Tambien se commitea. Es el que
 encuentra lo que se rompe en la combinacion de dos contextos que ningun perfil de la matriz junta.
+Una variable nueva del socio entra como una entrada de `DIM` (sus valores y como se escribe en el
+socio); si su sensibilidad da 0 %, el motor no la usa.
+
+Todo lo que depende de quien es la persona (edad, deporte, molestias, plantilla, explosivos) se
+resuelve en `packages/engine/src/contexto.ts` (`resolverContexto`), no en `generatePlan`. Un
+contexto nuevo va ahi, con su `Modulo`: las exclusiones se suman en `excluido()`, y cada aviso
+sabe de que modulo sale.
 
 Las tres cosas que ya encontraron y no se veian leyendo codigo: una serie duplicada en la base,
 `database.types.ts` generado y sin importar (el cliente aceptaba tablas inventadas), y que
