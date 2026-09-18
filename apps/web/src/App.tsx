@@ -12,7 +12,6 @@ import { fadeUp } from './lib/motion.ts';
 import { type OutboxHealth, outboxHealth } from './lib/outbox.ts';
 import { useActivePlan } from './lib/plan.ts';
 import { checkConnection } from './lib/supabase.ts';
-import { useTodaySession } from './lib/use-today-session.ts';
 
 /**
  * Pantalla "Hoy": el plan real leído de la base. El encabezado y la
@@ -138,35 +137,28 @@ function describeQueue(health: OutboxHealth | undefined): string {
  * hacerlo en medio de una serie borraría lo que la persona estaba cargando.
  */
 /**
- * "Esto que estás viendo es de ejemplo": ruleset provisorio o catálogo sin
- * cargar.
+ * "Esto que estás viendo es provisorio": lo que sale de un ruleset
+ * `placeholder` se sigue marcando (regla dura 4: es estado del producto, no
+ * calidad de la evidencia). Con `v1-research` activo no se dibuja.
  *
- * La parte del catálogo solo se afirma cuando SE SABE que falta. Mientras la
- * consulta viaja, `isPlaceholder` dice `true` porque hay que mostrar algo — y
- * eso hacía aparecer el cartel medio segundo en cada entrada a la app, para
- * después desaparecer solo. Un aviso que va y viene se lee como que algo se
- * rompió, que es exactamente lo contrario de lo que este aviso quiere decir.
+ * Tenía además una parte "el catálogo de Blue Horse todavía no está cargado",
+ * que corría el motor entero sobre un socio de ejemplo en cada entrada a la
+ * app solo para saber si el catálogo estaba vacío, y se equivocaba: mientras
+ * el perfil cargaba no había `gymId`, eso contaba como "ya se sabe", y el
+ * cartel salía con el catálogo real cargado. El catálogo está cargado; si un
+ * gimnasio no lo tuviera, la app no sirve para él (ver CLAUDE.md, "No es").
  */
 function PlaceholderNotice() {
-  const todaySession = useTodaySession();
-  const sinCatalogo = (todaySession?.catalogKnown ?? false) && todaySession?.isPlaceholder === true;
-
-  if (!showsPlaceholderContent && !sinCatalogo) return null;
+  if (!showsPlaceholderContent) return null;
 
   return (
     <Notice tone="warn" icon={<Info size={16} aria-hidden="true" />}>
-      <strong className="font-semibold">Vista previa con datos de ejemplo.</strong>
-      {showsPlaceholderContent && (
-        <>
-          {' '}
-          El ruleset activo es{' '}
-          <code className="rounded bg-amber/15 px-1 font-mono text-xs text-amber">
-            {activeRuleset.version}
-          </code>
-          .
-        </>
-      )}
-      {sinCatalogo && ' El catálogo de Blue Horse todavía no está cargado.'}
+      <strong className="font-semibold">Vista previa con datos de ejemplo.</strong> El ruleset
+      activo es{' '}
+      <code className="rounded bg-amber/15 px-1 font-mono text-xs text-amber">
+        {activeRuleset.version}
+      </code>
+      .
     </Notice>
   );
 }

@@ -1,5 +1,5 @@
-import type { Equipment, Exercise, Profile, UserGoal } from '@bh/domain';
-import type { GymSnapshot, UserSnapshot } from '@bh/engine';
+import type { Equipment, Exercise } from '@bh/domain';
+import type { GymSnapshot } from '@bh/engine';
 
 /**
  * GIMNASIO Y SOCIO DE EJEMPLO — no es Blue Horse.
@@ -127,29 +127,4 @@ export const PLACEHOLDER_GYM: GymSnapshot = {
     }),
   ],
   substitutions: [],
-};
-
-const placeholderProfile: Profile = {
-  id: 'user-ejemplo',
-  gymId: PLACEHOLDER_GYM_ID,
-  displayName: 'Socio de ejemplo',
-  birthDate: '1994-05-10',
-  sex: 'undisclosed',
-  experienceLevel: 'intermediate',
-};
-
-const placeholderGoal: UserGoal = {
-  goal: 'hypertrophy',
-  sport: null,
-  seasonPhase: 'none',
-  priority: 1,
-  sessionsPerWeekTarget: 3,
-  sessionMinutesTarget: 60,
-};
-
-export const PLACEHOLDER_USER: UserSnapshot = {
-  profile: placeholderProfile,
-  goals: [placeholderGoal],
-  constraints: [],
-  baselines: [],
 };
