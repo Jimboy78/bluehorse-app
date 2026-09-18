@@ -1,8 +1,9 @@
-import type { Equipment, Exercise } from '@bh/domain';
+import type { Equipment, Exercise, LoadUnit } from '@bh/domain';
 import { loadUnitLabel } from '@bh/domain';
 import { Loader2, Search } from 'lucide-react';
 import { useId, useMemo, useState } from 'react';
 import { buscarEjercicios, type MotivoCoincidencia } from '../lib/buscar-ejercicios.ts';
+import { activeRuleset } from '../lib/engine.ts';
 import type { ManualItemDraft } from '../lib/mappers/manual-plan.ts';
 import { Button, Chip, Field, fieldClass, Notice } from './ui/index.ts';
 
@@ -19,6 +20,10 @@ import { Button, Chip, Field, fieldClass, Notice } from './ui/index.ts';
  * Blue Horse se lee en lo suyo —kg, libras, nivel de pin— y dejar elegir la
  * unidad permitiría escribir "60 kg" en una máquina que muestra libras (regla
  * dura 6). Sin estación elegida no hay unidad, así que no hay campo de carga.
+ *
+ * Tres formas de escribir un ejercicio, las tres de la rutina de un socio
+ * real: series y repeticiones, "al fallo técnico" y cardio por minutos y zona.
+ * La carga, en la unidad de la máquina o como porcentaje del máximo.
  */
 
 /**
@@ -49,16 +54,125 @@ function parseNum(raw: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-interface Numeros {
+export interface Numeros {
   readonly sets: string;
   readonly repsMin: string;
   readonly repsMax: string;
   readonly rest: string;
   readonly load: string;
   readonly rir: string;
+  readonly pctMin: string;
+  readonly pctMax: string;
+  readonly minutes: string;
+  readonly zone: string;
+  readonly intervalRest: string;
 }
 
-const VACIO: Numeros = { sets: '', repsMin: '', repsMax: '', rest: '', load: '', rir: '' };
+export const VACIO: Numeros = {
+  sets: '',
+  repsMin: '',
+  repsMax: '',
+  rest: '',
+  load: '',
+  rir: '',
+  pctMin: '',
+  pctMax: '',
+  minutes: '',
+  zone: '',
+  intervalRest: '',
+};
+
+export interface Modo {
+  readonly cardio: boolean;
+  readonly alFallo: boolean;
+  readonly porcentaje: boolean;
+}
+
+/**
+ * Lo escrito, convertido en un ítem, o `null` si falta algo.
+ *
+ * Ningún campo vacío se completa con un número inventado: un bloque de cardio
+ * sin vueltas es UN bloque, que es lo que escribió quien no puso vueltas; todo
+ * lo demás, si falta, deja el botón apagado.
+ */
+export function armarItem(
+  exerciseId: string | null,
+  equipmentId: string | null,
+  n: Numeros,
+  modo: Modo,
+  unidadDeCarga: LoadUnit | null,
+): ManualItemDraft | null {
+  if (!exerciseId) return null;
+  return modo.cardio
+    ? armarCardio(exerciseId, equipmentId, n)
+    : armarSala(exerciseId, equipmentId, n, modo, unidadDeCarga);
+}
+
+function armarCardio(
+  exerciseId: string,
+  equipmentId: string | null,
+  n: Numeros,
+): ManualItemDraft | null {
+  const minutes = parseNum(n.minutes);
+  if (minutes === null) return null;
+  return {
+    exerciseId,
+    equipmentId,
+    targetSets: parseNum(n.sets) ?? 1,
+    targetRepsMin: 1,
+    targetRepsMax: 1,
+    targetLoad: null,
+    targetRir: null,
+    restSeconds: 0,
+    toFailure: false,
+    pct1rm: null,
+    cardio: { minutes, zone: parseNum(n.zone), intervalRestMinutes: parseNum(n.intervalRest) },
+  };
+}
+
+function armarSala(
+  exerciseId: string,
+  equipmentId: string | null,
+  n: Numeros,
+  modo: Modo,
+  unidadDeCarga: LoadUnit | null,
+): ManualItemDraft | null {
+  const sets = parseNum(n.sets);
+  const rest = parseNum(n.rest);
+  const repsMin = modo.alFallo ? 1 : parseNum(n.repsMin);
+  const repsMax = modo.alFallo ? 1 : parseNum(n.repsMax);
+  if (sets === null || rest === null || repsMin === null || repsMax === null) return null;
+
+  const pct1rm = modo.porcentaje ? rangoDePorcentaje(n) : null;
+  if (modo.porcentaje && !pct1rm) return null;
+
+  const valorCarga = parseNum(n.load);
+  return {
+    exerciseId,
+    equipmentId,
+    targetSets: sets,
+    targetRepsMin: repsMin,
+    targetRepsMax: repsMax,
+    // Sin estación no hay unidad en la que leer el número, así que no se
+    // guarda carga: un valor sin unidad no se puede mostrar ni convertir.
+    targetLoad:
+      !pct1rm && unidadDeCarga && valorCarga !== null
+        ? { value: valorCarga, unit: unidadDeCarga }
+        : null,
+    targetRir: parseNum(n.rir),
+    restSeconds: rest,
+    toFailure: modo.alFallo,
+    pct1rm,
+    cardio: null,
+  };
+}
+
+/** "80" solo es 80-80; "80" y "85" es el rango. */
+function rangoDePorcentaje(n: Numeros): { min: number; max: number } | null {
+  const min = parseNum(n.pctMin);
+  if (min === null) return null;
+  return { min, max: parseNum(n.pctMax) ?? min };
+}
 
 export function ManualItemForm({
   exercises,
@@ -80,6 +194,8 @@ export function ManualItemForm({
   const [exerciseId, setExerciseId] = useState<string | null>(null);
   const [equipmentId, setEquipmentId] = useState<string | null>(null);
   const [n, setN] = useState<Numeros>(VACIO);
+  const [alFallo, setAlFallo] = useState(false);
+  const [porcentaje, setPorcentaje] = useState(false);
 
   const elegido = exercises.find((e) => e.id === exerciseId) ?? null;
 
@@ -138,35 +254,20 @@ export function ManualItemForm({
    * que no llevan carga (colchoneta, TRX). Ahí el campo no se muestra — un
    * input vacío que no se puede completar es peor que no tenerlo.
    */
-  const cargaEditable =
-    estacion !== null && estacion.load.unit !== 'bodyweight' && estacion.load.unit !== 'none';
+  const unidad =
+    estacion && estacion.load.unit !== 'bodyweight' && estacion.load.unit !== 'none'
+      ? estacion.load.unit
+      : null;
 
-  const sets = parseNum(n.sets);
-  const repsMin = parseNum(n.repsMin);
-  const repsMax = parseNum(n.repsMax);
-  const rest = parseNum(n.rest);
-  const completo =
-    !!exerciseId && sets !== null && repsMin !== null && repsMax !== null && rest !== null;
+  const cardio = elegido?.pattern === 'cardio';
+  const item = armarItem(exerciseId, equipmentId, n, { cardio, alFallo, porcentaje }, unidad);
 
   function agregar() {
-    if (!completo || !exerciseId) return;
-    const valorCarga = parseNum(n.load);
-    onAdd({
-      exerciseId,
-      equipmentId,
-      targetSets: sets,
-      targetRepsMin: repsMin,
-      targetRepsMax: repsMax,
-      restSeconds: rest,
-      // Sin estación no hay unidad en la que leer el número, así que no se
-      // guarda carga: un valor sin unidad no se puede mostrar ni convertir.
-      targetLoad:
-        cargaEditable && estacion && valorCarga !== null
-          ? { value: valorCarga, unit: estacion.load.unit }
-          : null,
-      targetRir: parseNum(n.rir),
-    });
+    if (!item) return;
+    onAdd(item);
     setN(VACIO);
+    setAlFallo(false);
+    setPorcentaje(false);
     setExerciseId(null);
     setEquipmentId(null);
     setBusqueda('');
@@ -233,84 +334,26 @@ export function ManualItemForm({
         </Field>
       )}
 
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Series" htmlFor={`${baseId}-sets`}>
-          <input
-            id={`${baseId}-sets`}
-            type="number"
-            inputMode="numeric"
-            min={1}
-            value={n.sets}
-            onChange={(e) => setN({ ...n, sets: e.target.value })}
-            className={fieldClass}
-          />
-        </Field>
-        <Field label="Descanso (seg)" htmlFor={`${baseId}-rest`}>
-          <input
-            id={`${baseId}-rest`}
-            type="number"
-            inputMode="numeric"
-            min={0}
-            value={n.rest}
-            onChange={(e) => setN({ ...n, rest: e.target.value })}
-            className={fieldClass}
-          />
-        </Field>
-        <Field label="Reps desde" htmlFor={`${baseId}-rmin`}>
-          <input
-            id={`${baseId}-rmin`}
-            type="number"
-            inputMode="numeric"
-            min={1}
-            value={n.repsMin}
-            onChange={(e) => setN({ ...n, repsMin: e.target.value })}
-            className={fieldClass}
-          />
-        </Field>
-        <Field label="Reps hasta" htmlFor={`${baseId}-rmax`}>
-          <input
-            id={`${baseId}-rmax`}
-            type="number"
-            inputMode="numeric"
-            min={1}
-            value={n.repsMax}
-            onChange={(e) => setN({ ...n, repsMax: e.target.value })}
-            className={fieldClass}
-          />
-        </Field>
-      </div>
+      {elegido?.isUnilateral && (
+        <p className="text-xs leading-snug text-slate">
+          Se hace de a un lado: las repeticiones que pongas son por lado.
+        </p>
+      )}
 
-      <div className="grid grid-cols-2 gap-3">
-        {cargaEditable && estacion && (
-          <Field
-            label={`Carga (${loadUnitLabel(estacion.load.unit)})`}
-            htmlFor={`${baseId}-load`}
-            hint="Opcional. Se guarda como lo dice la máquina."
-          >
-            <input
-              id={`${baseId}-load`}
-              type="number"
-              inputMode="decimal"
-              step="any"
-              value={n.load}
-              onChange={(e) => setN({ ...n, load: e.target.value })}
-              className={fieldClass}
-            />
-          </Field>
-        )}
-        <Field label="RIR" htmlFor={`${baseId}-rir`} hint="Opcional.">
-          <input
-            id={`${baseId}-rir`}
-            type="number"
-            inputMode="numeric"
-            min={0}
-            max={10}
-            value={n.rir}
-            onChange={(e) => setN({ ...n, rir: e.target.value })}
-            className={fieldClass}
-          />
-        </Field>
-      </div>
+      {cardio ? (
+        <CamposCardio baseId={baseId} n={n} setN={setN} />
+      ) : (
+        <CamposSala
+          baseId={baseId}
+          n={n}
+          setN={setN}
+          alFallo={alFallo}
+          setAlFallo={setAlFallo}
+          porcentaje={porcentaje}
+          setPorcentaje={setPorcentaje}
+          unidad={unidad ? loadUnitLabel(unidad) : null}
+        />
+      )}
 
       {error && (
         <Notice tone="error" role="alert">
@@ -326,7 +369,7 @@ export function ManualItemForm({
           variant="primary"
           size="md"
           className="flex-1"
-          disabled={!completo || pending}
+          disabled={!item || pending}
           onClick={agregar}
         >
           {pending && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
@@ -334,5 +377,189 @@ export function ManualItemForm({
         </Button>
       </div>
     </div>
+  );
+}
+
+function CampoNumero({
+  id,
+  label,
+  hint,
+  value,
+  onChange,
+  decimal = false,
+}: {
+  id: string;
+  label: string;
+  hint?: string;
+  value: string;
+  onChange: (v: string) => void;
+  decimal?: boolean;
+}) {
+  return (
+    <Field label={label} htmlFor={id} {...(hint ? { hint } : {})}>
+      <input
+        id={id}
+        type="number"
+        inputMode={decimal ? 'decimal' : 'numeric'}
+        step={decimal ? 'any' : undefined}
+        min={0}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={fieldClass}
+      />
+    </Field>
+  );
+}
+
+type SetN = (n: Numeros) => void;
+
+function CamposSala({
+  baseId,
+  n,
+  setN,
+  alFallo,
+  setAlFallo,
+  porcentaje,
+  setPorcentaje,
+  unidad,
+}: {
+  baseId: string;
+  n: Numeros;
+  setN: SetN;
+  alFallo: boolean;
+  setAlFallo: (v: boolean) => void;
+  porcentaje: boolean;
+  setPorcentaje: (v: boolean) => void;
+  /** La unidad de la estación, o `null` si no hay número de carga que escribir. */
+  unidad: string | null;
+}) {
+  return (
+    <>
+      <div className="flex flex-wrap gap-1.5">
+        <Chip selected={alFallo} onClick={() => setAlFallo(!alFallo)}>
+          Al fallo técnico
+        </Chip>
+        <Chip selected={porcentaje} onClick={() => setPorcentaje(!porcentaje)}>
+          Carga en % de 1RM
+        </Chip>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <CampoNumero
+          id={`${baseId}-sets`}
+          label="Series"
+          value={n.sets}
+          onChange={(v) => setN({ ...n, sets: v })}
+        />
+        <CampoNumero
+          id={`${baseId}-rest`}
+          label="Descanso (seg)"
+          value={n.rest}
+          onChange={(v) => setN({ ...n, rest: v })}
+        />
+        {!alFallo && (
+          <>
+            <CampoNumero
+              id={`${baseId}-rmin`}
+              label="Reps desde"
+              value={n.repsMin}
+              onChange={(v) => setN({ ...n, repsMin: v })}
+            />
+            <CampoNumero
+              id={`${baseId}-rmax`}
+              label="Reps hasta"
+              value={n.repsMax}
+              onChange={(v) => setN({ ...n, repsMax: v })}
+            />
+          </>
+        )}
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        {porcentaje && (
+          <>
+            <CampoNumero
+              id={`${baseId}-pmin`}
+              label="% 1RM desde"
+              value={n.pctMin}
+              onChange={(v) => setN({ ...n, pctMin: v })}
+            />
+            <CampoNumero
+              id={`${baseId}-pmax`}
+              label="% 1RM hasta"
+              hint="Opcional."
+              value={n.pctMax}
+              onChange={(v) => setN({ ...n, pctMax: v })}
+            />
+          </>
+        )}
+        {!porcentaje && unidad && (
+          <CampoNumero
+            id={`${baseId}-load`}
+            label={`Carga (${unidad})`}
+            hint="Opcional. Se guarda como lo dice la máquina."
+            value={n.load}
+            onChange={(v) => setN({ ...n, load: v })}
+            decimal
+          />
+        )}
+        <CampoNumero
+          id={`${baseId}-rir`}
+          label="RIR"
+          hint="Opcional."
+          value={n.rir}
+          onChange={(v) => setN({ ...n, rir: v })}
+        />
+      </div>
+    </>
+  );
+}
+
+function CamposCardio({ baseId, n, setN }: { baseId: string; n: Numeros; setN: SetN }) {
+  const zonas = activeRuleset.cardio?.zones ?? [];
+  const zona = zonas.find((z) => String(z.zone) === n.zone) ?? null;
+  const vueltas = parseNum(n.sets) ?? 1;
+  return (
+    <>
+      <div className="grid grid-cols-2 gap-3">
+        <CampoNumero
+          id={`${baseId}-min`}
+          label={vueltas > 1 ? 'Minutos por vuelta' : 'Minutos'}
+          value={n.minutes}
+          onChange={(v) => setN({ ...n, minutes: v })}
+        />
+        <CampoNumero
+          id={`${baseId}-vueltas`}
+          label="Vueltas"
+          hint="Opcional. Sin vueltas es un bloque seguido."
+          value={n.sets}
+          onChange={(v) => setN({ ...n, sets: v })}
+        />
+      </div>
+      {vueltas > 1 && (
+        <CampoNumero
+          id={`${baseId}-suave`}
+          label="Suave entre vueltas (min)"
+          value={n.intervalRest}
+          onChange={(v) => setN({ ...n, intervalRest: v })}
+          decimal
+        />
+      )}
+      <Field label="Zona" htmlFor={`${baseId}-zona`} hint={zona?.feels ?? 'Opcional.'}>
+        <select
+          id={`${baseId}-zona`}
+          value={n.zone}
+          onChange={(e) => setN({ ...n, zone: e.target.value })}
+          className={fieldClass}
+        >
+          <option value="">Sin zona</option>
+          {zonas.map((z) => (
+            <option key={z.zone} value={String(z.zone)}>
+              Zona {z.zone} · {z.label}
+            </option>
+          ))}
+        </select>
+      </Field>
+    </>
   );
 }

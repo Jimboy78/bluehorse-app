@@ -23,6 +23,9 @@ function draft(over: Partial<ManualItemDraft> = {}): ManualItemDraft {
     targetLoad: { value: 60, unit: 'kg' },
     targetRir: 2,
     restSeconds: 120,
+    toFailure: false,
+    pct1rm: null,
+    cardio: null,
     ...over,
   };
 }
@@ -102,6 +105,59 @@ describe('toManualItemInsert', () => {
     expect(row.target_duration_seconds).toBeNull();
     expect(row.target_intensity_zone).toBeNull();
     expect(row.target_interval_rest_seconds).toBeNull();
+    expect(row.target_to_failure).toBe(false);
+    expect(row.target_pct_1rm_min).toBeNull();
+  });
+
+  it('al fallo técnico: guarda la bandera y no un rango que parezca objetivo', () => {
+    const row = toManualItemInsert(SESSION, 0, draft({ toFailure: true, targetRepsMax: 12 }));
+    expect(row.target_to_failure).toBe(true);
+    expect(row.target_reps_min).toBe(1);
+    expect(row.target_reps_max).toBe(1);
+  });
+
+  it('con %1RM guarda el porcentaje ordenado y ninguna carga fija', () => {
+    const row = toManualItemInsert(SESSION, 0, draft({ pct1rm: { min: 85, max: 80 } }));
+    expect(row.target_pct_1rm_min).toBe(80);
+    expect(row.target_pct_1rm_max).toBe(85);
+    expect(row.target_load).toBeNull();
+    expect(row.target_load_unit).toBeNull();
+  });
+
+  it('cardio continuo: minutos y zona, sin repeticiones, RIR ni carga', () => {
+    const row = toManualItemInsert(
+      SESSION,
+      0,
+      draft({ targetSets: 1, cardio: { minutes: 40, zone: 2, intervalRestMinutes: null } }),
+    );
+    expect(row.target_duration_seconds).toBe(2400);
+    expect(row.target_intensity_zone).toBe(2);
+    expect(row.target_interval_rest_seconds).toBeNull();
+    expect(row.rest_seconds).toBe(0);
+    expect(row.target_rir).toBeNull();
+    expect(row.target_load).toBeNull();
+  });
+
+  it('cardio por vueltas: el descanso suave va entre vueltas', () => {
+    const row = toManualItemInsert(
+      SESSION,
+      0,
+      draft({ targetSets: 4, cardio: { minutes: 4, zone: 4, intervalRestMinutes: 3 } }),
+    );
+    expect(row.target_sets).toBe(4);
+    expect(row.target_duration_seconds).toBe(240);
+    expect(row.target_interval_rest_seconds).toBe(180);
+    expect(row.rest_seconds).toBe(180);
+  });
+
+  it('un descanso entre vueltas con una sola vuelta no se guarda', () => {
+    const row = toManualItemInsert(
+      SESSION,
+      0,
+      draft({ targetSets: 1, cardio: { minutes: 30, zone: 2, intervalRestMinutes: 3 } }),
+    );
+    expect(row.target_interval_rest_seconds).toBeNull();
+    expect(row.rest_seconds).toBe(0);
   });
 });
 

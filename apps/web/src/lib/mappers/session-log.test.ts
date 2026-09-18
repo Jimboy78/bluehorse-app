@@ -28,10 +28,12 @@ describe('toSetLogInsert', () => {
     equipmentLoadSpec: discos,
     repsTarget: 10,
     restPrescribedSeconds: 90,
+    durationSeconds: null,
+    toFailure: false,
   };
 
   /** Lo común: salió como estaba planificado. */
-  const hechas = { reps: 10, rir: 2, load: targetLoad };
+  const hechas = { reps: 10, rir: 2, load: targetLoad, durationSeconds: null };
 
   it('normaliza a kg usando la spec de la estación', () => {
     const row = toSetLogInsert(
@@ -75,7 +77,7 @@ describe('toSetLogInsert', () => {
       'client-1',
       '2026-09-05T10:05:00Z',
       // ...pero la persona igual entrenó con algo y lo anotó.
-      { reps: 10, rir: 2, load: { value: 40, unit: 'plates_kg' } },
+      { reps: 10, rir: 2, load: { value: 40, unit: 'plates_kg' }, durationSeconds: null },
     );
     expect(row.load_value).toBe(40);
     expect(row.load_kg_normalized).toBe(60);
@@ -117,6 +119,7 @@ describe('toSetLogInsert', () => {
       reps: 7,
       rir: 0,
       load: targetLoad,
+      durationSeconds: null,
     });
     // Si estos dos fueran siempre iguales, el motor compararía el plan contra
     // sí mismo y ninguna propuesta de bajar la carga podría dispararse.
@@ -130,6 +133,7 @@ describe('toSetLogInsert', () => {
       reps: 10,
       rir: null,
       load: targetLoad,
+      durationSeconds: null,
     });
     expect(row.rir).toBeNull();
   });
@@ -139,6 +143,7 @@ describe('toSetLogInsert', () => {
       reps: 10,
       rir: 2,
       load: { value: 50, unit: 'plates_kg' },
+      durationSeconds: null,
     });
     // Cruda como la muestra la máquina, y el normalizado recalculado sobre
     // esa carga real (50 + 20 de la barra), no sobre la del plan.
@@ -151,9 +156,49 @@ describe('toSetLogInsert', () => {
       reps: 10,
       rir: 2,
       load: null,
+      durationSeconds: null,
     });
     expect(row.load_value).toBeNull();
     expect(row.load_unit).toBeNull();
     expect(row.load_kg_normalized).toBeNull();
+  });
+
+  it('un bloque de cardio registra minutos, no una repetición', () => {
+    const cardio = { ...baseItem, targetLoad: null, repsTarget: 1, durationSeconds: 2400 };
+    const planificado = toSetLogInsert('s-1', 'w-1', cardio, 0, 0, 'c-1', '2026-09-05T10:05:00Z', {
+      reps: 1,
+      rir: null,
+      load: null,
+      durationSeconds: null,
+    });
+    // Antes: reps 1, duración nula. "Hice 40 minutos" quedaba como "una repetición".
+    expect(planificado.reps).toBeNull();
+    expect(planificado.reps_target).toBeNull();
+    expect(planificado.duration_seconds).toBe(2400);
+
+    const anotado = toSetLogInsert('s-1', 'w-1', cardio, 0, 0, 'c-1', '2026-09-05T10:05:00Z', {
+      reps: 1,
+      rir: 2,
+      load: null,
+      durationSeconds: 1800,
+    });
+    expect(anotado.duration_seconds).toBe(1800);
+    expect(anotado.rir).toBeNull();
+  });
+
+  it('al fallo técnico registra lo que hizo, sin un objetivo contra el cual "faltar"', () => {
+    const row = toSetLogInsert(
+      's-1',
+      'w-1',
+      { ...baseItem, toFailure: true, repsTarget: 1 },
+      0,
+      90,
+      'c-1',
+      '2026-09-05T10:05:00Z',
+      hechas,
+    );
+    expect(row.reps).toBe(10);
+    expect(row.reps_target).toBeNull();
+    expect(row.duration_seconds).toBeNull();
   });
 });

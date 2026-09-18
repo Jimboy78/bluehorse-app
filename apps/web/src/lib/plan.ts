@@ -18,6 +18,7 @@ import { useAuth } from './auth/AuthProvider.tsx';
 import { fetchGymCatalog } from './catalog.ts';
 import { activeRuleset, engine, engineContext } from './engine.ts';
 import { toPlanInsert, toPlanSessionInserts, toPlanSessionItemInserts } from './mappers/plan.ts';
+import { type CardioZone, zonaDe } from './objetivo.ts';
 import { requireSupabase } from './supabase.ts';
 
 /**
@@ -816,6 +817,14 @@ export interface ActiveSessionItem {
   readonly durationSeconds: number | null;
   readonly intensityZone: number | null;
   readonly intervalRestSeconds: number | null;
+  /** La zona como la describe el ruleset: nombre, pulso y cómo se siente. */
+  readonly zone: CardioZone | null;
+  /** "Al fallo técnico": las repeticiones no tienen objetivo. */
+  readonly toFailure: boolean;
+  /** Se hace de a un lado: las repeticiones son por lado. */
+  readonly isUnilateral: boolean;
+  /** La carga como porcentaje del máximo del socio, si el plan la escribió así. */
+  readonly pct1rm: { readonly min: number; readonly max: number } | null;
 }
 
 export interface ActiveSession {
@@ -881,7 +890,7 @@ export function useActivePlan() {
       const { data: items, error: itemsError } = await client
         .from('plan_session_items')
         .select(
-          'id, exercise_id, equipment_id, order_index, target_sets, target_reps_min, target_reps_max, target_rir, target_load, target_load_unit, rest_seconds, rationale, is_placeholder, target_duration_seconds, target_intensity_zone, target_interval_rest_seconds, exercises(name, pattern, primary_muscles), equipment(location_note, load_unit, load_min, load_max, load_increment, stack_kg, base_weight_kg)',
+          'id, exercise_id, equipment_id, order_index, target_sets, target_reps_min, target_reps_max, target_rir, target_load, target_load_unit, rest_seconds, rationale, is_placeholder, target_duration_seconds, target_intensity_zone, target_interval_rest_seconds, target_to_failure, target_pct_1rm_min, target_pct_1rm_max, exercises(name, pattern, primary_muscles, is_unilateral), equipment(location_note, load_unit, load_min, load_max, load_increment, stack_kg, base_weight_kg)',
         )
         .eq('plan_session_id', session.id)
         .order('order_index');
@@ -921,10 +930,14 @@ interface PlanSessionItemRow {
   readonly target_duration_seconds: number | null;
   readonly target_intensity_zone: number | null;
   readonly target_interval_rest_seconds: number | null;
+  readonly target_to_failure: boolean;
+  readonly target_pct_1rm_min: number | null;
+  readonly target_pct_1rm_max: number | null;
   readonly exercises: {
     name: string;
     pattern: MovementPattern;
     primary_muscles: MuscleGroup[] | null;
+    is_unilateral: boolean;
   } | null;
   readonly equipment: {
     location_note: string | null;
@@ -977,6 +990,13 @@ function toActiveSessionItem(raw: unknown): ActiveSessionItem {
     durationSeconds: row.target_duration_seconds,
     intensityZone: row.target_intensity_zone,
     intervalRestSeconds: row.target_interval_rest_seconds,
+    zone: zonaDe(row.target_intensity_zone, activeRuleset.cardio?.zones),
+    toFailure: row.target_to_failure,
+    isUnilateral: row.exercises?.is_unilateral ?? false,
+    pct1rm:
+      row.target_pct_1rm_min !== null && row.target_pct_1rm_max !== null
+        ? { min: row.target_pct_1rm_min, max: row.target_pct_1rm_max }
+        : null,
   };
 }
 

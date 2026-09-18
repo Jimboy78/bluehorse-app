@@ -297,6 +297,8 @@ export function useSessionLog(
           equipmentLoadSpec: item.equipmentLoadSpec,
           repsTarget: item.repsTarget,
           restPrescribedSeconds: item.restSeconds,
+          durationSeconds: item.durationSeconds,
+          toFailure: item.toFailure,
         },
         setIndex,
         restActualSeconds,

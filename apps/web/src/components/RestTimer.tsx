@@ -62,6 +62,11 @@ function restPhase(remaining: number): RestPhase {
 }
 
 interface RestTimerProps {
+  /**
+   * Cardio: entre vueltas no hay repeticiones, RIR ni carga que anotar; los
+   * minutos se anotan en la fila de cada vuelta.
+   */
+  readonly cardio?: boolean;
   /** Descanso prescripto por el motor, en segundos. */
   readonly prescribedSeconds: number;
   /** Repeticiones que pedía el plan. Es el valor por defecto: el caso común. */
@@ -77,6 +82,7 @@ interface RestTimerProps {
 }
 
 export function RestTimer({
+  cardio = false,
   prescribedSeconds,
   repsTarget,
   targetRir,
@@ -92,8 +98,13 @@ export function RestTimer({
 
   // Los valores viven en un ref además del estado: el efecto que dispara al
   // llegar a cero no debe re-armarse cada vez que el socio toca un botón.
-  const actualRef = useRef<SetActual>({ reps: repsTarget, rir: targetRir, load: targetLoad });
-  actualRef.current = { reps, rir, load };
+  const actualRef = useRef<SetActual>({
+    reps: repsTarget,
+    rir: targetRir,
+    load: targetLoad,
+    durationSeconds: null,
+  });
+  actualRef.current = { reps, rir, load, durationSeconds: null };
 
   /**
    * Contra el reloj de la máquina, no contra los ticks del intervalo.
@@ -154,18 +165,20 @@ export function RestTimer({
     <div className="flex flex-col items-center gap-6">
       <RestDial remaining={remaining} progress={progress} phase={phase} />
 
-      <SetOutcome
-        load={load}
-        targetLoad={targetLoad}
-        loadSpec={loadSpec}
-        onLoad={setLoad}
-        reps={reps}
-        repsTarget={repsTarget}
-        onReps={setReps}
-        rir={rir}
-        targetRir={targetRir}
-        onRir={setRir}
-      />
+      {!cardio && (
+        <SetOutcome
+          load={load}
+          targetLoad={targetLoad}
+          loadSpec={loadSpec}
+          onLoad={setLoad}
+          reps={reps}
+          repsTarget={repsTarget}
+          onReps={setReps}
+          rir={rir}
+          targetRir={targetRir}
+          onRir={setRir}
+        />
+      )}
 
       <div className="flex flex-col items-center gap-2.5">
         <Button

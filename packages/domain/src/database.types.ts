@@ -549,10 +549,13 @@ export type Database = {
           target_interval_rest_seconds: number | null
           target_load: number | null
           target_load_unit: Database["public"]["Enums"]["load_unit"] | null
+          target_pct_1rm_max: number | null
+          target_pct_1rm_min: number | null
           target_reps_max: number
           target_reps_min: number
           target_rir: number | null
           target_sets: number
+          target_to_failure: boolean
         }
         Insert: {
           equipment_id?: string | null
@@ -569,10 +572,13 @@ export type Database = {
           target_interval_rest_seconds?: number | null
           target_load?: number | null
           target_load_unit?: Database["public"]["Enums"]["load_unit"] | null
+          target_pct_1rm_max?: number | null
+          target_pct_1rm_min?: number | null
           target_reps_max: number
           target_reps_min: number
           target_rir?: number | null
           target_sets: number
+          target_to_failure?: boolean
         }
         Update: {
           equipment_id?: string | null
@@ -589,10 +595,13 @@ export type Database = {
           target_interval_rest_seconds?: number | null
           target_load?: number | null
           target_load_unit?: Database["public"]["Enums"]["load_unit"] | null
+          target_pct_1rm_max?: number | null
+          target_pct_1rm_min?: number | null
           target_reps_max?: number
           target_reps_min?: number
           target_rir?: number | null
           target_sets?: number
+          target_to_failure?: boolean
         }
         Relationships: [
           {

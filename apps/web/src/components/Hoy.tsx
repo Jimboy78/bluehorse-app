@@ -21,12 +21,14 @@ import { Link } from 'react-router';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
 import type { SetActual } from '../lib/mappers/session-log.ts';
 import { checkPop, fadeUp, listContainer, listItem, screen, tappable } from '../lib/motion.ts';
+import { objetivoDeLaFila, repsDeLaSerie } from '../lib/objetivo.ts';
 import { onboardingUnavailable, useProfileStatus } from '../lib/onboarding.ts';
 import type { ActiveSessionItem } from '../lib/plan.ts';
 import { useActivePlan, useGeneratePlan, useRequestNextPlan } from '../lib/plan.ts';
 import { useRestToday, useSetRestToday } from '../lib/rest-days.ts';
 import { useSessionLog } from '../lib/session-log.ts';
 import { useRestoredSession } from '../lib/session-restore.ts';
+import { CardioRow } from './CardioRow.tsx';
 import { carriesLoad } from './LoadInput.tsx';
 import { PainReport } from './PainReport.tsx';
 import { RestTimer } from './RestTimer.tsx';
@@ -92,6 +94,8 @@ export function Hoy() {
    * solo para todo el ejercicio.
    */
   const [cargaPorSerie, setCargaPorSerie] = useState<Record<string, LoadReading | null>>({});
+  /** Cardio: los minutos que se hicieron en cada bloque, por `itemId:setIndex`. */
+  const [minutosPorSerie, setMinutosPorSerie] = useState<Record<string, number>>({});
   const [restingIndex, setRestingIndex] = useState<number | null>(null);
   const [closing, setClosing] = useState(false);
   const [showingSubstitutes, setShowingSubstitutes] = useState(false);
@@ -203,7 +207,12 @@ export function Hoy() {
       // heredaba el equivocado.
       const key = `${item.id}:${restingIndex}`;
       setCargaPorSerie((mapa) => ({ ...mapa, [key]: actual.load }));
-      await markSetDone(item, restingIndex, actualSeconds, actual);
+      await markSetDone(
+        item,
+        restingIndex,
+        actualSeconds,
+        conDuracion(item, actual, minutosPorSerie[key]),
+      );
     }
     setRestingIndex(null);
   }
@@ -278,6 +287,12 @@ export function Hoy() {
             }
             onCargaSerie={(setIndex, load) =>
               setCargaPorSerie((mapa) => ({ ...mapa, [`${item.id}:${setIndex}`]: load }))
+            }
+            minutosDe={(setIndex) =>
+              minutosPorSerie[`${item.id}:${setIndex}`] ?? minutosPlanificados(item)
+            }
+            onMinutos={(setIndex, minutos) =>
+              setMinutosPorSerie((mapa) => ({ ...mapa, [`${item.id}:${setIndex}`]: minutos }))
             }
             onBack={() => {
               setActiveItemId(null);
@@ -529,9 +544,7 @@ function SessionItemRow({
           </span>
           <span className="flex items-center gap-2.5">
             <SetDots total={item.sets} done={hechas} />
-            <span className="font-mono text-xs text-slate">
-              {item.reps} reps · {item.load}
-            </span>
+            <span className="font-mono text-xs text-slate">{textoDeLaFila(item)}</span>
           </span>
           {/* Qué músculo se trabaja: sin esto, "Remo sentado" y "Jalón al
               pecho" son dos nombres y no dos cosas distintas para quien
@@ -627,6 +640,8 @@ function ExerciseDetail({
   seriesHechas,
   cargaDeSerie: cargaDe,
   onCargaSerie,
+  minutosDe,
+  onMinutos,
   onBack,
   onShowSubstitutes,
   onPickSubstitute,
@@ -651,6 +666,8 @@ function ExerciseDetail({
   /** Con cuánto va cada serie, resuelto arriba (lo propio, lo heredado o lo del plan). */
   cargaDeSerie: (setIndex: number) => LoadReading | null;
   onCargaSerie: (setIndex: number, load: LoadReading | null) => void;
+  minutosDe: (setIndex: number) => number;
+  onMinutos: (setIndex: number, minutos: number) => void;
   onBack: () => void;
   onShowSubstitutes: () => void;
   onPickSubstitute: (option: SubstituteOption, name: string, sector: string | null) => void;
@@ -705,6 +722,8 @@ function ExerciseDetail({
           eligió la persona. Ahí el bloque no se dibuja — antes quedaba la
           barra azul al costado de un párrafo vacío, con cara de cita del
           motor y sin motor detrás. */}
+      {item.zone && <ZonaCardio zone={item.zone} />}
+
       {item.rationale && (
         <p className="border-l-2 border-brand/50 bg-surface/60 py-2.5 pl-3.5 pr-3 text-sm leading-relaxed text-slate">
           {item.rationale}
@@ -763,6 +782,7 @@ function ExerciseDetail({
         <motion.div key="timer" {...screen}>
           <Card animate={false} className="px-4 py-8">
             <RestTimer
+              cardio={item.durationSeconds !== null}
               prescribedSeconds={item.restSeconds}
               repsTarget={item.repsTarget}
               targetRir={item.targetRir}
@@ -799,15 +819,26 @@ function ExerciseDetail({
 
           {seriesDe(item).map(({ id, numero: i }) => (
             <motion.div key={id} variants={listItem}>
-              <SetRow
-                index={i}
-                load={cargaDe(i)}
-                loadSpec={item.equipmentLoadSpec}
-                onLoad={(load) => onCargaSerie(i, load)}
-                targetReps={item.reps}
-                done={seriesHechas.includes(i)}
-                onToggle={() => onToggleSet(i)}
-              />
+              {item.durationSeconds !== null ? (
+                <CardioRow
+                  index={i}
+                  label={item.sets > 1 ? `Vuelta ${i + 1}` : 'Bloque'}
+                  minutes={minutosDe(i)}
+                  onMinutes={(m) => onMinutos(i, m)}
+                  done={seriesHechas.includes(i)}
+                  onToggle={() => onToggleSet(i)}
+                />
+              ) : (
+                <SetRow
+                  index={i}
+                  load={cargaDe(i)}
+                  loadSpec={item.equipmentLoadSpec}
+                  onLoad={(load) => onCargaSerie(i, load)}
+                  targetReps={repsDeLaSerie(item)}
+                  done={seriesHechas.includes(i)}
+                  onToggle={() => onToggleSet(i)}
+                />
+              )}
             </motion.div>
           ))}
         </motion.div>
@@ -1067,5 +1098,47 @@ function MarcarDescanso({ visible }: { visible: boolean }) {
         </p>
       )}
     </div>
+  );
+}
+
+/** Lo planificado para cada bloque de cardio, en minutos. */
+function minutosPlanificados(item: ActiveSessionItem): number {
+  return Math.max(1, Math.round((item.durationSeconds ?? 0) / 60));
+}
+
+/** En cardio, lo registrado lleva los minutos que se anotaron (o los del plan). */
+function conDuracion(
+  item: ActiveSessionItem,
+  actual: SetActual,
+  minutos: number | undefined,
+): SetActual {
+  if (item.durationSeconds === null) return actual;
+  return { ...actual, durationSeconds: (minutos ?? minutosPlanificados(item)) * 60 };
+}
+
+/** La fila de la lista: el objetivo y, en el trabajo de sala, con qué carga. */
+function textoDeLaFila(item: ActiveSessionItem): string {
+  const objetivo = objetivoDeLaFila(item);
+  if (item.durationSeconds !== null) return objetivo;
+  const carga = item.pct1rm ? `${item.pct1rm.min}-${item.pct1rm.max} % 1RM` : item.load;
+  return `${objetivo} · ${carga}`;
+}
+
+/**
+ * La zona como la describe el ruleset. El número solo ("zona 2") no le dice
+ * nada a quien no usa pulsómetro: por eso va cómo se siente.
+ */
+function ZonaCardio({ zone }: { zone: NonNullable<ActiveSessionItem['zone']> }) {
+  const [desde, hasta] = zone.hrPercentMax;
+  return (
+    <Card animate={false} className="flex flex-col gap-1.5 px-4 py-3">
+      <p className="font-display text-sm font-semibold uppercase tracking-[0.12em] text-brand">
+        Zona {zone.zone} · {zone.label}
+      </p>
+      <p className="text-sm leading-relaxed text-ink">{zone.feels}</p>
+      <p className="text-xs text-slate">
+        Con pulsómetro: {desde}-{hasta} % de tu frecuencia cardíaca máxima.
+      </p>
+    </Card>
   );
 }

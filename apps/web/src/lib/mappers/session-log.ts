@@ -44,8 +44,9 @@ export interface SetLogInsertRow {
   readonly load_unit: LoadUnit | null;
   readonly load_kg_normalized: number | null;
   readonly reps: number | null;
-  readonly reps_target: number;
+  readonly reps_target: number | null;
   readonly rir: number | null;
+  readonly duration_seconds: number | null;
   readonly rest_prescribed_seconds: number;
   readonly rest_actual_seconds: number;
   readonly is_warmup: boolean;
@@ -61,6 +62,10 @@ export interface SetLogItemInput {
   readonly equipmentLoadSpec: EquipmentLoadSpec | null;
   readonly repsTarget: number;
   readonly restPrescribedSeconds: number;
+  /** Cardio: la duración planificada del bloque. `null` en el trabajo de sala. */
+  readonly durationSeconds: number | null;
+  /** "Al fallo técnico": no hay repeticiones objetivo que registrar. */
+  readonly toFailure: boolean;
 }
 
 /**
@@ -78,6 +83,11 @@ export interface SetActual {
    * dura 5). `null` cuando no hay ninguna que anotar.
    */
   readonly load: LoadReading | null;
+  /**
+   * Cardio: cuánto duró de verdad, en segundos. `null` en el trabajo de sala,
+   * o si no se anotó (entonces se registra lo planificado).
+   */
+  readonly durationSeconds: number | null;
 }
 
 export function toSetLogInsert(
@@ -90,6 +100,10 @@ export function toSetLogInsert(
   completedAt: string,
   actual: SetActual,
 ): SetLogInsertRow {
+  // Un bloque de cardio no tiene repeticiones ni RIR: antes se registraba
+  // `reps: 1` y ninguna duración, así que "hice 40 minutos" quedaba en la
+  // base como "hice una repetición".
+  const cardio = item.durationSeconds !== null;
   return {
     id,
     workout_log_id: workoutLogId,
@@ -104,9 +118,12 @@ export function toSetLogInsert(
     load_unit: actual.load?.unit ?? null,
     load_kg_normalized:
       actual.load && item.equipmentLoadSpec ? toKg(actual.load, item.equipmentLoadSpec) : null,
-    reps: actual.reps,
-    reps_target: item.repsTarget,
-    rir: actual.rir,
+    reps: cardio ? null : actual.reps,
+    // Sin objetivo no hay "le faltaron repeticiones": con un número acá, la
+    // adaptación leería cualquier serie al fallo como una que no llegó.
+    reps_target: cardio || item.toFailure ? null : item.repsTarget,
+    rir: cardio ? null : actual.rir,
+    duration_seconds: cardio ? (actual.durationSeconds ?? item.durationSeconds) : null,
     rest_prescribed_seconds: item.restPrescribedSeconds,
     rest_actual_seconds: restActualSeconds,
     is_warmup: false,

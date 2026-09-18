@@ -43,6 +43,26 @@ export const manualItemDraftSchema = z.object({
   targetLoad: z.object({ value: z.number().nullable(), unit: loadUnitSchema }).nullable(),
   targetRir: z.number().int().min(0).max(10).nullable(),
   restSeconds: z.number().int().min(0).max(3600),
+  /** "3 x al fallo técnico": las repeticiones no tienen objetivo. */
+  toFailure: z.boolean(),
+  /**
+   * "Al 80-85 % 1RM". Se guarda el porcentaje, no una carga traducida: el
+   * máximo del socio cambia, y la carga se calcula al entrenar contra el de ese día.
+   */
+  pct1rm: z
+    .object({ min: z.number().int().min(1).max(100), max: z.number().int().min(1).max(100) })
+    .nullable(),
+  /**
+   * Un bloque aeróbico: minutos (por vuelta, si hay más de una), zona y el
+   * descanso suave entre vueltas. `null` en el trabajo de sala.
+   */
+  cardio: z
+    .object({
+      minutes: z.number().int().min(1).max(600),
+      zone: z.number().int().min(1).max(5).nullable(),
+      intervalRestMinutes: z.number().min(0).max(60).nullable(),
+    })
+    .nullable(),
 });
 
 export type ManualItemDraft = z.infer<typeof manualItemDraftSchema>;
@@ -130,6 +150,26 @@ export function toManualSessionInsert(
   };
 }
 
+/** Un bloque de cardio va por minutos: las columnas de sala quedan en su valor neutro. */
+function cardioInsert(cardio: NonNullable<ManualItemDraft['cardio']>, vueltas: number) {
+  const descanso =
+    vueltas > 1 && cardio.intervalRestMinutes ? Math.round(cardio.intervalRestMinutes * 60) : null;
+  return {
+    target_reps_min: 1,
+    target_reps_max: 1,
+    target_load: null,
+    target_load_unit: null,
+    target_rir: null,
+    rest_seconds: descanso ?? 0,
+    target_duration_seconds: cardio.minutes * 60,
+    target_intensity_zone: cardio.zone,
+    target_interval_rest_seconds: descanso,
+    target_to_failure: false,
+    target_pct_1rm_min: null,
+    target_pct_1rm_max: null,
+  };
+}
+
 /**
  * Un ítem cargado a mano.
  *
@@ -138,33 +178,43 @@ export function toManualSessionInsert(
  * nada ningún ruleset. Lo que avisa que el plan no está respaldado es
  * `plans.origin`, y se avisa una vez por plan en vez de una vez por ejercicio.
  *
- * Los tres campos de cardio quedan en nulo: esta pantalla prescribe series y
- * repeticiones. Un bloque aeróbico se pide por duración y zona, que es otro
- * formulario — ver lo declarado en `docs/adr/0007-planes-a-mano.md`.
+ * Tres formas de escribir un ejercicio, las tres de la rutina de un socio real:
+ * series y repeticiones, "al fallo técnico" (las repeticiones no tienen
+ * objetivo: van en 1 y no se leen, ver `target_to_failure`), y un bloque de
+ * cardio por minutos y zona. La carga, cruda o como porcentaje del máximo.
  */
 export function toManualItemInsert(
   planSessionId: string,
   orderIndex: number,
   draft: ManualItemDraft,
 ): PlanSessionItemInsertRow {
-  const load: LoadReading | null = draft.targetLoad;
-  return {
+  const base = {
     plan_session_id: planSessionId,
     order_index: orderIndex,
     exercise_id: draft.exerciseId,
     equipment_id: draft.equipmentId,
     target_sets: draft.targetSets,
-    target_reps_min: Math.min(draft.targetRepsMin, draft.targetRepsMax),
-    target_reps_max: Math.max(draft.targetRepsMin, draft.targetRepsMax),
+    rationale: null,
+    is_placeholder: false,
+  };
+  if (draft.cardio) return { ...base, ...cardioInsert(draft.cardio, draft.targetSets) };
+
+  // Con porcentaje no hay carga fija: el número sale del máximo del día.
+  const load: LoadReading | null = draft.pct1rm ? null : draft.targetLoad;
+  return {
+    ...base,
+    target_reps_min: draft.toFailure ? 1 : Math.min(draft.targetRepsMin, draft.targetRepsMax),
+    target_reps_max: draft.toFailure ? 1 : Math.max(draft.targetRepsMin, draft.targetRepsMax),
     target_load: load?.value ?? null,
     target_load_unit: load?.unit ?? null,
     target_rir: draft.targetRir,
     rest_seconds: draft.restSeconds,
-    rationale: null,
-    is_placeholder: false,
     target_duration_seconds: null,
     target_intensity_zone: null,
     target_interval_rest_seconds: null,
+    target_to_failure: draft.toFailure,
+    target_pct_1rm_min: draft.pct1rm ? Math.min(draft.pct1rm.min, draft.pct1rm.max) : null,
+    target_pct_1rm_max: draft.pct1rm ? Math.max(draft.pct1rm.min, draft.pct1rm.max) : null,
   };
 }
 

@@ -64,6 +64,10 @@ export interface PlanSessionItemInsertRow {
   readonly target_duration_seconds: number | null;
   readonly target_intensity_zone: number | null;
   readonly target_interval_rest_seconds: number | null;
+  /** Solo en planes a mano: el motor siempre prescribe repeticiones y carga cruda. */
+  readonly target_to_failure: boolean;
+  readonly target_pct_1rm_min: number | null;
+  readonly target_pct_1rm_max: number | null;
 }
 
 export function toPlanInsert(
@@ -124,5 +128,8 @@ export function toPlanSessionItemInserts(
     target_duration_seconds: item.targetDurationSeconds,
     target_intensity_zone: item.targetIntensityZone,
     target_interval_rest_seconds: item.targetIntervalRestSeconds,
+    target_to_failure: false,
+    target_pct_1rm_min: null,
+    target_pct_1rm_max: null,
   }));
 }

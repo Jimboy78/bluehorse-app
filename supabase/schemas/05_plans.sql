@@ -136,5 +136,17 @@ create table plan_session_items (
   target_intensity_zone smallint check (target_intensity_zone between 1 and 5),
   target_interval_rest_seconds integer check (target_interval_rest_seconds > 0),
 
+  /* "3 x al fallo técnico": las repeticiones no tienen objetivo, se hacen hasta
+     que la técnica se rompe. `target_reps_min`/`max` quedan en 1 y no se leen
+     como objetivo: el registro guarda `reps_target` nulo. */
+  target_to_failure boolean not null default false,
+
+  /* "4 x 5 al 80-85 % 1RM": la carga como porcentaje del máximo del socio en
+     ese ejercicio. Se traduce a la unidad de la estación en pantalla, contra un
+     máximo estimado de lo que el socio levantó; nunca se guarda traducida. */
+  target_pct_1rm_min smallint check (target_pct_1rm_min between 1 and 100),
+  target_pct_1rm_max smallint check (target_pct_1rm_max between 1 and 100),
+  check (target_pct_1rm_min <= target_pct_1rm_max),
+
   unique (plan_session_id, order_index)
 );
