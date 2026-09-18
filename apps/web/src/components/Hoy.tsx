@@ -29,6 +29,7 @@ import { useRestToday, useSetRestToday } from '../lib/rest-days.ts';
 import { useSessionLog } from '../lib/session-log.ts';
 import { useRestoredSession } from '../lib/session-restore.ts';
 import { CardioRow } from './CardioRow.tsx';
+import { CargaPorMaximo } from './CargaPorMaximo.tsx';
 import { ElegirDia } from './ElegirDia.tsx';
 import { carriesLoad } from './LoadInput.tsx';
 import { PainReport } from './PainReport.tsx';
@@ -730,6 +731,7 @@ function ExerciseDetail({
           barra azul al costado de un párrafo vacío, con cara de cita del
           motor y sin motor detrás. */}
       {item.zone && <ZonaCardio zone={item.zone} />}
+      <CargaPorMaximo item={item} />
 
       {item.rationale && (
         <p className="border-l-2 border-brand/50 bg-surface/60 py-2.5 pl-3.5 pr-3 text-sm leading-relaxed text-slate">

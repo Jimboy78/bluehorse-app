@@ -117,6 +117,45 @@ supervisión.
   rama "declarada" del onboarding: si la gente subestima su propia carga elegida en un 53 %, su
   autorreporte de cuánto levanta hereda ese problema.
 
+## Actualización, 18/09/2026: Epley, pero solo donde se puede
+
+Un socio armó su plan a mano con cargas en porcentaje ("sentadilla 4 × 5 al 80-85 % 1RM"). La
+brecha de arriba sigue: la app no tiene cómo saber el 1RM de alguien que eligió su carga de
+entrada. Pero una vez que entrena, `set_logs` guarda carga, repeticiones y RIR, y eso sí es una
+serie submáxima de la que estimar.
+
+**Lo que se implementó** (`packages/domain/src/one-rep-max.ts`): Epley sobre las repeticiones
+hasta el fallo, que son las hechas más el RIR. Con dos límites que viven en el ruleset
+(`oneRepMax`):
+
+- **`maxRepsToFailure: 10`.** Reynolds, Gordon y Robergs, *Prediction of one repetition maximum
+  strength from multiple repetition maximum testing and anthropometry*, J Strength Cond Res
+  2006;20(3):584-592, doi:10.1519/R-15304.1 — **verificado, abstract leído (PMID 16937972)**:
+  "no more than 10 repetitions should be used in linear equations to estimate 1RM". Y la
+  predicción fue más precisa desde 5RM que desde 10 o 20. Epley es lineal en las repeticiones.
+- **`maxRir: 3`.** Lo de arriba: cerca del fallo el RIR erra por menos de una repetición (Refalo
+  2024, predicciones de 1 a 3 RIR). Más lejos no hay medición que lo sostenga.
+
+Se toma el entrenamiento más reciente con alguna serie válida, no la mejor de la historia: un
+máximo de antes de un parate le pondría a alguien una carga que hoy no mueve.
+
+**Lo que NO se hace, a propósito:**
+
+- **Estaciones de discos sin el peso de la barra.** El porcentaje es del levantamiento, no de los
+  discos: con una barra de 20 kg, el 80 % de "60 de discos" no es el 80 % de 80. Las 17 estaciones
+  de discos del catálogo real tienen `base_weight_kg` vacío, así que hoy la app dice que falta ese
+  dato en vez de calcular. Es el mismo relevamiento pendiente de `load_min`/`load_max`.
+- **Pin.** No existe medio pin (CLAUDE.md): un porcentaje no tiene escala ahí.
+- **Series sin RIR.** Sin saber cuán lejos quedó del fallo, las repeticiones no dicen nada del
+  máximo.
+
+## Lo que sigue sin cubrir
+
+- **El error de Epley por tramo, contra un 1RM medido.** Reynolds da precisión por RM de sus propias
+  ecuaciones de regresión, no de Epley. No se buscó una validación de Epley en sentadilla y peso
+  muerto con DOI; LeSuer y cols. 1997 (J Strength Cond Res 11(4):211-213) es la candidata, pero
+  su resumen no está en Crossref ni en Europe PMC y no se leyó. Queda como fuente a abrir.
+
 ## Nota sobre las fuentes de esta iteración
 
 El informe citó `10.1007/s40279-021-01467-0` como "Weakley et al. 2021, metaanálisis de datos

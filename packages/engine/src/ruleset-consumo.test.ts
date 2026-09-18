@@ -103,6 +103,9 @@ describe('bloques del ruleset sin consumir', () => {
     const raiz = join(import.meta.dirname, '..', '..', '..');
     const archivos = [
       ...fuentes(join(raiz, 'packages', 'engine', 'src')),
+      // El dominio también lee del ruleset cuando se le pasa un bloque entero
+      // (`estimarMaximo` recibe `oneRepMax` y lee `maxRir`).
+      ...fuentes(join(raiz, 'packages', 'domain', 'src')),
       ...fuentes(join(raiz, 'apps', 'web', 'src')),
     ];
     // El esquema zod nombra todas las claves por definición: si contara, ninguna

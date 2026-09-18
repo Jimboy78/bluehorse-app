@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-18T17:11:32.585Z",
+ "generatedAt": "2026-09-18T17:55:18.214Z",
  "docs": [
   {
    "id": "metodo",
@@ -167,7 +167,7 @@
    "titulo": "Arrancar sin test de 1RM: la brecha de fuerza no se cierra",
    "resumen": "Hueco abierto en 15-baselines.md: las fórmulas de estimación de 1RM que 04 propone (Epley, Brzycki) nunca se implementaron, user_baselines se lee y no se escribe nunca, y targetLoad es null en todos los ítems de todos los planes.",
    "archivo": "20-arranque-sin-test.md",
-   "bloques": 32
+   "bloques": 41
   },
   {
    "id": "21-fragilidad",

@@ -1074,6 +1074,10 @@
     "emphasisUnreachableNote": "Tu deporte trabaja sobre todo {muscles}, y este plan no lo cubre: no aparece en ninguna sesion ni entre los equivalentes que podes elegir en su lugar. El gimnasio no tiene hoy con que entrenarlo dentro de un plan. Consultalo con el staff si te importa esa parte.",
     "emphasisOnlyBySwapNote": "Tu deporte trabaja sobre todo {muscles}, y el plan no lo trae de entrada. Si te importa esa parte, en cada ejercicio tenes \"otras formas de hacerlo\": ahi aparece alguna opcion que si lo trabaja, y podes cambiarla durante la sesion."
   },
+  "oneRepMax": {
+    "maxRepsToFailure": 10,
+    "maxRir": 3
+  },
   "cardio": {
     "zones": [
       {

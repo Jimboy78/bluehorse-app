@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-18",
-  "resolved": 67,
+  "resolved": 68,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -134,6 +134,25 @@
       "moreAuthors": 0,
       "year": 2023,
       "journal": "Perceptual and Motor Skills",
+      "type": "journal-article",
+      "temas": [
+        "Arranque sin test"
+      ],
+      "documentos": [
+        "20-arranque-sin-test.md"
+      ]
+    },
+    {
+      "doi": "10.1519/R-15304.1",
+      "title": "Prediction of One Repetition Maximum Strength From Multiple Repetition Maximum Testing and Anthropometry",
+      "authors": [
+        "Reynolds",
+        "Gordon",
+        "Robergs"
+      ],
+      "moreAuthors": 0,
+      "year": 2006,
+      "journal": "The Journal of Strength and Conditioning Research",
       "type": "journal-article",
       "temas": [
         "Arranque sin test"

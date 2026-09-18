@@ -777,6 +777,19 @@ export const rulesetSchema = z.object({
     .optional(),
   sports: sportsSchema.optional(),
   cardio: cardioSchema.optional(),
+  /**
+   * Hasta dónde se puede estimar el máximo de una serie submáxima (Epley sobre
+   * repeticiones hechas + RIR), para traducir un "80 % 1RM" de un plan a mano a
+   * lo que dice la máquina. `maxRepsToFailure`: Reynolds 2006, una ecuación
+   * lineal no vale más allá de 10. `maxRir`: el RIR es preciso cerca del fallo
+   * (Refalo 2024, Remmert 2023; `docs/research/20`) y se degrada lejos.
+   */
+  oneRepMax: z
+    .object({
+      maxRepsToFailure: z.number().int().min(1).max(30),
+      maxRir: z.number().int().min(0).max(10),
+    })
+    .optional(),
   safety: safetySchema.optional(),
   modifiers: modifiersSchema.optional(),
   substitution: z.object({
