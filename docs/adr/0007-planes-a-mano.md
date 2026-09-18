@@ -91,3 +91,20 @@ número es cuál en pantalla.
 - La adaptación (propuestas de subir carga, descarga) mira `set_logs` contra `plan_session_items`,
   así que funciona igual sobre un plan manual. Lo que no hay es un ruleset contra el cual comparar
   la prescripción original — si eso importa más adelante, es una decisión aparte.
+
+## Actualización, 18/09/2026
+
+Lo que la primera versión dejó afuera lo pidió la rutina de un socio real, y entró:
+
+- **Cardio y movilidad por minutos.** El formulario cambia según el ejercicio: minutos, vueltas
+  (vacío = un bloque seguido), descanso suave entre vueltas y zona, que se elige con los nombres y
+  el "cómo se siente" del ruleset. La movilidad es un patrón propio (`mobility`) que ninguna
+  plantilla pide, así que el motor no la elige nunca.
+- **"Al fallo técnico"** (`target_to_failure`): sin repeticiones objetivo. Lo registrado guarda
+  `reps_target` nulo, para que la adaptación no lea cada serie al fallo como una que no llegó.
+- **Carga en % de 1RM** (`target_pct_1rm_min`/`max`): se guarda el porcentaje, no una carga
+  traducida.
+- **El plan no se termina.** Al hacer el último día, Hoy ofrecía "Pedir las próximas sesiones", que
+  archiva el plan manual y genera uno del motor. Ahora la semana vuelve a empezar, y en cualquier
+  momento antes de la primera serie se puede elegir por qué día seguir: la cola rota, no se borra
+  nada (`lib/mappers/retomar.ts`).

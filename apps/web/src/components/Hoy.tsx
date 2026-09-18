@@ -29,6 +29,7 @@ import { useRestToday, useSetRestToday } from '../lib/rest-days.ts';
 import { useSessionLog } from '../lib/session-log.ts';
 import { useRestoredSession } from '../lib/session-restore.ts';
 import { CardioRow } from './CardioRow.tsx';
+import { ElegirDia } from './ElegirDia.tsx';
 import { carriesLoad } from './LoadInput.tsx';
 import { PainReport } from './PainReport.tsx';
 import { RestTimer } from './RestTimer.tsx';
@@ -361,6 +362,12 @@ export function Hoy() {
             </Button>
 
             <MarcarDescanso visible={puedeDescansar} />
+            <CambiarDeDia
+              visible={puedeDescansar}
+              planId={plan.data.planId}
+              actualId={session.planSessionId}
+              manual={plan.data.planOrigin === 'manual'}
+            />
           </motion.section>
         )}
       </AnimatePresence>
@@ -919,7 +926,11 @@ function PlanStateMessage({
   }
 
   if (plan.data?.kind === 'queue-empty') {
-    return <QueueDone />;
+    return plan.data.planOrigin === 'manual' ? (
+      <SemanaTerminada planId={plan.data.planId} />
+    ) : (
+      <QueueDone />
+    );
   }
 
   // plan.isError o plan.data?.kind === 'no-plan': mismo llamado a la acción.
@@ -1140,5 +1151,39 @@ function ZonaCardio({ zone }: { zone: NonNullable<ActiveSessionItem['zone']> }) 
         Con pulsómetro: {desde}-{hasta} % de tu frecuencia cardíaca máxima.
       </p>
     </Card>
+  );
+}
+
+/** Solo antes de la primera serie: con algo registrado, hoy ya es ese día. */
+function CambiarDeDia({
+  visible,
+  planId,
+  actualId,
+  manual,
+}: {
+  visible: boolean;
+  planId: string;
+  actualId: string;
+  manual: boolean;
+}) {
+  if (!visible) return null;
+  return <ElegirDia planId={planId} actualId={actualId} reiniciar={manual} />;
+}
+
+/**
+ * Un plan armado a mano no se termina: es la semana del socio, sin fecha de
+ * fin. Antes, al hacer el último día, esta pantalla ofrecía "Pedir las
+ * próximas sesiones" —que archiva el plan y genera uno del motor—, o sea que
+ * terminar la semana borraba la rutina de la pantalla. Ahora se vuelve a
+ * empezar, eligiendo por qué día.
+ */
+function SemanaTerminada({ planId }: { planId: string }) {
+  return (
+    <div className="flex flex-col gap-4">
+      <EmptyState icon={<Trophy size={24} aria-hidden="true" />} title="Terminaste la semana">
+        Tu plan sigue igual. Elegí por qué día arrancás la próxima.
+      </EmptyState>
+      <ElegirDia planId={planId} actualId={null} reiniciar abierto />
+    </div>
   );
 }

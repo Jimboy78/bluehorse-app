@@ -842,7 +842,7 @@ export interface ActiveSession {
  */
 export type ActivePlanState =
   | { readonly kind: 'no-plan' }
-  | { readonly kind: 'queue-empty' }
+  | { readonly kind: 'queue-empty'; readonly planId: string; readonly planOrigin: PlanOrigin }
   | {
       readonly kind: 'active';
       readonly planId: string;
@@ -885,7 +885,9 @@ export function useActivePlan() {
         .limit(1)
         .maybeSingle();
       if (sessionError) throw sessionError;
-      if (!session) return { kind: 'queue-empty' };
+      if (!session) {
+        return { kind: 'queue-empty', planId: plan.id, planOrigin: plan.origin as PlanOrigin };
+      }
 
       const { data: items, error: itemsError } = await client
         .from('plan_session_items')
