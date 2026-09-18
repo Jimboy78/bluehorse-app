@@ -188,6 +188,12 @@ export interface ManualPlanItem {
   readonly targetLoad: LoadReading | null;
   readonly targetRir: number | null;
   readonly restSeconds: number;
+  readonly durationSeconds: number | null;
+  readonly intensityZone: number | null;
+  readonly intervalRestSeconds: number | null;
+  readonly toFailure: boolean;
+  readonly pct1rm: { readonly min: number; readonly max: number } | null;
+  readonly isUnilateral: boolean;
 }
 
 export interface ManualPlanSession {
@@ -260,7 +266,7 @@ async function fetchManualSessions(
   const { data: items, error: itemsError } = await client
     .from('plan_session_items')
     .select(
-      'id, plan_session_id, order_index, exercise_id, target_sets, target_reps_min, target_reps_max, target_load, target_load_unit, target_rir, rest_seconds, exercises(name), equipment(name)',
+      'id, plan_session_id, order_index, exercise_id, target_sets, target_reps_min, target_reps_max, target_load, target_load_unit, target_rir, rest_seconds, target_duration_seconds, target_intensity_zone, target_interval_rest_seconds, target_to_failure, target_pct_1rm_min, target_pct_1rm_max, exercises(name, is_unilateral), equipment(name)',
     )
     .in(
       'plan_session_id',
@@ -294,7 +300,13 @@ interface RawManualItem {
   readonly target_load_unit: LoadReading['unit'] | null;
   readonly target_rir: number | null;
   readonly rest_seconds: number;
-  readonly exercises: { name: string } | null;
+  readonly target_duration_seconds: number | null;
+  readonly target_intensity_zone: number | null;
+  readonly target_interval_rest_seconds: number | null;
+  readonly target_to_failure: boolean;
+  readonly target_pct_1rm_min: number | null;
+  readonly target_pct_1rm_max: number | null;
+  readonly exercises: { name: string; is_unilateral: boolean } | null;
   readonly equipment: { name: string } | null;
 }
 
@@ -320,6 +332,15 @@ function groupItems(rows: readonly unknown[]): Map<string, ManualPlanItem[]> {
         : null,
       targetRir: row.target_rir,
       restSeconds: row.rest_seconds,
+      durationSeconds: row.target_duration_seconds,
+      intensityZone: row.target_intensity_zone,
+      intervalRestSeconds: row.target_interval_rest_seconds,
+      toFailure: row.target_to_failure,
+      pct1rm:
+        row.target_pct_1rm_min !== null && row.target_pct_1rm_max !== null
+          ? { min: row.target_pct_1rm_min, max: row.target_pct_1rm_max }
+          : null,
+      isUnilateral: row.exercises?.is_unilateral ?? false,
     });
     bySession.set(row.plan_session_id, lista);
   }

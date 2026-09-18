@@ -2,7 +2,9 @@ import { formatLoad } from '@bh/domain';
 import { Clock, Plus, Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
+import { activeRuleset } from '../lib/engine.ts';
 import type { ManualPlanItem, ManualPlanSession } from '../lib/manual-plan.ts';
+import { resumenDelItem, zonaDe } from '../lib/objetivo.ts';
 import { Button, Card, ConfirmDialog } from './ui/index.ts';
 
 /**
@@ -12,10 +14,14 @@ import { Button, Card, ConfirmDialog } from './ui/index.ts';
  * ninguna interpretación acá: ni "carga sugerida", ni "descanso recomendado".
  * Lo que se ve es lo que puso.
  *
- * El día completado no se puede borrar desde acá: sus series ya están en
- * `set_logs` y borrar la sesión planificada dejaría ese registro apuntando a
- * un plan que no existe. Planificado y real son tablas distintas (regla dura
- * 7) justamente para no perder lo segundo cuando cambia lo primero.
+ * Un día ya entrenado se puede editar igual. Antes quedaba bloqueado ("no se
+ * toca"), y en un plan a mano —una semana que se repite sin fecha de fin—
+ * eso dejaba el lunes congelado para siempre después del primer lunes. Lo
+ * que se temía no pasa: `set_logs.plan_session_item_id` es `on delete set
+ * null`, así que las series quedan en el historial, y Progreso y la
+ * adaptación las leen por ejercicio, no por ítem del plan (regla dura 7: lo
+ * real no se pierde cuando cambia lo planificado). Lo que sí cambia es que
+ * sacar algo ya entrenado se confirma antes.
  */
 export function ManualSessionCard({
   session,
@@ -33,6 +39,7 @@ export function ManualSessionCard({
   readonly form: ReactNode;
 }) {
   const [borrando, setBorrando] = useState(false);
+  const [sacando, setSacando] = useState<ManualPlanItem | null>(null);
   const yaEntrenada = session.status !== 'pending';
 
   return (
@@ -51,7 +58,7 @@ export function ManualSessionCard({
             {session.items.length === 1 ? 'ejercicio' : 'ejercicios'}
           </p>
         </div>
-        {!yaEntrenada && (
+        {
           <button
             type="button"
             onClick={() => setBorrando(true)}
@@ -60,25 +67,23 @@ export function ManualSessionCard({
           >
             <Trash2 size={15} aria-hidden="true" />
           </button>
-        )}
+        }
       </div>
 
       {session.items.length > 0 && (
         <ul className="flex flex-col divide-y divide-line/70">
           {session.items.map((item) => (
             <li key={item.id}>
-              <ItemRow item={item} onDelete={yaEntrenada ? null : () => onDeleteItem(item.id)} />
+              <ItemRow
+                item={item}
+                onDelete={() => (yaEntrenada ? setSacando(item) : onDeleteItem(item.id))}
+              />
             </li>
           ))}
         </ul>
       )}
 
-      {yaEntrenada ? (
-        <p className="text-xs text-slate">
-          Este día ya lo entrenaste. No se toca: lo que hiciste quedó registrado contra estos
-          ejercicios.
-        </p>
-      ) : cargando ? (
+      {cargando ? (
         form
       ) : (
         <Button variant="ghost" size="sm" className="self-start" onClick={onOpenForm}>
@@ -101,6 +106,22 @@ export function ManualSessionCard({
         Se van también los {session.items.length}{' '}
         {session.items.length === 1 ? 'ejercicio' : 'ejercicios'} que le cargaste. Los otros días
         del plan quedan como están.
+        {yaEntrenada && ' Lo que ya entrenaste ese día queda en tu historial.'}
+      </ConfirmDialog>
+
+      <ConfirmDialog
+        open={sacando !== null}
+        title={`¿Sacar ${sacando?.exerciseName ?? ''}?`}
+        confirmLabel="Sacarlo"
+        confirmVariant="danger"
+        onConfirm={() => {
+          if (sacando) onDeleteItem(sacando.id);
+          setSacando(null);
+        }}
+        onCancel={() => setSacando(null)}
+      >
+        Ya lo entrenaste este día. Tus series quedan en tu historial y en Progreso; lo que cambia es
+        lo que te toca las próximas veces.
       </ConfirmDialog>
     </Card>
   );
@@ -111,29 +132,30 @@ function ItemRow({
   onDelete,
 }: {
   readonly item: ManualPlanItem;
-  readonly onDelete: (() => void) | null;
+  readonly onDelete: () => void;
 }) {
-  const reps =
-    item.targetRepsMin === item.targetRepsMax
-      ? `${item.targetRepsMin}`
-      : `${item.targetRepsMin}–${item.targetRepsMax}`;
+  const resumen = resumenDelItem({
+    ...item,
+    zone: zonaDe(item.intensityZone, activeRuleset.cardio?.zones),
+  });
+  const cardio = item.durationSeconds !== null;
 
   return (
     <div className="flex items-center gap-3 py-2.5">
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <p className="truncate text-sm font-semibold">{item.exerciseName}</p>
         <p className="text-[0.65rem] text-slate-dim">
-          {item.targetSets} × {reps}
+          {resumen}
           {/* La carga se muestra cruda, en la unidad de la máquina (regla dura 6). */}
           {item.targetLoad && ` · ${formatLoad(item.targetLoad)}`}
           {item.targetRir !== null && ` · RIR ${item.targetRir}`}
-          {` · ${item.restSeconds}s de descanso`}
+          {!cardio && ` · ${item.restSeconds}s de descanso`}
         </p>
         {item.equipmentName && (
           <p className="truncate text-[0.6rem] text-slate-dim">{item.equipmentName}</p>
         )}
       </div>
-      {onDelete && (
+      {
         <button
           type="button"
           onClick={onDelete}
@@ -142,7 +164,7 @@ function ItemRow({
         >
           <Trash2 size={14} aria-hidden="true" />
         </button>
-      )}
+      }
     </div>
   );
 }

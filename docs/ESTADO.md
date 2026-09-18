@@ -1,6 +1,46 @@
 # Estado del trabajo
 
-## Última actualización: 8 de septiembre de 2026 (quinta sesión: UX/UI, previa del plan, datos del cuerpo)
+## Última actualización: 18 de septiembre de 2026 (la rutina escrita de un socio, entera)
+
+El pedido vino de un socio real con su rutina de lunes a viernes escrita a mano: %1RM, "al fallo
+técnico", cardio en zona 2, un día de recuperación activa con movilidad, ejercicios por pierna. Y
+dos cosas más: poder decir "hoy descanso" sin perder la racha, y elegir por qué día retomar.
+
+**Lo que entró** (todo en producción, migraciones aplicadas con `db push --linked`):
+
+- **Descanso** (`rest_days`, botón en Hoy). La racha cuenta días entrenados; un día sin sesión no
+  la corta si se marcó o si entra en el cupo de la frecuencia declarada (7 − N en cualquier ventana
+  de 7). `docs/research/36`, Lally 2010.
+- **Cardio de verdad en Hoy.** La fila decía "40 min reps · sin carga previa", la zona no aparecía
+  en ninguna pantalla y un bloque se registraba como `reps=1` sin duración. Ahora minutos editables
+  por bloque o vuelta, zona con el "cómo se siente" del ruleset, y `duration_seconds` en el log.
+- **Plan a mano**: cardio/movilidad por minutos y zona, "al fallo técnico"
+  (`target_to_failure`, loguea `reps_target` nulo), carga en % 1RM
+  (`target_pct_1rm_min/max`), "por lado" en unilaterales. ADR 0007 actualizado.
+- **Movilidad** como patrón propio (`mobility`), que ninguna plantilla pide.
+- **Retomar desde otro día**: la cola rota, no se borra. Un plan a mano se reinicia (es un ciclo);
+  uno del motor rota solo lo pendiente. Al terminar la semana, un plan a mano vuelve a empezar —
+  antes ofrecía "Pedir las próximas sesiones", que lo archivaba y generaba uno del motor.
+- **%1RM → carga de la estación**: Epley sobre reps + RIR, límites en `ruleset.oneRepMax`
+  (Reynolds 2006, Refalo 2024). `docs/research/20`, actualización.
+
+**Bugs encontrados en el camino:**
+
+- `chooseComplement` (reemplazo por dolor) filtraba por músculo y no por patrón ni medida: la
+  escaladora podía ocupar el lugar del peso muerto de alguien con lumbalgia, en series × reps.
+- Dos `useQuery` con la misma clave (`plan-sessions`) y distinta forma: "Cambiar de día" rompía
+  "Ver las sesiones". Medido en producción. `lib/query-keys.test.ts` lo frena; trampa en CLAUDE.md.
+
+**Lo que falta, y es del gimnasio, no del código:**
+
+- **El peso de las barras.** Las 17 estaciones de discos tienen `base_weight_kg` vacío. Sin eso
+  el %1RM no se pasa a kilos (el 80 % de los discos no es el 80 % del levantamiento) y la app lo
+  dice en vez de calcular. Es el mismo relevamiento que `load_min`/`load_max`.
+- Verificar a mano una muestra de DOIs, como antes.
+
+El plan del socio (`3b2620da…`) quedó cargado con su rutina tal cual: 5 días, 20 ítems.
+
+## 8 de septiembre de 2026 (quinta sesión: UX/UI, previa del plan, datos del cuerpo)
 
 Sesión de pulido, no de funcionalidad nueva. El pedido fue textual: "el tema de que sea todo muy
 inmediato, no hay spinners… hay muchas decisiones que ni siquiera te hacen una pequeña

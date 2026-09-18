@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { activeRuleset } from './engine.ts';
-import { type ObjetivoItem, objetivoDeLaFila, repsDeLaSerie, zonaDe } from './objetivo.ts';
+import {
+  type ObjetivoItem,
+  objetivoDeLaFila,
+  type ResumenItem,
+  repsDeLaSerie,
+  resumenDelItem,
+  zonaDe,
+} from './objetivo.ts';
 
 const zonas = activeRuleset.cardio?.zones;
 
@@ -51,5 +58,59 @@ describe('zonaDe', () => {
   it('sin zona o fuera del ruleset, null', () => {
     expect(zonaDe(null, zonas)).toBeNull();
     expect(zonaDe(9, zonas)).toBeNull();
+  });
+});
+
+describe('resumenDelItem (editor del plan a mano)', () => {
+  const base = (over: Partial<ResumenItem> = {}): ResumenItem => ({
+    targetSets: 4,
+    targetRepsMin: 5,
+    targetRepsMax: 5,
+    durationSeconds: null,
+    intervalRestSeconds: null,
+    toFailure: false,
+    isUnilateral: false,
+    zone: null,
+    pct1rm: null,
+    ...over,
+  });
+
+  it('series, repeticiones y el porcentaje si lo hay', () => {
+    expect(resumenDelItem(base({ pct1rm: { min: 80, max: 85 } }))).toBe('4 × 5 · 80-85 % 1RM');
+  });
+
+  it('al fallo no dice "× 1"', () => {
+    const texto = resumenDelItem(
+      base({ targetSets: 3, targetRepsMin: 1, targetRepsMax: 1, toFailure: true }),
+    );
+    expect(texto).toBe('3 × al fallo técnico');
+  });
+
+  it('por lado', () => {
+    expect(
+      resumenDelItem(
+        base({ targetSets: 3, targetRepsMin: 3, targetRepsMax: 3, isUnilateral: true }),
+      ),
+    ).toBe('3 × 3 por lado');
+  });
+
+  it('cardio: minutos y zona, no "1 × 1"', () => {
+    const texto = resumenDelItem(
+      base({
+        targetSets: 1,
+        targetRepsMin: 1,
+        targetRepsMax: 1,
+        durationSeconds: 2100,
+        zone: zonaDe(2, zonas),
+      }),
+    );
+    expect(texto.startsWith('35 min · zona 2')).toBe(true);
+    expect(texto).not.toContain('×');
+  });
+
+  it('cardio por vueltas', () => {
+    expect(
+      resumenDelItem(base({ targetSets: 4, durationSeconds: 240, intervalRestSeconds: 180 })),
+    ).toBe('4 × 4 min · 3 min suave');
   });
 });

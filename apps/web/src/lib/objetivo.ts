@@ -46,3 +46,41 @@ export function repsDeLaSerie(item: ObjetivoItem): string {
   if (item.toFailure) return `al fallo${porLado}`;
   return `${item.reps}${porLado}`;
 }
+
+export interface ResumenItem {
+  readonly targetSets: number;
+  readonly targetRepsMin: number;
+  readonly targetRepsMax: number;
+  readonly durationSeconds: number | null;
+  readonly intervalRestSeconds: number | null;
+  readonly toFailure: boolean;
+  readonly isUnilateral: boolean;
+  readonly zone: CardioZone | null;
+  readonly pct1rm: { readonly min: number; readonly max: number } | null;
+}
+
+/**
+ * La línea de un ítem en el editor del plan a mano: "4 × 5 · 80-85 % 1RM",
+ * "3 × al fallo técnico", "35 min · zona 2, cómodo". Antes era siempre
+ * "{series} × {reps}", y un bloque de cardio se leía "1 × 1".
+ */
+export function resumenDelItem(item: ResumenItem): string {
+  if (item.durationSeconds !== null) {
+    const minutos = Math.round(item.durationSeconds / 60);
+    const base =
+      item.targetSets > 1
+        ? `${item.targetSets} × ${minutos} min${item.intervalRestSeconds ? ` · ${Math.round(item.intervalRestSeconds / 60)} min suave` : ''}`
+        : `${minutos} min`;
+    return item.zone ? `${base} · zona ${item.zone.zone}, ${item.zone.label.toLowerCase()}` : base;
+  }
+  const reps =
+    item.targetRepsMin === item.targetRepsMax
+      ? `${item.targetRepsMin}`
+      : `${item.targetRepsMin}–${item.targetRepsMax}`;
+  const porLado = item.isUnilateral ? ' por lado' : '';
+  const objetivo = item.toFailure ? `al fallo técnico${porLado}` : `${reps}${porLado}`;
+  const pct = item.pct1rm
+    ? ` · ${item.pct1rm.min === item.pct1rm.max ? item.pct1rm.min : `${item.pct1rm.min}-${item.pct1rm.max}`} % 1RM`
+    : '';
+  return `${item.targetSets} × ${objetivo}${pct}`;
+}
