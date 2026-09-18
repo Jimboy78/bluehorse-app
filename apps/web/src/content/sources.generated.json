@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-18",
-  "resolved": 77,
+  "resolved": 83,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -232,11 +232,13 @@
       "type": "journal-article",
       "temas": [
         "Cardio y resistencia",
-        "Cobertura muscular"
+        "Cobertura muscular",
+        "Cómo procesa el motor"
       ],
       "documentos": [
         "02-cardio-resistencia-recomposicion.md",
-        "24-cobertura-muscular.md"
+        "24-cobertura-muscular.md",
+        "38-como-procesa-el-motor.md"
       ]
     },
     {
@@ -330,6 +332,120 @@
       ],
       "documentos": [
         "22-carga-de-potencia.md"
+      ]
+    },
+    {
+      "doi": "10.1002/14651858.cd012424.pub2",
+      "title": "Exercise for preventing falls in older people living in the community",
+      "authors": [
+        "Sherrington",
+        "Fairhall",
+        "Wallbank"
+      ],
+      "moreAuthors": 6,
+      "year": 2019,
+      "journal": "Cochrane Database of Systematic Reviews",
+      "type": "journal-article",
+      "temas": [
+        "Cómo procesa el motor"
+      ],
+      "documentos": [
+        "38-como-procesa-el-motor.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2016-097066",
+      "title": "Effect of specific exercise-based football injury prevention programmes on the overall injury rate in football: a systematic review and meta-analysis of the FIFA 11 and 11+ programmes",
+      "authors": [
+        "Thorborg",
+        "Krommes",
+        "Esteve"
+      ],
+      "moreAuthors": 3,
+      "year": 2017,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Cómo procesa el motor"
+      ],
+      "documentos": [
+        "38-como-procesa-el-motor.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s40279-021-01490-1",
+      "title": "No Time to Lift? Designing Time-Efficient Training Programs for Strength and Hypertrophy: A Narrative Review",
+      "authors": [
+        "Iversen",
+        "Norum",
+        "Schoenfeld"
+      ],
+      "moreAuthors": 1,
+      "year": 2021,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Cómo procesa el motor"
+      ],
+      "documentos": [
+        "38-como-procesa-el-motor.md"
+      ]
+    },
+    {
+      "doi": "10.3389/fphys.2019.00376",
+      "title": "A Meta-Analysis of the Effects of Foam Rolling on Performance and Recovery",
+      "authors": [
+        "Wiewelhove",
+        "Döweling",
+        "Schneider"
+      ],
+      "moreAuthors": 5,
+      "year": 2019,
+      "journal": "Frontiers in Physiology",
+      "type": "journal-article",
+      "temas": [
+        "Cómo procesa el motor"
+      ],
+      "documentos": [
+        "38-como-procesa-el-motor.md"
+      ]
+    },
+    {
+      "doi": "10.1177/2047487317702042",
+      "title": "The European Association of Preventive Cardiology Exercise Prescription in Everyday Practice and Rehabilitative Training (EXPERT) tool: A digital training and decision support system for optimized exercise prescription in cardiovascular disease. Concept, definitions and construction methodology",
+      "authors": [
+        "Hansen",
+        "Dendale",
+        "Coninx"
+      ],
+      "moreAuthors": 33,
+      "year": 2017,
+      "journal": "European Journal of Preventive Cardiology",
+      "type": "journal-article",
+      "temas": [
+        "Cómo procesa el motor"
+      ],
+      "documentos": [
+        "38-como-procesa-el-motor.md"
+      ]
+    },
+    {
+      "doi": "10.1186/s12966-025-01744-5",
+      "title": "Development and evaluation of the COntextualised and Personalised Physical activity and Exercise Recommendations (COPPER) Ontology",
+      "authors": [
+        "Braun",
+        "Carlier",
+        "De Paepe"
+      ],
+      "moreAuthors": 3,
+      "year": 2025,
+      "journal": "International Journal of Behavioral Nutrition and Physical Activity",
+      "type": "journal-article",
+      "temas": [
+        "Cómo procesa el motor"
+      ],
+      "documentos": [
+        "38-como-procesa-el-motor.md"
       ]
     },
     {

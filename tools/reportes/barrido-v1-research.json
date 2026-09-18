@@ -1,0 +1,59 @@
+{
+  "ruleset": "v1-research",
+  "socios": 3000,
+  "ejerciciosQueNuncaEntran": [
+    "Face pull en polea",
+    "Plancha",
+    "Aperturas en máquina",
+    "Cruce de poleas",
+    "Caminata del granjero",
+    "Pogo jumps",
+    "Zancada con salto",
+    "Movilidad de cadera y tobillo",
+    "Lanzamiento rotacional con wall ball"
+  ],
+  "estacionesQueNuncaSeUsan": [
+    "Pec Deck / Fly / Mariposa",
+    "Conos de agilidad",
+    "Discos de equilibrio",
+    "Foam roller",
+    "Pelotas suizas",
+    "Rack de discos olímpicos (árbol)",
+    "Sandbags"
+  ],
+  "ejerciciosMasUsados": [
+    "Abdominales en máquina: 7 % de los ítems",
+    "Remo sentado: 6 % de los ítems",
+    "Remo invertido en TRX: 5 % de los ítems",
+    "Dorsalera con agarre neutro: 4 % de los ítems",
+    "Dorsalera al pecho: 4 % de los ítems",
+    "Subida al cajón: 4 % de los ítems",
+    "Press de hombro en máquina: 4 % de los ítems",
+    "Press de pecho en máquina: 4 % de los ítems",
+    "Remo con mancuerna a una mano: 3 % de los ítems",
+    "Hip thrust en máquina: 3 % de los ítems"
+  ],
+  "estacionesMasUsadas": [
+    "Mancuernas sueltas (set): 9 % de los ítems",
+    "Abdominal Isolator (crunch): 7 % de los ítems",
+    "Dual Lat Pulldown & Row: 6 % de los ítems",
+    "Rack de mancuernas hexagonales: 5 % de los ítems",
+    "Rig de pared (dominadas + bolsa de boxeo + soga + TRX): 5 % de los ítems"
+  ],
+  "avisosPorPlan": {
+    "media": 6.7,
+    "max": 14
+  },
+  "sesionesQuePasanLosMinutosDeclarados": "15 %",
+  "cambiaElPlanAlCambiarSolo": {
+    "goal": "97 %",
+    "nivel": "99 %",
+    "edad": "25 %",
+    "sesiones": "41 %",
+    "minutos": "0 %",
+    "deporte": "51 %",
+    "fase": "58 %",
+    "molestia": "71 %",
+    "ausencia": "0 %"
+  }
+}

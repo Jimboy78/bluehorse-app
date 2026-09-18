@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-18T19:39:07.596Z",
+ "generatedAt": "2026-09-18T19:55:16.904Z",
  "docs": [
   {
    "id": "metodo",
@@ -304,6 +304,14 @@
    "resumen": "Fecha: 18/09/2026. Pedido del dueño: \"no quiero forzar a usar todas las estaciones, pero tienen que poder usarse; en los deportes a veces se recomiendan ejercicios de movimiento y no tan estáticos\".",
    "archivo": "37-explosivos-y-deporte.md",
    "bloques": 20
+  },
+  {
+   "id": "38-como-procesa-el-motor",
+   "orden": 38,
+   "titulo": "Cómo procesa el motor a una persona, y cómo mejorarlo",
+   "resumen": "Fecha: 18/09/2026. Pedido del dueño: el motor tiene que analizar un contexto muy amplio (edad, deporte, lesiones, vuelta después de una pausa, gente que sabe mucho y gente que no sabe nada) y usar todo lo que hay en el gimnasio. Buscar l…",
+   "archivo": "38-como-procesa-el-motor.md",
+   "bloques": 48
   },
   {
    "id": "auditoria",

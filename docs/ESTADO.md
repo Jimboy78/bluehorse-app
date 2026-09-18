@@ -1,6 +1,15 @@
 # Estado del trabajo
 
-## Última actualización: 18 de septiembre de 2026 (saltos y lanzamientos en el plan)
+## Última actualización: 18 de septiembre de 2026 (barrido del motor y plan de mejora)
+
+`tools/motor-barrido.test.ts`: 3.000 socios generados sobre nueve dimensiones, invariantes en cada
+uno y un reporte de cobertura y sensibilidad (`tools/reportes/barrido-v1-research.json`, se
+commitea). Diagnóstico y propuesta en `docs/research/38`: minutos y ausencia no cambian el plan, la
+edad casi no lo cambia, y a los mayores les falta equilibrio (Cochrane, certeza alta). Siguiente
+paso sugerido: bloque de equilibrio para mayores. Espera la decisión del dueño sobre la edad de
+corte.
+
+## 18 de septiembre de 2026 (saltos y lanzamientos en el plan)
 
 Pedido del dueño: que las estaciones se puedan usar sin forzarlas, y que el deporte traiga
 movimiento. Medido: 32 de 68 ejercicios no entraban a ningún plan, entre ellos los nueve

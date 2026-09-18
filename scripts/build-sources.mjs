@@ -66,6 +66,7 @@ const TEMAS = {
   35: 'Proximidad al fallo',
   36: 'Descanso y racha',
   37: 'Explosivos y deporte',
+  38: 'Cómo procesa el motor',
 };
 
 // El `]` y el `(` cierran un enlace de markdown: sin ellos, un DOI escrito como

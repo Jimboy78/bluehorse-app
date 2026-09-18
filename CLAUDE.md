@@ -49,6 +49,11 @@ reporte se commitea**: es deterministico, asi que tocar un numero del ruleset ap
 del commit como "la sentadilla paso de 4x6-12 a 3x6-12", que es la revision que un cambio de
 prescripcion merece. Para comparar dos corridas sueltas, `npm run qa motor-diff a.json b.json`.
 
+`tools/motor-barrido.test.ts` hace lo mismo con **3.000 socios generados** combinando nueve
+dimensiones: chequea invariantes en cada uno y escribe `tools/reportes/barrido-v1-research.json`
+(cobertura del gimnasio y qué dato del socio mueve el plan). Tambien se commitea. Es el que
+encuentra lo que se rompe en la combinacion de dos contextos que ningun perfil de la matriz junta.
+
 Las tres cosas que ya encontraron y no se veian leyendo codigo: una serie duplicada en la base,
 `database.types.ts` generado y sin importar (el cliente aceptaba tablas inventadas), y que
 `sessionMinutesTarget` viaja del onboarding al motor y el motor no lo lee.
