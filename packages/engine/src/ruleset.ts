@@ -605,6 +605,28 @@ const modifiersSchema = z.object({
       confidence: z.enum(CONFIDENCE_LEVELS),
     })
     .optional(),
+  /**
+   * Adolescentes que recién empiezan (`docs/research/41`): técnica primero,
+   * con pocas series y repeticiones medias, con cualquier objetivo. Con más
+   * experiencia se progresa como un adulto.
+   */
+  youth: z
+    .object({
+      fromAge: z.number().int().min(1).max(30),
+      toAge: z.number().int().min(1).max(30),
+      /** Niveles que reciben la dosis de inicio; los demás, la del adulto. */
+      levels: z.array(z.enum(EXPERIENCE_LEVELS)).min(1),
+      repsWindow: z.tuple([z.number().int().min(1).max(30), z.number().int().min(1).max(30)]),
+      maxSets: z.number().int().min(1).max(10),
+      /** Aviso accionable: con quién entrenar. */
+      note: z.string().min(1),
+      confidence: z.enum(CONFIDENCE_LEVELS),
+      confidenceNote: z.string().min(1).optional(),
+    })
+    .refine((y) => y.fromAge <= y.toAge && y.repsWindow[0] <= y.repsWindow[1], {
+      message: 'rango invertido',
+    })
+    .optional(),
 });
 
 /**

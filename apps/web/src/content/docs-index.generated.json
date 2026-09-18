@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-18T21:17:27.975Z",
+ "generatedAt": "2026-09-18T21:24:40.114Z",
  "docs": [
   {
    "id": "metodo",
@@ -328,6 +328,14 @@
    "resumen": "Fecha: 18/09/2026. Tanda: T1b del plan de variables. En el checklist el dueño marcó \"fragilidad\" como motor: se deduce, no se le pregunta al socio.",
    "archivo": "40-fragilidad.md",
    "bloques": 16
+  },
+  {
+   "id": "41-adolescentes",
+   "orden": 41,
+   "titulo": "Adolescentes: qué cambia en el plan de alguien de 13 a 17",
+   "resumen": "Fecha: 18/09/2026. Tanda: T1c del plan de variables. En el checklist, \"adolescente\" es motor: se deduce de la fecha de nacimiento. La app acepta desde los 13 años (onboarding/schemas.ts).",
+   "archivo": "41-adolescentes.md",
+   "bloques": 13
   },
   {
    "id": "auditoria",

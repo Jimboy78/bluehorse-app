@@ -1217,6 +1217,22 @@
       "noWindowForGoal": "Para {objetivo} no hay una ventana de carga medida en mayores de 60, así que el plan sale con la prescripción general. Las que sí se midieron son fuerza e hipertrofia: si querés que la dosis vaya ajustada a tu edad, elegí uno de esos dos objetivos o hablalo con un instructor antes de arrancar.",
       "confidence": "medium"
     },
+    "youth": {
+      "fromAge": 13,
+      "toAge": 17,
+      "levels": [
+        "beginner",
+        "novice"
+      ],
+      "repsWindow": [
+        8,
+        15
+      ],
+      "maxSets": 2,
+      "note": "Mientras aprendés los ejercicios, hacelos con el profe mirando la técnica: a tu edad es lo que más te cuida. Cuando la tengas firme, subí el peso de a poco.",
+      "confidence": "medium",
+      "confidenceNote": "Que sea seguro y convenga: posiciones de la CSEP 2008 y consenso internacional 2014. La dosis de inicio (1–2 series de 8–15) es la de la CSEP. docs/research/41."
+    },
     "experienceLevel": {
       "noDoseEffectNote": "Para este objetivo tu nivel decide qué ejercicios entran al plan por la técnica que piden, pero no cambia las series ni las repeticiones.",
       "confidence": "medium"

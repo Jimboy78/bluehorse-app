@@ -51,6 +51,7 @@ export const ORDEN_DE_AVISOS = [
   'provisorio',
   'ruleset',
   'molestia',
+  'supervision',
   'ausencia',
   'cobertura',
   'tiempo',
@@ -125,18 +126,23 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
   const goal = primaryGoal(user.goals);
   const level = user.profile.experienceLevel;
   const basePar = resolveParams(ruleset, goal.goal, level);
-  // Se le piden cuatro niveles al socio y en varios objetivos los cuatro dan la
-  // misma dosis. Si el plan no se individualiza, el plan lo dice.
-  const levelNote = ruleset.modifiers?.experienceLevel;
-  if (levelNote && !levelChangesDose(ruleset, goal.goal)) {
-    decir('nivel', [levelNote.noDoseEffectNote]);
-  }
-
   const byAge = junto('edad', (out) =>
     applyAgeModifier(basePar, ruleset, user.profile, goal.goal, context.now, out),
   );
+  const byYouth = junto('supervision', (out) =>
+    applyYouthModifier(byAge, ruleset, user.profile, context.now, out),
+  );
+  // Se le piden cuatro niveles al socio y en varios objetivos los cuatro dan la
+  // misma dosis. Si el plan no se individualiza, el plan lo dice.
+  // Con la dosis de inicio de adolescentes el nivel sí la cambió: decir lo
+  // contrario sería falso.
+  const levelNote = ruleset.modifiers?.experienceLevel;
+  if (levelNote && !levelChangesDose(ruleset, goal.goal) && byYouth === byAge) {
+    decir('nivel', [levelNote.noDoseEffectNote]);
+  }
+
   const sport = junto('deporte', (out) => resolveSport(ruleset, goal, out));
-  const params = junto('deporte', (out) => applySportVolume(byAge, sport, out));
+  const params = junto('deporte', (out) => applySportVolume(byYouth, sport, out));
   const template = junto('plantilla', (out) => pickTemplate(ruleset, goal, out));
   decir('frecuencia', frequencyWarnings(ruleset, goal, template));
 
@@ -205,6 +211,45 @@ export function ordenarAvisos(avisos: readonly Aviso[]): string[] {
 /** Si algún módulo saca este ejercicio. Las exclusiones se suman. */
 export function excluido(ctx: Pick<ContextoDelSocio, 'exclusiones'>, exercise: Exercise): boolean {
   return ctx.exclusiones.some((e) => e.excluye(exercise));
+}
+
+// ------------------------------------------------------------------ adolescentes
+
+/**
+ * Adolescentes que recién empiezan: la dosis de inicio de la CSEP (1–2 series
+ * de 8–15) con cualquier objetivo, también potencia, porque arrancar con 1–3
+ * repeticiones cerca del máximo es lo contrario de aprender la técnica. Con más
+ * experiencia, la dosis del adulto (`docs/research/41`).
+ *
+ * Se reemplazan las repeticiones y se topean las series; el RIR y el descanso
+ * quedan los del objetivo, porque nadie midió otra cosa en chicos.
+ */
+function applyYouthModifier(
+  params: GoalParams,
+  ruleset: Ruleset,
+  profile: Profile,
+  now: string,
+  warnings: string[],
+): GoalParams {
+  const rule = ruleset.modifiers?.youth;
+  if (!rule || !profile.birthDate) return params;
+  const age = ageAt(profile.birthDate, now);
+  if (age === null || age < rule.fromAge || age > rule.toAge) return params;
+  if (!rule.levels.includes(profile.experienceLevel)) return params;
+
+  warnings.push(rule.note);
+  const adjust = (role: GoalParams['primary']): GoalParams['primary'] => ({
+    ...role,
+    sets: Math.min(role.sets, rule.maxSets),
+    repsMin: rule.repsWindow[0],
+    repsMax: rule.repsWindow[1],
+  });
+  return {
+    ...params,
+    primary: adjust(params.primary),
+    secondary: adjust(params.secondary),
+    isolation: adjust(params.isolation),
+  };
 }
 
 // ------------------------------------------------------------------ equilibrio

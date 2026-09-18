@@ -470,6 +470,24 @@ const PERFILES: readonly Perfil[] = [
   // ------------------------------------------------------ el borde de los 60
   // `modifiers.olderAdults.fromAge` es 60. Un umbral con una fecha de
   // nacimiento adentro es donde se esconden los errores de un día.
+  // Adolescentes (`docs/research/41`): el que recién empieza recibe la dosis de
+  // inicio; el que ya entrena, la del adulto.
+  {
+    nombre: '15 años · fuerza principiante',
+    goal: 'strength',
+    nivel: 'beginner',
+    nacimiento: '2011-03-01',
+    sesiones: 3,
+    minutos: 60,
+  },
+  {
+    nombre: '16 años · potencia intermedio',
+    goal: 'power',
+    nivel: 'intermediate',
+    nacimiento: '2010-03-01',
+    sesiones: 3,
+    minutos: 60,
+  },
   {
     nombre: 'justo antes de 60',
     goal: 'strength',
@@ -865,6 +883,13 @@ describe('los números del plan salen del ruleset', () => {
     prescription: Record<string, { default?: Ranura; byLevel?: Record<string, Ranura> }>;
     modifiers?: {
       olderAdults?: { fromAge: number; repsWindow: [number, number]; appliesToGoals: string[] };
+      youth?: {
+        fromAge: number;
+        toAge: number;
+        levels: string[];
+        repsWindow: [number, number];
+        maxSets: number;
+      };
     };
     sports?: { seasonPhases?: Record<string, { volumeMultiplier: number }> };
     balance?: {
@@ -903,17 +928,27 @@ describe('los números del plan salen del ruleset', () => {
     return mayores.repsWindow;
   }
 
+  /** La dosis de inicio de adolescentes, si a este perfil le corresponde (`docs/research/41`). */
+  function dosisDeInicio(p: Perfil) {
+    const y = reglas.modifiers?.youth;
+    const edad = edadDe(p.nacimiento);
+    if (!y || edad < y.fromAge || edad > y.toAge || !y.levels.includes(p.nivel)) return null;
+    return y;
+  }
+
   /** Todas las firmas que el ruleset permite para este perfil, con los modificadores puestos. */
   function firmasPermitidas(p: Perfil): Set<string> {
     const bloque = reglas.prescription[p.goal];
     const familias = [bloque?.byLevel?.[p.nivel], bloque?.default].filter(Boolean) as Ranura[];
-    const ventana = ventanaDeMayores(p);
+    const joven = dosisDeInicio(p);
+    const ventana = joven?.repsWindow ?? ventanaDeMayores(p);
 
     const multiplicador = reglas.sports?.seasonPhases?.[p.fase ?? 'none']?.volumeMultiplier ?? 1;
 
     const slots = familias
       .flatMap((familia) => Object.values(familia))
-      .filter((slot) => typeof slot?.sets === 'number');
+      .filter((slot) => typeof slot?.sets === 'number')
+      .map((slot) => (joven ? { ...slot, sets: Math.min(slot.sets, joven.maxSets) } : slot));
     const firmas = new Set(slots.flatMap((slot) => firmasDeUnSlot(slot, ventana, multiplicador)));
     const equilibrio = firmaDeEquilibrio(p);
     if (equilibrio) firmas.add(equilibrio);

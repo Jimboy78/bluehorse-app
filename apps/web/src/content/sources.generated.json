@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-18",
-  "resolved": 93,
+  "resolved": 96,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -60,6 +60,63 @@
       ],
       "documentos": [
         "26-acsm-2026.md"
+      ]
+    },
+    {
+      "doi": "10.1139/H08-020",
+      "title": "Canadian Society for Exercise Physiology position paper: resistance training in children and adolescents",
+      "authors": [
+        "Behm",
+        "Faigenbaum",
+        "Falk"
+      ],
+      "moreAuthors": 1,
+      "year": 2008,
+      "journal": "Applied Physiology, Nutrition, and Metabolism",
+      "type": "journal-article",
+      "temas": [
+        "Adolescentes"
+      ],
+      "documentos": [
+        "41-adolescentes.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2013-092952",
+      "title": "Position statement on youth resistance training: the 2014 International Consensus",
+      "authors": [
+        "Lloyd",
+        "Faigenbaum",
+        "Stone"
+      ],
+      "moreAuthors": 17,
+      "year": 2013,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Adolescentes"
+      ],
+      "documentos": [
+        "41-adolescentes.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2015-095497",
+      "title": "Effects and dose–response relationships of resistance training on physical performance in youth athletes: a systematic review and meta-analysis",
+      "authors": [
+        "Lesinski",
+        "Prieske",
+        "Granacher"
+      ],
+      "moreAuthors": 0,
+      "year": 2016,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Adolescentes"
+      ],
+      "documentos": [
+        "41-adolescentes.md"
       ]
     },
     {

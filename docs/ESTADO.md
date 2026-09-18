@@ -1,6 +1,18 @@
 # Estado del trabajo
 
-## Última actualización: 18 de septiembre de 2026 (T1a: equilibrio para mayores)
+## Última actualización: 18 de septiembre de 2026 (T1c: adolescentes)
+
+`docs/research/41`. De 13 a 17, principiante o novato: como máximo 2 series de 8–15 con cualquier
+objetivo (CSEP 2008), y un aviso de entrenar con el profe mirando la técnica, en el módulo
+`supervision`, que va después de las molestias. Con más experiencia, la dosis del adulto. Ruleset
+`modifiers.youth`, sincronizado en prod. El barrido suma los 15 años, más la invariante de que ningún
+adolescente que empieza recibe más de 2 series ni menos de 8 repeticiones. La matriz suma dos
+perfiles de 15 y 16 años. Falsificado (tope de series y tope de edad). Corregido de paso: el aviso
+"tu nivel no cambia la dosis" salía también cuando la dosis de adolescentes sí la cambiaba.
+
+Siguiente: T1d (menopausia, deducida por edad y sexo).
+
+## 18 de septiembre de 2026 (T1a: equilibrio para mayores)
 
 Investigación en `docs/research/39`. Desde los 60 (a confirmar: la OMS usa 65), cada sesión cierra
 con 4 ejercicios de equilibrio y funcionales de la tabla de Otago, 2 × 10 con 60 s de descanso, con

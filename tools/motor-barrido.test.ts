@@ -134,7 +134,7 @@ const DIM = {
   nivel: dim(['beginner', 'novice', 'intermediate', 'advanced'] as ExperienceLevel[], (b, v) => {
     b.profile.experienceLevel = v;
   }),
-  edad: dim([22, 40, 58, 66, 76, 84], (b, v) => {
+  edad: dim([15, 22, 40, 58, 66, 76, 84], (b, v) => {
     b.profile.birthDate = `${2026 - v}-03-01`;
   }),
   sesiones: dim([2, 3, 4, 5, 6], (b, v) => {
@@ -326,6 +326,23 @@ describe('barrido de socios generados', () => {
       violaciones.push(`dosis imposible en ${ex.name}: ${id}`);
     }
     if (ex.isExplosive) chequearExplosivo(p, it, previo, ex.name);
+    chequearAdolescente(p, it, ex);
+  }
+
+  /**
+   * Un adolescente que recién empieza no recibe más series ni menos
+   * repeticiones que la dosis de inicio (`docs/research/41`). El par explosivo
+   * y el equilibrio llevan su propia dosis; el cardio va por tiempo.
+   */
+  function chequearAdolescente(p: Perfil, it: SessionItemBlueprint, ex: Exercise) {
+    const y = V1_RESEARCH.modifiers?.youth;
+    if (!y || p.edad < y.fromAge || p.edad > y.toAge || !y.levels.includes(p.nivel)) return;
+    if (ex.isExplosive || ex.pattern === 'balance' || it.targetDurationSeconds !== null) return;
+    if (it.targetSets > y.maxSets || it.targetRepsMin < y.repsWindow[0]) {
+      violaciones.push(
+        `${ex.name} ${it.targetSets}×${it.targetRepsMin} a los ${p.edad}: ${JSON.stringify(p)}`,
+      );
+    }
   }
 
   function chequearExplosivo(

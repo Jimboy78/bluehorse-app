@@ -187,6 +187,38 @@ describe('resolverContexto', () => {
     expect(aviso(plan(cfg.minSessionsPerWeek).warnings)).toBe(false);
   });
 
+  it('un adolescente que empieza recibe la dosis de inicio; a los 18 o con experiencia, la del adulto', () => {
+    const y = V1_RESEARCH.modifiers?.youth;
+    if (!y) throw new Error('sin bloque de adolescentes');
+    const conNivel = (
+      edad: number,
+      nivel: 'beginner' | 'intermediate',
+      goal: 'strength' | 'power',
+    ) => {
+      const i = input({ edad, goal });
+      const profile = { ...i.user.profile, experienceLevel: nivel };
+      return resolverContexto({ ...i, user: { ...i.user, profile } });
+    };
+
+    for (const goal of ['strength', 'power'] as const) {
+      const joven = conNivel(y.fromAge + 1, 'beginner', goal);
+      for (const rol of [joven.params.primary, joven.params.secondary, joven.params.isolation]) {
+        expect(rol.sets).toBeLessThanOrEqual(y.maxSets);
+        expect([rol.repsMin, rol.repsMax]).toEqual(y.repsWindow);
+      }
+      expect(joven.avisos.map((a) => a.modulo)).toContain('supervision');
+      // Con la dosis de inicio el nivel sí cambió la dosis: no se dice lo contrario.
+      expect(joven.avisos.map((a) => a.modulo)).not.toContain('nivel');
+    }
+
+    const adulto = conNivel(y.toAge + 1, 'beginner', 'strength');
+    const entrenado = conNivel(y.fromAge + 1, 'intermediate', 'strength');
+    for (const ctx of [adulto, entrenado]) {
+      expect(ctx.params.primary.repsMin).not.toBe(y.repsWindow[0]);
+      expect(ctx.avisos.map((a) => a.modulo)).not.toContain('supervision');
+    }
+  });
+
   it('con una molestia declarada no hay bloque explosivo, aunque el deporte lo pida', () => {
     const leve: UserConstraint = { ...lesionRodilla, type: 'pain', severity: 1 };
     expect(resolverContexto(input({ sport: 'futbol', edad: 25 })).explosivos).not.toBeNull();
