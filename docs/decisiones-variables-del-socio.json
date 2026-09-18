@@ -1,0 +1,434 @@
+{
+  "fuente": "checklist https://claude.ai/artifact/D6Zz681qRxd8GtqycJgwJQ, doc checklist/respuestas v174",
+  "actualizado": "2026-09-18T20:22:28.307Z",
+  "leyenda": {
+    "pedir": "se pregunta y el motor lo usa",
+    "motor": "el motor lo deduce sin preguntar",
+    "app": "opcional: el socio lo carga si quiere; el motor puede usarlo",
+    "no": "no se pide ni se usa"
+  },
+  "variables": {
+    "adolescente": {
+      "v": "motor"
+    },
+    "alcohol": {
+      "v": "no"
+    },
+    "altura": {
+      "v": "pedir"
+    },
+    "anios": {
+      "v": "pedir"
+    },
+    "anticoag": {
+      "v": "pedir"
+    },
+    "artrosis": {
+      "v": "pedir"
+    },
+    "asma": {
+      "v": "pedir"
+    },
+    "ausencia": {
+      "v": "no"
+    },
+    "bajar-grasa": {
+      "v": "pedir"
+    },
+    "barras": {
+      "v": "no"
+    },
+    "betabloq": {
+      "v": "pedir"
+    },
+    "calor": {
+      "v": "no"
+    },
+    "cansado": {
+      "v": "no"
+    },
+    "cardiaco": {
+      "v": "pedir"
+    },
+    "carga-inicial": {
+      "v": "motor"
+    },
+    "casa": {
+      "v": "no"
+    },
+    "cat-peso": {
+      "v": "motor"
+    },
+    "ciclo": {
+      "v": "no"
+    },
+    "ciclo-hoy": {
+      "v": "no"
+    },
+    "cirugia": {
+      "v": "pedir"
+    },
+    "clases": {
+      "v": "no"
+    },
+    "cognitiva": {
+      "v": "no"
+    },
+    "comida": {
+      "v": "no"
+    },
+    "como-fue": {
+      "v": "pedir"
+    },
+    "compania": {
+      "v": "app"
+    },
+    "confianza": {
+      "v": "app"
+    },
+    "contextura": {
+      "v": "no"
+    },
+    "cronico": {
+      "v": "app"
+    },
+    "cuanto-leer": {
+      "v": "no"
+    },
+    "cumplimiento": {
+      "v": "no"
+    },
+    "deficit": {
+      "v": "no"
+    },
+    "deporte": {
+      "v": "pedir"
+    },
+    "descanso": {
+      "v": "pedir"
+    },
+    "desvio": {
+      "v": "motor"
+    },
+    "dia-partido": {
+      "v": "app"
+    },
+    "diabetes": {
+      "v": "pedir"
+    },
+    "dias": {
+      "v": "pedir"
+    },
+    "dieta": {
+      "v": "no"
+    },
+    "discapacidad": {
+      "v": "app"
+    },
+    "distancia": {
+      "v": "no"
+    },
+    "dolor-ejercicio": {
+      "v": "pedir"
+    },
+    "dominancia": {
+      "v": "no"
+    },
+    "doms": {
+      "v": "app"
+    },
+    "edad": {
+      "v": "pedir"
+    },
+    "embarazo": {
+      "v": "app",
+      "nota": "si/no"
+    },
+    "energia": {
+      "v": "no"
+    },
+    "enfermo": {
+      "v": "no"
+    },
+    "entrenos-dep": {
+      "v": "app"
+    },
+    "epilepsia": {
+      "v": "pedir"
+    },
+    "esguinces": {
+      "v": "pedir"
+    },
+    "espacio": {
+      "v": "no"
+    },
+    "estres": {
+      "v": "no"
+    },
+    "evitar": {
+      "v": "pedir"
+    },
+    "ex-deportista": {
+      "v": "no"
+    },
+    "examen": {
+      "v": "no"
+    },
+    "faltas": {
+      "v": "no",
+      "nota": "bo hace falta, la idea es que los planes no te generen por dia, si un dia falto no te cambia lo que teneias que hacer ese dia, se hace al siguiente"
+    },
+    "fase": {
+      "v": "pedir"
+    },
+    "fecha": {
+      "v": "app"
+    },
+    "fragil": {
+      "v": "motor"
+    },
+    "fuma": {
+      "v": "app"
+    },
+    "grasa": {
+      "v": "no"
+    },
+    "gustos": {
+      "v": "app"
+    },
+    "hernia-abd": {
+      "v": "pedir"
+    },
+    "hernia-disco": {
+      "v": "pedir"
+    },
+    "hijos": {
+      "v": "no"
+    },
+    "hiperlaxitud": {
+      "v": "no"
+    },
+    "hipertension": {
+      "v": "pedir"
+    },
+    "horario": {
+      "v": "no"
+    },
+    "idioma": {
+      "v": "no"
+    },
+    "imagen": {
+      "v": "no"
+    },
+    "lectura": {
+      "v": "no"
+    },
+    "lesion-o-dolor": {
+      "v": "pedir"
+    },
+    "lleno": {
+      "v": "motor"
+    },
+    "mancuernas": {
+      "v": "no"
+    },
+    "maquina-libre": {
+      "v": "app"
+    },
+    "maximo": {
+      "v": "motor"
+    },
+    "mayor": {
+      "v": "motor"
+    },
+    "medico": {
+      "v": "no"
+    },
+    "mejorar-dep": {
+      "v": "pedir"
+    },
+    "menopausia": {
+      "v": "motor",
+      "nota": "deducir por edad"
+    },
+    "miedo-gym": {
+      "v": "no"
+    },
+    "miedo-lesion": {
+      "v": "app"
+    },
+    "minutos": {
+      "v": "pedir"
+    },
+    "motivacion": {
+      "v": "no"
+    },
+    "movilidad": {
+      "v": "no"
+    },
+    "nivel": {
+      "v": "pedir"
+    },
+    "nivel-dep": {
+      "v": "app"
+    },
+    "no-puede": {
+      "v": "pedir"
+    },
+    "obj-movilidad": {
+      "v": "pedir"
+    },
+    "obj-principal": {
+      "v": "pedir"
+    },
+    "ocupada": {
+      "v": "motor"
+    },
+    "ojos": {
+      "v": "pedir"
+    },
+    "oncologico": {
+      "v": "no"
+    },
+    "osteoporosis": {
+      "v": "pedir"
+    },
+    "otro-metodo": {
+      "v": "no"
+    },
+    "pago": {
+      "v": "no"
+    },
+    "palancas": {
+      "v": "no"
+    },
+    "partidos-sem": {
+      "v": "app"
+    },
+    "pasos": {
+      "v": "no"
+    },
+    "peso": {
+      "v": "pedir"
+    },
+    "plan-anterior": {
+      "v": "no"
+    },
+    "poco-tiempo": {
+      "v": "no"
+    },
+    "posicion": {
+      "v": "pedir"
+    },
+    "posparto": {
+      "v": "app",
+      "nota": "solo en mujeres"
+    },
+    "postura": {
+      "v": "no"
+    },
+    "prevencion": {
+      "v": "motor"
+    },
+    "profe": {
+      "v": "no"
+    },
+    "propuestas": {
+      "v": "no"
+    },
+    "proteina": {
+      "v": "no"
+    },
+    "protesis": {
+      "v": "app"
+    },
+    "que-dias": {
+      "v": "no"
+    },
+    "rangos": {
+      "v": "no"
+    },
+    "red-flags": {
+      "v": "pedir"
+    },
+    "registros": {
+      "v": "motor"
+    },
+    "rehab": {
+      "v": "pedir"
+    },
+    "resfrio": {
+      "v": "no"
+    },
+    "rir": {
+      "v": "no",
+      "nota": "se estima del nivel que declara"
+    },
+    "ritmo": {
+      "v": "motor"
+    },
+    "rota": {
+      "v": "motor"
+    },
+    "salud": {
+      "v": "pedir"
+    },
+    "sexo": {
+      "v": "pedir"
+    },
+    "subir-peso": {
+      "v": "pedir"
+    },
+    "suelo-pelvico": {
+      "v": "pedir"
+    },
+    "sueno": {
+      "v": "no"
+    },
+    "sueno-hoy": {
+      "v": "pedir"
+    },
+    "tca": {
+      "v": "no"
+    },
+    "tecnica": {
+      "v": "motor"
+    },
+    "tendon": {
+      "v": "pedir"
+    },
+    "trabajo": {
+      "v": "no"
+    },
+    "turnos": {
+      "v": "no"
+    },
+    "variedad": {
+      "v": "app"
+    },
+    "varios-dep": {
+      "v": "no"
+    },
+    "varios-obj": {
+      "v": "pedir"
+    },
+    "viajes": {
+      "v": "no"
+    },
+    "vida-diaria": {
+      "v": "no"
+    },
+    "vision": {
+      "v": "no"
+    },
+    "vuelta-dep": {
+      "v": "motor"
+    },
+    "zona": {
+      "v": "app"
+    },
+    "zona-dolor": {
+      "v": "pedir"
+    }
+  }
+}
