@@ -790,6 +790,40 @@ export const rulesetSchema = z.object({
       maxRir: z.number().int().min(0).max(10),
     })
     .optional(),
+  /**
+   * TRABAJO EXPLOSIVO EN PAR CON UN LEVANTAMIENTO (entrenamiento complejo)
+   *
+   * Lo explosivo no ocupa un slot propio: entra pegado al levantamiento de su
+   * mismo patrón, serie por serie (sentadilla → salto, bisagra → swing). Es el
+   * formato que mejor rinde contra la fuerza sola: sprint de 20 m, CMJ y cambio
+   * de dirección (Thapa 2024; Zhao 2026, y solo el formato alternado le gana a
+   * la fuerza sola). `docs/research/37`.
+   *
+   * No se regula por RIR (un salto se corta cuando cae la altura, no cerca del
+   * fallo), así que no lleva `rirTarget` y la carga no progresa sola.
+   */
+  explosive: z
+    .object({
+      /** Objetivos que lo reciben aunque no declaren deporte. */
+      goals: z.array(z.enum(GOALS)),
+      /** Categorías de deporte (`sports.categories`) que lo reciben con cualquier objetivo. */
+      sportCategories: z.array(z.string().min(1)),
+      /** Patrones de levantamiento que pueden llevar su par explosivo. */
+      pairPatterns: z.array(z.enum(MOVEMENT_PATTERNS)).min(1),
+      /** Pares por sesión. */
+      pairsPerSession: z.number().int().min(1).max(5),
+      repsMin: z.number().int().min(1).max(30),
+      repsMax: z.number().int().min(1).max(30),
+      /** Pausa entre la serie del levantamiento y la del explosivo. */
+      intraPairRestSeconds: z.number().int().min(0).max(600),
+      /** Hasta qué edad llega la evidencia; más arriba no se agrega. */
+      maxAge: z.number().int().min(1).max(120),
+      rationale: z.string().min(1),
+      confidence: z.enum(CONFIDENCE_LEVELS),
+      confidenceNote: z.string().min(1).optional(),
+    })
+    .refine((e) => e.repsMin <= e.repsMax, { message: 'repsMin > repsMax' })
+    .optional(),
   safety: safetySchema.optional(),
   modifiers: modifiersSchema.optional(),
   substitution: z.object({

@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-18T18:37:18.731Z",
+ "generatedAt": "2026-09-18T19:39:07.596Z",
  "docs": [
   {
    "id": "metodo",
@@ -183,7 +183,7 @@
    "titulo": "La carga de potencia no es un rango: depende del ejercicio",
    "resumen": "Revisión del 10 de septiembre de 2026. Salió de correr la matriz del motor (npm run qa:motor) sobre el catálogo real y mirar qué recibe un socio que elige el objetivo \"Potencia / explosividad\".",
    "archivo": "22-carga-de-potencia.md",
-   "bloques": 35
+   "bloques": 36
   },
   {
    "id": "23-resistencia-muscular",
@@ -296,6 +296,14 @@
    "resumen": "Revisión del 18 de septiembre de 2026. Sale de un pedido de un socio: poder decir \"hoy descanso\", y que si un día sin entrenar entre dos sesiones no se anotó, la app lo tome como el descanso que fue, no como una falta. Para cualquier rut…",
    "archivo": "36-descanso-y-racha.md",
    "bloques": 19
+  },
+  {
+   "id": "37-explosivos-y-deporte",
+   "orden": 37,
+   "titulo": "Saltos y lanzamientos: cuándo entran al plan y cómo",
+   "resumen": "Fecha: 18/09/2026. Pedido del dueño: \"no quiero forzar a usar todas las estaciones, pero tienen que poder usarse; en los deportes a veces se recomiendan ejercicios de movimiento y no tan estáticos\".",
+   "archivo": "37-explosivos-y-deporte.md",
+   "bloques": 20
   },
   {
    "id": "auditoria",

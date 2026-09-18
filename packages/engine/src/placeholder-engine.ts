@@ -187,6 +187,34 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
     return { tplSession, items };
   });
 
+  // Después de elegir todo lo demás, para que sumar un par no mueva ninguna
+  // otra elección (comparten el mismo generador).
+  const explosivos = explosivePairing({
+    ruleset,
+    goal,
+    sport,
+    profile: user.profile,
+    now: context.now,
+    // Cualquier molestia o lesión declarada, aunque sea leve y no active
+    // ninguna regla de dolor: sumar impacto no es lo que se ajusta, es lo que
+    // se evita.
+    hasPain: user.constraints.some((c) => c.type === 'pain' || c.type === 'injury'),
+  });
+  if (explosivos) {
+    const exerciseById = new Map(gym.exercises.map((e) => [e.id, e]));
+    for (const resolved of resolvedTemplateSessions) {
+      resolved.items = addExplosivePairs({
+        items: resolved.items,
+        cfg: explosivos,
+        pool: usableExercises,
+        exerciseById,
+        equipmentById,
+        usedInPlan,
+        rng,
+      });
+    }
+  }
+
   const sessions: SessionBlueprint[] = [];
   for (let i = 0; i < ruleset.planning.sessionsAhead; i += 1) {
     const resolved = resolvedTemplateSessions[i % resolvedTemplateSessions.length];
@@ -205,7 +233,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
   warnings.push(...autoregulationWarnings(params, ruleset, goal));
   warnings.push(...weeklyVolumeWarnings(sessions, template, gym, params, goal));
   warnings.push(...interferenceWarnings(sessions, gym, ruleset));
-  warnings.push(...powerWarnings(sessions, gym, goal));
+  warnings.push(...powerWarnings(sessions, gym, goal, ruleset));
   warnings.push(
     ...emphasisWarnings({
       context,
@@ -269,7 +297,139 @@ function buildItem(input: BuildItemInput): SessionItemBlueprint {
     targetDurationSeconds: cardio?.durationSeconds ?? null,
     targetIntensityZone: cardio?.intensityZone ?? null,
     targetIntervalRestSeconds: cardio?.intervalRestSeconds ?? null,
+    supersetGroup: null,
   };
+}
+
+// ------------------------------------------------------------------ explosivos
+
+type ExplosiveConfig = NonNullable<Ruleset['explosive']>;
+
+/**
+ * La configuración de pares explosivos si este socio los recibe, o `null`.
+ *
+ * Los reciben el objetivo potencia y quien declara un deporte de las
+ * categorías del ruleset. Nadie más: a quien entrena para la salud o la
+ * estética no le agrega nada que su objetivo no pida.
+ *
+ * Y con una molestia activa, ninguno: es el mismo criterio que ya aplica
+ * `painSubstitution.avoidExplosive` al reemplazar un patrón bloqueado. El
+ * impacto de un salto no es el momento de sumarlo.
+ */
+function explosivePairing(input: {
+  readonly ruleset: Ruleset;
+  readonly goal: UserGoal;
+  readonly sport: ResolvedSport | null;
+  readonly profile: Profile;
+  readonly now: string;
+  readonly hasPain: boolean;
+}): ExplosiveConfig | null {
+  const cfg = input.ruleset.explosive;
+  if (!cfg) return null;
+  const porObjetivo = cfg.goals.includes(input.goal.goal);
+  const porDeporte =
+    input.sport?.category !== null &&
+    input.sport?.category !== undefined &&
+    cfg.sportCategories.includes(input.sport.category);
+  if (!porObjetivo && !porDeporte) return null;
+
+  if (input.hasPain && input.ruleset.safety?.painSubstitution?.avoidExplosive) return null;
+
+  // Más allá de la edad que cubren los ensayos no se agrega: no es que haga
+  // mal, es que nadie lo midió.
+  const age = input.profile.birthDate ? ageAt(input.profile.birthDate, input.now) : null;
+  if (age !== null && age > cfg.maxAge) return null;
+  return cfg;
+}
+
+/**
+ * Pega un explosivo del mismo patrón detrás del primer levantamiento que lo
+ * admite, serie por serie: sentadilla → salto, bisagra → swing.
+ *
+ * El levantamiento va primero porque así se midió: el formato que le gana a la
+ * fuerza sola es el alternado con el levantamiento adelante; hacer todos los
+ * saltos antes que la fuerza no mejoró el sprint (Zhao 2026).
+ *
+ * Mismas series que el levantamiento, porque se alternan de a una. Sin RIR y
+ * sin carga objetivo: se regula por cómo sale cada repetición.
+ */
+function addExplosivePairs(input: {
+  readonly items: readonly SessionItemBlueprint[];
+  readonly cfg: ExplosiveConfig;
+  readonly pool: readonly Exercise[];
+  readonly exerciseById: ReadonlyMap<Id, Exercise>;
+  readonly equipmentById: ReadonlyMap<Id, Equipment>;
+  readonly usedInPlan: Set<Id>;
+  readonly rng: () => number;
+}): SessionItemBlueprint[] {
+  const { items, cfg } = input;
+  const usedHere = new Set(items.map((i) => i.exerciseId));
+  const out: SessionItemBlueprint[] = [];
+  let pairs = 0;
+
+  for (const item of items) {
+    out.push(item);
+    const lift = input.exerciseById.get(item.exerciseId);
+    if (pairs >= cfg.pairsPerSession || !lift || !puedeLlevarPar(item, lift, cfg)) continue;
+
+    const explosive = chooseExplosive(
+      lift.pattern,
+      input.pool,
+      usedHere,
+      input.usedInPlan,
+      input.rng,
+    );
+    if (!explosive) continue;
+
+    pairs += 1;
+    usedHere.add(explosive.id);
+    input.usedInPlan.add(explosive.id);
+    out[out.length - 1] = { ...item, restSeconds: cfg.intraPairRestSeconds, supersetGroup: pairs };
+    out.push({
+      exerciseId: explosive.id,
+      equipmentId: pickEquipment(explosive, input.equipmentById, input.rng)?.id ?? null,
+      orderIndex: 0,
+      targetSets: item.targetSets,
+      targetRepsMin: cfg.repsMin,
+      targetRepsMax: cfg.repsMax,
+      targetLoad: null,
+      targetRir: null,
+      restSeconds: item.restSeconds,
+      rationale: cfg.rationale,
+      isPlaceholder: item.isPlaceholder,
+      targetDurationSeconds: null,
+      targetIntensityZone: null,
+      targetIntervalRestSeconds: null,
+      supersetGroup: pairs,
+    });
+  }
+
+  return out.map((it, i) => (it.orderIndex === i ? it : { ...it, orderIndex: i }));
+}
+
+function puedeLlevarPar(item: SessionItemBlueprint, lift: Exercise, cfg: ExplosiveConfig): boolean {
+  return (
+    item.targetDurationSeconds === null &&
+    item.supersetGroup === null &&
+    lift.isCompound &&
+    !lift.isExplosive &&
+    cfg.pairPatterns.includes(lift.pattern)
+  );
+}
+
+/** Un explosivo del patrón, si el socio puede hacerlo; entre iguales, uno que no esté ya en el plan. */
+function chooseExplosive(
+  pattern: MovementPattern,
+  pool: readonly Exercise[],
+  usedHere: ReadonlySet<Id>,
+  usedInPlan: ReadonlySet<Id>,
+  rng: () => number,
+): Exercise | undefined {
+  const candidates = pool
+    .filter((e) => e.isExplosive && e.pattern === pattern && !usedHere.has(e.id))
+    .sort((a, b) => a.name.localeCompare(b.name, 'es'));
+  const fresh = candidates.filter((e) => !usedInPlan.has(e.id));
+  return pickDeterministic(fresh.length > 0 ? fresh : candidates, rng);
 }
 
 /**
@@ -381,6 +541,8 @@ function applyAgeModifier(
 /** El deporte del socio resuelto contra el catálogo del ruleset. */
 interface ResolvedSport {
   readonly label: string;
+  /** Clave de `sports.categories`, o `null` si no declaró deporte. */
+  readonly category: string | null;
   readonly emphasis: readonly MuscleGroup[];
   /** Multiplicador de volumen: categoría × momento de la temporada. */
   readonly volumeMultiplier: number;
@@ -423,6 +585,7 @@ function resolveSport(ruleset: Ruleset, goal: UserGoal, warnings: string[]): Res
 
   return {
     label: entry?.label ?? 'sin deporte',
+    category: entry?.category ?? null,
     emphasis: entry?.emphasis ?? [],
     volumeMultiplier: multiplier,
     hasMatches: category?.hasMatches ?? false,
@@ -711,7 +874,11 @@ function weeklyVolumeWarnings(
 
   for (const item of week.flatMap((s) => s.items)) {
     const exercise = exerciseById.get(item.exerciseId);
-    if (!exercise) continue;
+    // Lo explosivo no cuenta: los rangos semanales se midieron con series de
+    // fuerza llevadas cerca del fallo (`docs/research/35`), y cinco saltos que
+    // se cortan cuando baja la altura no son eso. Contarlos avisaba "glúteos
+    // 27, pasás el techo" a un futbolista por los saltos del par.
+    if (!exercise || exercise.isExplosive) continue;
     for (const muscle of exercise.primaryMuscles) {
       setsByMuscle.set(muscle, (setsByMuscle.get(muscle) ?? 0) + item.targetSets);
       if (exercise.isCompound) targeted.add(muscle);
@@ -776,6 +943,7 @@ function adjustForMatchDay(input: AdjustSessionInput): SessionAdjustment {
 
   const exerciseById = new Map(input.gym.exercises.map((e) => [e.id, e]));
   const dropped: string[] = [];
+  const droppedRest = new Map<number, number>();
   const items: SessionItemBlueprint[] = [];
   let scaled = 0;
 
@@ -785,6 +953,7 @@ function adjustForMatchDay(input: AdjustSessionInput): SessionAdjustment {
 
     if (adjusted === null) {
       dropped.push(exercise?.name ?? item.exerciseId);
+      if (item.supersetGroup !== null) droppedRest.set(item.supersetGroup, item.restSeconds);
       continue;
     }
     if (adjusted !== item) scaled += 1;
@@ -793,7 +962,33 @@ function adjustForMatchDay(input: AdjustSessionInput): SessionAdjustment {
 
   const changed = dropped.length > 0 || scaled > 0;
   const detail = dropped.length > 0 ? ` Hoy se sacan: ${dropped.join(', ')}.` : '';
-  return { items, note: changed ? `${rule.note}${detail}` : null, changed };
+  return {
+    items: desarmarParesRotos(items, droppedRest),
+    note: changed ? `${rule.note}${detail}` : null,
+    changed,
+  };
+}
+
+/**
+ * Si el día saca el explosivo de un par, el levantamiento queda solo con la
+ * pausa corta de adentro del par (la que iba antes del salto). Vuelve a ser un
+ * ejercicio suelto, con el descanso de la vuelta, que era el del explosivo.
+ */
+function desarmarParesRotos(
+  items: readonly SessionItemBlueprint[],
+  droppedRest: ReadonlyMap<number, number>,
+): SessionItemBlueprint[] {
+  const miembros = new Map<number, number>();
+  for (const it of items) {
+    if (it.supersetGroup !== null) {
+      miembros.set(it.supersetGroup, (miembros.get(it.supersetGroup) ?? 0) + 1);
+    }
+  }
+  return items.map((it) => {
+    if (it.supersetGroup === null || (miembros.get(it.supersetGroup) ?? 0) > 1) return it;
+    const vuelta = droppedRest.get(it.supersetGroup) ?? it.restSeconds;
+    return { ...it, supersetGroup: null, restSeconds: Math.max(it.restSeconds, vuelta) };
+  });
 }
 
 type MatchDayRule = NonNullable<NonNullable<Ruleset['sports']>['matchDay']>[MatchDayState];
@@ -850,29 +1045,18 @@ function adjustItem(
  * repeticiones bajas "para mantener velocidad máxima"
  * (`01-fuerza-hipertrofia-potencia.md`).
  *
- * Lo que sale hoy es otra cosa. Medido sobre el catálogo real: un plan de
- * potencia trae sentadilla en Smith, press inclinado, remo y press militar —la
- * misma selección que fuerza— a 1-3 repeticiones. Los tres ejercicios
- * explosivos del gimnasio (salto al cajón, wall ball, slam ball) no entran
- * nunca, porque son de peso corporal y el slot principal prefiere algo a lo
- * que se le pueda subir la carga.
- *
- * Ese filtro es correcto para fuerza e hipertrofia, donde la progresión se
- * mide en kilos. Para potencia contradice al propio ruleset, que dice que "la
- * potencia se regula por velocidad, no por repeticiones en reserva" y no
- * propone subir carga sola en este objetivo.
- *
- * Cambiar la selección es una decisión de producto —implicaría que el
- * ejercicio principal de un plan de potencia sea un salto al cajón, y el
- * bloque prescribe 30-60 % del 1RM, que en peso corporal no significa nada—.
- * Hasta que se tome, el plan **no puede prometer explosividad y entregar
- * series lentas sin decirlo**: es la regla dura 4 aplicada a la selección en
- * vez de a los números.
+ * Desde el 18/09/2026 lo explosivo entra solo, en par con el levantamiento de
+ * su patrón (`addExplosivePairs`, `docs/research/37`). Este aviso queda para
+ * cuando no entra: una molestia declarada, la edad por encima de la que cubren
+ * los ensayos, o un nivel sin ningún explosivo a su alcance. El plan **no
+ * puede prometer explosividad y entregar series lentas sin decirlo**: es la
+ * regla dura 4 aplicada a la selección en vez de a los números.
  */
 function powerWarnings(
   sessions: readonly SessionBlueprint[],
   gym: GymSnapshot,
   goal: UserGoal,
+  ruleset: Ruleset,
 ): string[] {
   if (goal.goal !== 'power') return [];
 
@@ -883,11 +1067,11 @@ function powerWarnings(
 
   if (hayExplosivo) return [];
 
+  const edad = ruleset.explosive ? `, pasados los ${ruleset.explosive.maxAge} años` : '';
   return [
-    'Este plan no incluye ningún ejercicio explosivo: se entrena con series cortas y ' +
-      'rápidas sobre los ejercicios de siempre. El gimnasio tiene con qué (cajones, wall ' +
-      'ball, slam ball), pero todavía no entran solos al plan. Si buscás explosividad, ' +
-      'consultalo con el staff.',
+    `Este plan no trae saltos ni lanzamientos: con una molestia declarada${edad} o sin la ` +
+      'técnica que piden, no se suman solos. Se entrena con series cortas y rápidas sobre ' +
+      'los ejercicios de siempre. Si buscás explosividad, consultalo con el staff.',
   ];
 }
 
@@ -994,7 +1178,11 @@ function reviewProgress(input: ReviewProgressInput): readonly ProposalBlueprint[
   for (const [exerciseId, sets] of groupTopSetsByExercise(history)) {
     if (wasRecentlyRejected(resolvedProposals, exerciseId)) continue;
     const exercise = exerciseById.get(exerciseId);
-    if (!exercise) continue;
+    // Lo explosivo se regula por la calidad de cada repetición (altura,
+    // velocidad), no por repeticiones en reserva ni por kilos: subirle la carga
+    // a un salto porque "le sobraron" lo vuelve más lento, que es lo contrario
+    // de lo que busca. `docs/research/22` y `37`.
+    if (!exercise || exercise.isExplosive) continue;
 
     const ctx: RuleContext = {
       exerciseId,
@@ -1741,9 +1929,12 @@ function chooseExercise(input: ChooseExerciseInput): Exercise | undefined {
   //
   //     Es `prefer` y no un filtro: si el patrón solo tuviera explosivos, se
   //     cubre igual antes que dejar el slot vacío.
-  if (input.regulatedByRir) {
-    eligible = prefer(eligible, (e) => !e.isExplosive);
-  }
+  //
+  //     Y vale también donde no hay RIR (potencia): lo explosivo entra por un
+  //     solo camino, pegado al levantamiento de su patrón (`addExplosivePairs`),
+  //     con su propia dosis. En un slot común recibiría la del slot —"wall ball
+  //     3×1-3 al 30-60 % 1RM"—, que no es la de un lanzamiento.
+  eligible = prefer(eligible, (e) => !e.isExplosive);
 
   // 3. En el ejercicio principal, uno al que se le pueda subir la carga. Toda la
   //    progresión se mide en kilos: si el ejercicio más importante de la sesión

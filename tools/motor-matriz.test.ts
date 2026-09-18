@@ -594,6 +594,8 @@ function resumir(plan: PlanBlueprint) {
         // se ven idénticas: `1 serie, 1-1 reps, sin carga`.
         duracionSeg: i.targetDurationSeconds,
         zona: i.targetIntensityZone,
+        // Levantamiento y explosivo que se alternan serie por serie.
+        par: i.supersetGroup,
       })),
     })),
   };
@@ -929,9 +931,21 @@ describe('los números del plan salen del ruleset', () => {
     const repsMin = ventana ? ventana[0] : slot.repsMin;
     const repsMax = ventana ? ventana[1] : slot.repsMax;
     const posibles = [Math.ceil(slot.sets * multiplicador), Math.floor(slot.sets * multiplicador)];
+    const par = reglas.explosive;
     return posibles
       .filter((sets) => sets > 0)
-      .map((sets) => `${sets}×${repsMin}-${repsMax} RIR ${slot.rirTarget} d${slot.restSeconds}s`);
+      .flatMap((sets) => [
+        `${sets}×${repsMin}-${repsMax} RIR ${slot.rirTarget} d${slot.restSeconds}s`,
+        // En par con un explosivo: el levantamiento descansa lo de adentro del
+        // par, y el explosivo lleva sus repeticiones, sin RIR, con el descanso
+        // de la vuelta, que es el del slot.
+        ...(par
+          ? [
+              `${sets}×${repsMin}-${repsMax} RIR ${slot.rirTarget} d${par.intraPairRestSeconds}s`,
+              `${sets}×${par.repsMin}-${par.repsMax} RIR null d${slot.restSeconds}s`,
+            ]
+          : []),
+      ]);
   }
 
   /** Lo que este perfil recibió y el ruleset no explica por ningún camino. */
@@ -966,15 +980,15 @@ describe('los números del plan salen del ruleset', () => {
  * remo, press militar— a 1-3 repeticiones, y ninguno de los tres ejercicios
  * explosivos del gimnasio.
  *
- * Mientras eso siga así, el plan tiene que decirlo. Ver la nota larga en
- * `powerWarnings` (`placeholder-engine.ts`) para por qué la selección no se
- * cambió acá: es una decisión de producto con una tensión real detrás.
+ * Desde el 18/09/2026 lo explosivo entra en par con un levantamiento
+ * (`addExplosivePairs`). El aviso queda para el plan de potencia que igual no
+ * recibe ninguno, y tiene que salir exactamente ahí.
  */
 describe('el aviso de potencia sin explosivos', () => {
   const explosivosDelGimnasio = gym.exercises.filter((e) => e.isExplosive).map((e) => e.name);
 
   function avisaDeExplosivos(p: Perfil): boolean {
-    return planDe(p, V1_RESEARCH).warnings.some((w) => w.includes('explosivo'));
+    return planDe(p, V1_RESEARCH).warnings.some((w) => w.includes('saltos ni lanzamientos'));
   }
 
   it('el gimnasio tiene ejercicios explosivos cargados', () => {
@@ -990,9 +1004,7 @@ describe('el aviso de potencia sin explosivos', () => {
       const conExplosivo = reporteDe(perfil).sesiones.some((s) =>
         s.items.some((i) => explosivosDelGimnasio.includes(i.ejercicio)),
       );
-      // Hoy ninguno recibe explosivos, así que todos tienen que avisar. Si
-      // algún día la selección cambia, este test sigue siendo correcto: avisa
-      // solo el que no recibió ninguno.
+      // Avisa solo el que no recibió ninguno (molestia, edad, nivel).
       expect(avisaDeExplosivos(perfil)).toBe(!conExplosivo);
     }
   });
@@ -1097,9 +1109,13 @@ describe('la plantilla que se elige cuando ninguna cubre la frecuencia', () => {
  */
 describe('el deporte tiene que cambiar algún ejercicio', () => {
   /** El mismo perfil, con y sin el deporte declarado. */
+  // Sin el explosivo del par: ese lo suma el deporte a propósito (`explosive`
+  // en el ruleset, su propio bloque de tests abajo). Lo que se mide acá es el
+  // desempate entre los ejercicios de siempre.
+  const esExplosivo = new Set(gym.exercises.filter((e) => e.isExplosive).map((e) => e.id));
   function ejerciciosDe(p: Perfil, deporte: Perfil['deporte']): string[] {
     return planDe({ ...p, deporte }, V1_RESEARCH).sessions.flatMap((s) =>
-      s.items.map((i) => i.exerciseId),
+      s.items.map((i) => i.exerciseId).filter((id) => !esExplosivo.has(id)),
     );
   }
 
@@ -1131,7 +1147,8 @@ describe('el deporte tiene que cambiar algún ejercicio', () => {
       for (const deporte of conGesto) {
         mirados += 1;
         const conDeporte = ejerciciosDe(perfil, deporte.id as Perfil['deporte']);
-        // Mismo largo siempre: el deporte desempata, no cambia la dosis.
+        // Mismo largo siempre: el deporte desempata, no cambia la dosis de lo
+        // que ya estaba.
         expect(conDeporte).toHaveLength(sinDeporte.length);
         if (conDeporte.some((id, i) => id !== sinDeporte[i])) cambiaron += 1;
       }
@@ -2336,7 +2353,8 @@ describe('el aviso de volumen semanal', () => {
 
     for (const item of plan.sessions.slice(0, porSemana).flatMap((s) => s.items)) {
       const ex = gym.exercises.find((e) => e.id === item.exerciseId);
-      if (!ex) continue;
+      // Los saltos del par no son series de fuerza cerca del fallo: no cuentan.
+      if (!ex || ex.isExplosive) continue;
       for (const m of ex.primaryMuscles) {
         series.set(m, (series.get(m) ?? 0) + item.targetSets);
         // El piso se mide solo donde hay un compuesto: dos series de curl no son
@@ -3067,5 +3085,131 @@ describe('el orden del historial', () => {
     expect(conDescargo, `no descargó a los ${deload.absenceDays} días`).toBeDefined();
     // El porcentaje sale del ruleset: un 50 escrito acá sería la regla dura 3 rota.
     expect(conDescargo).toContain(`${Math.round(deload.volumeMultiplier * 100)}%`);
+  });
+});
+
+/**
+ * LO EXPLOSIVO ENTRA EN PAR, Y SOLO DONDE CORRESPONDE
+ *
+ * `explosive` en el ruleset: potencia y los deportes de las categorías
+ * elegidas reciben un salto o lanzamiento pegado al levantamiento de su mismo
+ * patrón, serie por serie (`docs/research/37`). Estos tests vigilan las tres
+ * cosas que harían daño si se rompieran: un explosivo suelto con la receta de
+ * otro slot, uno para quien declaró una molestia, y uno donde nadie lo pidió.
+ */
+describe('explosivos en par con un levantamiento', () => {
+  const cfg = V1_RESEARCH.explosive;
+  const exPorId = new Map(gym.exercises.map((e) => [e.id, e]));
+
+  function loRecibe(p: Perfil): boolean {
+    if (!cfg) return false;
+    const categoria = V1_RESEARCH.sports?.catalog.find((d) => d.id === p.deporte)?.category;
+    return (
+      cfg.goals.includes(p.goal) ||
+      (categoria !== undefined && cfg.sportCategories.includes(categoria))
+    );
+  }
+
+  it('el ruleset trae el bloque', () => {
+    expect(cfg).toBeDefined();
+  });
+
+  it('todo explosivo va detrás de un levantamiento de su patrón, con las mismas series', () => {
+    let pares = 0;
+    for (const perfil of PERFILES) {
+      for (const sesion of planDe(perfil, V1_RESEARCH).sessions) {
+        sesion.items.forEach((item, i) => {
+          const ex = exPorId.get(item.exerciseId);
+          if (!ex?.isExplosive) return;
+          pares += 1;
+          const previo = sesion.items[i - 1];
+          const lift = previo ? exPorId.get(previo.exerciseId) : undefined;
+          expect(item.supersetGroup, `${perfil.nombre}: ${ex.name} suelto`).not.toBeNull();
+          expect(previo?.supersetGroup, `${perfil.nombre}: ${ex.name} sin compañero`).toBe(
+            item.supersetGroup,
+          );
+          expect(lift?.isExplosive).toBe(false);
+          expect(lift?.pattern).toBe(ex.pattern);
+          expect(item.targetSets).toBe(previo?.targetSets);
+          expect(item.targetRir).toBeNull();
+          expect(item.targetLoad).toBeNull();
+        });
+      }
+    }
+    // Verde y vacío no sirve.
+    expect(pares).toBeGreaterThan(10);
+  });
+
+  it('lo reciben potencia y los deportes de la lista, salvo molestia o edad', () => {
+    let conPar = 0;
+    for (const perfil of PERFILES) {
+      const plan = planDe(perfil, V1_RESEARCH);
+      const tiene = plan.sessions.some((s) => s.items.some((i) => i.supersetGroup !== null));
+      const edad = new Date(AHORA).getUTCFullYear() - new Date(perfil.nacimiento).getUTCFullYear();
+      const conMolestia = (perfil.limitaciones ?? []).length > 0;
+      if (!loRecibe(perfil) || conMolestia || (cfg && edad > cfg.maxAge + 1)) {
+        expect(tiene, `${perfil.nombre} no lo pidió o no le corresponde`).toBe(false);
+      }
+      if (!tiene) continue;
+      conPar += 1;
+      // Los perfiles con molestia de la matriz no declaran deporte, así que la
+      // guarda se prueba sumándole una molestia leve a los que sí lo reciben.
+      const planConMolestia = planDe(
+        { ...perfil, limitaciones: [molestia('lower_back', 2)] },
+        V1_RESEARCH,
+      );
+      expect(
+        planConMolestia.sessions.some((s) => s.items.some((i) => i.supersetGroup !== null)),
+        `${perfil.nombre} con una molestia`,
+      ).toBe(false);
+    }
+    expect(conPar).toBeGreaterThanOrEqual(5);
+  });
+
+  it('la edad tope es la de los ensayos: a los 70 sí, pasada la edad tope no', () => {
+    const potencia = PERFILES.find((p) => p.nombre === 'potencia · avanzado');
+    expect(potencia).toBeDefined();
+    if (!potencia || !cfg) return;
+    const nacidoHace = (años: number) => `${new Date(AHORA).getUTCFullYear() - años}-01-01`;
+    const conPar = (años: number) =>
+      planDe({ ...potencia, nacimiento: nacidoHace(años) }, V1_RESEARCH).sessions.some((s) =>
+        s.items.some((i) => i.supersetGroup !== null),
+      );
+    expect(conPar(70)).toBe(true);
+    expect(conPar(cfg.maxAge + 2)).toBe(false);
+  });
+
+  it('el día del partido, si se saca el salto, el levantamiento vuelve a ser suelto', () => {
+    const futbol = PERFILES.find((p) => p.nombre === 'fútbol · pretemporada');
+    expect(futbol).toBeDefined();
+    if (!futbol) return;
+    const sesion = planDe(futbol, V1_RESEARCH).sessions.find((s) =>
+      s.items.some((i) => i.supersetGroup !== null),
+    );
+    expect(sesion).toBeDefined();
+    if (!sesion) return;
+    const lift = sesion.items.find(
+      (i) => i.supersetGroup !== null && !exPorId.get(i.exerciseId)?.isExplosive,
+    );
+    const salto = sesion.items.find((i) => exPorId.get(i.exerciseId)?.isExplosive);
+    // Día de partido con `avoidExplosive` y la parte de arriba entera: el
+    // levantamiento de pierna puede quedar con menos series, pero no solo con
+    // la pausa corta de adentro del par.
+    const estados = Object.entries(V1_RESEARCH.sports?.matchDay ?? {}).filter(
+      ([, r]) => r.avoidExplosive && r.lowerBodyVolumeMultiplier > 0,
+    );
+    expect(estados.length).toBeGreaterThan(0);
+    for (const [estado] of estados) {
+      const hoy = engine.adjustSession({
+        items: sesion.items,
+        gym,
+        state: estado as Parameters<typeof engine.adjustSession>[0]['state'],
+        ruleset: V1_RESEARCH,
+      });
+      expect(hoy.items.some((i) => exPorId.get(i.exerciseId)?.isExplosive)).toBe(false);
+      const solo = hoy.items.find((i) => i.exerciseId === lift?.exerciseId);
+      expect(solo?.supersetGroup).toBeNull();
+      expect(solo?.restSeconds).toBe(salto?.restSeconds);
+    }
   });
 });

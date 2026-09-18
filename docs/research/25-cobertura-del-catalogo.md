@@ -225,6 +225,9 @@ el plan lo dice.
    arriba: era la única pregunta que el aviso "podés cambiarlo" hacía parecer contestada. Giro ruso
    con mancuerna, leñador en polea, rotación en polea: si alguno existe físicamente en el gimnasio y
    no está cargado, se resuelve cargándolo, no tocando el motor.
+   **18/09/2026:** se cargó "Lanzamiento rotacional con wall ball" (oblicuos), que se hace con lo
+   que el gimnasio tiene. Es explosivo, así que no entra en el slot de core (regulado por RIR): queda
+   disponible en el plan a mano y como equivalente. Ver `37`.
 3. **Si los gemelos merecen su propio slot.** Hoy compiten en `isolation` contra todo lo demás y
    nunca ganan. Es la misma pregunta que ya se contestó para el core, que sí tiene slot propio.
 

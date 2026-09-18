@@ -1078,6 +1078,19 @@
     "maxRepsToFailure": 10,
     "maxRir": 3
   },
+  "explosive": {
+    "goals": ["power"],
+    "sportCategories": ["local_gesture", "strength_contact", "global_endurance"],
+    "pairPatterns": ["squat", "hinge", "lunge", "horizontal_push"],
+    "pairsPerSession": 1,
+    "repsMin": 5,
+    "repsMax": 10,
+    "intraPairRestSeconds": 120,
+    "maxAge": 79,
+    "rationale": "Va en par con el ejercicio anterior: una serie de cada uno. Cada repetición con toda la velocidad que tengas; si notás que salís más bajo o más lento, cortá la serie ahí.",
+    "confidence": "low",
+    "confidenceNote": "Que combinar fuerza con explosivos en la misma sesión rinde más que la fuerza sola en sprint, salto y cambio de dirección está medido (Thapa 2024, 32 estudios; Zhao 2026, 34 estudios), pero con certeza baja a muy baja. La dosis es de los protocolos que funcionaron: 10 saltos por serie (Ramirez-Campillo 2014) y la mitad rinde lo mismo (Yanci, en 06); 2 minutos entre el levantamiento y el salto (Freitas 2017, subgrupo). La edad tope es la de los ensayos en mayores (Vetrovsky 2019, hasta 79 de media). Ver docs/research/37."
+  },
   "cardio": {
     "zones": [
       {

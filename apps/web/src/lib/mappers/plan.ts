@@ -68,6 +68,12 @@ export interface PlanSessionItemInsertRow {
   readonly target_to_failure: boolean;
   readonly target_pct_1rm_min: number | null;
   readonly target_pct_1rm_max: number | null;
+  /**
+   * El par levantamiento + explosivo que arma el motor. Opcional porque el
+   * editor del plan a mano no lo toca: omitirlo en una escritura deja el grupo
+   * que ya tenía la fila en vez de borrarlo.
+   */
+  readonly superset_group?: number | null;
 }
 
 export function toPlanInsert(
@@ -131,5 +137,6 @@ export function toPlanSessionItemInserts(
     target_to_failure: false,
     target_pct_1rm_min: null,
     target_pct_1rm_max: null,
+    superset_group: item.supersetGroup,
   }));
 }

@@ -335,7 +335,7 @@ function PreviewRow({
           </p>
           <p className="flex items-center gap-1 text-[0.65rem] text-slate-dim">
             <Timer size={10} aria-hidden="true" />
-            {item.restSeconds}s de descanso
+            {item.descanso}
             {item.sector && ` · ${item.sector}`}
           </p>
         </div>

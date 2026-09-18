@@ -201,8 +201,9 @@
       "name": "Rack de mancuernas hexagonales",
       "brand": "G-FITNESS",
       "category": "rack",
-      "load_unit": "none",
-      "quantity": 1
+      "load_unit": "kg",
+      "quantity": 1,
+      "setup_notes": "peso mancuernas G-Fitness rotuladas en KG (foto LIB-01)"
     },
     {
       "name": "Rack de sentadilla libre",
@@ -223,8 +224,9 @@
       "name": "Rack en A de mancuernas livianas",
       "brand": "Gamelan",
       "category": "rack",
-      "load_unit": "none",
-      "quantity": 1
+      "load_unit": "kg",
+      "quantity": 1,
+      "setup_notes": "peso mancuernas Gamelan de 2 a 10 KG (foto LIB-05)"
     },
     {
       "name": "Rig de pared (dominadas + bolsa de boxeo + soga + TRX)",
@@ -330,9 +332,9 @@
     {
       "name": "Kettlebells",
       "category": "accessory",
-      "load_unit": "none",
+      "load_unit": "kg",
       "quantity": 1,
-      "setup_notes": "cantidad sin confirmar"
+      "setup_notes": "cantidad sin confirmar; peso rotuladas en kg (foto ACC-06)"
     },
     {
       "name": "Mini-vallas de agilidad",
@@ -397,16 +399,16 @@
       "name": "Sandbags",
       "brand": "Gamelan",
       "category": "accessory",
-      "load_unit": "none",
+      "load_unit": "kg",
       "quantity": 1,
-      "setup_notes": "cantidad sin confirmar"
+      "setup_notes": "cantidad sin confirmar; peso rotuladas 5, 10 y 15 KG (foto ACC-06)"
     },
     {
       "name": "Slam balls",
       "category": "accessory",
-      "load_unit": "none",
+      "load_unit": "kg",
       "quantity": 1,
-      "setup_notes": "cantidad sin confirmar"
+      "setup_notes": "cantidad sin confirmar; peso rotuladas en KG, 4 kg entre otras (foto ACC-06)"
     },
     {
       "name": "Steps aeróbicos",
@@ -419,9 +421,9 @@
       "name": "Wall balls",
       "brand": "Gamelan",
       "category": "accessory",
-      "load_unit": "none",
+      "load_unit": "kg",
       "quantity": 1,
-      "setup_notes": "cantidad sin confirmar"
+      "setup_notes": "cantidad sin confirmar; peso rotuladas en KG, 6 kg entre otras (foto ACC-06)"
     }
   ],
   "exercises": [
@@ -1286,6 +1288,32 @@
       "skillLevel": "beginner",
       "cues": "Sin rebote y sin dolor: llevá cada posición hasta donde llegás con control y sostenela. Cadera (90/90, estocada baja) y tobillo (rodilla a la pared).",
       "equipment": ["Colchonetas plegables"]
+    },
+    {
+      "name": "Pase de pecho con wall ball",
+      "pattern": "horizontal_push",
+      "primaryMuscles": ["chest", "triceps"],
+      "secondaryMuscles": ["front_delts"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "isExplosive": true,
+      "modality": "reps_bodyweight",
+      "skillLevel": "novice",
+      "cues": "De pie frente a la pared, la pelota al pecho. Empujala lo más rápido que puedas y recibila con los brazos flojos.",
+      "equipment": ["Wall balls"]
+    },
+    {
+      "name": "Lanzamiento rotacional con wall ball",
+      "pattern": "core",
+      "primaryMuscles": ["obliques"],
+      "secondaryMuscles": ["abs", "glutes"],
+      "isCompound": true,
+      "isUnilateral": true,
+      "isExplosive": true,
+      "modality": "reps_bodyweight",
+      "skillLevel": "novice",
+      "cues": "De costado a la pared. El giro arranca en la cadera y los pies, no en los brazos. Mismas repeticiones de cada lado.",
+      "equipment": ["Wall balls"]
     }
   ]
 }

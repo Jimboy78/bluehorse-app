@@ -82,6 +82,13 @@ export interface SessionItemBlueprint {
   readonly targetDurationSeconds: number | null;
   readonly targetIntensityZone: number | null;
   readonly targetIntervalRestSeconds: number | null;
+  /**
+   * Ítems con el mismo número se hacen alternados, una serie de cada uno
+   * (`plan_session_items.superset_group`). Hoy lo usa el par levantamiento +
+   * explosivo: el `restSeconds` del primero es la pausa dentro del par, y el
+   * del último es la de la vuelta entera.
+   */
+  readonly supersetGroup: number | null;
 }
 
 export interface SessionBlueprint {

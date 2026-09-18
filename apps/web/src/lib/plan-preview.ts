@@ -13,6 +13,7 @@ import { fetchGymCatalog } from './catalog.ts';
 import { activeRuleset, engine, engineContext } from './engine.ts';
 import { fetchUserSnapshot, persistBlueprint } from './plan.ts';
 import { requireSupabase } from './supabase.ts';
+import { textoDelDescanso } from './superserie.ts';
 
 /**
  * VISTA PREVIA DEL PLAN
@@ -49,6 +50,8 @@ export interface PreviewItem {
   readonly reps: string;
   readonly load: string;
   readonly restSeconds: number;
+  /** "90s de descanso", o "120s y seguí con Salto al cajón" dentro de un par. */
+  readonly descanso: string;
   readonly rationale: string;
   /** `true` si se cambió a mano en la previa: la fila lo dice. */
   readonly swapped: boolean;
@@ -92,9 +95,13 @@ function describe(blueprint: PlanBlueprint, gym: GymSnapshot, swapped: ReadonlyS
     label: session.label,
     focus: session.focus,
     estimatedMinutes: session.estimatedMinutes,
-    items: session.items.map((item) => {
+    items: session.items.map((item, index, items) => {
       const key = itemKey(session.sequenceIndex, item.orderIndex);
       const exercise = exerciseById.get(item.exerciseId);
+      const vuelta = items.map((it) => ({
+        name: exerciseById.get(it.exerciseId)?.name ?? 'Ejercicio',
+        supersetGroup: it.supersetGroup,
+      }));
       const equipment = item.equipmentId ? equipmentById.get(item.equipmentId) : undefined;
       return {
         key,
@@ -112,6 +119,7 @@ function describe(blueprint: PlanBlueprint, gym: GymSnapshot, swapped: ReadonlyS
         reps: describeReps(item),
         load: item.targetLoad ? formatLoad(item.targetLoad) : 'a calibrar',
         restSeconds: item.restSeconds,
+        descanso: textoDelDescanso(vuelta, index, item.restSeconds),
         rationale: item.rationale,
         swapped: swapped.has(key),
       } satisfies PreviewItem;

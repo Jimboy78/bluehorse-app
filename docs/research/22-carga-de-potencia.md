@@ -145,3 +145,8 @@ Las opciones, con lo que cuesta cada una:
 Mientras tanto, el plan **avisa**: un plan de potencia sin ningún ejercicio explosivo lo dice en
 pantalla, nombra los tres que el gimnasio tiene y manda a consultar con el staff. Es la regla dura 4
 aplicada a la selección en vez de a los números.
+
+**Decidido el 18 de septiembre de 2026.** Ni la opción 1 ni la 2: lo explosivo entra en par con el
+levantamiento de su patrón, serie por serie, con su propia dosis (bloque `explosive` del ruleset). El
+levantamiento sigue siendo el principal y conserva su banda; el salto o lanzamiento no lleva
+porcentaje ni RIR. Ver `37-explosivos-y-deporte.md`.

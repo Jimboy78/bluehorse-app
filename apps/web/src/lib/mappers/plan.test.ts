@@ -17,6 +17,7 @@ const item: SessionItemBlueprint = {
   targetDurationSeconds: null,
   targetIntensityZone: null,
   targetIntervalRestSeconds: null,
+  supersetGroup: null,
 };
 
 const itemSinCarga: SessionItemBlueprint = { ...item, exerciseId: 'ex-2', targetLoad: null };

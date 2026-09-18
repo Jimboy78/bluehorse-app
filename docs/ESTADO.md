@@ -1,6 +1,24 @@
 # Estado del trabajo
 
-## Última actualización: 18 de septiembre de 2026 (la rutina escrita de un socio, entera)
+## Última actualización: 18 de septiembre de 2026 (saltos y lanzamientos en el plan)
+
+Pedido del dueño: que las estaciones se puedan usar sin forzarlas, y que el deporte traiga
+movimiento. Medido: 32 de 68 ejercicios no entraban a ningún plan, entre ellos los nueve
+explosivos, y ningún plan de potencia ni de deporte recibía uno.
+
+- **Par levantamiento + explosivo** (bloque `explosive` del ruleset, `addExplosivePairs`):
+  potencia y los deportes que no son recreativos reciben un salto o lanzamiento pegado al
+  levantamiento de su patrón, serie por serie. Sin RIR, sin progresión de carga, fuera del conteo
+  de volumen semanal. No lo recibe nadie con una molestia o lesión declarada, ni pasados los 79.
+  `docs/research/37` (Thapa 2024, Zhao 2026, Freitas 2017).
+- `supersetGroup` en el contrato del motor → `superset_group` en la base. Hoy y la previa del plan
+  ya muestran "120s y seguí con Salto al cajón".
+- Catálogo: racks de mancuernas, kettlebells, wall balls, slam balls y sandbags pasan a `kg`
+  (rotulados en kilos en las fotos). Nuevos: pase de pecho y lanzamiento rotacional con wall ball.
+- Abierto: principiantes con deporte no reciben par (nivel técnico del catálogo); el lanzamiento
+  rotacional no tiene par automático.
+
+## 18 de septiembre de 2026 (la rutina escrita de un socio, entera)
 
 El pedido vino de un socio real con su rutina de lunes a viernes escrita a mano: %1RM, "al fallo
 técnico", cardio en zona 2, un día de recuperación activa con movilidad, ejercicios por pierna. Y
@@ -38,9 +56,6 @@ dos cosas más: poder decir "hoy descanso" sin perder la racha, y elegir por qu�
   y dos bancos con rack a 20 kg. Faltan la barra hexagonal (no tiene norma: de 11 a 40 kg según
   fabricante, hay que pesarla), la Z, la guiada del Smith y del Multipower, y los carros de las
   máquinas de discos. Sin eso el %1RM de esas estaciones sigue diciendo que falta el dato.
-- **Los racks de mancuernas en `none`.** "Rack de mancuernas hexagonales" y "Rack en A" son
-  estaciones de ejercicios con mancuernas y se registran sin carga. Falta saber si las
-  mancuernas están en kg o en lb para pasarlos a su unidad.
 - Verificar a mano una muestra de DOIs, como antes.
 
 El plan del socio (`3b2620da…`) quedó cargado con su rutina tal cual: 5 días, 20 ítems.

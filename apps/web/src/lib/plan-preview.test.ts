@@ -73,6 +73,7 @@ function item(overrides: Partial<SessionItemBlueprint> = {}): SessionItemBluepri
     targetDurationSeconds: null,
     targetIntensityZone: null,
     targetIntervalRestSeconds: null,
+    supersetGroup: null,
     ...overrides,
   };
 }

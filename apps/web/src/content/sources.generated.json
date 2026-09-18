@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-18",
-  "resolved": 68,
+  "resolved": 77,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -753,6 +753,177 @@
       ],
       "documentos": [
         "18-enfasis-excentrico.md"
+      ]
+    },
+    {
+      "doi": "10.1080/02640414.2024.2391657",
+      "title": "Effects of complex training compared to resistance training alone on physical fitness of healthy individuals: A systematic review with meta-analysis",
+      "authors": [
+        "Thapa",
+        "Uysal",
+        "Clemente"
+      ],
+      "moreAuthors": 2,
+      "year": 2024,
+      "journal": "Journal of Sports Sciences",
+      "type": "journal-article",
+      "temas": [
+        "Explosivos y deporte"
+      ],
+      "documentos": [
+        "37-explosivos-y-deporte.md"
+      ]
+    },
+    {
+      "doi": "10.1186/s13102-026-01531-0",
+      "title": "Effects of combined resistance and plyometric training modalities on vertical jump and sprint: a systematic review and network meta-analysis",
+      "authors": [
+        "Zhao",
+        "Zhu",
+        "Zhang"
+      ],
+      "moreAuthors": 0,
+      "year": 2026,
+      "journal": "BMC Sports Science, Medicine and Rehabilitation",
+      "type": "journal-article",
+      "temas": [
+        "Explosivos y deporte"
+      ],
+      "documentos": [
+        "37-explosivos-y-deporte.md"
+      ]
+    },
+    {
+      "doi": "10.1371/journal.pone.0180223",
+      "title": "Short-term adaptations following Complex Training in team-sports: A meta-analysis",
+      "authors": [
+        "Freitas",
+        "Martinez-Rodriguez",
+        "Calleja-González"
+      ],
+      "moreAuthors": 1,
+      "year": 2017,
+      "journal": "PLOS ONE",
+      "type": "journal-article",
+      "temas": [
+        "Explosivos y deporte"
+      ],
+      "documentos": [
+        "37-explosivos-y-deporte.md"
+      ]
+    },
+    {
+      "doi": "10.1055/s-0034-1366145",
+      "title": "Effekte von Komplextraining auf Kraft- und Schnelligkeitsleistungen bei Sportlern: Ein systematischer Überblick",
+      "authors": [
+        "Lesinski",
+        "Muehlbauer",
+        "Büsch"
+      ],
+      "moreAuthors": 1,
+      "year": 2014,
+      "journal": "Sportverletzung · Sportschaden",
+      "type": "journal-article",
+      "temas": [
+        "Explosivos y deporte"
+      ],
+      "documentos": [
+        "37-explosivos-y-deporte.md"
+      ]
+    },
+    {
+      "doi": "10.1371/journal.pone.0285062",
+      "title": "Effects of different cluster-set rest intervals during plyometric-jump training on measures of physical fitness: A randomized trial",
+      "authors": [
+        "Moghadam",
+        "Shirvani",
+        "Ramirez-Campillo"
+      ],
+      "moreAuthors": 4,
+      "year": 2023,
+      "journal": "PLOS ONE",
+      "type": "journal-article",
+      "temas": [
+        "Explosivos y deporte"
+      ],
+      "documentos": [
+        "37-explosivos-y-deporte.md"
+      ]
+    },
+    {
+      "doi": "10.1519/jsc.0b013e318196b7c6",
+      "title": "Determining Variables of Plyometric Training for Improving Vertical Jump Height Performance: A Meta-Analysis",
+      "authors": [
+        "de Villarreal",
+        "Kellis",
+        "Kraemer"
+      ],
+      "moreAuthors": 1,
+      "year": 2009,
+      "journal": "Journal of Strength and Conditioning Research",
+      "type": "journal-article",
+      "temas": [
+        "Explosivos y deporte"
+      ],
+      "documentos": [
+        "37-explosivos-y-deporte.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s40279-017-0835-7",
+      "title": "Effects of Strength Training on the Physiological Determinants of Middle- and Long-Distance Running Performance: A Systematic Review",
+      "authors": [
+        "Blagrove",
+        "Howatson",
+        "Hayes"
+      ],
+      "moreAuthors": 0,
+      "year": 2017,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Explosivos y deporte"
+      ],
+      "documentos": [
+        "37-explosivos-y-deporte.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s40279-018-1018-x",
+      "title": "The Efficacy and Safety of Lower-Limb Plyometric Training in Older Adults: A Systematic Review",
+      "authors": [
+        "Vetrovsky",
+        "Steffl",
+        "Stastny"
+      ],
+      "moreAuthors": 1,
+      "year": 2018,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Explosivos y deporte"
+      ],
+      "documentos": [
+        "37-explosivos-y-deporte.md"
+      ]
+    },
+    {
+      "doi": "10.1001/jamanetworkopen.2022.11623",
+      "title": "Comparison of Power Training vs Traditional Strength Training on Physical Function in Older Adults",
+      "authors": [
+        "Balachandran",
+        "Steele",
+        "Angielczyk"
+      ],
+      "moreAuthors": 5,
+      "year": 2022,
+      "journal": "JAMA Network Open",
+      "type": "journal-article",
+      "temas": [
+        "Explosivos y deporte"
+      ],
+      "documentos": [
+        "37-explosivos-y-deporte.md"
       ]
     },
     {
