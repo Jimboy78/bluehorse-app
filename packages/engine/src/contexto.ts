@@ -3,6 +3,7 @@ import type {
   Exercise,
   ExperienceLevel,
   Goal,
+  HealthCondition,
   MovementPattern,
   MuscleGroup,
   Profile,
@@ -29,8 +30,9 @@ import { detrainingMultiplier, levelChangesDose, resolveParams } from './ruleset
  * Cómo se combinan hoy, escrito para que el próximo módulo lo respete:
  * - **Exclusiones**: se suman. Alcanza con que un módulo saque un ejercicio.
  * - **Dosis**: se aplican en orden, y cada módulo toca campos distintos (la
- *   edad la ventana de repeticiones, el deporte las series). Dentro del deporte,
- *   categoría y temporada contestan lo mismo y manda la más estricta.
+ *   edad la ventana de repeticiones, el deporte las series, la salud el piso de
+ *   RIR). Dentro del deporte, categoría y temporada contestan lo mismo y manda
+ *   la más estricta; entre condiciones de salud, el piso más alto.
  * - **Bloques**: por ahora uno solo, el par explosivo.
  * - **Avisos**: cada uno sabe de qué módulo sale, en el orden en que el socio
  *   los lee.
@@ -52,6 +54,9 @@ export const ORDEN_DE_AVISOS = [
   'provisorio',
   'ruleset',
   'molestia',
+  // Cómo hacer la fuerza con una condición de salud: respirar, no llegar al
+  // fallo, cómo terminar. Pide hacer algo en cada serie.
+  'salud',
   'supervision',
   'ausencia',
   'cobertura',
@@ -146,7 +151,10 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
   }
 
   const sport = junto('deporte', (out) => resolveSport(ruleset, goal, out));
-  const params = junto('deporte', (out) => applySportVolume(byYouth, sport, out));
+  const bySport = junto('deporte', (out) => applySportVolume(byYouth, sport, out));
+  const params = junto('salud', (out) =>
+    applyHealthConditions(bySport, ruleset, user.conditions, out),
+  );
   const template = junto('plantilla', (out) => pickTemplate(ruleset, goal, out));
   decir('frecuencia', frequencyWarnings(ruleset, goal, template));
 
@@ -262,6 +270,70 @@ function applyYouthModifier(
     secondary: adjust(params.secondary),
     isolation: adjust(params.isolation),
   };
+}
+
+// ------------------------------------------------------------------ salud
+
+/**
+ * Las condiciones de salud que marcó el socio y tienen entrada en el ruleset
+ * (`docs/research/44`). Una condición sin entrada no cambia nada.
+ */
+function condicionesActivas(
+  ruleset: Ruleset,
+  conditions: readonly HealthCondition[],
+): NonNullable<Ruleset['conditions']> {
+  return (ruleset.conditions ?? []).filter((c) => conditions.includes(c.id));
+}
+
+/**
+ * El piso de RIR de las condiciones: con presión alta o un problema del
+ * corazón, lo que dispara la presión es acumular repeticiones hacia el fallo,
+ * no la carga (Gjøvaag 2016). Así que se sube el RIR y nada más: la carga, las
+ * repeticiones y las series quedan las del objetivo. El trabajo que no se mide
+ * por RIR (potencia, cardio) no se toca.
+ *
+ * Los avisos se suman sin repetir: presión y betabloqueantes comparten el de
+ * la vuelta a la calma.
+ */
+function applyHealthConditions(
+  params: GoalParams,
+  ruleset: Ruleset,
+  conditions: readonly HealthCondition[],
+  warnings: string[],
+): GoalParams {
+  const activas = condicionesActivas(ruleset, conditions);
+  for (const nota of new Set(activas.flatMap((c) => c.notes))) warnings.push(nota);
+
+  const pisos = activas.flatMap((c) => (c.minRir === null ? [] : [c.minRir]));
+  if (pisos.length === 0) return params;
+  const piso = Math.max(...pisos);
+  const adjust = (role: GoalParams['primary']): GoalParams['primary'] =>
+    role.rirTarget === null || role.rirTarget >= piso ? role : { ...role, rirTarget: piso };
+  const primary = adjust(params.primary);
+  // El disparador de "subimos la carga" está un escalón por encima del RIR de la
+  // principal. Si el RIR sube y el disparador no, cumplir el plan ya cuenta como
+  // que sobraron repeticiones: cada sesión propondría subir, y subir es volver a
+  // acercarse al fallo. Se corre lo mismo que se corrió el RIR.
+  const corrimiento = (primary.rirTarget ?? 0) - (params.primary.rirTarget ?? 0);
+  return {
+    ...params,
+    primary,
+    secondary: adjust(params.secondary),
+    isolation: adjust(params.isolation),
+    progression: {
+      ...params.progression,
+      triggerRirAtLeast: params.progression.triggerRirAtLeast + corrimiento,
+    },
+  };
+}
+
+/**
+ * Si la tarjeta de cardio deja afuera el % de frecuencia cardíaca máxima: con
+ * betabloqueantes el pulso no llega y ese número empuja a exigirse de más. La
+ * pantalla lo pregunta acá para no decidirlo ella.
+ */
+export function ocultaElPulso(ruleset: Ruleset, conditions: readonly HealthCondition[]): boolean {
+  return condicionesActivas(ruleset, conditions).some((c) => c.hidesHeartRate);
 }
 
 // ------------------------------------------------------------------ bloques

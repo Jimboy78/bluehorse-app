@@ -5,6 +5,7 @@ import {
   EQUIPMENT_CATEGORIES,
   EXPERIENCE_LEVELS,
   GOALS,
+  HEALTH_CONDITIONS,
   LOAD_UNITS,
   MODALITIES,
   MOVEMENT_PATTERNS,
@@ -29,6 +30,7 @@ export const equipmentCategorySchema = z.enum(EQUIPMENT_CATEGORIES);
 export const muscleGroupSchema = z.enum(MUSCLE_GROUPS);
 export const bodyRegionSchema = z.enum(BODY_REGIONS);
 export const baselineSourceSchema = z.enum(BASELINE_SOURCES);
+export const healthConditionSchema = z.enum(HEALTH_CONDITIONS);
 export const proposalTypeSchema = z.enum(PROPOSAL_TYPES);
 export const proposalStatusSchema = z.enum(PROPOSAL_STATUSES);
 

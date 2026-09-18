@@ -3,6 +3,7 @@ import {
   BODY_REGIONS,
   EXPERIENCE_LEVELS,
   GOALS,
+  HEALTH_CONDITIONS,
   MATCH_DAY_STATES,
   MOVEMENT_PATTERNS,
   MUSCLE_GROUPS,
@@ -892,6 +893,32 @@ export const rulesetSchema = z.object({
       confidenceNote: z.string().min(1).optional(),
     })
     .refine((b) => b.repsMin <= b.repsMax, { message: 'repsMin > repsMax' })
+    .optional(),
+  /**
+   * Lo que cambia en el plan cada condición de salud que el socio marcó
+   * (`docs/research/43` y siguientes). Una condición sin entrada no cambia nada.
+   * Con varias, el piso de RIR es el más alto y los avisos se suman.
+   */
+  conditions: z
+    .array(
+      z.object({
+        id: z.enum(HEALTH_CONDITIONS),
+        /**
+         * Ninguna serie de fuerza termina más cerca del fallo que esto. Solo
+         * sube el RIR del objetivo; no toca el trabajo que no se mide por RIR.
+         */
+        minRir: z.number().int().min(0).max(10).nullable(),
+        /** La tarjeta de cardio no muestra el % de frecuencia cardíaca máxima. */
+        hidesHeartRate: z.boolean(),
+        /** Lo que el socio tiene que hacer distinto. Van como avisos del plan. */
+        notes: z.array(z.string().min(1)),
+        confidence: z.enum(CONFIDENCE_LEVELS),
+        confidenceNote: z.string().min(1).optional(),
+      }),
+    )
+    .refine((cs) => new Set(cs.map((c) => c.id)).size === cs.length, {
+      message: 'Una condición repetida en el ruleset.',
+    })
     .optional(),
   safety: safetySchema.optional(),
   modifiers: modifiersSchema.optional(),

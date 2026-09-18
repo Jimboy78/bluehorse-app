@@ -192,6 +192,32 @@ export const BASELINE_SOURCES = ['declared', 'calibrated', 'estimated'] as const
 export type BaselineSource = (typeof BASELINE_SOURCES)[number];
 
 /**
+ * Condiciones de salud que el socio marca detrás de la puerta de salud
+ * (`docs/research/43`). No deciden si puede entrenar —eso es el cribado—, sino
+ * cómo: cada una que el motor usa tiene su entrada en `conditions` del ruleset.
+ * Las que todavía no tienen entrada se guardan igual y no cambian el plan.
+ */
+export const HEALTH_CONDITIONS = [
+  'hypertension',
+  'heart_disease',
+  'beta_blockers',
+  'anticoagulants',
+  'diabetes',
+  'asthma',
+  'copd',
+  'osteoarthritis',
+  'osteoporosis',
+  'back_problem',
+  'abdominal_hernia',
+  'pelvic_floor',
+  'glaucoma_retina',
+  'epilepsy_vertigo',
+  'pregnancy',
+  'postpartum',
+] as const;
+export type HealthCondition = (typeof HEALTH_CONDITIONS)[number];
+
+/**
  * Quién armó el plan.
  *
  * `engine`: salió del motor a partir de un ruleset, y cada número tiene su

@@ -75,6 +75,13 @@ export async function fetchUserSnapshot(
     .order('recorded_at', { ascending: false });
   if (baselineError) throw baselineError;
 
+  // Lo que marcó detrás de la puerta de salud: cambia cómo entrena, no si puede.
+  const { data: conditionRows, error: conditionError } = await client
+    .from('user_health_conditions')
+    .select('condition')
+    .eq('user_id', userId);
+  if (conditionError) throw conditionError;
+
   return {
     profile: {
       id: profileRow.id,
@@ -102,6 +109,7 @@ export async function fetchUserSnapshot(
     // Una fila por ejercicio: la más reciente. La consulta viene ordenada, así
     // que la primera de cada ejercicio gana.
     baselines: dedupeByExercise(baselineRows ?? []),
+    conditions: (conditionRows ?? []).map((c) => c.condition),
   };
 }
 

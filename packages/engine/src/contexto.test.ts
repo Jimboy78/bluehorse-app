@@ -1,6 +1,6 @@
 import type { Exercise, UserConstraint } from '@bh/domain';
 import { describe, expect, it } from 'vitest';
-import { excluido, ordenarAvisos, resolverContexto } from './contexto.ts';
+import { excluido, ocultaElPulso, ordenarAvisos, resolverContexto } from './contexto.ts';
 import type { GeneratePlanInput, GymSnapshot, UserSnapshot } from './contract.ts';
 import { V1_RESEARCH } from './index.ts';
 import { createPlaceholderEngine } from './placeholder-engine.ts';
@@ -48,6 +48,7 @@ function input(over: {
   sport?: string | null;
   constraints?: UserConstraint[];
   goal?: UserSnapshot['goals'][number]['goal'];
+  conditions?: UserSnapshot['conditions'];
 }): GeneratePlanInput {
   return {
     context: { now: '2026-09-10T12:00:00.000Z', seed: 1 },
@@ -72,6 +73,7 @@ function input(over: {
       ],
       constraints: over.constraints ?? [],
       baselines: [],
+      conditions: over.conditions ?? [],
     },
     gym,
     ruleset: V1_RESEARCH,
@@ -239,6 +241,56 @@ describe('resolverContexto', () => {
       'impacto',
       'equilibrio',
     ]);
+  });
+
+  it('presión alta o corazón: ninguna serie más cerca del fallo que el piso, y no propone subir por cumplirlo', () => {
+    const conds = V1_RESEARCH.conditions ?? [];
+    const piso = conds.find((c) => c.id === 'hypertension')?.minRir;
+    if (piso == null) throw new Error('sin piso de RIR para la presión');
+    const con = (conditions: UserSnapshot['conditions'], goal: 'hypertrophy' | 'power') => {
+      const i = input({ goal, conditions });
+      const profile = { ...i.user.profile, experienceLevel: 'advanced' as const };
+      return resolverContexto({ ...i, user: { ...i.user, profile } });
+    };
+
+    const sano = con([], 'hypertrophy');
+    // Si el objetivo ya no baja del piso, el test no prueba nada.
+    expect(sano.params.primary.rirTarget).toBeLessThan(piso);
+    for (const c of ['hypertension', 'heart_disease'] as const) {
+      const ctx = con([c], 'hypertrophy');
+      for (const rol of [ctx.params.primary, ctx.params.secondary, ctx.params.isolation]) {
+        expect(rol.rirTarget).toBeGreaterThanOrEqual(piso);
+      }
+      // Cumplir el RIR del plan no puede contar como "te sobraron repeticiones".
+      expect(ctx.params.progression.triggerRirAtLeast).toBeGreaterThan(
+        ctx.params.primary.rirTarget ?? 0,
+      );
+      // La carga y las repeticiones quedan las del objetivo.
+      expect(ctx.params.primary.repsMin).toBe(sano.params.primary.repsMin);
+      expect(ctx.params.primary.intensityPct1RM).toEqual(sano.params.primary.intensityPct1RM);
+      expect(ctx.avisos.map((a) => a.modulo)).toContain('salud');
+    }
+    // Lo que no se regula por RIR no se toca.
+    expect(con(['hypertension'], 'power').params.primary.rirTarget).toBeNull();
+    // Betabloqueantes no ponen piso: cambian cómo se lee el cardio.
+    expect(con(['beta_blockers'], 'hypertrophy').params).toEqual(sano.params);
+  });
+
+  it('las condiciones suman avisos sin repetirlos, y solo los betabloqueantes ocultan el pulso', () => {
+    const avisos = (conditions: UserSnapshot['conditions']) =>
+      resolverContexto(input({ conditions }))
+        .avisos.filter((a) => a.modulo === 'salud')
+        .map((a) => a.texto);
+    const juntas = avisos(['hypertension', 'beta_blockers']);
+    expect(new Set(juntas).size).toBe(juntas.length);
+    expect(juntas.length).toBeGreaterThan(avisos(['hypertension']).length);
+    expect(avisos([])).toEqual([]);
+    // Una condición sin entrada en el ruleset no cambia nada.
+    expect(avisos(['asthma'])).toEqual([]);
+
+    expect(ocultaElPulso(V1_RESEARCH, ['beta_blockers'])).toBe(true);
+    expect(ocultaElPulso(V1_RESEARCH, ['hypertension', 'heart_disease'])).toBe(false);
+    expect(ocultaElPulso(V1_RESEARCH, [])).toBe(false);
   });
 
   it('con una molestia declarada no hay bloque explosivo, aunque el deporte lo pida', () => {

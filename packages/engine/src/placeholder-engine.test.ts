@@ -154,7 +154,7 @@ function buildUser(over: Partial<UserSnapshot> = {}): UserSnapshot {
     sessionsPerWeekTarget: 3,
     sessionMinutesTarget: 60,
   };
-  return { profile, goals: [goal], constraints: [], baselines: [], ...over };
+  return { profile, goals: [goal], constraints: [], baselines: [], conditions: [], ...over };
 }
 
 function setLog(over: Partial<SetLog> & Pick<SetLog, 'workoutLogId' | 'completedAt'>): SetLog {
@@ -649,6 +649,38 @@ describe('reviewProgress', () => {
     expect(proposal?.type).toBe('load_increase');
     expect(proposal?.reasonCode).toBe('rir_above_target');
     expect(proposal?.toValue).toBe('65'); // 60 + 2.5% ajustado al escalón de 5
+  });
+
+  it('con presión alta, cumplir el piso de RIR no cuenta como que sobraron repeticiones', () => {
+    // Hipertrofia intermedia pide RIR 1 y sube con 2. Con el piso de la presión
+    // (`docs/research/44`) el plan pide ese mismo 2: si la revisión no ve el
+    // piso, cada sesión cumplida propone subir y volver a acercarse al fallo.
+    const piso = V1_RESEARCH.conditions?.find((c) => c.id === 'hypertension')?.minRir;
+    if (piso == null) throw new Error('sin piso de RIR para la presión');
+    const n = V1_RESEARCH.prescription.hypertrophy?.default.progression.consecutiveSessions ?? 0;
+    const history = Array.from({ length: n }, (_, i) =>
+      setLog({
+        workoutLogId: `w${i}`,
+        completedAt: `2026-09-0${n - i}T10:00:00.000Z`,
+        rir: piso,
+      }),
+    );
+    const revisar = (conditions: UserSnapshot['conditions']) =>
+      engine
+        .reviewProgress({
+          context,
+          user: buildUser({ conditions }),
+          gym: buildGym(),
+          plan: { ...plan, rulesetVersion: V1_RESEARCH.version },
+          history,
+          resolvedProposals: [],
+          ruleset: V1_RESEARCH,
+        })
+        .filter((p) => p.type === 'load_increase');
+
+    // Sin la condición, ese mismo historial sí sube: el test mira algo.
+    expect(revisar([])).toHaveLength(1);
+    expect(revisar(['hypertension'])).toHaveLength(0);
   });
 
   /**

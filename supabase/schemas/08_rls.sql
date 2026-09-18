@@ -12,6 +12,7 @@ alter table exercise_equipment enable row level security;
 alter table exercise_substitutions enable row level security;
 alter table user_goals enable row level security;
 alter table user_constraints enable row level security;
+alter table user_health_conditions enable row level security;
 alter table user_baselines enable row level security;
 alter table user_equipment_settings enable row level security;
 alter table body_metrics enable row level security;
@@ -80,6 +81,9 @@ create policy "objetivos propios" on user_goals
   for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
 
 create policy "restricciones propias" on user_constraints
+  for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+create policy "condiciones de salud propias" on user_health_conditions
   for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
 
 create policy "baselines propios" on user_baselines

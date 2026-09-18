@@ -2,6 +2,7 @@ import type {
   AdaptationProposal,
   Equipment,
   Exercise,
+  HealthCondition,
   Id,
   LoadReading,
   LoadUnit,
@@ -56,6 +57,8 @@ export interface UserSnapshot {
   readonly goals: readonly UserGoal[];
   readonly constraints: readonly UserConstraint[];
   readonly baselines: readonly UserBaseline[];
+  /** Lo que marcó detrás de la puerta de salud. Vacío si no marcó nada. */
+  readonly conditions: readonly HealthCondition[];
 }
 
 // ------------------------------------------------------------------ salidas

@@ -36,6 +36,18 @@ create table user_constraints (
 create index user_constraints_active_idx on user_constraints (user_id)
   where active_to is null;
 
+-- Condiciones de salud marcadas detrás de la puerta de salud (docs/research/43).
+-- No deciden si puede entrenar (eso es health_screenings): deciden cómo. Una
+-- fila por condición vigente; desmarcarla borra la fila.
+create table user_health_conditions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references profiles (id) on delete cascade,
+  gym_id uuid not null references gyms (id) on delete cascade,
+  condition health_condition not null,
+  created_at timestamptz not null default now(),
+  unique (user_id, condition)
+);
+
 -- Punto de partida por ejercicio. Cubre las dos ramas del onboarding:
 -- 'declared' = el usuario ya sabe cuánto levanta.
 -- 'calibrated' = lo dedujo la app en las primeras sesiones a partir del RIR.

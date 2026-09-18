@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-18",
-  "resolved": 104,
+  "resolved": 114,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -1539,6 +1539,195 @@
       ],
       "documentos": [
         "10-nivel-de-experiencia.md"
+      ]
+    },
+    {
+      "doi": "10.1161/CIR.0000000000001189",
+      "title": "Resistance Exercise Training in Individuals With and Without Cardiovascular Disease: 2023 Update: A Scientific Statement From the American Heart Association",
+      "authors": [
+        "Paluch",
+        "Boyer",
+        "Franklin"
+      ],
+      "moreAuthors": 7,
+      "year": 2024,
+      "journal": "Circulation",
+      "type": "journal-article",
+      "temas": [
+        "Presión alta, corazón y betabloqueantes"
+      ],
+      "documentos": [
+        "44-presion-y-corazon.md"
+      ]
+    },
+    {
+      "doi": "10.1249/MSS.0000000000001943",
+      "title": "Physical Activity to Prevent and Treat Hypertension: A Systematic Review",
+      "authors": [
+        "Pescatello",
+        "Buchner",
+        "Jakicic"
+      ],
+      "moreAuthors": 11,
+      "year": 2019,
+      "journal": "Medicine & Science in Sports & Exercise",
+      "type": "journal-article",
+      "temas": [
+        "Presión alta, corazón y betabloqueantes"
+      ],
+      "documentos": [
+        "44-presion-y-corazon.md"
+      ]
+    },
+    {
+      "doi": "10.1152/jappl.1985.58.3.785",
+      "title": "Arterial blood pressure response to heavy resistance exercise",
+      "authors": [
+        "MacDougall",
+        "Tuxen",
+        "Sale"
+      ],
+      "moreAuthors": 2,
+      "year": 1985,
+      "journal": "Journal of Applied Physiology",
+      "type": "journal-article",
+      "temas": [
+        "Presión alta, corazón y betabloqueantes"
+      ],
+      "documentos": [
+        "44-presion-y-corazon.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsm.26.2.97",
+      "title": "Effect of breathing techniques on blood pressure response to resistance exercise.",
+      "authors": [
+        "Linsenbardt",
+        "Thomas",
+        "Madsen"
+      ],
+      "moreAuthors": 0,
+      "year": 1992,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Presión alta, corazón y betabloqueantes"
+      ],
+      "documentos": [
+        "44-presion-y-corazon.md"
+      ]
+    },
+    {
+      "doi": "10.1249/MSS.0000000000000811",
+      "title": "Hemodynamic Responses to Resistance Exercise in Patients with Coronary Artery Disease",
+      "authors": [
+        "Gjøvaag",
+        "Mirtaheri",
+        "Simon"
+      ],
+      "moreAuthors": 6,
+      "year": 2016,
+      "journal": "Medicine & Science in Sports & Exercise",
+      "type": "journal-article",
+      "temas": [
+        "Presión alta, corazón y betabloqueantes"
+      ],
+      "documentos": [
+        "44-presion-y-corazon.md"
+      ]
+    },
+    {
+      "doi": "10.1038/s41371-024-00954-x",
+      "title": "Effects of dynamic, isometric, and combined resistance training on ambulatory blood pressure in treated men with hypertension: a randomized controlled trial",
+      "authors": [
+        "Silva de Sousa",
+        "Fecchio",
+        "Oliveira-Silva"
+      ],
+      "moreAuthors": 5,
+      "year": 2024,
+      "journal": "Journal of Human Hypertension",
+      "type": "journal-article",
+      "temas": [
+        "Presión alta, corazón y betabloqueantes"
+      ],
+      "documentos": [
+        "44-presion-y-corazon.md"
+      ]
+    },
+    {
+      "doi": "10.2165/00007256-199621030-00003",
+      "title": "The Use of Ratings of Perceived Exertion for Exercise Prescription in Patients Receiving ??-Blocker Therapy",
+      "authors": [
+        "Eston",
+        "Connolly"
+      ],
+      "moreAuthors": 0,
+      "year": 1996,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Presión alta, corazón y betabloqueantes"
+      ],
+      "documentos": [
+        "44-presion-y-corazon.md"
+      ]
+    },
+    {
+      "doi": "10.1177/1741826711398823",
+      "title": "Training prescription in patients on beta-blockers: percentage peak exercise methods or self-regulation?",
+      "authors": [
+        "Zanettini",
+        "Centeleghe",
+        "Ratti"
+      ],
+      "moreAuthors": 3,
+      "year": 2011,
+      "journal": "European Journal of Preventive Cardiology",
+      "type": "journal-article",
+      "temas": [
+        "Presión alta, corazón y betabloqueantes"
+      ],
+      "documentos": [
+        "44-presion-y-corazon.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2022-106503",
+      "title": "Exercise training and resting blood pressure: a large-scale pairwise and network meta-analysis of randomised controlled trials",
+      "authors": [
+        "Edwards",
+        "Deenmamode",
+        "Griffiths"
+      ],
+      "moreAuthors": 4,
+      "year": 2023,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Presión alta, corazón y betabloqueantes"
+      ],
+      "documentos": [
+        "44-presion-y-corazon.md"
+      ]
+    },
+    {
+      "doi": "10.1186/s40885-022-00232-3",
+      "title": "An evidence-based guide to the efficacy and safety of isometric resistance training in hypertension and clinical implications",
+      "authors": [
+        "Baffour-Awuah",
+        "Pearson",
+        "Dieberg"
+      ],
+      "moreAuthors": 2,
+      "year": 2023,
+      "journal": "Clinical Hypertension",
+      "type": "journal-article",
+      "temas": [
+        "Presión alta, corazón y betabloqueantes"
+      ],
+      "documentos": [
+        "44-presion-y-corazon.md"
       ]
     },
     {

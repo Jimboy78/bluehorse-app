@@ -8,6 +8,7 @@ import type {
   Exercise,
   ExperienceLevel,
   Goal,
+  HealthCondition,
   LoadUnit,
   MovementPattern,
   MuscleGroup,
@@ -108,6 +109,7 @@ interface Borrador {
   profile: { -readonly [K in keyof UserSnapshot['profile']]: UserSnapshot['profile'][K] };
   goal: { -readonly [K in keyof UserGoal]: UserGoal[K] };
   constraints: UserConstraint[];
+  conditions: HealthCondition[];
   daysSinceLastSession: number | undefined;
 }
 
@@ -179,6 +181,18 @@ const DIM = {
   ausencia: dim([undefined, 20, 120, 400] as (number | undefined)[], (b, v) => {
     b.daysSinceLastSession = v;
   }),
+  salud: dim(
+    [
+      [],
+      ['hypertension'],
+      ['heart_disease'],
+      ['beta_blockers'],
+      ['hypertension', 'beta_blockers'],
+    ] as HealthCondition[][],
+    (b, v) => {
+      b.conditions = [...v];
+    },
+  ),
 };
 type Clave = keyof typeof DIM;
 type Perfil = { [K in Clave]: (typeof DIM)[K]['valores'][number] };
@@ -213,6 +227,7 @@ function borrador(p: Perfil): Borrador {
       sessionMinutesTarget: 60,
     },
     constraints: [],
+    conditions: [],
     daysSinceLastSession: undefined,
   };
   for (const k of Object.keys(DIM) as Clave[]) {
@@ -230,7 +245,13 @@ function entrada(p: Perfil, seed: number): GeneratePlanInput {
   const b = borrador(p);
   return {
     context: { now: AHORA, seed },
-    user: { profile: b.profile, goals: [b.goal], constraints: b.constraints, baselines: [] },
+    user: {
+      profile: b.profile,
+      goals: [b.goal],
+      constraints: b.constraints,
+      baselines: [],
+      conditions: b.conditions,
+    },
     gym,
     ruleset: V1_RESEARCH,
     ...(b.daysSinceLastSession === undefined
@@ -273,6 +294,7 @@ describe('barrido de socios generados', () => {
   let conMolestia = 0;
   let conEquilibrio = 0;
   let conImpacto = 0;
+  let conPisoDeRir = 0;
 
   /**
    * Desde la edad del ruleset, toda sesión cierra con equilibrio; antes, ninguna
@@ -292,6 +314,26 @@ describe('barrido de socios generados', () => {
     if (corresponde) {
       conImpacto += 1;
       if (cuantos === 0) violaciones.push(`sesión sin impacto: ${id}`);
+    }
+  }
+
+  /**
+   * Con una condición que pone piso de RIR, ninguna serie de fuerza termina más
+   * cerca del fallo que eso (`docs/research/44`). Lo que no se mide por RIR
+   * (potencia, cardio, bloques) queda en `null` y no cuenta.
+   */
+  function chequearPisoDeRir(p: Perfil, items: readonly SessionItemBlueprint[]) {
+    const pisos = (V1_RESEARCH.conditions ?? [])
+      .filter((c) => p.salud.includes(c.id) && c.minRir !== null)
+      .map((c) => c.minRir ?? 0);
+    if (pisos.length === 0) return;
+    const piso = Math.max(...pisos);
+    for (const it of items) {
+      if (it.targetRir === null) continue;
+      conPisoDeRir += 1;
+      if (it.targetRir < piso) {
+        violaciones.push(`RIR ${it.targetRir} con piso ${piso}: ${JSON.stringify(p)}`);
+      }
     }
   }
 
@@ -413,6 +455,7 @@ describe('barrido de socios generados', () => {
       medirSesion(p, s.items);
       chequearEquilibrio(p, s.items);
       chequearImpacto(p, s.items);
+      chequearPisoDeRir(p, s.items);
     }
     // Una dimensión distinta, misma semilla: ¿cambia el plan?
     const k = elegir(claves);
@@ -433,6 +476,7 @@ describe('barrido de socios generados', () => {
     expect(conMolestia).toBeGreaterThan(N / 3);
     expect(conEquilibrio).toBeGreaterThan(N);
     expect(conImpacto).toBeGreaterThan(N / 10);
+    expect(conPisoDeRir).toBeGreaterThan(N);
   });
 
   it('ninguna combinación rompe una invariante', () => {
@@ -451,6 +495,13 @@ describe('barrido de socios generados', () => {
       expect(v?.mirados).toBeGreaterThan(50);
       if (v) expect(v.cambia / v.mirados).toBeGreaterThan(0.9);
     }
+  });
+
+  it('las condiciones de salud mueven el plan', () => {
+    // Si da 0, el motor no las lee (`docs/research/44`).
+    const v = sensibilidad.salud;
+    expect(v?.mirados).toBeGreaterThan(50);
+    expect(v?.cambia).toBeGreaterThan(0);
   });
 
   it('escribe el reporte', () => {

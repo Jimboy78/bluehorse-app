@@ -1,6 +1,16 @@
 # Estado del trabajo
 
-## Última actualización: 18 de septiembre de 2026 (T2a: salud con puerta, investigada)
+## Última actualización: 18 de septiembre de 2026 (T2b: presión y corazón, motor)
+
+`docs/research/44`. El motor recibe `UserSnapshot.conditions`, que viene de la tabla
+`user_health_conditions`. El módulo `salud` pone un piso de RIR 2 con presión alta o corazón. La
+carga no se toca: la presión la sube acercarse al fallo, no el peso. El disparador de progresión
+se corre con el piso, y `reviewProgress` usa ahora la misma dosis del contexto que el plan. Con
+betabloqueantes, `ocultaElPulso()` le dice a la pantalla que saque el % de frecuencia máxima.
+**Falta** la pantalla para marcar las condiciones. Hoy la presión y su medicación bloquean de
+entrada (decisión T2a del dueño), así que el módulo actúa recién cuando esa puerta se abra.
+
+## 18 de septiembre de 2026 (T2a: salud con puerta, investigada)
 
 `docs/research/43`. La propuesta es adoptar la estructura del PAR-Q+ 2023: 7 preguntas, y con un
 "sí", seguimiento solo del grupo de la condición. Hoy la app bloquea por cualquier diagnóstico de

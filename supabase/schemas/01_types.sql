@@ -62,6 +62,13 @@ create type baseline_source as enum ('declared', 'calibrated', 'estimated');
 
 create type constraint_type as enum ('injury', 'pain', 'avoid_exercise', 'avoid_equipment');
 
+-- Espejo de HEALTH_CONDITIONS en packages/domain/src/enums.ts.
+create type health_condition as enum (
+  'hypertension', 'heart_disease', 'beta_blockers', 'anticoagulants', 'diabetes', 'asthma',
+  'copd', 'osteoarthritis', 'osteoporosis', 'back_problem', 'abdominal_hernia', 'pelvic_floor',
+  'glaucoma_retina', 'epilepsy_vertigo', 'pregnancy', 'postpartum'
+);
+
 create type session_feel as enum ('easy', 'right', 'hard');
 
 create type member_role as enum ('member', 'staff', 'admin');

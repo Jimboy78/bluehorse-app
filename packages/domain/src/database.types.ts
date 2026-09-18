@@ -1167,6 +1167,45 @@ export type Database = {
           },
         ]
       }
+      user_health_conditions: {
+        Row: {
+          condition: Database["public"]["Enums"]["health_condition"]
+          created_at: string
+          gym_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          condition: Database["public"]["Enums"]["health_condition"]
+          created_at?: string
+          gym_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          condition?: Database["public"]["Enums"]["health_condition"]
+          created_at?: string
+          gym_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_health_conditions_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_health_conditions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workout_logs: {
         Row: {
           client_id: string
@@ -1266,6 +1305,23 @@ export type Database = {
         | "accessory"
       exercise_modality: "reps_weight" | "reps_bodyweight" | "time" | "distance"
       experience_level: "beginner" | "novice" | "intermediate" | "advanced"
+      health_condition:
+        | "hypertension"
+        | "heart_disease"
+        | "beta_blockers"
+        | "anticoagulants"
+        | "diabetes"
+        | "asthma"
+        | "copd"
+        | "osteoarthritis"
+        | "osteoporosis"
+        | "back_problem"
+        | "abdominal_hernia"
+        | "pelvic_floor"
+        | "glaucoma_retina"
+        | "epilepsy_vertigo"
+        | "pregnancy"
+        | "postpartum"
       load_unit:
         | "kg"
         | "lb"
@@ -1485,6 +1541,24 @@ export const Constants = {
       ],
       exercise_modality: ["reps_weight", "reps_bodyweight", "time", "distance"],
       experience_level: ["beginner", "novice", "intermediate", "advanced"],
+      health_condition: [
+        "hypertension",
+        "heart_disease",
+        "beta_blockers",
+        "anticoagulants",
+        "diabetes",
+        "asthma",
+        "copd",
+        "osteoarthritis",
+        "osteoporosis",
+        "back_problem",
+        "abdominal_hernia",
+        "pelvic_floor",
+        "glaucoma_retina",
+        "epilepsy_vertigo",
+        "pregnancy",
+        "postpartum",
+      ],
       load_unit: [
         "kg",
         "lb",

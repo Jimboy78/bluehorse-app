@@ -178,6 +178,7 @@ function buildUser(over: Partial<UserSnapshot> = {}): UserSnapshot {
     goals: [goalOf('hypertrophy')],
     constraints: [],
     baselines: [],
+    conditions: [],
     ...over,
   };
 }

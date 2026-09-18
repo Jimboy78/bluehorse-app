@@ -1118,6 +1118,42 @@
     "confidence": "medium",
     "confidenceNote": "Fuerza con impacto mejora la densidad ósea en posmenopáusicas (Kistler-Fischbacher 2021, 53 ensayos; efecto chico). La dosis de 50 impactos sale del consenso británico de osteoporosis 2022. La pausa de 30 s es criterio de práctica. docs/research/42."
   },
+  "conditions": [
+    {
+      "id": "hypertension",
+      "minRir": 2,
+      "hidesHeartRate": false,
+      "notes": [
+        "No aguantes el aire cuando hacés fuerza: soltalo al empujar o al tirar, y cortá cada serie con las repeticiones en reserva que marca el plan, sin llegar al fallo.",
+        "Terminá la sesión con unos minutos de caminata suave en vez de frenar de golpe: con medicación para la presión o el corazón, cortar en seco puede bajarla de más y marearte."
+      ],
+      "confidence": "medium",
+      "confidenceNote": "La fuerza es segura y baja la presión en hipertensos controlados (AHA 2023). Lo que dispara la presión es acumular repeticiones hacia el fallo y aguantar el aire, no la carga (MacDougall 1985; Linsenbardt 1992; Gjøvaag 2016). El piso de RIR 2 traduce la 'fatiga moderada' de los ensayos: nadie midió la presión según el RIR. docs/research/44."
+    },
+    {
+      "id": "heart_disease",
+      "minRir": 2,
+      "hidesHeartRate": false,
+      "notes": [
+        "No aguantes el aire cuando hacés fuerza: soltalo al empujar o al tirar, y cortá cada serie con las repeticiones en reserva que marca el plan, sin llegar al fallo.",
+        "Terminá la sesión con unos minutos de caminata suave en vez de frenar de golpe: con medicación para la presión o el corazón, cortar en seco puede bajarla de más y marearte.",
+        "Si tenés marcapasos o desfibrilador, consultá con tu cardiólogo antes de hacer ejercicios de brazos y pecho."
+      ],
+      "confidence": "medium",
+      "confidenceNote": "Mismo criterio que la presión alta; la consulta por marcapasos o desfibrilador y el tren superior es de AHA 2023. docs/research/44."
+    },
+    {
+      "id": "beta_blockers",
+      "minRir": null,
+      "hidesHeartRate": true,
+      "notes": [
+        "Con betabloqueantes el pulso no sube como dice la tabla: en el cardio guiate por cómo te sentís, no por el pulsómetro.",
+        "Terminá la sesión con unos minutos de caminata suave en vez de frenar de golpe: con medicación para la presión o el corazón, cortar en seco puede bajarla de más y marearte."
+      ],
+      "confidence": "medium",
+      "confidenceNote": "Los betabloqueantes bajan la frecuencia cardíaca y el VO2max alcanzable, así que una zona en % de la frecuencia máxima deja de valer; el esfuerzo percibido sirve para regular (Eston 1996; Zanettini 2012). docs/research/44."
+    }
+  ],
   "cardio": {
     "zones": [
       {

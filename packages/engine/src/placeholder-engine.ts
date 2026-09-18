@@ -29,7 +29,6 @@ import {
   isWithinSkillLevel,
   ordenarAvisos,
   PATRONES_DE_BLOQUE,
-  primaryGoal,
   resolverContexto,
 } from './contexto.ts';
 import type {
@@ -50,7 +49,7 @@ import type {
 import { goalLabel, muscleLabel, patternLabel, regionLabel, sesiones } from './etiquetas.ts';
 import { createRng, pickDeterministic } from './rng.ts';
 import type { GoalParams, PainRule, Ruleset, SlotRole } from './ruleset.ts';
-import { isPlaceholder, resolveParams } from './ruleset.ts';
+import { isPlaceholder } from './ruleset.ts';
 
 /**
  * EL MOTOR — la mecánica. El contenido vive en el ruleset.
@@ -870,8 +869,10 @@ function reviewProgress(input: ReviewProgressInput): readonly ProposalBlueprint[
   const history = [...input.history].sort(
     (a, b) => Date.parse(b.completedAt) - Date.parse(a.completedAt),
   );
-  const goal = primaryGoal(user.goals);
-  const params = resolveParams(ruleset, goal.goal, user.profile.experienceLevel);
+  // La misma dosis con la que se armó el plan, contexto incluido. Con la del
+  // objetivo pelada, el piso de RIR de una condición de salud no llegaba acá, y
+  // cumplir ese piso contaba como "te sobraron repeticiones" (`docs/research/44`).
+  const { params } = resolverContexto({ context, user, gym, ruleset });
   const placeholder = isPlaceholder(ruleset);
   const equipmentById = new Map(gym.equipment.map((e) => [e.id, e]));
   const exerciseById = new Map(gym.exercises.map((e) => [e.id, e]));

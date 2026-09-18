@@ -8,6 +8,7 @@ import type {
   Exercise,
   ExperienceLevel,
   Goal,
+  HealthCondition,
   LoadReading,
   LoadUnit,
   MatchDayState,
@@ -149,6 +150,8 @@ interface Perfil {
   readonly fase?: SeasonPhase;
   /** Lesiones y molestias declaradas: es lo que activa el bloque `safety`. */
   readonly limitaciones?: readonly UserConstraint[];
+  /** Condiciones de salud marcadas: es lo que activa `conditions`. */
+  readonly condiciones?: readonly HealthCondition[];
   /** Días desde la última sesión. `null` = nunca entrenó; `undefined` = no se pasa. */
   readonly diasSinEntrenar?: number | null;
   /** Cargas conocidas, para que el motor pueda proponer un `targetLoad`. */
@@ -495,6 +498,19 @@ const PERFILES: readonly Perfil[] = [
       { type: 'pain', bodyRegion: 'lower_back', exerciseId: null, equipmentId: null, severity: 2 },
     ],
   },
+  // Presión alta (`docs/research/44`): hipertrofia intermedia pide RIR 1 en la
+  // principal; con el piso, ninguna serie baja de él. Con betabloqueantes, el
+  // aviso del pulso.
+  {
+    nombre: 'hipertenso de 55 con betabloqueantes · hipertrofia',
+    goal: 'hypertrophy',
+    nivel: 'intermediate',
+    nacimiento: '1971-03-01',
+    sexo: 'male',
+    sesiones: 3,
+    minutos: 60,
+    condiciones: ['hypertension', 'beta_blockers'],
+  },
   // Adolescentes (`docs/research/41`): el que recién empieza recibe la dosis de
   // inicio; el que ya entrena, la del adulto.
   {
@@ -593,6 +609,7 @@ function socioDe(p: Perfil): UserSnapshot {
     goals: [goal],
     constraints: p.limitaciones ?? [],
     baselines: p.cargas ?? [],
+    conditions: p.condiciones ?? [],
   };
 }
 
@@ -924,6 +941,7 @@ describe('los números del plan salen del ruleset', () => {
       repsMax: number;
       restSeconds: number;
     };
+    conditions?: { id: string; minRir: number | null }[];
     impact?: {
       sexes: string[];
       fromAge: number;
@@ -978,13 +996,27 @@ describe('los números del plan salen del ruleset', () => {
 
     const multiplicador = reglas.sports?.seasonPhases?.[p.fase ?? 'none']?.volumeMultiplier ?? 1;
 
+    const piso = pisoDeRir(p);
     const slots = familias
       .flatMap((familia) => Object.values(familia))
       .filter((slot) => typeof slot?.sets === 'number')
-      .map((slot) => (joven ? { ...slot, sets: Math.min(slot.sets, joven.maxSets) } : slot));
+      .map((slot) => (joven ? { ...slot, sets: Math.min(slot.sets, joven.maxSets) } : slot))
+      .map((slot) =>
+        piso !== null && slot.rirTarget !== null && slot.rirTarget < piso
+          ? { ...slot, rirTarget: piso }
+          : slot,
+      );
     const firmas = new Set(slots.flatMap((slot) => firmasDeUnSlot(slot, ventana, multiplicador)));
     for (const firma of [firmaDeEquilibrio(p), firmaDeImpacto(p)]) if (firma) firmas.add(firma);
     return firmas;
+  }
+
+  /** El piso de RIR de las condiciones del perfil (`docs/research/44`); el más alto. */
+  function pisoDeRir(p: Perfil): number | null {
+    const pisos = (reglas.conditions ?? [])
+      .filter((c) => (p.condiciones ?? []).some((x) => x === c.id) && c.minRir !== null)
+      .map((c) => c.minRir ?? 0);
+    return pisos.length === 0 ? null : Math.max(...pisos);
   }
 
   /** El bloque de impacto: mujeres desde la edad del ruleset, sin molestias. */
