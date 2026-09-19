@@ -149,11 +149,8 @@ motor. Lo nuevo está en el ruleset:
 - **Lo que igual no entra.** El reporte del barrido lo cuenta por minutos y objetivo
   (`noEntranPorMinutosYObjetivo`). Con 15 minutos no entran muchas: el piso semanal del objetivo
   pesa más que los minutos, y el plan lo dice. Con 30 minutos es casi solo el cardio.
-- **El cardio no se achica.** La sesión "Continuo" son 40 minutos de caminata o bici, y no está en
-  el orden que decidió el dueño. Con 15 o 30 minutos sale el aviso de que no entra. Es decisión
-  suya si el cardio continuo baja con los minutos (y hasta dónde).
 - **El piso de pausa es por nivel, no por objetivo.** Para hipertrofia, Singer 2024 no encuentra
   beneficio en pasar de 90 s, y el piso de un intermedio es 120 s. Queda así, del lado prudente.
 - **La pausa del principiante** era más larga que la del intermedio, sin respaldo. Se corrigió en
   `60`, que también decide no preguntarle al socio por el descanso.
-- **El cardio continuo** baja con los minutos hasta un piso (T4c).
+- **El cardio continuo** se acorta con los minutos, con un piso semanal (`61`).

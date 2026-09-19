@@ -31,6 +31,7 @@ const cfg: TimeConfig = {
     pairs: 'pares',
     isolation: 'aislados',
     sets: 'series',
+    cardio: 'cardio',
     blocks: 'bloques',
   },
   overNote: 'No entra en {minutos}: {sesiones}.',
@@ -399,9 +400,55 @@ describe('ajustar al tiempo', () => {
   });
 
   it('lo que aun achicado no entra se devuelve con su duración', () => {
-    const s = sesion([item('caminata', 1, 0, { targetDurationSeconds: 2400, targetRir: null })]);
+    // Los intervalos no se acortan: 4 × (4 + 3) = 28 min.
+    const intervalos = item('caminata', 4, 180, {
+      targetDurationSeconds: 240,
+      targetIntervalRestSeconds: 180,
+      targetRir: null,
+    });
+    const r = ajustar([sesion([intervalos])], 20);
+    expect(r.excedidas).toEqual([{ label: 'Sesión A', minutos: 28 }]);
+    expect(minutosDe(r.sesiones[0] ?? [])).toBe(28);
+  });
+
+  it('5. el cardio continuo se acorta a lo que queda, en minutos enteros', () => {
+    const continuo = item('caminata', 1, 0, { targetDurationSeconds: 2400, targetRir: null });
+    // 40 min de cinta + 2 × (30 + 60) s de abdominales = 43 min.
+    const s = sesion([continuo, item('curl', 2, 60)]);
     const r = ajustar([s], 30);
-    expect(r.excedidas).toEqual([{ label: 'Sesión A', minutos: 40 }]);
-    expect(minutosDe(r.sesiones[0] ?? [])).toBe(40);
+    // Primero se va el aislado; recién después se acorta el cardio, a 30.
+    expect(ids(r.sesiones[0] ?? [])).toEqual(['caminata']);
+    expect(r.sesiones[0]?.[0]?.targetDurationSeconds).toBe(1800);
+    expect(r.cambios).toEqual(['isolation', 'cardio']);
+    expect(r.excedidas).toEqual([]);
+  });
+
+  it('5. el cardio va después de las series y antes de los bloques', () => {
+    const s = sesion([
+      item('prensa', 3, 90, { equipmentId: 'barra' }),
+      item('caminata', 1, 0, { targetDurationSeconds: 1200, targetRir: null }),
+      item('equilibrio-1', 2, 60, { targetRir: null }),
+      item('equilibrio-2', 2, 60, { targetRir: null }),
+    ]);
+    // 6 + 20 + 3 + 3 = 32 min. Con 20: la prensa baja a 1 serie (2 min), y el
+    // cardio queda en lo que sobra con los dos bloques enteros: 20 - 2 - 6 = 12.
+    const r = ajustar([s], 20);
+    const out = r.sesiones[0] ?? [];
+    expect(out.find((i) => i.exerciseId === 'prensa')?.targetSets).toBe(1);
+    expect(out.find((i) => i.exerciseId === 'caminata')?.targetDurationSeconds).toBe(720);
+    expect(ids(out)).toContain('equilibrio-2');
+    expect(r.cambios).toEqual(['sets', 'cardio']);
+  });
+
+  it('5. el cardio no baja de un minuto, y los intervalos no se tocan', () => {
+    const continuo = item('caminata', 1, 0, { targetDurationSeconds: 600, targetRir: null });
+    const intervalos = item('caminata', 4, 180, {
+      targetDurationSeconds: 240,
+      targetIntervalRestSeconds: 180,
+      targetRir: null,
+    });
+    const r = ajustar([sesion([continuo]), sesion([intervalos], {}, 'B')], 0);
+    expect(r.sesiones[0]?.[0]?.targetDurationSeconds).toBe(60);
+    expect(r.sesiones[1]?.[0]).toEqual({ ...intervalos, orderIndex: 0 });
   });
 });

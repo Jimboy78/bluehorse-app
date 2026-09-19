@@ -784,6 +784,15 @@ const PERFILES: readonly Perfil[] = [
     minutos: 15,
   },
   {
+    // El cardio continuo se acorta con los minutos; su piso es semanal (`61`).
+    nombre: 'treinta minutos · cardio',
+    goal: 'cardio',
+    nivel: 'beginner',
+    nacimiento: '1990-06-15',
+    sesiones: 3,
+    minutos: 30,
+  },
+  {
     nombre: 'quince minutos · mayor de 70',
     goal: 'strength',
     nivel: 'beginner',
@@ -1021,6 +1030,38 @@ describe('matriz del motor', () => {
     }
     expect(quejas).toEqual([]);
     expect(ajustados, 'con 30 minutos no se achicó ningún plan').toBeGreaterThan(8);
+  });
+
+  /**
+   * EL PISO DEL CARDIO ES SEMANAL (`docs/research/61`)
+   *
+   * Cuando el tiempo acorta el cardio, el aviso cuenta la semana con el peso
+   * de la OMS por zona: los vigorosos doble, los suaves nada. Ninguna sesión
+   * del ruleset usa la zona 1, así que ese peso no se vería nunca: se lo mira
+   * con una variante donde el continuo va en zona 1 y solo cuentan los
+   * intervalos.
+   */
+  it('el aviso del cardio acortado cuenta la semana con el peso de cada zona', () => {
+    const cardio = V1_RESEARCH.cardio;
+    const w = cardio?.weeklyMinimum;
+    const intervalo = cardio?.sessions.find((s) => s.type === 'interval')?.interval;
+    if (!cardio || !w || !intervalo) throw new Error('el ruleset no trae el cardio completo');
+    const variante: Ruleset = {
+      ...V1_RESEARCH,
+      cardio: {
+        ...cardio,
+        sessions: cardio.sessions.map((s) =>
+          s.type === 'steady' ? { ...s, intensityZone: 1 } : s,
+        ),
+      },
+    };
+    const perfil = PERFILES.find((p) => p.nombre === 'treinta minutos · cardio');
+    if (!perfil) throw new Error('falta el perfil');
+    const marca = w.note.split('{')[0] ?? '';
+    const aviso = planDe(perfil, variante).warnings.find((x) => x.startsWith(marca));
+    // Tres días, tres sesiones: una vuelta de intervalos por semana.
+    const soloIntervalos = intervalo.reps * intervalo.workMinutes * w.vigorousWeight;
+    expect(aviso).toContain(`unos ${soloIntervalos} minutos`);
   });
 
   /**

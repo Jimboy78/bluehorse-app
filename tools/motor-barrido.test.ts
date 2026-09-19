@@ -484,6 +484,8 @@ describe('barrido de socios generados', () => {
   let conUnPie = 0;
   let conMovimiento = 0;
   let conAjuste = 0;
+  let conCardio = 0;
+  let cardioCorto = 0;
   let conParPorTiempo = 0;
 
   /**
@@ -785,6 +787,55 @@ describe('barrido de socios generados', () => {
     return new Map([...out].filter(([m]) => conMultiarticular.has(m)));
   }
 
+  /** Los tramos continuos cuyo texto no dice sus minutos. */
+  function textosDeCardio(items: readonly SessionItemBlueprint[]): string[] {
+    return items
+      .filter((i) => i.targetIntervalRestSeconds === null)
+      .map((i) => Math.round((i.targetDurationSeconds ?? 0) / 60))
+      .flatMap((min, k) =>
+        items
+          .filter((i) => i.targetIntervalRestSeconds === null)
+          [k]?.rationale.includes(`${min} minutos`)
+          ? []
+          : [`cardio de ${min} min que dice otra cosa`],
+      );
+  }
+
+  /** Minutos de cardio de la semana del plan, con el peso de la OMS por zona. */
+  function cardioSemanal(b: PlanBlueprint, p: Perfil): number {
+    const w = V1_RESEARCH.cardio?.weeklyMinimum;
+    const vale = { light: 0, moderate: 1, vigorous: w?.vigorousWeight ?? 0 };
+    const { cuentan, peso } = semanaDe(b, p);
+    return cuentan.reduce((t, i) => {
+      const z = V1_RESEARCH.cardio?.zones.find((x) => x.zone === i.targetIntensityZone);
+      const seg = i.targetSets * (i.targetDurationSeconds ?? 0);
+      return t + (seg * peso * (z ? vale[z.whoIntensity] : 0)) / 60;
+    }, 0);
+  }
+
+  /**
+   * El cardio (`docs/research/61`): el texto de un tramo continuo dice sus
+   * minutos, también cuando el tiempo lo acortó; y el aviso de la OMS sale
+   * justo cuando el tiempo acortó el cardio y la semana no llega. La cuenta se
+   * hace acá de nuevo.
+   */
+  function chequearCardio(p: Perfil, b: PlanBlueprint) {
+    const w = V1_RESEARCH.cardio?.weeklyMinimum;
+    const t = V1_RESEARCH.sessionTime;
+    const items = b.sessions.flatMap((s) => s.items).filter((i) => i.targetDurationSeconds);
+    if (!w || !t || items.length === 0) return;
+    conCardio += 1;
+    const id = JSON.stringify(p);
+    for (const q of textosDeCardio(items)) violaciones.push(`${q}: ${id}`);
+    const acorto = b.warnings.some((x) => x.includes(t.changes.cardio));
+    const corto = acorto && cardioSemanal(b, p) < w.moderateMinutes;
+    if (corto) cardioCorto += 1;
+    const marca = w.note.split('{')[0] ?? '';
+    if (b.warnings.some((x) => x.startsWith(marca)) !== corto) {
+      violaciones.push(`aviso de cardio ${corto ? 'que falta' : 'de más'}: ${id}`);
+    }
+  }
+
   /**
    * Contra el mismo socio con tiempo de sobra: el ajuste no saca ningún
    * multiarticular, no toca repeticiones ni RIR, y bajar series no deja un
@@ -852,6 +903,7 @@ describe('barrido de socios generados', () => {
     if (p.movimientos.length > 0) conMovimiento += 1;
     chequearMinutos(p, b);
     chequearAjuste(p, b, seed);
+    chequearCardio(p, b);
     const achicoBloques = b.warnings.some(
       (w) => !!V1_RESEARCH.sessionTime && w.includes(V1_RESEARCH.sessionTime.changes.blocks),
     );
@@ -896,6 +948,9 @@ describe('barrido de socios generados', () => {
     expect(conMovimiento).toBeGreaterThan(N / 3);
     expect(conAjuste).toBeGreaterThan(N / 5);
     expect(conParPorTiempo).toBeGreaterThan(N / 10);
+    expect(conCardio).toBeGreaterThan(N / 10);
+    expect(cardioCorto).toBeGreaterThan(0);
+    expect(cardioCorto).toBeLessThan(conCardio);
   });
 
   it('el catálogo marca justo lo que la lista a mano dice que pide cada movimiento', () => {

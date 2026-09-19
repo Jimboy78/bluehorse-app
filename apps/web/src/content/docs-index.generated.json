@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-19T16:17:26.300Z",
+ "generatedAt": "2026-09-19T16:40:51.315Z",
  "docs": [
   {
    "id": "metodo",
@@ -488,6 +488,14 @@
    "resumen": "Fecha: 19/09/2026. Tanda: T4b del plan de variables. En el checklist, \"descanso\" es pedir; el dueño aclaró que es el descanso entre series (los días de descanso salen de los días por semana).",
    "archivo": "60-la-pausa-del-principiante.md",
    "bloques": 18
+  },
+  {
+   "id": "61-cardio-y-minutos",
+   "orden": 61,
+   "titulo": "El cardio con pocos minutos",
+   "resumen": "Fecha: 19/09/2026. Tanda: T4c del plan de variables. Sale de 59: el cardio continuo no estaba en el orden de recorte, y con 30 minutos declarados el 56 % de las sesiones de cardio no entraba.",
+   "archivo": "61-cardio-y-minutos.md",
+   "bloques": 19
   },
   {
    "id": "auditoria",

@@ -1138,6 +1138,7 @@
       "pairs": "algunos ejercicios de a dos, alternando una serie de cada uno sin pausa",
       "isolation": "menos ejercicios de un solo músculo",
       "sets": "alguna serie menos",
+      "cardio": "un cardio continuo más corto",
       "blocks": "menos ejercicios en los bloques del final"
     },
     "overNote": "Aun achicado, el plan no entra en tus {minutos} minutos: {sesiones}. Ya no se puede achicar más sin quedar corto para lo que buscás, así que conviene darle esos minutos de más antes que cortar la sesión.",
@@ -1343,7 +1344,8 @@
           55,
           72
         ],
-        "feels": "Podés mantener una conversación entera sin quedarte sin aire."
+        "feels": "Podés mantener una conversación entera sin quedarte sin aire.",
+        "whoIntensity": "light"
       },
       {
         "zone": 2,
@@ -1352,7 +1354,8 @@
           67,
           82
         ],
-        "feels": "Hablás en frases cortas. Es el ritmo en el que se hace casi todo el volumen."
+        "feels": "Hablás en frases cortas. Es el ritmo en el que se hace casi todo el volumen.",
+        "whoIntensity": "moderate"
       },
       {
         "zone": 3,
@@ -1361,7 +1364,8 @@
           82,
           87
         ],
-        "feels": "Contestás con pocas palabras y ya te cuesta."
+        "feels": "Contestás con pocas palabras y ya te cuesta.",
+        "whoIntensity": "vigorous"
       },
       {
         "zone": 4,
@@ -1370,7 +1374,8 @@
           87,
           92
         ],
-        "feels": "No podés hablar. Sostenerlo cuesta y se siente."
+        "feels": "No podés hablar. Sostenerlo cuesta y se siente.",
+        "whoIntensity": "vigorous"
       },
       {
         "zone": 5,
@@ -1379,7 +1384,8 @@
           92,
           100
         ],
-        "feels": "A fondo. Solo se sostiene unos segundos."
+        "feels": "A fondo. Solo se sostiene unos segundos.",
+        "whoIntensity": "vigorous"
       }
     ],
     "sessions": [
@@ -1418,6 +1424,12 @@
     "interference": {
       "note": "Si hacés cardio el mismo día que pierna, no te preocupes de más: el efecto medido es chico y a nivel de músculo entero no aparece. Da igual el orden y da igual si lo hacés el mismo día o en días separados. Lo único que sí cambia algo es la máquina: correr en cinta castiga más la pierna que la bici o el elíptico, porque frenar en cada paso es lo que deja el músculo golpeado. Si ese día entrenás pierna fuerte, elegí bici.",
       "confidence": "medium"
+    },
+    "weeklyMinimum": {
+      "moderateMinutes": 150,
+      "vigorousWeight": 2,
+      "note": "Con el cardio acortado para que entre en tus {tiempo} minutos, la semana suma unos {minutos} minutos de cardio (los intensos cuentan doble). Para la salud se recomiendan 150 por semana, y cualquier tramo suma: caminar o pedalear fuera del gimnasio también cuenta.",
+      "confidence": "high"
     }
   },
   "modifiers": {

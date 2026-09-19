@@ -1,6 +1,17 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T4b: la pausa del principiante)
+## Última actualización: 19 de septiembre de 2026 (T4c: el cardio con pocos minutos; T4 cerrada)
+
+`docs/research/61`. El cardio continuo se acorta a lo que queda de la sesión (después de las series
+y antes de los bloques), en minutos enteros, y su texto dice los minutos nuevos. No tiene piso por
+sesión: cualquier tramo suma (Jakicic 2019). El piso es semanal (OMS 2020: 150 moderados, los
+vigorosos doble; zonas según la tabla de ACSM en MacIntosh 2021), y el aviso sale solo cuando el
+tiempo acortó el cardio y la semana no llega. Con 30 minutos, el cardio que no entra baja del 56 %
+al 19 % (quedan los intervalos con equilibrio de mayores). Hallazgo para T6: la plantilla de cardio
+no llega a 150 con ninguna frecuencia (72 a 144). Falsificado: 8 de 8. T4 cerrada salvo la prueba
+en el navegador. Sigue T5 (deporte ampliado).
+
+## 19 de septiembre de 2026 (T4b: la pausa del principiante)
 
 `docs/research/60`. El principiante descansaba más que el intermedio (210 s contra 180 en el
 principal de fuerza) por un ×1,2 que `04` le atribuía a ACSM 2009 y ACSM no dice. Grgic 2017: en

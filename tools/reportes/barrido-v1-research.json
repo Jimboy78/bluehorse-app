@@ -23,14 +23,14 @@
   "ejerciciosMasUsados": [
     "Remo sentado: 5 % de los ítems",
     "Remo invertido en TRX: 5 % de los ítems",
-    "Remo con mancuerna a una mano: 3 % de los ítems",
     "Balanceo de pierna en un pie: 3 % de los ítems",
+    "Remo con mancuerna a una mano: 3 % de los ítems",
     "Elevación de talón en un pie: 3 % de los ítems",
     "Hip thrust en máquina: 3 % de los ítems",
     "Press de pecho en máquina: 3 % de los ítems",
     "Subida al cajón: 3 % de los ítems",
-    "Caminata de costado: 3 % de los ítems",
-    "Caminata en talones: 3 % de los ítems"
+    "Caminata en puntas de pie: 3 % de los ítems",
+    "Caminata de costado: 3 % de los ítems"
   ],
   "estacionesMasUsadas": [
     "Mancuernas sueltas (set): 8 % de los ítems",
@@ -40,19 +40,19 @@
     "Hip Thrust con asiento: 3 % de los ítems"
   ],
   "avisosPorPlan": {
-    "media": 10.5,
+    "media": 10.6,
     "max": 22
   },
-  "sesionesQuePasanLosMinutosDeclarados": "15 %",
+  "sesionesQuePasanLosMinutosDeclarados": "12 %",
   "noEntranPorMinutosYObjetivo": {
-    "15 min · cardio": "75 %",
-    "15 min · endurance": "48 %",
+    "15 min · cardio": "38 %",
+    "15 min · endurance": "31 %",
     "15 min · hypertrophy": "48 %",
     "15 min · power": "75 %",
     "15 min · recomposition": "43 %",
     "15 min · strength": "37 %",
-    "30 min · cardio": "56 %",
-    "30 min · endurance": "24 %",
+    "30 min · cardio": "19 %",
+    "30 min · endurance": "7 %",
     "30 min · hypertrophy": "6 %",
     "30 min · power": "11 %",
     "30 min · recomposition": "8 %",
@@ -67,7 +67,7 @@
     "edad": "69 %",
     "sexo": "7 %",
     "sesiones": "54 %",
-    "minutos": "69 %",
+    "minutos": "70 %",
     "deporte": "46 %",
     "fase": "46 %",
     "molestia": "63 %",

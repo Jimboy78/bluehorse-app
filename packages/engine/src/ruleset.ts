@@ -173,6 +173,12 @@ const cardioSchema = z.object({
         hrPercentMax: percentRange,
         /** Cómo se siente, para quien no usa pulsómetro. */
         feels: z.string().min(1),
+        /**
+         * Cómo cuenta para los minutos semanales de la OMS: moderado 64-76 %
+         * de la FC máxima, vigoroso 77-93 % (la tabla de ACSM, en MacIntosh
+         * 2021). Una zona que cruza el límite cuenta como la más baja.
+         */
+        whoIntensity: z.enum(['light', 'moderate', 'vigorous']),
       }),
     )
     .min(1),
@@ -211,6 +217,23 @@ const cardioSchema = z.object({
     note: z.string().min(1),
     confidence: z.enum(CONFIDENCE_LEVELS),
   }),
+  /**
+   * El piso del cardio es semanal, no por sesión: para la salud cuentan los
+   * minutos de la semana (OMS 2020: 150 moderados o 75 vigorosos) y cualquier
+   * tramo suma, por corto que sea (Jakicic 2019). Se avisa cuando los minutos
+   * declarados acortaron el cardio y la semana queda abajo. Ver
+   * `docs/research/61`.
+   */
+  weeklyMinimum: z
+    .object({
+      moderateMinutes: z.number().int().positive(),
+      /** Cuánto vale un minuto vigoroso en minutos moderados (OMS: 2). */
+      vigorousWeight: z.number().positive(),
+      /** `{tiempo}` (los minutos por sesión declarados) y `{minutos}` (los de la semana). */
+      note: z.string().min(1).includes('{tiempo}').includes('{minutos}'),
+      confidence: z.enum(CONFIDENCE_LEVELS),
+    })
+    .optional(),
 });
 
 /**
@@ -955,6 +978,7 @@ export const rulesetSchema = z.object({
         pairs: z.string().min(1),
         isolation: z.string().min(1),
         sets: z.string().min(1),
+        cardio: z.string().min(1),
         blocks: z.string().min(1),
       }),
       /**

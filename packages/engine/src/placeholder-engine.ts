@@ -60,7 +60,7 @@ import {
 import { createRng, pickDeterministic } from './rng.ts';
 import type { GoalParams, PainRule, Ruleset, SlotRole } from './ruleset.ts';
 import { isPlaceholder } from './ruleset.ts';
-import { ajustarAlTiempo, segundosDeSesion } from './tiempo.ts';
+import { ajustarAlTiempo, esContinuo, segundosDeSesion } from './tiempo.ts';
 
 /**
  * EL MOTOR — la mecánica. El contenido vive en el ruleset.
@@ -611,8 +611,13 @@ function cardioPrescription(
     durationSeconds: minutes * 60,
     intensityZone: session.intensityZone,
     intervalRestSeconds: null,
-    rationale: `${exercise.name}: ${minutes} minutos continuos en zona ${session.intensityZone}.${feels}`,
+    rationale: rationaleContinuo(exercise.name, minutes, session.intensityZone, feels),
   };
+}
+
+/** El texto de un tramo continuo. Lo usa también el ajuste al tiempo, que lo acorta. */
+function rationaleContinuo(nombre: string, minutos: number, zona: number, feels: string): string {
+  return `${nombre}: ${minutos} minutos continuos en zona ${zona}.${feels}`;
 }
 
 /**
@@ -1315,7 +1320,13 @@ function ajustarSesionesAlTiempo(input: {
   });
   ajuste.sesiones.forEach((items, k) => {
     const r = resolved[k];
-    if (r) r.items = items;
+    if (!r) return;
+    const antes = new Map(r.items.map((it) => [it.exerciseId, it.targetDurationSeconds]));
+    r.items = items.map((it) =>
+      antes.get(it.exerciseId) === it.targetDurationSeconds
+        ? it
+        : conTextoAlDia(it, input.gym, input.ruleset),
+    );
   });
 
   const avisos: string[] = [];
@@ -1326,6 +1337,10 @@ function ajustarSesionesAlTiempo(input: {
         .replace('{cambios}', enumerar(ajuste.cambios.map((c) => cfg.changes[c]))),
     );
   }
+  const cardio = ajuste.cambios.includes('cardio')
+    ? avisoDeCardioCorto(ajuste.sesiones, vecesPorSemana, input.ruleset, goal.sessionMinutesTarget)
+    : null;
+  if (cardio) avisos.push(cardio);
   if (ajuste.excedidas.length > 0) {
     const lista = ajuste.excedidas.map((s) =>
       cfg.sessionOver.replace('{sesion}', s.label).replace('{estimado}', String(s.minutos)),
@@ -1337,6 +1352,57 @@ function ajustarSesionesAlTiempo(input: {
     );
   }
   return avisos;
+}
+
+/**
+ * Si el tiempo acortó el cardio, cuánto suma la semana contra la OMS
+ * (`docs/research/61`): el piso del cardio es semanal, no por sesión. Los
+ * vigorosos valen su peso; se cuenta el trabajo, no la pausa de los intervalos.
+ * Que la plantilla de cardio ya quede abajo de 150 sin apuro de tiempo es otro
+ * asunto (T6): este aviso es sobre lo que sacaron los minutos.
+ */
+function avisoDeCardioCorto(
+  sesiones: readonly (readonly SessionItemBlueprint[])[],
+  vecesPorSemana: readonly number[],
+  ruleset: Ruleset,
+  minutosDeclarados: number,
+): string | null {
+  const w = ruleset.cardio?.weeklyMinimum;
+  if (!w) return null;
+  const vale = { light: 0, moderate: 1, vigorous: w.vigorousWeight };
+  const peso = (zona: number | null) => {
+    const z = ruleset.cardio?.zones.find((x) => x.zone === zona);
+    return z ? vale[z.whoIntensity] : 0;
+  };
+  const minutos = sesiones.reduce(
+    (total, items, k) =>
+      total +
+      (vecesPorSemana[k] ?? 0) *
+        items.reduce(
+          (t, i) =>
+            t + (i.targetSets * (i.targetDurationSeconds ?? 0) * peso(i.targetIntensityZone)) / 60,
+          0,
+        ),
+    0,
+  );
+  if (minutos >= w.moderateMinutes) return null;
+  return w.note
+    .replace('{tiempo}', String(minutosDeclarados))
+    .replace('{minutos}', String(Math.round(minutos)));
+}
+
+/** Si el ajuste acortó un tramo continuo, el texto dice los minutos nuevos. */
+function conTextoAlDia(
+  item: SessionItemBlueprint,
+  gym: GymSnapshot,
+  ruleset: Ruleset,
+): SessionItemBlueprint {
+  if (!esContinuo(item) || item.targetDurationSeconds === null) return item;
+  const nombre = gym.exercises.find((e) => e.id === item.exerciseId)?.name ?? item.exerciseId;
+  const zona = item.targetIntensityZone ?? 0;
+  const z = ruleset.cardio?.zones.find((x) => x.zone === zona);
+  const minutos = Math.round(item.targetDurationSeconds / 60);
+  return { ...item, rationale: rationaleContinuo(nombre, minutos, zona, z ? ` ${z.feels}` : '') };
 }
 
 /** "a, b y c". */

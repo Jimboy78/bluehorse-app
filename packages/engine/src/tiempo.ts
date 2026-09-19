@@ -22,9 +22,11 @@ type Cambio = keyof TimeConfig['changes'];
 /**
  * El orden en que se recorta, decidido por el dueño (19/09/2026): primero lo
  * que no cambia el estímulo (pausa, pares), después lo accesorio y al final el
- * volumen. Los bloques del contexto van últimos: los puso una razón del socio.
+ * volumen. El cardio continuo, recién después de las series (T4c, `61`): es la
+ * dosis del objetivo cardio, y su piso es semanal. Los bloques del contexto van
+ * últimos: los puso una razón del socio.
  */
-const ORDEN: readonly Cambio[] = ['rest', 'pairs', 'isolation', 'sets', 'blocks'];
+const ORDEN: readonly Cambio[] = ['rest', 'pairs', 'isolation', 'sets', 'cardio', 'blocks'];
 
 /** Cuánto dura una sesión, en segundos: cada serie más su pausa. */
 export function segundosDeSesion(
@@ -115,6 +117,7 @@ export function ajustarAlTiempo(e: Entrada): AjusteDeTiempo {
         semanal,
         e.vecesPorSemana[k] ?? 1,
       ),
+    cardio: (xs) => acortarCardio(xs, limite, e.cfg),
     blocks: (xs) => achicarBloques(xs, e, cabe),
   };
   for (const cambio of ORDEN) {
@@ -319,7 +322,37 @@ function sacarSeries(
   return out;
 }
 
-// ------------------------------------------------------------------ 5. bloques
+// ------------------------------------------------------------------ 5. cardio
+
+/** Un tramo continuo: una sola serie por tiempo, sin vueltas. */
+export function esContinuo(item: Item): boolean {
+  return item.targetDurationSeconds !== null && item.targetIntervalRestSeconds === null;
+}
+
+/**
+ * El cardio continuo se acorta a lo que queda de la sesión, en minutos
+ * enteros. No tiene piso por sesión: para la salud cualquier tramo suma
+ * (Jakicic 2019), y lo que se pierde se mira en la semana (`weeklyMinimum`).
+ * Nunca baja de un minuto: un tramo de cero no es cardio, es sacarlo.
+ */
+function acortarCardio(items: Item[], limite: number, cfg: TimeConfig): Item[] {
+  const out = [...items];
+  for (let i = out.length - 1; i >= 0; i--) {
+    const it = out[i];
+    if (!it || !esContinuo(it) || it.targetDurationSeconds === null) continue;
+    const resto = segundosDeSesion(
+      out.filter((_, j) => j !== i),
+      cfg,
+    );
+    const minutos = Math.max(1, Math.floor((limite - resto) / 60));
+    if (minutos * 60 < it.targetDurationSeconds) {
+      out[i] = { ...it, targetDurationSeconds: minutos * 60 };
+    }
+  }
+  return out;
+}
+
+// ------------------------------------------------------------------ 6. bloques
 
 /**
  * Lo último: primero el explosivo del par (el levantamiento queda solo, con la

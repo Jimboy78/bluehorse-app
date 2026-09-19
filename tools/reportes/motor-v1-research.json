@@ -30216,6 +30216,228 @@
         }
       ]
     },
+    "treinta minutos · cardio": {
+      "rulesetVersion": "v1-research",
+      "source": "research",
+      "warnings": [
+        "Para que cada sesión entre en tus 30 minutos: menos ejercicios de un solo músculo y un cardio continuo más corto. Lo que se mantiene es lo que más rinde: los ejercicios de varias articulaciones y un mínimo de series por músculo.",
+        "Con el cardio acortado para que entre en tus 30 minutos, la semana suma unos 62 minutos de cardio (los intensos cuentan doble). Para la salud se recomiendan 150 por semana, y cualquier tramo suma: caminar o pedalear fuera del gimnasio también cuenta.",
+        "Si hacés cardio el mismo día que pierna, no te preocupes de más: el efecto medido es chico y a nivel de músculo entero no aparece. Da igual el orden y da igual si lo hacés el mismo día o en días separados. Lo único que sí cambia algo es la máquina: correr en cinta castiga más la pierna que la bici o el elíptico, porque frenar en cada paso es lo que deja el músculo golpeado. Si ese día entrenás pierna fuerte, elegí bici.",
+        "Para este objetivo tu nivel decide qué ejercicios entran al plan por la técnica que piden, pero no cambia las series ni las repeticiones."
+      ],
+      "sesiones": [
+        {
+          "label": "Continuo",
+          "focus": "Aeróbico continuo",
+          "minutos": 30,
+          "items": [
+            {
+              "ejercicio": "Caminata en cinta",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1800,
+              "zona": 2,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Intervalos",
+          "focus": "Intervalos",
+          "minutos": 28,
+          "items": [
+            {
+              "ejercicio": "Elíptico",
+              "series": 4,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": 240,
+              "zona": 4,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Fuerza de sostén",
+          "focus": "Fuerza general",
+          "minutos": 12,
+          "items": [
+            {
+              "ejercicio": "Sentadilla goblet con kettlebell",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 3,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 3,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de pecho en máquina",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 3,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "12-15",
+              "rir": 3,
+              "descanso": 45,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Continuo",
+          "focus": "Aeróbico continuo",
+          "minutos": 30,
+          "items": [
+            {
+              "ejercicio": "Caminata en cinta",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1800,
+              "zona": 2,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Intervalos",
+          "focus": "Intervalos",
+          "minutos": 28,
+          "items": [
+            {
+              "ejercicio": "Elíptico",
+              "series": 4,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": 240,
+              "zona": 4,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Fuerza de sostén",
+          "focus": "Fuerza general",
+          "minutos": 12,
+          "items": [
+            {
+              "ejercicio": "Sentadilla goblet con kettlebell",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 3,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 3,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de pecho en máquina",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 3,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "12-15",
+              "rir": 3,
+              "descanso": 45,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Continuo",
+          "focus": "Aeróbico continuo",
+          "minutos": 30,
+          "items": [
+            {
+              "ejercicio": "Caminata en cinta",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1800,
+              "zona": 2,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Intervalos",
+          "focus": "Intervalos",
+          "minutos": 28,
+          "items": [
+            {
+              "ejercicio": "Elíptico",
+              "series": 4,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": 240,
+              "zona": 4,
+              "par": null
+            }
+          ]
+        }
+      ]
+    },
     "quince minutos · mayor de 70": {
       "rulesetVersion": "v1-research",
       "source": "research",
