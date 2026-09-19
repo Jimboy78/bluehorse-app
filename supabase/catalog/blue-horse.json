@@ -981,6 +981,20 @@
       "equipment": ["Prone Leg Curl (femoral acostado)"]
     },
     {
+      "name": "Curl nórdico",
+      "pattern": "isolation",
+      "primaryMuscles": ["hamstrings"],
+      "secondaryMuscles": [],
+      "isCompound": false,
+      "isUnilateral": false,
+      "modality": "reps_bodyweight",
+      "requiresMovements": ["floor"],
+      "prevents": ["hamstring"],
+      "skillLevel": "beginner",
+      "cues": "De rodillas sobre la colchoneta, con los tobillos trabados (un compañero que te los sostenga o un rodillo firme). Bajá el cuerpo recto lo más lento que puedas, frenando con la parte de atrás de los muslos; cuando no aguantes más, apoyá las manos y volvé empujando.",
+      "equipment": ["Colchonetas plegables"]
+    },
+    {
       "name": "Gemelos sentado",
       "pattern": "isolation",
       "primaryMuscles": ["calves"],

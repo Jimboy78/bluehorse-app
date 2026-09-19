@@ -7,11 +7,12 @@ import type {
   MovementLimit,
   MovementPattern,
   MuscleGroup,
+  PreventionProgram,
   Profile,
   UserConstraint,
   UserGoal,
 } from '@bh/domain';
-import { EXPERIENCE_LEVELS } from '@bh/domain';
+import { EXPERIENCE_LEVELS, PREVENTION_PROGRAMS } from '@bh/domain';
 import type { GeneratePlanInput } from './contract.ts';
 import { goalLabel, regionLabel, sesiones } from './etiquetas.ts';
 import type { GoalParams, PainRule, Ruleset } from './ruleset.ts';
@@ -235,7 +236,12 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
       : salud.impacto === 'add'
         ? (ruleset.impact ?? null)
         : porEdad;
-  const bloques = bloquesDeContexto(impacto, equilibrio, esguince?.cfg ?? null);
+  const prevencion = prevencionDelDeporte(ruleset, goal);
+  decir('deporte', prevencion.avisos);
+  const bloques = [
+    ...prevencion.bloques,
+    ...bloquesDeContexto(impacto, equilibrio, esguince?.cfg ?? null),
+  ];
 
   return {
     goal,
@@ -420,7 +426,14 @@ export function ocultaElPulso(ruleset: Ruleset, conditions: readonly HealthCondi
  */
 export interface BloqueDeContexto {
   readonly modulo: Modulo;
-  readonly pattern: MovementPattern;
+  /** Qué ejercicios del catálogo puede traer: por patrón, o por programa de prevención. */
+  readonly entra: (exercise: Exercise) => boolean;
+  /**
+   * En qué sesiones va: en todas, o solo en las de pierna, y a lo sumo en
+   * `maxSesiones` de la plantilla (la prevención en temporada, `62`).
+   */
+  readonly soloPierna: boolean;
+  readonly maxSesiones: number | null;
   readonly exercisesPerSession: number;
   readonly sets: number;
   readonly repsMin: number;
@@ -432,7 +445,29 @@ export interface BloqueDeContexto {
 }
 
 /** Los patrones que solo entran como bloque. */
-export const PATRONES_DE_BLOQUE: readonly MovementPattern[] = ['balance', 'impact'];
+const PATRONES_DE_BLOQUE: readonly MovementPattern[] = ['balance', 'impact'];
+
+/**
+ * Un ejercicio que solo entra por un bloque de contexto: los de equilibrio e
+ * impacto por su patrón, los de prevención por su programa (`62`). No entran
+ * por un slot, no suman al volumen semanal y no reciben propuestas de carga.
+ */
+export function esDeBloque(exercise: Exercise): boolean {
+  return PATRONES_DE_BLOQUE.includes(exercise.pattern) || exercise.prevents.length > 0;
+}
+
+/**
+ * Los selectores de cada bloque, uno por patrón y uno por programa, creados una
+ * sola vez: dos contextos iguales traen el mismo selector, no dos funciones
+ * distintas que hacen lo mismo.
+ */
+const ENTRA_POR_PATRON = {
+  impact: (ex: Exercise) => ex.pattern === 'impact',
+  balance: (ex: Exercise) => ex.pattern === 'balance',
+} as const;
+const ENTRA_POR_PROGRAMA = Object.fromEntries(
+  PREVENTION_PROGRAMS.map((p) => [p, (ex: Exercise) => ex.prevents.includes(p)]),
+) as Record<PreventionProgram, (ex: Exercise) => boolean>;
 
 export type ImpactConfig = NonNullable<Ruleset['impact']>;
 
@@ -479,19 +514,69 @@ function bloquesDeContexto(
   esguince: SprainConfig | null,
 ): BloqueDeContexto[] {
   const bloques: BloqueDeContexto[] = [];
+  const enTodas = { soloPierna: false, maxSesiones: null } as const;
   if (impacto) {
-    bloques.push({ ...impacto, modulo: 'impacto', pattern: 'impact', unilateralesPrimero: 0 });
+    bloques.push({
+      ...impacto,
+      ...enTodas,
+      modulo: 'impacto',
+      entra: ENTRA_POR_PATRON.impact,
+      unilateralesPrimero: 0,
+    });
   }
   const deEquilibrio = equilibrio ?? esguince;
   if (deEquilibrio) {
     bloques.push({
       ...deEquilibrio,
+      ...enTodas,
       modulo: 'equilibrio',
-      pattern: 'balance',
+      entra: ENTRA_POR_PATRON.balance,
       unilateralesPrimero: esguince?.exercisesPerSession ?? 0,
     });
   }
   return bloques;
+}
+
+// ------------------------------------------------------------------ prevención
+
+type Prevencion = NonNullable<NonNullable<Ruleset['sports']>['prevention']>;
+
+/**
+ * La prevención de lesiones del deporte declarado (`docs/research/62`): un
+ * bloque por programa, al final de las sesiones de pierna, con los ejercicios
+ * marcados con ese programa. En temporada, en tantas sesiones de la plantilla
+ * como diga el programa (los ensayos bajan a una por semana). Y los avisos de
+ * lo que no se hace en el gimnasio, como la entrada en calor del equipo.
+ *
+ * Va antes que el impacto y el equilibrio, que cierran la sesión.
+ */
+function prevencionDelDeporte(
+  ruleset: Ruleset,
+  goal: UserGoal,
+): { bloques: BloqueDeContexto[]; avisos: string[] } {
+  const cfg: Prevencion | undefined = ruleset.sports?.prevention;
+  const deporte = goal.sport;
+  if (!cfg || !deporte) return { bloques: [], avisos: [] };
+  const enTemporada = goal.seasonPhase === 'in_season';
+  const bloques = cfg.programs
+    .filter((p) => p.sports.includes(deporte))
+    .map(
+      (p): BloqueDeContexto => ({
+        modulo: 'deporte',
+        entra: ENTRA_POR_PROGRAMA[p.id],
+        soloPierna: true,
+        maxSesiones: enTemporada ? p.inSeasonSessions : null,
+        exercisesPerSession: p.exercisesPerSession,
+        sets: p.sets,
+        repsMin: p.repsMin,
+        repsMax: p.repsMax,
+        restSeconds: p.restSeconds,
+        rationale: p.rationale,
+        unilateralesPrimero: 0,
+      }),
+    );
+  const avisos = cfg.notes.filter((n) => n.sports.includes(deporte)).map((n) => n.text);
+  return { bloques, avisos };
 }
 
 type SprainConfig = NonNullable<Ruleset['sprain']>;

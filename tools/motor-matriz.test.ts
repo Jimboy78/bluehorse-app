@@ -16,6 +16,7 @@ import type {
   MovementPattern,
   MuscleGroup,
   Plan,
+  PreventionProgram,
   Profile,
   SeasonPhase,
   SetLog,
@@ -127,6 +128,7 @@ function construirGimnasio(): GymSnapshot {
     loadsSpinalFlexion: 'loadsSpinalFlexion' in x ? Boolean(x.loadsSpinalFlexion) : false,
     headBelowHeart: 'headBelowHeart' in x ? Boolean(x.headBelowHeart) : false,
     requiresMovements: 'requiresMovements' in x ? (x.requiresMovements as MovementLimit[]) : [],
+    prevents: 'prevents' in x ? (x.prevents as PreventionProgram[]) : [],
     skillLevel: x.skillLevel as ExperienceLevel,
     cues: x.cues ?? null,
     equipmentIds: (x.equipment ?? [])
@@ -1267,6 +1269,7 @@ describe('los números del plan salen del ruleset', () => {
     for (const firma of [firmaDeEquilibrio(p), firmaDeEsguince(p), firmaDeImpacto(p)]) {
       if (firma) firmas.add(firma);
     }
+    for (const firma of firmasDePrevencion(p)) firmas.add(firma);
     return firmas;
   }
 
@@ -1290,6 +1293,15 @@ describe('los números del plan salen del ruleset', () => {
     if (condiciones.some((c) => sinImpacto.includes(c))) return null;
     if ((p.limitaciones ?? []).some((c) => c.type === 'pain' || c.type === 'injury')) return null;
     return `${im.sets}×${im.repsMin}-${im.repsMax} RIR null d${im.restSeconds}s`;
+  }
+
+  /** La prevención del deporte (`docs/research/62`): la dosis de cada programa que le toca. */
+  function firmasDePrevencion(p: Perfil): string[] {
+    const deporte = p.deporte;
+    if (!deporte) return [];
+    return (reglas.sports?.prevention?.programs ?? [])
+      .filter((pr) => pr.sports.includes(deporte))
+      .map((pr) => `${pr.sets}×${pr.repsMin}-${pr.repsMax} RIR null d${pr.restSeconds}s`);
   }
 
   /** El bloque de equilibrio lleva su propia dosis, desde la edad del ruleset. */
@@ -1588,13 +1600,16 @@ describe('el deporte tiene que cambiar algún ejercicio', () => {
   // Sin el explosivo del par: ese lo suma el deporte a propósito (`explosive`
   // en el ruleset, su propio bloque de tests abajo). Lo que se mide acá es el
   // desempate entre los ejercicios de siempre.
-  const esExplosivo = new Set(gym.exercises.filter((e) => e.isExplosive).map((e) => e.id));
+  // Y sin la prevención: la suma el deporte por su programa (`62`), con tests propios.
+  const fueraDelDesempate = new Set(
+    gym.exercises.filter((e) => e.isExplosive || e.prevents.length > 0).map((e) => e.id),
+  );
   // Y con tiempo de sobra: el par que suma el deporte alarga la sesión, y el
   // ajuste al tiempo (`59`) saca un aislado que sin deporte entraba. Eso es
   // dosis, no desempate, y tiene sus propios tests.
   function ejerciciosDe(p: Perfil, deporte: Perfil['deporte']): string[] {
     return planDe({ ...p, deporte, minutos: 600 }, V1_RESEARCH).sessions.flatMap((s) =>
-      s.items.map((i) => i.exerciseId).filter((id) => !esExplosivo.has(id)),
+      s.items.map((i) => i.exerciseId).filter((id) => !fueraDelDesempate.has(id)),
     );
   }
 
@@ -1756,9 +1771,11 @@ describe('el ajuste por día de partido', () => {
     despues: SessionItemBlueprint | undefined,
     ex: Exercise,
     regla: ReglaDia,
+    state: MatchDayState,
   ): string | null {
     const mult = esDePierna(ex) ? regla.lowerBodyVolumeMultiplier : regla.upperBodyVolumeMultiplier;
-    const fuera = (regla.avoidExplosive && ex.isExplosive) || mult === 0;
+    const fuera =
+      (regla.avoidExplosive && ex.isExplosive) || mult === 0 || prevencionFuera(ex, state);
 
     if (fuera) return despues === undefined ? null : `${ex.name} tendría que salir y quedó`;
     if (despues === undefined) return `${ex.name} salió sin regla que lo saque`;
@@ -1766,6 +1783,13 @@ describe('el ajuste por día de partido', () => {
     const esperado = Math.max(1, Math.round(item.targetSets * mult));
     if (despues.targetSets === esperado) return null;
     return `${ex.name} ${item.targetSets}→${despues.targetSets}, el ruleset da ${esperado}`;
+  }
+
+  /** La prevención excéntrica sale los días que su programa dice (`docs/research/62`). */
+  function prevencionFuera(ex: Exercise, state: MatchDayState): boolean {
+    return (V1_RESEARCH.sports?.prevention?.programs ?? []).some(
+      (p) => ex.prevents.includes(p.id) && p.removeOn.includes(state),
+    );
   }
 
   /** Cada (ajuste, ítem) del barrido, con el ejercicio ya resuelto. */
@@ -1801,14 +1825,14 @@ describe('el ajuste por día de partido', () => {
   it('cada serie que sale se explica por el multiplicador del ruleset', () => {
     const sinExplicar: string[] = [];
 
-    for (const { donde, regla, item, ex, despues } of porItem()) {
+    for (const { donde, regla, state, item, ex, despues } of porItem()) {
       // El cardio se prescribe por tiempo: un multiplicador de series no
       // significa nada sobre él y tiene que salir intacto.
       if (item.targetDurationSeconds !== null) {
         expect(despues, `${donde}/${ex.name}`).toEqual(item);
         continue;
       }
-      const queja = quejaDelAjuste(item, despues, ex, regla);
+      const queja = quejaDelAjuste(item, despues, ex, regla, state);
       if (queja) sinExplicar.push(`${donde}: ${queja}`);
     }
 
@@ -3790,5 +3814,83 @@ describe('los movimientos que no puede (`docs/research/58`)', () => {
       .filter((e) => e?.pattern === 'impact');
     expect(impacto.length).toBeGreaterThan(0);
     for (const e of impacto) expect(e?.requiresMovements).not.toContain('jumping');
+  });
+});
+
+/**
+ * LA PREVENCIÓN DEL DEPORTE (`docs/research/62`)
+ *
+ * Sobre el catálogo real: el curl nórdico entra a los deportes de su programa,
+ * en las sesiones de pierna, y en temporada en tantas sesiones de la plantilla
+ * como diga el programa. Con el piso vedado no hay otro que lo reemplace.
+ */
+describe('la prevención del deporte (`docs/research/62`)', () => {
+  const programa = V1_RESEARCH.sports?.prevention?.programs.find((p) => p.id === 'hamstring');
+  const perfil = (nombre: string) => {
+    const p = PERFILES.find((x) => x.nombre === nombre);
+    if (!p) throw new Error(`sin perfil ${nombre}`);
+    return p;
+  };
+  const porId = new Map(gym.exercises.map((e) => [e.id, e]));
+  const deIsquios = (i: { exerciseId: string }) =>
+    porId.get(i.exerciseId)?.prevents.includes('hamstring') === true;
+  /** Sesiones distintas de la plantilla que traen la prevención: una vuelta de la rotación. */
+  const sesionesCon = (b: PlanBlueprint) =>
+    new Set(b.sessions.filter((s) => s.items.some(deIsquios)).map((s) => s.label));
+
+  it('el catálogo tiene un ejercicio del programa, y el ruleset la dosis', () => {
+    expect(gym.exercises.filter((e) => e.prevents.includes('hamstring')).length).toBeGreaterThan(0);
+    expect(programa).toBeDefined();
+  });
+
+  it('en pretemporada, en cada sesión de pierna; en temporada, en las que diga el programa', () => {
+    if (!programa) throw new Error('sin programa');
+    const pre = sesionesCon(planDe(perfil('fútbol · pretemporada'), V1_RESEARCH));
+    expect(pre.size).toBeGreaterThan(programa.inSeasonSessions);
+    const en = sesionesCon(
+      planDe({ ...perfil('fútbol · pretemporada'), fase: 'in_season' }, V1_RESEARCH),
+    );
+    expect(en.size).toBe(programa.inSeasonSessions);
+    expect(sesionesCon(planDe(perfil('fútbol · en temporada'), V1_RESEARCH)).size).toBe(
+      programa.inSeasonSessions,
+    );
+  });
+
+  it('en los deportes fuera del programa no entra', () => {
+    if (!programa) throw new Error('sin programa');
+    let mirados = 0;
+    for (const p of PERFILES) {
+      if (!p.deporte || programa.sports.includes(p.deporte)) continue;
+      mirados += 1;
+      expect(sesionesCon(planDe(p, V1_RESEARCH)).size, p.nombre).toBe(0);
+    }
+    expect(mirados).toBeGreaterThan(2);
+  });
+
+  it('con el piso vedado no entra, ni otro ejercicio con su dosis', () => {
+    if (!programa) throw new Error('sin programa');
+    const base = perfil('fútbol · pretemporada');
+    const sinPiso: Perfil = {
+      ...base,
+      limitaciones: [
+        {
+          type: 'avoid_movement',
+          bodyRegion: null,
+          exerciseId: null,
+          equipmentId: null,
+          severity: 5,
+          movement: 'floor',
+        },
+      ],
+    };
+    const firma = `${programa.sets}×${programa.repsMin}-${programa.repsMax} RIR null d${programa.restSeconds}s`;
+    const items = planDe(sinPiso, V1_RESEARCH).sessions.flatMap((s) => s.items);
+    expect(items.filter(deIsquios)).toEqual([]);
+    const conSuDosis = items.filter(
+      (i) =>
+        `${i.targetSets}×${i.targetRepsMin}-${i.targetRepsMax} RIR ${i.targetRir} d${i.restSeconds}s` ===
+        firma,
+    );
+    expect(conSuDosis).toEqual([]);
   });
 });

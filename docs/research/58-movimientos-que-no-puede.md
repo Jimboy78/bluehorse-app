@@ -79,7 +79,8 @@ Lo decidió el dueño mirando las indicaciones de cada ejercicio (19/09/2026):
   slam ball.
 - **Bajar al piso y levantarse**: plancha, dead bug, flexiones de brazos, rueda abdominal,
   movilidad de cadera y tobillo, crunch en polea (va de rodillas) y **hip thrust con barra**, que se
-  arranca sentado en el piso con la espalda contra el banco.
+  arranca sentado en el piso con la espalda contra el banco. Desde `62`, también el **curl
+  nórdico**, que va de rodillas.
 - **Colgarse de una barra**: dominadas y elevación de piernas colgado. El remo invertido en TRX no,
   porque los pies van apoyados.
 - **Saltar**: salto al cajón, salto con vallas, pogo jumps, salto en profundidad, zancada con

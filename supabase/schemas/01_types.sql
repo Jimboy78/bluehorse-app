@@ -66,6 +66,10 @@ create type constraint_type as enum ('injury', 'pain', 'avoid_exercise', 'avoid_
 -- MOVEMENT_LIMITS en packages/domain/src/enums.ts.
 create type movement_limit as enum ('overhead', 'floor', 'hanging', 'jumping');
 
+-- Programas de prevención de lesiones por deporte (docs/research/62). Espejo
+-- de PREVENTION_PROGRAMS en packages/domain/src/enums.ts.
+create type prevention_program as enum ('hamstring');
+
 -- Espejo de HEALTH_CONDITIONS en packages/domain/src/enums.ts.
 create type health_condition as enum (
   'hypertension', 'heart_disease', 'beta_blockers', 'anticoagulants', 'diabetes', 'asthma',

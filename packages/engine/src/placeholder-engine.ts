@@ -25,13 +25,13 @@ import type {
 } from './contexto.ts';
 import {
   activePainRules,
+  esDeBloque,
   excluido,
   isBlocked,
   isBlockedByPain,
   isWithinSkillLevel,
   movimientosQueNoPuede,
   ordenarAvisos,
-  PATRONES_DE_BLOQUE,
   resolverContexto,
 } from './contexto.ts';
 import type {
@@ -105,7 +105,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
   // El equilibrio y el impacto entran como bloque propio y nunca por un slot:
   // si no, un aislamiento de glúteos o el complemento de una bisagra bloqueada
   // podían salir "caminata de costado" con la dosis de fuerza.
-  const usableExercises = disponibles.filter((ex) => !PATRONES_DE_BLOQUE.includes(ex.pattern));
+  const usableExercises = disponibles.filter((ex) => !esDeBloque(ex));
 
   // Rotar los ejercicios del plan anterior hace que el músculo trabaje en
   // ángulos distintos. Es preferencia, no requisito: si rotar dejaría un patrón
@@ -214,9 +214,10 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
 
   // Los bloques de contexto van al final (Otago: primero la fuerza, después el
   // equilibrio) y después de los pares, para no mover ninguna elección anterior.
+  const exPorId = new Map(gym.exercises.map((e) => [e.id, e]));
   for (const bloque of ctx.bloques) {
-    const pool = disponibles.filter((ex) => ex.pattern === bloque.pattern);
-    for (const resolved of resolvedTemplateSessions) {
+    const pool = disponibles.filter(bloque.entra);
+    for (const resolved of sesionesDelBloque(resolvedTemplateSessions, bloque, exPorId)) {
       resolved.items = addBloque({
         items: resolved.items,
         bloque,
@@ -351,6 +352,35 @@ function buildItem(input: BuildItemInput): SessionItemBlueprint {
 // ------------------------------------------------------------------ equilibrio
 
 /**
+ * Las sesiones de la plantilla que reciben un bloque: todas, o solo las de
+ * pierna (la prevención, `docs/research/62`), y a lo sumo `maxSesiones`.
+ */
+function sesionesDelBloque<T extends { items: SessionItemBlueprint[] }>(
+  sesiones: readonly T[],
+  bloque: BloqueDeContexto,
+  exPorId: ReadonlyMap<Id, Exercise>,
+): T[] {
+  const dePierna = (s: T) => s.items.some((i) => esMultiDePierna(exPorId.get(i.exerciseId)));
+  const elegidas = bloque.soloPierna ? sesiones.filter(dePierna) : [...sesiones];
+  return bloque.maxSesiones === null ? elegidas : elegidas.slice(0, bloque.maxSesiones);
+}
+
+/**
+ * Lo que hace "de pierna" a una sesión: un multiarticular de pierna. El ajuste
+ * al tiempo puede sacar un aislado después, nunca un multiarticular (`59`). El
+ * cardio en bici no cuenta, aunque trabaje cuádriceps.
+ */
+function esMultiDePierna(ex: Exercise | undefined): boolean {
+  return (
+    ex?.isCompound === true &&
+    ex.pattern !== 'cardio' &&
+    !esDeBloque(ex) &&
+    !ex.isExplosive &&
+    isLowerBody(ex)
+  );
+}
+
+/**
  * Suma al final de la sesión los ejercicios de un bloque de contexto.
  *
  * Entre sesiones rota: prefiere los que todavía no están en el plan, así una
@@ -411,7 +441,7 @@ function addBloque(input: {
  * kilos (`39`).
  */
 function fueraDeLaDosis(exercise: Exercise): boolean {
-  return exercise.isExplosive || PATRONES_DE_BLOQUE.includes(exercise.pattern);
+  return exercise.isExplosive || esDeBloque(exercise);
 }
 
 // ------------------------------------------------------------------ explosivos
@@ -713,9 +743,10 @@ function adjustForMatchDay(input: AdjustSessionInput): SessionAdjustment {
   const items: SessionItemBlueprint[] = [];
   let scaled = 0;
 
+  const saleHoy = prevencionQueSale(input.ruleset, input.state);
   for (const item of input.items) {
     const exercise = exerciseById.get(item.exerciseId);
-    const adjusted = adjustItem(item, exercise, rule);
+    const adjusted = saleHoy(exercise) ? null : adjustItem(item, exercise, rule);
 
     if (adjusted === null) {
       dropped.push(exercise?.name ?? item.exerciseId);
@@ -733,6 +764,19 @@ function adjustForMatchDay(input: AdjustSessionInput): SessionAdjustment {
     note: changed ? `${rule.note}${detail}` : null,
     changed,
   };
+}
+
+/**
+ * La prevención excéntrica sale cerca del partido: suma daño encima del que
+ * deja el partido (`docs/research/07`, `62`).
+ */
+function prevencionQueSale(ruleset: Ruleset, state: MatchDayState) {
+  const salen = new Set(
+    (ruleset.sports?.prevention?.programs ?? [])
+      .filter((p) => p.removeOn.includes(state))
+      .map((p) => p.id),
+  );
+  return (exercise: Exercise | undefined) => exercise?.prevents.some((p) => salen.has(p)) === true;
 }
 
 /**
@@ -868,7 +912,7 @@ function interferenceWarnings(
     if (exercise.pattern === 'cardio') cardio = true;
     // Caminar talón-punta no es "pierna" en el sentido de la interferencia,
     // que se midió con fuerza de tren inferior.
-    else if (!PATRONES_DE_BLOQUE.includes(exercise.pattern) && isLowerBody(exercise)) pierna = true;
+    else if (!esDeBloque(exercise) && isLowerBody(exercise)) pierna = true;
   }
 
   return cardio && pierna ? [rule.note] : [];
@@ -1206,6 +1250,9 @@ function findSubstitutes(input: FindSubstitutesInput): readonly SubstituteOption
    */
   const descartado = (candidate: Exercise, curatedEdge: SubstitutionEdge | undefined) =>
     candidate.id === original.id ||
+    // Un ejercicio de bloque se cambia por otro del mismo bloque, nunca por
+    // uno de slot, ni al revés (`docs/research/62`).
+    esDeBloque(candidate) !== esDeBloque(original) ||
     isBlocked(candidate, constraints) ||
     isBlockedByPain(candidate, avoidRules) ||
     !hasUsableEquipment(candidate, gym, [...blocked]) ||

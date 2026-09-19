@@ -178,6 +178,14 @@ export type BodyRegion = (typeof BODY_REGIONS)[number];
 export const MOVEMENT_LIMITS = ['overhead', 'floor', 'hanging', 'jumping'] as const;
 export type MovementLimit = (typeof MOVEMENT_LIMITS)[number];
 
+/**
+ * Programas de prevención de lesiones por deporte (`docs/research/62`). Cada
+ * ejercicio del catálogo dice de cuáles forma parte (`prevents`), y entra al
+ * plan solo por ese bloque.
+ */
+export const PREVENTION_PROGRAMS = ['hamstring'] as const;
+export type PreventionProgram = (typeof PREVENTION_PROGRAMS)[number];
+
 export const SESSION_STATUSES = ['pending', 'in_progress', 'completed', 'skipped'] as const;
 export type SessionStatus = (typeof SESSION_STATUSES)[number];
 

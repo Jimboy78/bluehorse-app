@@ -9,6 +9,7 @@ import type {
   MovementLimit,
   MovementPattern,
   MuscleGroup,
+  PreventionProgram,
   ProposalStatus,
   ProposalType,
   SeasonPhase,
@@ -78,6 +79,11 @@ export interface Exercise {
    * lo recibe — ver `docs/research/58`.
    */
   readonly requiresMovements: readonly MovementLimit[];
+  /**
+   * Los programas de prevención de los que forma parte. Un ejercicio marcado
+   * entra solo por ese bloque, nunca por un slot — ver `docs/research/62`.
+   */
+  readonly prevents: readonly PreventionProgram[];
   readonly skillLevel: ExperienceLevel;
   /** Indicaciones de ejecución, en castellano. */
   readonly cues: string | null;

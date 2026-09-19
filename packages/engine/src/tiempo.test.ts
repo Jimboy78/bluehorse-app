@@ -54,6 +54,7 @@ function ex(id: string, over: Partial<Exercise> = {}): Exercise {
     loadsSpinalFlexion: false,
     headBelowHeart: false,
     requiresMovements: [],
+    prevents: [],
     skillLevel: 'beginner',
     cues: null,
     equipmentIds: [],

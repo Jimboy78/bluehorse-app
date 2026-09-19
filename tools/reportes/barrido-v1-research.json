@@ -30,33 +30,37 @@
     "Press de pecho en máquina: 3 % de los ítems",
     "Subida al cajón: 3 % de los ítems",
     "Caminata en puntas de pie: 3 % de los ítems",
-    "Caminata de costado: 3 % de los ítems"
+    "Caminata en talones: 3 % de los ítems"
   ],
   "estacionesMasUsadas": [
     "Mancuernas sueltas (set): 8 % de los ítems",
     "Rig de pared (dominadas + bolsa de boxeo + soga + TRX): 5 % de los ítems",
+    "Colchonetas plegables: 4 % de los ítems",
     "Rack de mancuernas hexagonales: 4 % de los ítems",
-    "Dual Lat Pulldown & Row: 4 % de los ítems",
-    "Hip Thrust con asiento: 3 % de los ítems"
+    "Dual Lat Pulldown & Row: 4 % de los ítems"
   ],
   "avisosPorPlan": {
-    "media": 10.6,
+    "media": 10.7,
     "max": 22
+  },
+  "prevencionPorSemanaEnTemporada": {
+    "media": 1.2,
+    "max": 2
   },
   "sesionesQuePasanLosMinutosDeclarados": "12 %",
   "noEntranPorMinutosYObjetivo": {
     "15 min · cardio": "38 %",
-    "15 min · endurance": "31 %",
-    "15 min · hypertrophy": "48 %",
-    "15 min · power": "75 %",
-    "15 min · recomposition": "43 %",
-    "15 min · strength": "37 %",
+    "15 min · endurance": "33 %",
+    "15 min · hypertrophy": "52 %",
+    "15 min · power": "77 %",
+    "15 min · recomposition": "44 %",
+    "15 min · strength": "40 %",
     "30 min · cardio": "19 %",
     "30 min · endurance": "7 %",
     "30 min · hypertrophy": "6 %",
-    "30 min · power": "11 %",
-    "30 min · recomposition": "8 %",
-    "30 min · strength": "4 %",
+    "30 min · power": "12 %",
+    "30 min · recomposition": "9 %",
+    "30 min · strength": "5 %",
     "45 min · hypertrophy": "1 %",
     "45 min · power": "1 %",
     "45 min · recomposition": "1 %"
@@ -67,12 +71,12 @@
     "edad": "69 %",
     "sexo": "7 %",
     "sesiones": "54 %",
-    "minutos": "70 %",
-    "deporte": "46 %",
+    "minutos": "71 %",
+    "deporte": "66 %",
     "fase": "46 %",
     "molestia": "63 %",
     "ausencia": "0 %",
     "salud": "34 %",
-    "movimientos": "73 %"
+    "movimientos": "74 %"
   }
 }

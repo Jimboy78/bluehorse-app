@@ -1,6 +1,29 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T4c: el cardio con pocos minutos; T4 cerrada)
+## Última actualización: 19 de septiembre de 2026 (T5a: prevención por deporte, isquios)
+
+`docs/research/62`. Esquema nuevo: `exercises.prevents` (enum `prevention_program`, hoy solo
+`hamstring`), en prod. El catálogo suma el **curl nórdico** (85 ejercicios): es de bloque, como el
+equilibrio y el impacto. No entra por slot, no suma volumen, no recibe propuestas de carga y se
+reemplaza solo por otro de bloque.
+
+- Deportes de pique (fútbol, futsal, rugby, hockey, handball y básquet): 2×4-6, 60 s, al final de
+  cada sesión de pierna.
+- En temporada va en una sesión de la plantilla, y sale el día antes, el del partido y el siguiente.
+- Aviso del FIFA 11+ en fútbol y futsal.
+- Una sesión de pierna ahora se define por un multiarticular de pierna, sin contar el cardio. Lo
+  encontró el barrido: el ajuste al tiempo dejaba un torso con nórdico.
+- Sensibilidad del deporte: de 46 % a 66 %. Falsificado: 16 de 16.
+
+Pendiente del dueño:
+
+- En temporada sale 1,2 veces por semana en promedio (máximo 2), porque la plantilla rota. Una vez
+  exacta pide armar la cola sesión por sesión.
+- Dónde se traban los tobillos en el gimnasio.
+
+Sigue T5b: rodilla neuromuscular para los deportes de giro.
+
+## 19 de septiembre de 2026 (T4c: el cardio con pocos minutos; T4 cerrada)
 
 `docs/research/61`. El cardio continuo se acorta a lo que queda de la sesión (después de las series
 y antes de los bloques), en minutos enteros, y su texto dice los minutos nuevos. No tiene piso por

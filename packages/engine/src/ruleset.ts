@@ -9,6 +9,7 @@ import {
   MOVEMENT_LIMITS,
   MOVEMENT_PATTERNS,
   MUSCLE_GROUPS,
+  PREVENTION_PROGRAMS,
   RULESET_SOURCES,
   SEASON_PHASES,
   SEXES,
@@ -758,6 +759,46 @@ const sportsSchema = z.object({
       note: z.string().min(1),
     }),
   ),
+  /**
+   * Prevención de lesiones por deporte (`docs/research/62`). Cada programa es
+   * un bloque que entra al final de las sesiones de pierna de quien juega uno
+   * de sus deportes, con los ejercicios del catálogo marcados con su `id`
+   * (`exercises.prevents`). Y avisos para lo que el gimnasio no puede hacer,
+   * como la entrada en calor del equipo.
+   */
+  prevention: z
+    .object({
+      programs: z.array(
+        z.object({
+          id: z.enum(PREVENTION_PROGRAMS),
+          /** Claves de `catalog`. */
+          sports: z.array(z.string().min(1)).min(1),
+          exercisesPerSession: z.number().int().positive(),
+          sets: z.number().int().positive(),
+          repsMin: z.number().int().positive(),
+          repsMax: z.number().int().positive(),
+          restSeconds: z.number().int().min(0).max(600),
+          /**
+           * En temporada, en cuántas sesiones de la plantilla va: los ensayos
+           * bajan a una vez por semana. Fuera de temporada, en toda sesión de
+           * pierna.
+           */
+          inSeasonSessions: z.number().int().positive(),
+          /** Los días del partido en que sale: lo excéntrico suma daño (`07`). */
+          removeOn: z.array(z.enum(MATCH_DAY_STATES)),
+          rationale: z.string().min(1),
+          confidence: z.enum(CONFIDENCE_LEVELS),
+          confidenceNote: z.string().min(1).optional(),
+        }),
+      ),
+      notes: z.array(
+        z.object({
+          sports: z.array(z.string().min(1)).min(1),
+          text: z.string().min(1),
+        }),
+      ),
+    })
+    .optional(),
   confidence: z.enum(CONFIDENCE_LEVELS),
   confidenceNote: z.string().min(1).optional(),
 });

@@ -1069,6 +1069,30 @@
         "note": "Nada de pierna y el resto liviano es criterio de practica, no evidencia. El unico metaanalisis que mira el dia de la competencia apunta al reves: una sesion corta, de volumen bajo y explosiva, con 6 horas o mas hasta el partido, da un efecto chico pero positivo (g 0,232; certeza baja). No se aplica porque ese beneficio depende del margen de horas y la app no pregunta cuantas faltan; y sobre el rendimiento propio del deporte el efecto ni siquiera es significativo (g 0,075; certeza muy baja)."
       }
     },
+    "prevention": {
+      "programs": [
+        {
+          "id": "hamstring",
+          "sports": ["futbol", "futsal", "rugby", "hockey", "handball", "basquet"],
+          "exercisesPerSession": 1,
+          "sets": 2,
+          "repsMin": 4,
+          "repsMax": 6,
+          "restSeconds": 60,
+          "inSeasonSessions": 1,
+          "removeOn": ["day_before", "match_day", "day_after"],
+          "rationale": "Previene los desgarros de la parte de atrás del muslo, los más comunes en los deportes con pique. Cada repetición, bajá lo más lento que puedas: la dificultad sube sola cuando aguantás más abajo.",
+          "confidence": "medium",
+          "confidenceNote": "Sumar el curl nórdico a la prevención baja las lesiones de isquios a la mitad en varios deportes (van Dyk 2019, 15 estudios, RR 0,49; 0,52 solo con los ensayos aleatorizados). El volumen bajo rinde como el alto en fuerza excéntrica y largo del fascículo, con un mínimo de 6 semanas (Cuthbert 2020): 2 x 4-6 sale de ahí. Una vez por semana en temporada es el esquema de los ensayos. La pausa de 60 s y la lista de deportes con pique son criterio de práctica. Ver docs/research/62."
+        }
+      ],
+      "notes": [
+        {
+          "sports": ["futbol", "futsal"],
+          "text": "Si tu equipo no hace el FIFA 11+ en la entrada en calor, proponelo: son unos 20 minutos antes de entrenar, en la cancha, y bajan las lesiones. Se encuentra buscando \"FIFA 11+\"."
+        }
+      ]
+    },
     "confidence": "low",
     "confidenceNote": "Lo que esta bien sostenido es que el deporte NO cambia la dosis (SMD -0,03, I²=0%) y que despues de un partido el rendimiento tarda 72 horas en volver (26 estudios, 465 jugadoras). Lo que es criterio de practica, y por eso todo el bloque va como BAJA: que musculos prioriza cada deporte, cuanto exactamente recortar cada dia, y todo lo previo al partido. Ademas la evidencia es de futbol competitivo con partidos completos: aplicarsela a alguien que juega los sabados es una extrapolacion.",
     "emphasisUnreachableNote": "Tu deporte trabaja sobre todo {muscles}, y este plan no lo cubre: no aparece en ninguna sesion ni entre los equivalentes que podes elegir en su lugar. El gimnasio no tiene hoy con que entrenarlo dentro de un plan. Consultalo con el staff si te importa esa parte.",

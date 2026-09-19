@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-19",
-  "resolved": 171,
+  "resolved": 178,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -528,10 +528,12 @@
       "journal": "British Journal of Sports Medicine",
       "type": "journal-article",
       "temas": [
-        "Cómo procesa el motor"
+        "Cómo procesa el motor",
+        "Prevención por deporte"
       ],
       "documentos": [
-        "38-como-procesa-el-motor.md"
+        "38-como-procesa-el-motor.md",
+        "62-prevencion-por-deporte.md"
       ]
     },
     {
@@ -2810,6 +2812,139 @@
       ],
       "documentos": [
         "44-presion-y-corazon.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2013-092538",
+      "title": "The effectiveness of exercise interventions to prevent sports injuries: a systematic review and meta-analysis of randomised controlled trials",
+      "authors": [
+        "Lauersen",
+        "Bertelsen",
+        "Andersen"
+      ],
+      "moreAuthors": 0,
+      "year": 2013,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Prevención por deporte"
+      ],
+      "documentos": [
+        "62-prevencion-por-deporte.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2018-100045",
+      "title": "Including the Nordic hamstring exercise in injury prevention programmes halves the rate of hamstring injuries: a systematic review and meta-analysis of 8459 athletes",
+      "authors": [
+        "van Dyk",
+        "Behan",
+        "Whiteley"
+      ],
+      "moreAuthors": 0,
+      "year": 2019,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Prevención por deporte"
+      ],
+      "documentos": [
+        "62-prevencion-por-deporte.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s40279-019-01178-7",
+      "title": "The Effect of Nordic Hamstring Exercise Intervention Volume on Eccentric Strength and Muscle Architecture Adaptations: A Systematic Review and Meta-analyses",
+      "authors": [
+        "Cuthbert",
+        "Ripley",
+        "McMahon"
+      ],
+      "moreAuthors": 3,
+      "year": 2019,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Prevención por deporte"
+      ],
+      "documentos": [
+        "62-prevencion-por-deporte.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2017-098937",
+      "title": "The Adductor Strengthening Programme prevents groin problems among male football players: a cluster-randomised controlled trial",
+      "authors": [
+        "Harøy",
+        "Clarsen",
+        "Wiger"
+      ],
+      "moreAuthors": 6,
+      "year": 2018,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Prevención por deporte"
+      ],
+      "documentos": [
+        "62-prevencion-por-deporte.md"
+      ]
+    },
+    {
+      "doi": "10.1111/sms.70119",
+      "title": "RETRACTED: The Copenhagen Adduction Exercise Effect on Sport Performance and Injury Prevention: A Systematic Review With Meta‐Analysis",
+      "authors": [
+        "Quintana‐Cepedal",
+        "de la Calle",
+        "Diez‐Solorzano"
+      ],
+      "moreAuthors": 3,
+      "year": 2025,
+      "journal": "Scandinavian Journal of Medicine & Science in Sports",
+      "type": "journal-article",
+      "temas": [
+        "Prevención por deporte"
+      ],
+      "documentos": [
+        "62-prevencion-por-deporte.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2016-096226",
+      "title": "Preventing overuse shoulder injuries among throwing athletes: a cluster-randomised controlled trial in 660 elite handball players",
+      "authors": [
+        "Andersson",
+        "Bahr",
+        "Clarsen"
+      ],
+      "moreAuthors": 1,
+      "year": 2016,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Prevención por deporte"
+      ],
+      "documentos": [
+        "62-prevencion-por-deporte.md"
+      ]
+    },
+    {
+      "doi": "10.3389/fpubh.2026.1801019",
+      "title": "Age-related differences in the effectiveness of neuromuscular training for preventing anterior cruciate ligament injuries in athletes: a systematic review and meta-analysis",
+      "authors": [
+        "Yao",
+        "Niu",
+        "Shao"
+      ],
+      "moreAuthors": 1,
+      "year": 2026,
+      "journal": "Frontiers in Public Health",
+      "type": "journal-article",
+      "temas": [
+        "Prevención por deporte"
+      ],
+      "documentos": [
+        "62-prevencion-por-deporte.md"
       ]
     },
     {

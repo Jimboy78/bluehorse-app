@@ -13,6 +13,7 @@ import type {
   MovementLimit,
   MovementPattern,
   MuscleGroup,
+  PreventionProgram,
   SeasonPhase,
   Sex,
   UserConstraint,
@@ -24,10 +25,17 @@ import type {
   GymSnapshot,
   PainRule,
   PlanBlueprint,
+  Ruleset,
   SessionItemBlueprint,
   UserSnapshot,
 } from '@bh/engine';
-import { createPlaceholderEngine, resolveParams, resolverContexto, V1_RESEARCH } from '@bh/engine';
+import {
+  createPlaceholderEngine,
+  excluido,
+  resolveParams,
+  resolverContexto,
+  V1_RESEARCH,
+} from '@bh/engine';
 import { describe, expect, it } from 'vitest';
 import catalogo from '../supabase/catalog/blue-horse.json' with { type: 'json' };
 
@@ -117,6 +125,7 @@ function gimnasio(): GymSnapshot {
     loadsSpinalFlexion: 'loadsSpinalFlexion' in x ? Boolean(x.loadsSpinalFlexion) : false,
     headBelowHeart: 'headBelowHeart' in x ? Boolean(x.headBelowHeart) : false,
     requiresMovements: 'requiresMovements' in x ? (x.requiresMovements as MovementLimit[]) : [],
+    prevents: 'prevents' in x ? (x.prevents as PreventionProgram[]) : [],
     skillLevel: x.skillLevel as ExperienceLevel,
     cues: x.cues ?? null,
     equipmentIds: (x.equipment ?? [])
@@ -332,6 +341,8 @@ const PIDE: Readonly<Record<MovementLimit, readonly string[]>> = {
     'Movilidad de cadera y tobillo',
     'Crunch en polea',
     'Hip thrust con barra',
+    // De rodillas en la colchoneta (`docs/research/62`).
+    'Curl nórdico',
   ],
   hanging: ['Dominadas', 'Elevación de piernas colgado'],
   jumping: [
@@ -487,6 +498,9 @@ describe('barrido de socios generados', () => {
   let conCardio = 0;
   let cardioCorto = 0;
   let conParPorTiempo = 0;
+  let conPrevencion = 0;
+  /** En temporada: cuántas veces por semana sale la prevención, por plan. */
+  const prevencionEnTemporada: number[] = [];
 
   /**
    * El impacto para el hueso: mujeres desde la edad del ruleset y sin molestias
@@ -669,13 +683,14 @@ describe('barrido de socios generados', () => {
   /**
    * Un adolescente que recién empieza no recibe más series ni menos
    * repeticiones que la dosis de inicio (`docs/research/41`). El par explosivo,
-   * el equilibrio y el impacto llevan su propia dosis (el impacto le llega a un
-   * adolescente con osteoporosis, `docs/research/46`); el cardio va por tiempo.
+   * el equilibrio, el impacto y la prevención llevan su propia dosis (el impacto
+   * le llega a un adolescente con osteoporosis, `docs/research/46`; el nórdico,
+   * a un adolescente que juega al fútbol, `62`); el cardio va por tiempo.
    */
   function chequearAdolescente(p: Perfil, it: SessionItemBlueprint, ex: Exercise) {
     const y = V1_RESEARCH.modifiers?.youth;
     if (!y || p.edad < y.fromAge || p.edad > y.toAge || !y.levels.includes(p.nivel)) return;
-    const bloque = ex.pattern === 'balance' || ex.pattern === 'impact';
+    const bloque = ex.pattern === 'balance' || ex.pattern === 'impact' || ex.prevents.length > 0;
     if (ex.isExplosive || bloque || it.targetDurationSeconds !== null) return;
     if (it.targetSets > y.maxSets || it.targetRepsMin < y.repsWindow[0]) {
       violaciones.push(
@@ -746,7 +761,8 @@ describe('barrido de socios generados', () => {
     !!e &&
     !e.isExplosive &&
     i.targetDurationSeconds === null &&
-    !['balance', 'impact'].includes(e.pattern);
+    !['balance', 'impact'].includes(e.pattern) &&
+    e.prevents.length === 0;
 
   /** Los ítems de la semana del aviso de volumen, y cuánto pesa cada uno. */
   function semanaDe(b: PlanBlueprint, p: Perfil, quedan?: ReadonlySet<string>) {
@@ -837,6 +853,73 @@ describe('barrido de socios generados', () => {
   }
 
   /**
+   * La prevención del deporte (`docs/research/62`): solo con un deporte de su
+   * programa, solo en sesiones de pierna y al final. Si le toca y no está
+   * excluida, en toda sesión de pierna de la plantilla; en temporada, en tantas
+   * como diga el programa.
+   */
+  function chequearPrevencion(p: Perfil, inp: GeneratePlanInput, b: PlanBlueprint) {
+    const ctx = resolverContexto(inp);
+    const n = V1_RESEARCH.templates.find((t) => t.id === b.templateId)?.sessions.length ?? 1;
+    for (const prog of V1_RESEARCH.sports?.prevention?.programs ?? []) {
+      for (const q of quejasDePrevencion(p, prog, ctx, b, n)) {
+        violaciones.push(`${q}: ${JSON.stringify(p)}`);
+      }
+    }
+    if (p.fase !== 'in_season') return;
+    const { cuentan, peso } = semanaDe(b, p);
+    const veces = cuentan.filter((i) => (exPorId.get(i.exerciseId)?.prevents.length ?? 0) > 0);
+    if (veces.length > 0) prevencionEnTemporada.push(veces.length * peso);
+  }
+
+  type Programa = NonNullable<NonNullable<Ruleset['sports']>['prevention']>['programs'][number];
+
+  function quejasDePrevencion(
+    p: Perfil,
+    prog: Programa,
+    ctx: ReturnType<typeof resolverContexto>,
+    b: PlanBlueprint,
+    n: number,
+  ): string[] {
+    const deEste = (i: SessionItemBlueprint) =>
+      exPorId.get(i.exerciseId)?.prevents.includes(prog.id) === true;
+    const vuelta = b.sessions.slice(0, n);
+    const conEste = vuelta.filter((s) => s.items.some(deEste));
+    const toca = p.deporte !== null && prog.sports.includes(p.deporte);
+    const puede = gym.exercises.some((e) => e.prevents.includes(prog.id) && !excluido(ctx, e));
+    if (!toca || !puede) {
+      return conEste.length > 0 ? [`prevención ${toca ? 'excluida' : 'sin su deporte'}`] : [];
+    }
+    conPrevencion += 1;
+    const quejas = conEste
+      .filter((s) => !s.items.some(esDePierna))
+      .map(() => 'prevención sin pierna');
+    const dePierna = vuelta.filter((s) => s.items.some(esDePierna)).length;
+    const cuota = p.fase === 'in_season' ? Math.min(prog.inSeasonSessions, dePierna) : dePierna;
+    if (conEste.length !== cuota) {
+      quejas.push(`prevención en ${conEste.length} sesiones, tocaban ${cuota}`);
+    }
+    return quejas;
+  }
+
+  /**
+   * Un multiarticular de pierna, sin contar el cardio: lo que hace "de pierna" a
+   * una sesión. Un aislado no, porque el ajuste al tiempo lo puede sacar.
+   */
+  function esDePierna(i: SessionItemBlueprint): boolean {
+    const e = exPorId.get(i.exerciseId);
+    return (
+      !!e &&
+      e.isCompound &&
+      e.pattern !== 'cardio' &&
+      e.prevents.length === 0 &&
+      !e.isExplosive &&
+      !['balance', 'impact'].includes(e.pattern) &&
+      e.primaryMuscles.some((m) => ['quads', 'hamstrings', 'glutes', 'calves'].includes(m))
+    );
+  }
+
+  /**
    * Contra el mismo socio con tiempo de sobra: el ajuste no saca ningún
    * multiarticular, no toca repeticiones ni RIR, y bajar series no deja un
    * músculo por debajo del piso semanal, salvo que ya estuviera abajo. Sacar
@@ -904,6 +987,7 @@ describe('barrido de socios generados', () => {
     chequearMinutos(p, b);
     chequearAjuste(p, b, seed);
     chequearCardio(p, b);
+    chequearPrevencion(p, inp, b);
     const achicoBloques = b.warnings.some(
       (w) => !!V1_RESEARCH.sessionTime && w.includes(V1_RESEARCH.sessionTime.changes.blocks),
     );
@@ -951,6 +1035,8 @@ describe('barrido de socios generados', () => {
     expect(conCardio).toBeGreaterThan(N / 10);
     expect(cardioCorto).toBeGreaterThan(0);
     expect(cardioCorto).toBeLessThan(conCardio);
+    expect(conPrevencion).toBeGreaterThan(N / 10);
+    expect(prevencionEnTemporada.length).toBeGreaterThan(N / 50);
   });
 
   it('el catálogo marca justo lo que la lista a mano dice que pide cada movimiento', () => {
@@ -1007,6 +1093,16 @@ describe('barrido de socios generados', () => {
       avisosPorPlan: {
         media: Math.round((10 * avisosPorPlan.reduce((a, b) => a + b, 0)) / N) / 10,
         max: Math.max(...avisosPorPlan),
+      },
+      // En temporada el programa pide una sesión de la plantilla; con menos
+      // sesiones de plantilla que días, esa sesión se repite en la semana.
+      prevencionPorSemanaEnTemporada: {
+        media:
+          Math.round(
+            (10 * prevencionEnTemporada.reduce((a, b) => a + b, 0)) /
+              Math.max(1, prevencionEnTemporada.length),
+          ) / 10,
+        max: Math.max(0, ...prevencionEnTemporada),
       },
       sesionesQuePasanLosMinutosDeclarados: `${pct(minutos.sobre, minutos.total)} %`,
       // Solo las combinaciones donde alguna no entra: lo que el ajuste no pudo

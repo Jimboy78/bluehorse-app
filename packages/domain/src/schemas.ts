@@ -10,6 +10,7 @@ import {
   MOVEMENT_LIMITS,
   MOVEMENT_PATTERNS,
   MUSCLE_GROUPS,
+  PREVENTION_PROGRAMS,
   PROPOSAL_STATUSES,
   PROPOSAL_TYPES,
   SEXES,
@@ -26,6 +27,7 @@ export const experienceLevelSchema = z.enum(EXPERIENCE_LEVELS);
 export const sexSchema = z.enum(SEXES);
 export const movementPatternSchema = z.enum(MOVEMENT_PATTERNS);
 export const movementLimitSchema = z.enum(MOVEMENT_LIMITS);
+export const preventionProgramSchema = z.enum(PREVENTION_PROGRAMS);
 export const modalitySchema = z.enum(MODALITIES);
 export const equipmentCategorySchema = z.enum(EQUIPMENT_CATEGORIES);
 export const muscleGroupSchema = z.enum(MUSCLE_GROUPS);

@@ -23,6 +23,7 @@ function ex(id: string, over: Partial<Exercise> = {}): Exercise {
     loadsSpinalFlexion: false,
     headBelowHeart: false,
     requiresMovements: [],
+    prevents: [],
     skillLevel: 'beginner',
     cues: null,
     equipmentIds: [],
@@ -747,7 +748,7 @@ describe('resolverContexto', () => {
       occurredOn,
     });
     const deEquilibrio = (ctx: ReturnType<typeof resolverContexto>) =>
-      ctx.bloques.filter((b) => b.pattern === 'balance');
+      ctx.bloques.filter((b) => b.modulo === 'equilibrio');
     const unPie = ['un-pie-a', 'un-pie-b', 'un-pie-c', 'un-pie-d'].map((id) =>
       ex(id, { pattern: 'balance', isUnilateral: true, primaryMuscles: ['calves'] }),
     );
@@ -1095,5 +1096,84 @@ describe('resolverContexto', () => {
     const lanzamiento = ex('lanzamiento', { pattern: 'core', isExplosive: true });
     expect(excluido(conLeve, lanzamiento)).toBe(true);
     expect(excluido(resolverContexto(input({ edad: 25 })), lanzamiento)).toBe(false);
+  });
+});
+
+describe('prevención del deporte (`docs/research/62`)', () => {
+  const cfg = V1_RESEARCH.sports?.prevention;
+  const isquios = cfg?.programs.find((p) => p.id === 'hamstring');
+  const nordico = ex('nordico', {
+    pattern: 'isolation',
+    primaryMuscles: ['hamstrings'],
+    isCompound: false,
+    prevents: ['hamstring'],
+  });
+
+  function conFase(sport: string | null, seasonPhase: 'none' | 'in_season' | 'preseason') {
+    const i = input({ sport, edad: 25 });
+    const goals = i.user.goals.map((g) => ({ ...g, seasonPhase }));
+    return resolverContexto({ ...i, user: { ...i.user, goals } });
+  }
+  const dePrevencion = (ctx: ReturnType<typeof resolverContexto>) =>
+    ctx.bloques.filter((b) => b.modulo === 'deporte');
+
+  it('el ruleset trae el programa de isquios y la entrada en calor del fútbol', () => {
+    expect(isquios, 'sin programa de isquios').toBeDefined();
+    expect(cfg?.notes.length).toBeGreaterThan(0);
+  });
+
+  it('un bloque solo para los deportes del programa, con su dosis', () => {
+    if (!isquios) throw new Error('sin programa');
+    let mirados = 0;
+    for (const s of V1_RESEARCH.sports?.catalog ?? []) {
+      mirados += 1;
+      const bloques = dePrevencion(conFase(s.id, 'none'));
+      if (!isquios.sports.includes(s.id)) {
+        expect(bloques, s.id).toEqual([]);
+        continue;
+      }
+      expect(bloques, s.id).toHaveLength(1);
+      const [b] = bloques;
+      expect(b?.soloPierna).toBe(true);
+      expect(b?.maxSesiones).toBeNull();
+      expect([b?.sets, b?.repsMin, b?.repsMax, b?.restSeconds]).toEqual([
+        isquios.sets,
+        isquios.repsMin,
+        isquios.repsMax,
+        isquios.restSeconds,
+      ]);
+    }
+    expect(mirados).toBeGreaterThan(isquios.sports.length);
+    expect(dePrevencion(conFase(null, 'none'))).toEqual([]);
+  });
+
+  it('trae los ejercicios de su programa y ninguno más', () => {
+    const [b] = dePrevencion(conFase('futbol', 'none'));
+    expect(b?.entra(nordico)).toBe(true);
+    expect(b?.entra(pesoMuerto)).toBe(false);
+    expect(b?.entra(ex('equilibrio', { pattern: 'balance' }))).toBe(false);
+  });
+
+  it('en temporada, en tantas sesiones como diga el programa; fuera de temporada, en todas', () => {
+    expect(dePrevencion(conFase('futbol', 'in_season'))[0]?.maxSesiones).toBe(
+      isquios?.inSeasonSessions,
+    );
+    expect(dePrevencion(conFase('futbol', 'preseason'))[0]?.maxSesiones).toBeNull();
+  });
+
+  it('va antes que el impacto y el equilibrio, que cierran la sesión', () => {
+    const i = input({ sport: 'futbol', edad: 70 });
+    const modulos = resolverContexto(i).bloques.map((b) => b.modulo);
+    expect(modulos[0]).toBe('deporte');
+    expect(modulos).toContain('equilibrio');
+  });
+
+  it('el aviso de la entrada en calor sale solo en los deportes de su nota', () => {
+    for (const nota of cfg?.notes ?? []) {
+      for (const s of V1_RESEARCH.sports?.catalog ?? []) {
+        const avisos = conFase(s.id, 'none').avisos.map((a) => a.texto);
+        expect(avisos.includes(nota.text), s.id).toBe(nota.sports.includes(s.id));
+      }
+    }
   });
 });

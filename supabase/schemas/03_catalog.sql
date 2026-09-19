@@ -73,7 +73,11 @@ create table exercises (
   -- Los movimientos que el ejercicio exige: brazos arriba de la cabeza, bajar
   -- al piso, colgarse, saltar. Quien declara que no puede uno, no recibe el
   -- ejercicio. Se marca a mano mirando cómo se hace. Ver docs/research/58.
-  requires_movements movement_limit[] not null default '{}'
+  requires_movements movement_limit[] not null default '{}',
+  -- Los programas de prevención de los que forma parte. Un ejercicio marcado
+  -- entra solo por ese bloque, nunca por un slot de la plantilla. Se marca a
+  -- mano. Ver docs/research/62.
+  prevents prevention_program[] not null default '{}'
 );
 
 create index exercises_pattern_idx on exercises (pattern) where is_active;

@@ -1,4 +1,12 @@
-import type { Equipment, Exercise, Goal, Profile, SetLog, UserGoal } from '@bh/domain';
+import type {
+  Equipment,
+  Exercise,
+  Goal,
+  MatchDayState,
+  Profile,
+  SetLog,
+  UserGoal,
+} from '@bh/domain';
 import { GOALS } from '@bh/domain';
 import { describe, expect, it } from 'vitest';
 import type { EngineContext, GymSnapshot, UserSnapshot } from './contract.ts';
@@ -44,6 +52,7 @@ function exercise(id: string, name: string, over: Partial<Exercise> = {}): Exerc
     loadsSpinalFlexion: false,
     headBelowHeart: false,
     requiresMovements: [],
+    prevents: [],
     skillLevel: 'beginner',
     cues: null,
     equipmentIds: [],
@@ -1536,6 +1545,7 @@ describe('sustitución por molestia', () => {
           loadsSpinalFlexion: false,
           headBelowHeart: false,
           requiresMovements: [],
+          prevents: [],
           equipmentIds: ['eq-mancuernas'],
         }),
       ],
@@ -1842,6 +1852,7 @@ describe('un reemplazo tiene que hacerse como el original', () => {
     loadsSpinalFlexion: false,
     headBelowHeart: false,
     requiresMovements: [],
+    prevents: [],
     equipmentIds: [],
   });
 
@@ -1956,6 +1967,7 @@ describe('lo explosivo en un plan regulado por RIR', () => {
     loadsSpinalFlexion: false,
     headBelowHeart: false,
     requiresMovements: [],
+    prevents: [],
     equipmentIds: ['eq-prensa'],
   });
 
@@ -2012,5 +2024,205 @@ describe('lo explosivo en un plan regulado por RIR', () => {
       nombresDelPlan(gym, potencia, V1_RESEARCH, seed).includes('ex-salto-hex'),
     );
     expect(alguna).toBe(true);
+  });
+});
+
+describe('la prevención del deporte (`docs/research/62`)', () => {
+  const programa = V1_RESEARCH.sports?.prevention?.programs.find((p) => p.id === 'hamstring');
+  const nordico = exercise('ex-nordico', 'Curl nórdico', {
+    pattern: 'isolation',
+    primaryMuscles: ['hamstrings'],
+    isCompound: false,
+    modality: 'reps_bodyweight',
+    prevents: ['hamstring'],
+    equipmentIds: ['eq-camilla'],
+  });
+  const nordicoAsistido = exercise('ex-nordico-banda', 'Curl nórdico asistido', {
+    pattern: 'isolation',
+    primaryMuscles: ['hamstrings'],
+    isCompound: false,
+    modality: 'reps_bodyweight',
+    prevents: ['hamstring'],
+    equipmentIds: ['eq-mancuernas'],
+  });
+  // Un aislado de isquios sin programa: el reemplazo natural del nórdico si el
+  // motor no distinguiera un bloque de un slot.
+  const curlFemoral = exercise('ex-curl-femoral', 'Curl femoral', {
+    pattern: 'isolation',
+    primaryMuscles: ['hamstrings'],
+    isCompound: false,
+    equipmentIds: ['eq-prensa'],
+  });
+
+  function gymCon(...extra: Exercise[]): GymSnapshot {
+    const gym = buildGym();
+    return { ...gym, exercises: [...gym.exercises, ...extra] };
+  }
+
+  function plan(
+    sport: string | null,
+    seasonPhase: UserGoal['seasonPhase'] = 'none',
+    dias = 3,
+    gym = gymCon(nordico, curlFemoral),
+  ) {
+    const base = buildUser().goals[0];
+    if (!base) throw new Error('sin objetivo');
+    const goal: UserGoal = {
+      ...base,
+      sport,
+      seasonPhase,
+      sessionsPerWeekTarget: dias,
+      sessionMinutesTarget: 180,
+    };
+    return engine.generatePlan({
+      context,
+      user: buildUser({ goals: [goal] }),
+      gym,
+      ruleset: V1_RESEARCH,
+    });
+  }
+
+  // Una sesión de pierna es la que tiene un multiarticular de slot con un músculo
+  // principal de pierna. Un aislado no alcanza: el ajuste al tiempo lo puede sacar.
+  const DE_PIERNA: readonly string[] = ['quads', 'hamstrings', 'glutes', 'calves'];
+  const PIERNA = new Set(
+    gymCon(nordico, curlFemoral)
+      .exercises.filter((e) => e.prevents.length === 0 && e.isCompound)
+      .filter((e) => e.primaryMuscles.some((m) => DE_PIERNA.includes(m)))
+      .map((e) => e.id),
+  );
+  const conPierna = (s: { items: readonly { exerciseId: string }[] }) =>
+    s.items.some((i) => PIERNA.has(i.exerciseId));
+  const conNordico = (s: { items: readonly { exerciseId: string }[] }) =>
+    s.items.some((i) => i.exerciseId === 'ex-nordico');
+
+  it('el ruleset lo trae para el fútbol y no para el tenis', () => {
+    expect(programa?.sports).toContain('futbol');
+    expect(programa?.sports).not.toContain('tenis');
+  });
+
+  it('entra al final de cada sesión de pierna, con la dosis del programa, y de ninguna otra', () => {
+    if (!programa) throw new Error('sin programa');
+    let mirados = 0;
+    for (const dias of [2, 3, 4, 5]) {
+      const p = plan('futbol', 'none', dias);
+      for (const s of p.sessions) {
+        mirados += 1;
+        expect(conNordico(s), `${dias} días / ${s.label}`).toBe(conPierna(s));
+        const item = s.items.find((i) => i.exerciseId === 'ex-nordico');
+        if (!item) continue;
+        expect([item.targetSets, item.targetRepsMin, item.targetRepsMax, item.restSeconds]).toEqual(
+          [programa.sets, programa.repsMin, programa.repsMax, programa.restSeconds],
+        );
+        expect(item.targetRir).toBeNull();
+      }
+    }
+    expect(mirados).toBeGreaterThan(8);
+    // Y existe al menos una plantilla con sesiones sin pierna: si no, la primera
+    // mitad del test no se ejercita.
+    const sinPierna = [2, 3, 4, 5].some((d) =>
+      plan('futbol', 'none', d).sessions.some((s) => !conPierna(s)),
+    );
+    expect(sinPierna).toBe(true);
+  });
+
+  // La cola repite la plantilla; lo que se cuenta es una vuelta de la rotación,
+  // o sea las sesiones distintas.
+  const sesionesConNordico = (p: ReturnType<typeof plan>) =>
+    new Set(p.sessions.filter(conNordico).map((s) => s.label)).size;
+
+  it('en temporada, en tantas sesiones de la plantilla como diga el programa', () => {
+    if (!programa) throw new Error('sin programa');
+    let conMas = 0;
+    for (const dias of [2, 3, 4, 5]) {
+      const fuera = sesionesConNordico(plan('futbol', 'none', dias));
+      const dentro = sesionesConNordico(plan('futbol', 'in_season', dias));
+      expect(dentro, `${dias} días`).toBe(Math.min(programa.inSeasonSessions, fuera));
+      if (fuera > programa.inSeasonSessions) conMas += 1;
+    }
+    // Si ninguna plantilla tiene más sesiones de pierna que la cuota, el tope no se prueba.
+    expect(conMas).toBeGreaterThan(0);
+  });
+
+  it('sin deporte, o con uno fuera del programa, no entra: tampoco por un slot', () => {
+    for (const sport of [null, 'tenis']) {
+      const ids = plan(sport).sessions.flatMap((s) => s.items.map((i) => i.exerciseId));
+      expect(ids, String(sport)).not.toContain('ex-nordico');
+    }
+  });
+
+  it('sale el día antes, el del partido y el siguiente; los demás, queda', () => {
+    if (!programa) throw new Error('sin programa');
+    const gym = gymCon(nordico, curlFemoral);
+    const sesion = plan('futbol').sessions.find(conNordico);
+    if (!sesion) throw new Error('ninguna sesión con el nórdico');
+    const estados = Object.keys(V1_RESEARCH.sports?.matchDay ?? {}) as MatchDayState[];
+    expect(estados.length).toBeGreaterThan(3);
+    for (const state of estados) {
+      const out = engine.adjustSession({ items: sesion.items, gym, state, ruleset: V1_RESEARCH });
+      const queda = out.items.some((i) => i.exerciseId === 'ex-nordico');
+      expect(queda, state).toBe(!programa.removeOn.includes(state));
+      if (!queda) expect(out.note, state).toContain('Curl nórdico');
+    }
+  });
+
+  it('no recibe propuestas de carga: progresa aguantando más abajo, no con kilos', () => {
+    const gym = gymCon(nordico, curlFemoral);
+    const n = V1_RESEARCH.prescription.hypertrophy?.default.progression.consecutiveSessions ?? 0;
+    const historial = (exerciseId: string, equipmentId: string) =>
+      Array.from({ length: n + 1 }, (_, k) =>
+        setLog({
+          workoutLogId: `w${k}`,
+          completedAt: `2026-09-0${n + 1 - k}T10:00:00.000Z`,
+          exerciseId,
+          equipmentId,
+          rir: 5,
+        }),
+      );
+    const revisar = (history: SetLog[]) =>
+      engine.reviewProgress({
+        context,
+        user: buildUser(),
+        gym,
+        plan: {
+          id: 'plan-1',
+          userId: USER_ID,
+          gymId: GYM_ID,
+          rulesetVersion: V1_RESEARCH.version,
+          generatedAt: context.now,
+          status: 'active',
+        },
+        history,
+        resolvedProposals: [],
+        ruleset: V1_RESEARCH,
+      });
+    // El control: el mismo historial en un aislado de slot sí propone.
+    expect(revisar(historial('ex-curl-femoral', 'eq-prensa')).length).toBeGreaterThan(0);
+    expect(revisar(historial('ex-nordico', 'eq-camilla'))).toEqual([]);
+  });
+
+  it('se reemplaza solo por otro de su bloque, y no reemplaza a uno de slot', () => {
+    const gym = gymCon(nordico, nordicoAsistido, curlFemoral);
+    const deNordico = engine.findSubstitutes({
+      context,
+      item: { exerciseId: 'ex-nordico', equipmentId: 'eq-camilla' },
+      gym,
+      constraints: [],
+      unavailableEquipmentIds: ['eq-camilla'],
+      ruleset: V1_RESEARCH,
+    });
+    const ids = deNordico.map((o) => o.exerciseId);
+    expect(ids).toContain('ex-nordico-banda');
+    expect(ids).not.toContain('ex-curl-femoral');
+
+    const deCurl = engine.findSubstitutes({
+      context,
+      item: { exerciseId: 'ex-curl-femoral', equipmentId: 'eq-prensa' },
+      gym,
+      constraints: [],
+      unavailableEquipmentIds: ['eq-prensa'],
+      ruleset: V1_RESEARCH,
+    });
+    expect(deCurl.map((o) => o.exerciseId)).not.toContain('ex-nordico');
   });
 });

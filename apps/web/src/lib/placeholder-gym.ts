@@ -50,6 +50,7 @@ function exercise(id: string, name: string, over: Partial<Exercise> = {}): Exerc
     loadsSpinalFlexion: false,
     headBelowHeart: false,
     requiresMovements: [],
+    prevents: [],
     skillLevel: 'beginner',
     cues: null,
     equipmentIds: [],

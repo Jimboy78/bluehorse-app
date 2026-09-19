@@ -1,5 +1,5 @@
 import type { Equipment, Exercise, ExperienceLevel, Id, MuscleGroup } from '@bh/domain';
-import { PATRONES_DE_BLOQUE } from './contexto.ts';
+import { esDeBloque } from './contexto.ts';
 import type { SessionItemBlueprint } from './contract.ts';
 import type { Ruleset, SlotRole } from './ruleset.ts';
 
@@ -76,7 +76,7 @@ type Item = SessionItemBlueprint;
 /** Un ítem de fuerza común: ni del bloque, ni del par explosivo, ni por tiempo. */
 function esDeFuerza(item: Item, exercise: Exercise | undefined): boolean {
   if (!exercise || item.targetDurationSeconds !== null) return false;
-  if (PATRONES_DE_BLOQUE.includes(exercise.pattern)) return false;
+  if (esDeBloque(exercise)) return false;
   return !exercise.isExplosive;
 }
 
@@ -367,11 +367,18 @@ function achicarBloques(items: Item[], e: Entrada, cabe: (xs: readonly Item[]) =
   }
   for (let i = out.length - 1; i >= 0 && !cabe(out); i--) {
     const ex = e.exerciseById.get(out[i]?.exerciseId ?? '');
-    if (!ex || !PATRONES_DE_BLOQUE.includes(ex.pattern)) continue;
-    const delBloque = out.filter(
-      (o) => e.exerciseById.get(o.exerciseId)?.pattern === ex.pattern,
-    ).length;
+    if (!ex || !esDeBloque(ex)) continue;
+    const grupo = grupoDeBloque(ex);
+    const delBloque = out.filter((o) => {
+      const otro = e.exerciseById.get(o.exerciseId);
+      return otro !== undefined && esDeBloque(otro) && grupoDeBloque(otro) === grupo;
+    }).length;
     if (delBloque > 1) out = sacar(out, i);
   }
   return out;
+}
+
+/** A qué bloque pertenece: su programa de prevención, o si no su patrón. */
+function grupoDeBloque(ex: Exercise): string {
+  return ex.prevents[0] ?? ex.pattern;
 }

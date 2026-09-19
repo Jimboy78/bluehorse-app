@@ -305,6 +305,7 @@ export type Database = {
           modality: Database["public"]["Enums"]["exercise_modality"]
           name: string
           pattern: Database["public"]["Enums"]["movement_pattern"]
+          prevents: Database["public"]["Enums"]["prevention_program"][]
           primary_muscles: Database["public"]["Enums"]["muscle_group"][]
           requires_movements: Database["public"]["Enums"]["movement_limit"][]
           secondary_muscles: Database["public"]["Enums"]["muscle_group"][]
@@ -325,6 +326,7 @@ export type Database = {
           modality?: Database["public"]["Enums"]["exercise_modality"]
           name: string
           pattern: Database["public"]["Enums"]["movement_pattern"]
+          prevents?: Database["public"]["Enums"]["prevention_program"][]
           primary_muscles?: Database["public"]["Enums"]["muscle_group"][]
           requires_movements?: Database["public"]["Enums"]["movement_limit"][]
           secondary_muscles?: Database["public"]["Enums"]["muscle_group"][]
@@ -345,6 +347,7 @@ export type Database = {
           modality?: Database["public"]["Enums"]["exercise_modality"]
           name?: string
           pattern?: Database["public"]["Enums"]["movement_pattern"]
+          prevents?: Database["public"]["Enums"]["prevention_program"][]
           primary_muscles?: Database["public"]["Enums"]["muscle_group"][]
           requires_movements?: Database["public"]["Enums"]["movement_limit"][]
           secondary_muscles?: Database["public"]["Enums"]["muscle_group"][]
@@ -1395,6 +1398,7 @@ export type Database = {
         | "lower_back"
         | "full_body"
       plan_origin: "engine" | "manual"
+      prevention_program: "hamstring"
       proposal_status: "pending" | "accepted" | "rejected" | "expired"
       proposal_type:
         | "load_increase"
@@ -1646,6 +1650,7 @@ export const Constants = {
         "full_body",
       ],
       plan_origin: ["engine", "manual"],
+      prevention_program: ["hamstring"],
       proposal_status: ["pending", "accepted", "rejected", "expired"],
       proposal_type: [
         "load_increase",
