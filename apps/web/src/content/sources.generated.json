@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-19",
-  "resolved": 189,
+  "resolved": 195,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -2327,6 +2327,120 @@
       ],
       "documentos": [
         "17-lesion-aguda.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s40279-021-01587-7",
+      "title": "Compatibility of Concurrent Aerobic and Strength Training for Skeletal Muscle Size and Function: An Updated Systematic Review and Meta-Analysis",
+      "authors": [
+        "Schumann",
+        "Feuerbacher",
+        "Sünkeler"
+      ],
+      "moreAuthors": 4,
+      "year": 2021,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Lo que el deporte no cambia"
+      ],
+      "documentos": [
+        "66-lo-que-el-deporte-no-cambia.md"
+      ]
+    },
+    {
+      "doi": "10.1519/JSC.0b013e31823a3e2d",
+      "title": "Concurrent Training",
+      "authors": [
+        "Wilson",
+        "Marin",
+        "Rhea"
+      ],
+      "moreAuthors": 3,
+      "year": 2012,
+      "journal": "Journal of Strength and Conditioning Research",
+      "type": "journal-article",
+      "temas": [
+        "Lo que el deporte no cambia"
+      ],
+      "documentos": [
+        "66-lo-que-el-deporte-no-cambia.md"
+      ]
+    },
+    {
+      "doi": "10.1519/jsc.0000000000003964",
+      "title": "Maintaining Physical Performance: The Minimal Dose of Exercise Needed to Preserve Endurance and Strength Over Time",
+      "authors": [
+        "Spiering",
+        "Mujika",
+        "Sharp"
+      ],
+      "moreAuthors": 1,
+      "year": 2021,
+      "journal": "Journal of Strength & Conditioning Research",
+      "type": "journal-article",
+      "temas": [
+        "Lo que el deporte no cambia"
+      ],
+      "documentos": [
+        "66-lo-que-el-deporte-no-cambia.md"
+      ]
+    },
+    {
+      "doi": "10.1123/ijspp.2021-0104",
+      "title": "Effects of Weight Cutting on Exercise Performance in Combat Athletes: A Meta-Analysis",
+      "authors": [
+        "Brechney",
+        "Cannon",
+        "Goodman"
+      ],
+      "moreAuthors": 0,
+      "year": 2022,
+      "journal": "International Journal of Sports Physiology and Performance",
+      "type": "journal-article",
+      "temas": [
+        "Lo que el deporte no cambia"
+      ],
+      "documentos": [
+        "66-lo-que-el-deporte-no-cambia.md"
+      ]
+    },
+    {
+      "doi": "10.3390/nu12051220",
+      "title": "Effects of Rapid Weight Loss on Judo Athletes: A Systematic Review",
+      "authors": [
+        "Lakicevic",
+        "Roklicer",
+        "Bianco"
+      ],
+      "moreAuthors": 7,
+      "year": 2020,
+      "journal": "Nutrients",
+      "type": "journal-article",
+      "temas": [
+        "Lo que el deporte no cambia"
+      ],
+      "documentos": [
+        "66-lo-que-el-deporte-no-cambia.md"
+      ]
+    },
+    {
+      "doi": "10.1123/ijsnem.2018-0165",
+      "title": "The Magnitude of Rapid Weight Loss and Rapid Weight Gain in Combat Sport Athletes Preparing for Competition: A Systematic Review",
+      "authors": [
+        "Matthews",
+        "Stanhope",
+        "Godwin"
+      ],
+      "moreAuthors": 2,
+      "year": 2019,
+      "journal": "International Journal of Sport Nutrition and Exercise Metabolism",
+      "type": "journal-article",
+      "temas": [
+        "Lo que el deporte no cambia"
+      ],
+      "documentos": [
+        "66-lo-que-el-deporte-no-cambia.md"
       ]
     },
     {

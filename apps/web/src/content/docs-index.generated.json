@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-19T20:48:25.583Z",
+ "generatedAt": "2026-09-19T21:02:02.631Z",
  "docs": [
   {
    "id": "metodo",
@@ -528,6 +528,14 @@
    "resumen": "Fecha: 19/09/2026. Tanda: T5d del plan de variables. En el checklist: \"días al partido, que el motor ya soporta y la app no pregunta\".",
    "archivo": "65-temporada-y-dia-de-partido.md",
    "bloques": 17
+  },
+  {
+   "id": "66-lo-que-el-deporte-no-cambia",
+   "orden": 66,
+   "titulo": "Lo que el deporte no cambia: carga semanal y categoría de peso",
+   "resumen": "Fecha: 19/09/2026. Tanda: T5e y T5f del plan de variables. Las dos preguntas eran si hay que pedirle al socio un dato más de su deporte. La respuesta, con la evidencia leída, es que no: el motor no lo usaría, y una variable con sensibili…",
+   "archivo": "66-lo-que-el-deporte-no-cambia.md",
+   "bloques": 20
   },
   {
    "id": "auditoria",

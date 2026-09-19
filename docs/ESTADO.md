@@ -1,6 +1,18 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T5d: temporada y día de partido)
+## Última actualización: 19 de septiembre de 2026 (T5e y T5f: lo que el deporte no cambia)
+
+`docs/research/66`. Dos variables del deporte que **no se preguntan**, con la evidencia abierta:
+
+- **La carga semanal del deporte** (T5e): el aeróbico sumado no baja la fuerza máxima ni la
+  hipertrofia, y su frecuencia no modera el efecto (Schumann 2022). El mantenimiento en temporada
+  (×0,5) ya está.
+- **La categoría de peso** (T5f): bajar de peso para competir es nutrición y deshidratación. La
+  fuerza cae poco y vuelve al recuperar el peso (Brechney 2022). Ni pregunta ni aviso.
+
+Sin código. Sigue T5g (puesto y qué mejorar).
+
+## 19 de septiembre de 2026 (T5d: temporada y día de partido)
 
 `docs/research/65`. **La temporada y el partido no le llegaban a ningún socio**: la app no
 preguntaba ninguno de los dos.
