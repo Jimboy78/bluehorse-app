@@ -169,6 +169,15 @@ export const BODY_REGIONS = [
 ] as const;
 export type BodyRegion = (typeof BODY_REGIONS)[number];
 
+/**
+ * Movimientos que el socio puede declarar que no puede hacer
+ * (`docs/research/58`): llevar los brazos arriba de la cabeza, bajar al piso y
+ * levantarse, colgarse de una barra, saltar. Cada ejercicio del catálogo dice
+ * cuáles exige (`requiresMovements`); el que exige uno declarado no entra.
+ */
+export const MOVEMENT_LIMITS = ['overhead', 'floor', 'hanging', 'jumping'] as const;
+export type MovementLimit = (typeof MOVEMENT_LIMITS)[number];
+
 export const SESSION_STATUSES = ['pending', 'in_progress', 'completed', 'skipped'] as const;
 export type SessionStatus = (typeof SESSION_STATUSES)[number];
 

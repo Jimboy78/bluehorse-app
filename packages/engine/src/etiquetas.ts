@@ -1,4 +1,4 @@
-import type { BodyRegion, Goal, MovementPattern, MuscleGroup } from '@bh/domain';
+import type { BodyRegion, Goal, MovementLimit, MovementPattern, MuscleGroup } from '@bh/domain';
 
 /**
  * Las palabras con que el motor nombra músculos, zonas, patrones y objetivos en
@@ -46,6 +46,19 @@ export const REGION_LABELS: Readonly<Record<BodyRegion, string>> = {
 
 export function regionLabel(region: BodyRegion): string {
   return REGION_LABELS[region] ?? 'la zona que marcaste';
+}
+
+/** El movimiento que el socio no puede, para "anotaste que no podés …" (`docs/research/58`). */
+const MOVEMENT_LIMIT_LABELS: Readonly<Record<MovementLimit, string>> = {
+  overhead: 'llevar los brazos arriba de la cabeza',
+  floor: 'bajar al piso y levantarte',
+  hanging: 'colgarte de una barra',
+  jumping: 'saltar',
+};
+
+/** Varios movimientos en una frase: "saltar o colgarte de una barra". */
+export function movementLabel(movements: readonly MovementLimit[]): string {
+  return movements.map((m) => MOVEMENT_LIMIT_LABELS[m]).join(' o ');
 }
 
 /**

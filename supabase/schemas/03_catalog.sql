@@ -69,7 +69,11 @@ create table exercises (
   -- La cabeza queda por debajo del corazón (banco declinado). Con glaucoma o
   -- retinopatía se evita: la presión del ojo sube al bajar la cabeza. Ver
   -- docs/research/47.
-  head_below_heart boolean not null default false
+  head_below_heart boolean not null default false,
+  -- Los movimientos que el ejercicio exige: brazos arriba de la cabeza, bajar
+  -- al piso, colgarse, saltar. Quien declara que no puede uno, no recibe el
+  -- ejercicio. Se marca a mano mirando cómo se hace. Ver docs/research/58.
+  requires_movements movement_limit[] not null default '{}'
 );
 
 create index exercises_pattern_idx on exercises (pattern) where is_active;

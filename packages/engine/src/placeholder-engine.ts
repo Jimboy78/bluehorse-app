@@ -6,6 +6,7 @@ import type {
   Id,
   LoadReading,
   MatchDayState,
+  MovementLimit,
   MovementPattern,
   MuscleGroup,
   SetLog,
@@ -17,6 +18,7 @@ import { EXPERIENCE_LEVELS, nextLoad, snapToEquipment } from '@bh/domain';
 import type {
   Aviso,
   BloqueDeContexto,
+  ContextoDelSocio,
   ExplosiveConfig,
   Modulo,
   ResolvedSport,
@@ -27,6 +29,7 @@ import {
   isBlocked,
   isBlockedByPain,
   isWithinSkillLevel,
+  movimientosQueNoPuede,
   ordenarAvisos,
   PATRONES_DE_BLOQUE,
   resolverContexto,
@@ -46,7 +49,14 @@ import type {
   SessionItemBlueprint,
   SubstituteOption,
 } from './contract.ts';
-import { goalLabel, muscleLabel, patternLabel, regionLabel, sesiones } from './etiquetas.ts';
+import {
+  goalLabel,
+  movementLabel,
+  muscleLabel,
+  patternLabel,
+  regionLabel,
+  sesiones,
+} from './etiquetas.ts';
 import { createRng, pickDeterministic } from './rng.ts';
 import type { GoalParams, PainRule, Ruleset, SlotRole } from './ruleset.ts';
 import { isPlaceholder } from './ruleset.ts';
@@ -143,6 +153,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
           avoidRules,
           level: user.profile.experienceLevel,
           safety: ruleset.safety,
+          movimientos: movimientosQueNoPuede(user.constraints),
           used,
           setsByMuscle,
           rng,
@@ -250,7 +261,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
   decir('autorregulacion', autoregulationWarnings(params, ruleset, goal));
   decir('volumen', weeklyVolumeWarnings(sessions, template, gym, params, goal));
   decir('interferencia', interferenceWarnings(sessions, gym, ruleset));
-  decir('potencia', powerWarnings(sessions, gym, goal, ruleset, ctx.sinExplosivosConAviso));
+  decir('potencia', powerWarnings(sessions, gym, goal, ruleset, ctx));
   decir(
     'deporte',
     emphasisWarnings({
@@ -789,11 +800,11 @@ function powerWarnings(
   gym: GymSnapshot,
   goal: UserGoal,
   ruleset: Ruleset,
-  conAviso: boolean,
+  ctx: Pick<ContextoDelSocio, 'sinExplosivosConAviso' | 'explosivosPorMovimiento'>,
 ): string[] {
   // Si los sacó una condición de salud o una operación, su aviso ya lo explica;
   // este daría razones que no son (una molestia, la edad).
-  if (goal.goal !== 'power' || conAviso) return [];
+  if (goal.goal !== 'power' || ctx.sinExplosivosConAviso) return [];
 
   const exerciseById = new Map(gym.exercises.map((e) => [e.id, e]));
   const hayExplosivo = sessions
@@ -801,6 +812,13 @@ function powerWarnings(
     .some((item) => exerciseById.get(item.exerciseId)?.isExplosive === true);
 
   if (hayExplosivo) return [];
+
+  // Todo lo explosivo pide un movimiento que el socio no puede: esa es la razón,
+  // y es la que se dice (`docs/research/58`).
+  const porMovimiento = ruleset.safety?.movementLimits?.noExplosiveNote;
+  if (porMovimiento && ctx.explosivosPorMovimiento.length > 0) {
+    return [porMovimiento.replace('{movement}', movementLabel(ctx.explosivosPorMovimiento))];
+  }
 
   const edad = ruleset.explosive ? `, pasados los ${ruleset.explosive.maxAge} años` : '';
   return [
@@ -1478,22 +1496,39 @@ function resolverSlotVacio(input: {
   readonly avoidRules: readonly PainRule[];
   readonly level: ExperienceLevel;
   readonly safety: Ruleset['safety'];
+  /** Los que el socio declaró que no puede (`docs/research/58`). */
+  readonly movimientos: readonly MovementLimit[];
   readonly used: ReadonlySet<Id>;
   readonly setsByMuscle: ReadonlyMap<MuscleGroup, number>;
   readonly rng: () => number;
 }): { readonly exercise?: Exercise; readonly warning: string } {
   const { pattern, sessionLabel, pool, gym, constraints, avoidRules, level, safety } = input;
   const vacio = { pattern, gym, constraints, avoidRules, level };
+  const bloqueado = causaDeVacio(vacio) === 'bloqueado';
+  const zona = bloqueado ? zonaQueBloqueo({ pattern, gym, constraints, avoidRules }) : null;
+  // Sin zona, el movimiento que lo vació, si fue eso: "por lo que anotaste" no
+  // alcanza cuando lo que se fue es todo el empuje por encima de la cabeza.
+  const movimiento =
+    bloqueado && !zona ? movimientosQueVaciaron(pattern, gym, input.movimientos) : [];
+  const textos = safety?.movementLimits;
+  const conMovimiento = (plantilla: string) =>
+    plantilla
+      .replace('{movement}', movementLabel(movimiento))
+      .replace('{session}', sessionLabel)
+      .replace('{pattern}', patternLabel(pattern));
 
   const sinSustituto = {
-    warning: `En ${sessionLabel} no quedó ningún ejercicio de ${patternLabel(pattern)}: ${porQueNoHay(vacio)}`,
+    warning:
+      movimiento.length > 0 && textos
+        ? conMovimiento(textos.emptyText)
+        : `En ${sessionLabel} no quedó ningún ejercicio de ${patternLabel(pattern)}: ${porQueNoHay(vacio)}`,
   };
 
   // Las otras tres causas —el catálogo vacío, el nivel, la estación fuera de
   // servicio— no tienen nada que sustituir: no es que el socio no pueda hacer
   // el movimiento, es que acá no se puede hacer. Ahí el aviso es la respuesta.
   const sustitucion = safety?.painSubstitution;
-  if (!sustitucion || causaDeVacio(vacio) !== 'bloqueado') return sinSustituto;
+  if (!sustitucion || !bloqueado) return sinSustituto;
 
   const complemento = chooseComplement({
     pattern,
@@ -1506,11 +1541,12 @@ function resolverSlotVacio(input: {
   });
   if (!complemento) return sinSustituto;
 
-  const zona = zonaQueBloqueo({ pattern, gym, constraints, avoidRules });
+  if (movimiento.length > 0 && textos) {
+    return { exercise: complemento, warning: conMovimiento(textos.substitutionText) };
+  }
   const plantilla = zona
     ? sustitucion.text.replace('{region}', regionLabel(zona))
     : sustitucion.textSinZona;
-
   return {
     exercise: complemento,
     warning: plantilla
@@ -1854,6 +1890,19 @@ const TEXTO_DE_VACIO: Readonly<Record<CausaDeVacio, string>> = {
 
 function porQueNoHay(input: VacioInput): string {
   return TEXTO_DE_VACIO[causaDeVacio(input)];
+}
+
+/**
+ * Los movimientos declarados que pide algún ejercicio del patrón. Se llama solo
+ * cuando el patrón ya se vació por restricciones y ninguna zona lo explica.
+ */
+function movimientosQueVaciaron(
+  pattern: MovementPattern,
+  gym: GymSnapshot,
+  movimientos: readonly MovementLimit[],
+): readonly MovementLimit[] {
+  const delPatron = gym.exercises.filter((e) => e.pattern === pattern);
+  return movimientos.filter((m) => delPatron.some((e) => e.requiresMovements.includes(m)));
 }
 
 /**

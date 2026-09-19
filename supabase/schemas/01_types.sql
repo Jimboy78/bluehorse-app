@@ -60,7 +60,11 @@ create type plan_origin as enum ('engine', 'manual');
 
 create type baseline_source as enum ('declared', 'calibrated', 'estimated');
 
-create type constraint_type as enum ('injury', 'pain', 'avoid_exercise', 'avoid_equipment', 'tendinopathy', 'surgery', 'sprain');
+create type constraint_type as enum ('injury', 'pain', 'avoid_exercise', 'avoid_equipment', 'tendinopathy', 'surgery', 'sprain', 'avoid_movement');
+
+-- Movimientos que el socio no puede hacer (docs/research/58). Espejo de
+-- MOVEMENT_LIMITS en packages/domain/src/enums.ts.
+create type movement_limit as enum ('overhead', 'floor', 'hanging', 'jumping');
 
 -- Espejo de HEALTH_CONDITIONS en packages/domain/src/enums.ts.
 create type health_condition as enum (

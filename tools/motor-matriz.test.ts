@@ -12,6 +12,7 @@ import type {
   LoadReading,
   LoadUnit,
   MatchDayState,
+  MovementLimit,
   MovementPattern,
   MuscleGroup,
   Plan,
@@ -125,6 +126,7 @@ function construirGimnasio(): GymSnapshot {
     isExplosive: 'isExplosive' in x ? Boolean(x.isExplosive) : false,
     loadsSpinalFlexion: 'loadsSpinalFlexion' in x ? Boolean(x.loadsSpinalFlexion) : false,
     headBelowHeart: 'headBelowHeart' in x ? Boolean(x.headBelowHeart) : false,
+    requiresMovements: 'requiresMovements' in x ? (x.requiresMovements as MovementLimit[]) : [],
     skillLevel: x.skillLevel as ExperienceLevel,
     cues: x.cues ?? null,
     equipmentIds: (x.equipment ?? [])
@@ -653,6 +655,36 @@ const PERFILES: readonly Perfil[] = [
         equipmentId: null,
         severity: 1,
         occurredOn: '2026-06-01',
+      },
+    ],
+  },
+  // Movimientos que no puede (`docs/research/58`): sin piso ni brazos arriba. Se
+  // van el empuje y el tirón verticales enteros, y los reemplaza el trabajo de
+  // los mismos músculos. El impacto para el hueso sigue: pisar no es saltar.
+  {
+    nombre: '70 años, mujer · no baja al piso ni sube los brazos · fuerza principiante',
+    goal: 'strength',
+    nivel: 'beginner',
+    nacimiento: '1956-04-01',
+    sexo: 'female',
+    sesiones: 3,
+    minutos: 60,
+    limitaciones: [
+      {
+        type: 'avoid_movement',
+        bodyRegion: null,
+        exerciseId: null,
+        equipmentId: null,
+        severity: 5,
+        movement: 'floor',
+      },
+      {
+        type: 'avoid_movement',
+        bodyRegion: null,
+        exerciseId: null,
+        equipmentId: null,
+        severity: 5,
+        movement: 'overhead',
       },
     ],
   },
@@ -3472,7 +3504,10 @@ describe('explosivos en par con un levantamiento', () => {
       const tiene = plan.sessions.some((s) => s.items.some((i) => i.supersetGroup !== null));
       const edad = new Date(AHORA).getUTCFullYear() - new Date(perfil.nacimiento).getUTCFullYear();
       // Un esguince no es una molestia: los saltos siguen (`docs/research/57`).
-      const conMolestia = (perfil.limitaciones ?? []).some((c) => c.type !== 'sprain');
+      // Un movimiento que no puede tampoco (`58`).
+      const conMolestia = (perfil.limitaciones ?? []).some(
+        (c) => c.type !== 'sprain' && c.type !== 'avoid_movement',
+      );
       if (!loRecibe(perfil) || conMolestia || (cfg && edad > cfg.maxAge + 1)) {
         expect(tiene, `${perfil.nombre} no lo pidió o no le corresponde`).toBe(false);
       }
@@ -3537,5 +3572,93 @@ describe('explosivos en par con un levantamiento', () => {
       expect(solo?.supersetGroup).toBeNull();
       expect(solo?.restSeconds).toBe(salto?.restSeconds);
     }
+  });
+});
+
+describe('los movimientos que no puede (`docs/research/58`)', () => {
+  const exPorId = new Map(gym.exercises.map((e) => [e.id, e]));
+  const cfg = V1_RESEARCH.safety?.movementLimits;
+  const conMovimientos = PERFILES.filter((p) =>
+    (p.limitaciones ?? []).some((c) => c.type === 'avoid_movement'),
+  );
+
+  it('el catálogo marca los cuatro movimientos', () => {
+    for (const m of ['overhead', 'floor', 'hanging', 'jumping'] as const) {
+      expect(
+        gym.exercises.some((e) => e.requiresMovements.includes(m)),
+        m,
+      ).toBe(true);
+    }
+  });
+
+  it('ningún ejercicio que pida un movimiento declarado entra al plan', () => {
+    expect(conMovimientos.length).toBeGreaterThan(0);
+    for (const perfil of conMovimientos) {
+      const declarados = (perfil.limitaciones ?? []).flatMap((c) =>
+        c.movement ? [c.movement] : [],
+      );
+      const plan = planDe(perfil, V1_RESEARCH);
+      for (const item of plan.sessions.flatMap((s) => s.items)) {
+        const ex = exPorId.get(item.exerciseId);
+        const pide = ex?.requiresMovements.filter((m) => declarados.includes(m)) ?? [];
+        expect(pide, `${perfil.nombre}: ${ex?.name}`).toEqual([]);
+      }
+    }
+  });
+
+  it('sin brazos arriba, cada patrón que se vacía dice por qué, con o sin sustituto', () => {
+    const textos = cfg;
+    if (!textos) throw new Error('sin textos de movimientos');
+    const prefijo = (t: string) =>
+      t.replace('{movement}', 'llevar los brazos arriba de la cabeza').split('{session}')[0] ?? '';
+    const porMovimiento = [prefijo(textos.substitutionText), prefijo(textos.emptyText)];
+    const genericos = [
+      'quedaron afuera por lo que anotaste',
+      V1_RESEARCH.safety?.painSubstitution?.textSinZona.split('{pattern}')[1] ?? '',
+    ].filter((t) => t.length > 0);
+    let vistos = 0;
+    for (const nivel of ['beginner', 'intermediate'] as const) {
+      const perfil = conMovimientos.find((p) =>
+        (p.limitaciones ?? []).some((c) => c.movement === 'overhead'),
+      );
+      if (!perfil) throw new Error('sin perfil');
+      const plan = planDe({ ...perfil, nivel }, V1_RESEARCH);
+      const avisos = plan.warnings.filter((w) => porMovimiento.some((x) => w.startsWith(x)));
+      // El empuje vertical en la A y el tirón vertical en la B.
+      expect(avisos, nivel).toHaveLength(2);
+      vistos += avisos.length;
+      for (const g of genericos) {
+        expect(
+          plan.warnings.some((w) => w.includes(g)),
+          `${nivel}: ${g}`,
+        ).toBe(false);
+      }
+    }
+    expect(vistos).toBeGreaterThan(0);
+  });
+
+  it('una mujer mayor que no salta sigue recibiendo el impacto para el hueso: pisando', () => {
+    const perfil = conMovimientos.find((p) => p.sexo === 'female');
+    if (!perfil) throw new Error('sin perfil');
+    const sinSaltar: Perfil = {
+      ...perfil,
+      limitaciones: [
+        ...(perfil.limitaciones ?? []),
+        {
+          type: 'avoid_movement',
+          bodyRegion: null,
+          exerciseId: null,
+          equipmentId: null,
+          severity: 5,
+          movement: 'jumping',
+        },
+      ],
+    };
+    const impacto = planDe(sinSaltar, V1_RESEARCH)
+      .sessions.flatMap((s) => s.items)
+      .map((i) => exPorId.get(i.exerciseId))
+      .filter((e) => e?.pattern === 'impact');
+    expect(impacto.length).toBeGreaterThan(0);
+    for (const e of impacto) expect(e?.requiresMovements).not.toContain('jumping');
   });
 });

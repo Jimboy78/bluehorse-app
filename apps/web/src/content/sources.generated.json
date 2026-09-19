@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-19",
-  "resolved": 162,
+  "resolved": 163,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -1467,11 +1467,13 @@
       "type": "journal-article",
       "temas": [
         "Equilibrio en mayores",
-        "Fragilidad"
+        "Fragilidad",
+        "Movimientos que no puede"
       ],
       "documentos": [
         "39-equilibrio-en-mayores.md",
-        "40-fragilidad.md"
+        "40-fragilidad.md",
+        "58-movimientos-que-no-puede.md"
       ]
     },
     {
@@ -2180,6 +2182,23 @@
       ],
       "documentos": [
         "42-menopausia-y-hueso.md"
+      ]
+    },
+    {
+      "doi": "10.1001/jama.1993.03500010075035",
+      "title": "Predictors and Prognosis of Inability to Get Up After Falls Among Elderly Persons",
+      "authors": [
+        "Tinetti"
+      ],
+      "moreAuthors": 0,
+      "year": 1993,
+      "journal": "JAMA: The Journal of the American Medical Association",
+      "type": "journal-article",
+      "temas": [
+        "Movimientos que no puede"
+      ],
+      "documentos": [
+        "58-movimientos-que-no-puede.md"
       ]
     },
     {

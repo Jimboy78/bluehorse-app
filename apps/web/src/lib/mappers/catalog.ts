@@ -5,6 +5,7 @@ import {
   experienceLevelSchema,
   loadUnitSchema,
   modalitySchema,
+  movementLimitSchema,
   movementPatternSchema,
   muscleGroupSchema,
 } from '@bh/domain';
@@ -54,6 +55,7 @@ export const exerciseRowSchema = z.object({
   is_explosive: z.boolean(),
   loads_spinal_flexion: z.boolean(),
   head_below_heart: z.boolean(),
+  requires_movements: z.array(movementLimitSchema),
   is_unilateral: z.boolean(),
   skill_level: experienceLevelSchema,
   cues: z.string().nullable(),
@@ -128,6 +130,7 @@ export function toDomainExercise(row: ExerciseRow, equipmentIds: readonly Id[]):
     isExplosive: row.is_explosive,
     loadsSpinalFlexion: row.loads_spinal_flexion,
     headBelowHeart: row.head_below_heart,
+    requiresMovements: row.requires_movements,
     isUnilateral: row.is_unilateral,
     skillLevel: row.skill_level,
     cues: row.cues,

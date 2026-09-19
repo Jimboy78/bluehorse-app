@@ -52,6 +52,7 @@ const EJERCICIOS: readonly Exercise[] = (
   isExplosive: false,
   loadsSpinalFlexion: false,
   headBelowHeart: false,
+  requiresMovements: [],
   skillLevel: 'beginner',
   cues: null,
   equipmentIds: [],

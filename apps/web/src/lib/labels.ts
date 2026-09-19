@@ -2,6 +2,7 @@ import type {
   BodyRegion,
   ExperienceLevel,
   Goal,
+  MovementLimit,
   MuscleGroup,
   Sex,
   UserConstraint,
@@ -63,6 +64,15 @@ export const CONSTRAINT_TYPE_LABELS: Record<UserConstraint['type'], string> = {
   sprain: 'Esguince',
   avoid_exercise: 'Ejercicio descartado',
   avoid_equipment: 'Máquina descartada',
+  avoid_movement: 'Movimiento que no puede',
+};
+
+/** Cómo se lee cada movimiento en los chips de /salud y en el perfil (`docs/research/58`). */
+export const MOVEMENT_LIMIT_LABELS: Record<MovementLimit, string> = {
+  overhead: 'Brazos arriba de la cabeza',
+  floor: 'Bajar al piso y levantarme',
+  hanging: 'Colgarme de una barra',
+  jumping: 'Saltar',
 };
 
 /**

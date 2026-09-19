@@ -10,6 +10,7 @@ import type {
   Goal,
   HealthCondition,
   LoadUnit,
+  MovementLimit,
   MovementPattern,
   MuscleGroup,
   SeasonPhase,
@@ -115,6 +116,7 @@ function gimnasio(): GymSnapshot {
     isExplosive: 'isExplosive' in x ? Boolean(x.isExplosive) : false,
     loadsSpinalFlexion: 'loadsSpinalFlexion' in x ? Boolean(x.loadsSpinalFlexion) : false,
     headBelowHeart: 'headBelowHeart' in x ? Boolean(x.headBelowHeart) : false,
+    requiresMovements: 'requiresMovements' in x ? (x.requiresMovements as MovementLimit[]) : [],
     skillLevel: x.skillLevel as ExperienceLevel,
     cues: x.cues ?? null,
     equipmentIds: (x.equipment ?? [])
@@ -272,8 +274,76 @@ const DIM = {
       b.conditions = [...v];
     },
   ),
+  // Movimientos que no puede (`docs/research/58`). Sin ninguno pesa cuatro
+  // veces, igual que la molestia: es lo que declara la mayoría.
+  movimientos: dim(
+    [
+      [],
+      [],
+      [],
+      [],
+      ['overhead'],
+      ['floor'],
+      ['hanging'],
+      ['jumping'],
+      ['floor', 'overhead'],
+      ['jumping', 'overhead'],
+      ['overhead', 'floor', 'hanging', 'jumping'],
+    ] as MovementLimit[][],
+    (b, v) => {
+      for (const movement of v) {
+        b.constraints.push({
+          type: 'avoid_movement',
+          bodyRegion: null,
+          exerciseId: null,
+          equipmentId: null,
+          severity: 5,
+          movement,
+        });
+      }
+    },
+  ),
 };
 type Clave = keyof typeof DIM;
+
+/**
+ * Qué pide cada movimiento, escrito a mano desde la decisión del dueño
+ * (19/09/2026) y no leído del catálogo: si alguien desmarca un ejercicio en el
+ * JSON, el barrido lo ve (`docs/research/58`).
+ */
+const PIDE: Readonly<Record<MovementLimit, readonly string[]>> = {
+  overhead: [
+    'Press de hombro en máquina',
+    'Press de hombro con mancuernas',
+    'Press militar con barra',
+    'Dorsalera al pecho',
+    'Dorsalera con agarre neutro',
+    'Dominadas',
+    'Elevación de piernas colgado',
+    'Extensión de tríceps con mancuerna',
+    'Wall ball',
+    'Slam ball',
+  ],
+  floor: [
+    'Plancha',
+    'Dead bug',
+    'Flexiones de brazos',
+    'Rueda abdominal',
+    'Movilidad de cadera y tobillo',
+    'Crunch en polea',
+    'Hip thrust con barra',
+  ],
+  hanging: ['Dominadas', 'Elevación de piernas colgado'],
+  jumping: [
+    'Salto al cajón',
+    'Salto con vallas',
+    'Pogo jumps',
+    'Salto en profundidad',
+    'Zancada con salto',
+    'Salto con barra hexagonal',
+    'Saltitos en el lugar',
+  ],
+};
 type Perfil = { [K in Clave]: (typeof DIM)[K]['valores'][number] };
 
 /** Con un esguince de tobillo reciente, según su último campo. */
@@ -388,6 +458,7 @@ describe('barrido de socios generados', () => {
   let conZonaEvitada = 0;
   let conEnRehab = 0;
   let conUnPie = 0;
+  let conMovimiento = 0;
 
   /**
    * El impacto para el hueso: mujeres desde la edad del ruleset y sin molestias
@@ -516,6 +587,17 @@ describe('barrido de socios generados', () => {
       violaciones.push(`${ex.name} con ${regla.bodyRegion} a evitar: ${JSON.stringify(p)}`);
   }
 
+  /** Lo que pide un movimiento declarado no entra por ningún lado (`58`). */
+  function chequearMovimientos(p: Perfil, it: SessionItemBlueprint) {
+    const ex = exPorId.get(it.exerciseId);
+    if (!ex) return;
+    for (const m of p.movimientos) {
+      if (PIDE[m].includes(ex.name)) {
+        violaciones.push(`${ex.name} sin poder ${m}: ${JSON.stringify(p)}`);
+      }
+    }
+  }
+
   function chequearItem(
     p: Perfil,
     it: SessionItemBlueprint,
@@ -601,12 +683,14 @@ describe('barrido de socios generados', () => {
     const evitar = resolverContexto(inp).avoidRules;
     if (evitar.length > 0) conZonaEvitada += 1;
     chequearRehabilitacion(p, evitar);
+    if (p.movimientos.length > 0) conMovimiento += 1;
     for (const s of b.sessions) {
       if (s.items.length === 0) violaciones.push(`sesión vacía: ${JSON.stringify(p)}`);
       s.items.forEach((it, i) => {
         items += 1;
         chequearItem(p, it, s.items[i - 1]);
         chequearZonaQueDuele(p, it, evitar);
+        chequearMovimientos(p, it);
         usoEx.set(it.exerciseId, (usoEx.get(it.exerciseId) ?? 0) + 1);
         if (it.equipmentId) usoEq.set(it.equipmentId, (usoEq.get(it.equipmentId) ?? 0) + 1);
       });
@@ -638,6 +722,14 @@ describe('barrido de socios generados', () => {
     expect(conZonaEvitada).toBeGreaterThan(N / 10);
     expect(conEnRehab).toBeGreaterThan(N / 50);
     expect(conUnPie).toBeGreaterThan(N / 50);
+    expect(conMovimiento).toBeGreaterThan(N / 3);
+  });
+
+  it('el catálogo marca justo lo que la lista a mano dice que pide cada movimiento', () => {
+    for (const m of Object.keys(PIDE) as MovementLimit[]) {
+      const marcados = gym.exercises.filter((e) => e.requiresMovements.includes(m));
+      expect(marcados.map((e) => e.name).sort(), m).toEqual([...PIDE[m]].sort());
+    }
   });
 
   it('ninguna combinación rompe una invariante', () => {

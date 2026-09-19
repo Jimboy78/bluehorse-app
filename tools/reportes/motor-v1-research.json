@@ -23961,6 +23961,910 @@
         }
       ]
     },
+    "70 años, mujer · no baja al piso ni sube los brazos · fuerza principiante": {
+      "rulesetVersion": "v1-research",
+      "source": "research",
+      "warnings": [
+        "En Sesión A no quedó ningún ejercicio de empuje vertical: los que hay piden llevar los brazos arriba de la cabeza, y anotaste que no podés. Es lo esperable y no hace falta que hagas nada.",
+        "Como anotaste que no podés llevar los brazos arriba de la cabeza, en Sesión B cambiamos el trabajo de tirón vertical por otros ejercicios que mueven los mismos músculos. El día queda igual de completo.",
+        "Anotaste que no podés bajar al piso y levantarte, así que el plan no trae nada en el piso. Levantarse del piso se vuelve a aprender practicándolo paso por paso: pedile a un instructor que lo practique con vos.",
+        "A partir de los 60 la ventana medida es 70-79% del 1RM en series de 7 a 9 repeticiones. No es menos carga que a los 40: es la carga que se midió en esta edad, y bajarla no da más seguridad ni menos caídas. Si hay fragilidad, dolor o una lesión declarada, eso manda por encima de la edad."
+      ],
+      "sesiones": [
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Sentadilla goblet con kettlebell",
+              "series": 3,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 210,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de pecho en máquina",
+              "series": 3,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 210,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 2,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 150,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 105,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Saltitos en el lugar",
+              "series": 5,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 30,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata de costado",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pararse y sentarse",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Hip thrust en máquina",
+              "series": 3,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 210,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 210,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Subida al cajón",
+              "series": 2,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 150,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo sentado",
+              "series": 2,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 150,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Encogimientos de hombros",
+              "series": 2,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 105,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pisadas fuertes",
+              "series": 5,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 30,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en puntas de pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata talón-punta",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Sentadilla goblet con kettlebell",
+              "series": 3,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 210,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de pecho en máquina",
+              "series": 3,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 210,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 2,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 150,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 105,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Saltitos en el lugar",
+              "series": 5,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 30,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata de costado",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pararse y sentarse",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Hip thrust en máquina",
+              "series": 3,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 210,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 210,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Subida al cajón",
+              "series": 2,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 150,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo sentado",
+              "series": 2,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 150,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Encogimientos de hombros",
+              "series": 2,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 105,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pisadas fuertes",
+              "series": 5,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 30,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en puntas de pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata talón-punta",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Sentadilla goblet con kettlebell",
+              "series": 3,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 210,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de pecho en máquina",
+              "series": 3,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 210,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 2,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 150,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 105,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Saltitos en el lugar",
+              "series": 5,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 30,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata de costado",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pararse y sentarse",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Hip thrust en máquina",
+              "series": 3,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 210,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 210,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Subida al cajón",
+              "series": 2,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 150,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo sentado",
+              "series": 2,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 150,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Encogimientos de hombros",
+              "series": 2,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 105,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pisadas fuertes",
+              "series": 5,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 30,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en puntas de pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata talón-punta",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Sentadilla goblet con kettlebell",
+              "series": 3,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 210,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de pecho en máquina",
+              "series": 3,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 210,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 2,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 150,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 105,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Saltitos en el lugar",
+              "series": 5,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 30,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata de costado",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pararse y sentarse",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Hip thrust en máquina",
+              "series": 3,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 210,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 210,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Subida al cajón",
+              "series": 2,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 150,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo sentado",
+              "series": 2,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 150,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Encogimientos de hombros",
+              "series": 2,
+              "reps": "7-9",
+              "rir": 3,
+              "descanso": 105,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pisadas fuertes",
+              "series": 5,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 30,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en puntas de pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata talón-punta",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        }
+      ]
+    },
     "15 años · fuerza principiante": {
       "rulesetVersion": "v1-research",
       "source": "research",

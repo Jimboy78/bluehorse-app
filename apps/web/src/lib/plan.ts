@@ -8,7 +8,6 @@ import type {
   PlanOrigin,
   Sex,
   UserBaseline,
-  UserConstraint,
 } from '@bh/domain';
 import { formatLoad } from '@bh/domain';
 import type { PlanBlueprint, UserSnapshot } from '@bh/engine';
@@ -17,6 +16,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './auth/AuthProvider.tsx';
 import { fetchGymCatalog } from './catalog.ts';
 import { activeRuleset, engine, engineContext } from './engine.ts';
+import { toDomainConstraint } from './mappers/constraint.ts';
 import { toPlanInsert, toPlanSessionInserts, toPlanSessionItemInserts } from './mappers/plan.ts';
 import { type CardioZone, zonaDe } from './objetivo.ts';
 import { requireSupabase } from './supabase.ts';
@@ -60,7 +60,9 @@ export async function fetchUserSnapshot(
   // ruleset y en el motor, pero nunca recibía con qué dispararse.
   const { data: constraintRows, error: constraintError } = await client
     .from('user_constraints')
-    .select('type, body_region, exercise_id, equipment_id, severity, occurred_on, rehab_done')
+    .select(
+      'type, body_region, exercise_id, equipment_id, severity, occurred_on, rehab_done, movement',
+    )
     .eq('user_id', userId)
     .is('active_to', null);
   if (constraintError) throw constraintError;
@@ -99,16 +101,7 @@ export async function fetchUserSnapshot(
       sessionsPerWeekTarget: g.sessions_per_week_target,
       sessionMinutesTarget: g.session_minutes_target,
     })),
-    constraints: (constraintRows ?? []).map((c) => ({
-      type: c.type as UserConstraint['type'],
-      bodyRegion: c.body_region as UserConstraint['bodyRegion'],
-      exerciseId: c.exercise_id,
-      equipmentId: c.equipment_id,
-      severity: c.severity,
-      // Se omiten cuando vienen nulos: el motor pregunta `!== undefined`.
-      ...(c.occurred_on !== null ? { occurredOn: c.occurred_on } : {}),
-      ...(c.rehab_done !== null ? { rehabDone: c.rehab_done } : {}),
-    })),
+    constraints: (constraintRows ?? []).map(toDomainConstraint),
     // Una fila por ejercicio: la más reciente. La consulta viene ordenada, así
     // que la primera de cada ejercicio gana.
     baselines: dedupeByExercise(baselineRows ?? []),

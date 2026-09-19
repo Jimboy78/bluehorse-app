@@ -5,6 +5,7 @@ import {
   GOALS,
   HEALTH_CONDITIONS,
   MATCH_DAY_STATES,
+  MOVEMENT_LIMITS,
   MOVEMENT_PATTERNS,
   MUSCLE_GROUPS,
   RULESET_SOURCES,
@@ -370,6 +371,29 @@ const safetySchema = z.object({
        * ese filtro, así que necesita la regla escrita.
        */
       avoidExplosive: z.boolean(),
+      confidence: z.enum(CONFIDENCE_LEVELS),
+    })
+    .optional(),
+  /**
+   * Movimientos que el socio declaró que no puede (`docs/research/58`). No hay
+   * dosis: el ejercicio que exige el movimiento sale, y si eso vacía un patrón
+   * entero se sustituye igual que con una molestia. Acá van solo los textos.
+   *
+   * - `substitutionText`: el aviso del patrón sustituido, con `{movement}`,
+   *   `{session}` y `{pattern}`. Dice por qué, cosa que `textSinZona` no puede.
+   * - `emptyText`: lo mismo cuando no hubo con qué sustituir (el nivel no
+   *   alcanza para ningún ejercicio de esos músculos). Mismos marcadores.
+   * - `noExplosiveNote`: con objetivo potencia, cuando todo lo explosivo del
+   *   gimnasio pide un movimiento declarado. Reemplaza al aviso genérico, que
+   *   daría razones que no son (una molestia, la edad). Usa `{movement}`.
+   * - `notes`: un aviso propio por movimiento, cuando hay algo que hacer.
+   */
+  movementLimits: z
+    .object({
+      substitutionText: z.string().min(1).includes('{movement}').includes('{pattern}'),
+      emptyText: z.string().min(1).includes('{movement}').includes('{pattern}'),
+      noExplosiveNote: z.string().min(1).includes('{movement}'),
+      notes: z.partialRecord(z.enum(MOVEMENT_LIMITS), z.string().min(1)),
       confidence: z.enum(CONFIDENCE_LEVELS),
     })
     .optional(),

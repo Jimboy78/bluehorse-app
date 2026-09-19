@@ -135,6 +135,7 @@ for (const item of catalog.exercises) {
     is_explosive: item.isExplosive ?? false,
     loads_spinal_flexion: item.loadsSpinalFlexion ?? false,
     head_below_heart: item.headBelowHeart ?? false,
+    requires_movements: item.requiresMovements ?? [],
     is_unilateral: item.isUnilateral,
     skill_level: item.skillLevel,
     cues: item.cues ?? null,

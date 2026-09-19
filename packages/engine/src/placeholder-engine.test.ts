@@ -43,6 +43,7 @@ function exercise(id: string, name: string, over: Partial<Exercise> = {}): Exerc
     isExplosive: false,
     loadsSpinalFlexion: false,
     headBelowHeart: false,
+    requiresMovements: [],
     skillLevel: 'beginner',
     cues: null,
     equipmentIds: [],
@@ -1534,6 +1535,7 @@ describe('sustitución por molestia', () => {
           isExplosive: true,
           loadsSpinalFlexion: false,
           headBelowHeart: false,
+          requiresMovements: [],
           equipmentIds: ['eq-mancuernas'],
         }),
       ],
@@ -1839,6 +1841,7 @@ describe('un reemplazo tiene que hacerse como el original', () => {
     isExplosive: true,
     loadsSpinalFlexion: false,
     headBelowHeart: false,
+    requiresMovements: [],
     equipmentIds: [],
   });
 
@@ -1952,6 +1955,7 @@ describe('lo explosivo en un plan regulado por RIR', () => {
     isExplosive: true,
     loadsSpinalFlexion: false,
     headBelowHeart: false,
+    requiresMovements: [],
     equipmentIds: ['eq-prensa'],
   });
 

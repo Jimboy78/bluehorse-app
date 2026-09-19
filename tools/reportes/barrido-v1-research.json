@@ -21,40 +21,41 @@
     "Sandbags"
   ],
   "ejerciciosMasUsados": [
-    "Remo sentado: 4 % de los ítems",
+    "Remo sentado: 5 % de los ítems",
+    "Remo invertido en TRX: 4 % de los ítems",
     "Balanceo de pierna en un pie: 4 % de los ítems",
-    "Elevación de talón en un pie: 4 % de los ítems",
-    "Dead bug: 3 % de los ítems",
-    "Remo invertido en TRX: 3 % de los ítems",
+    "Elevación de talón en un pie: 3 % de los ítems",
+    "Caminata de costado: 3 % de los ítems",
     "Caminata en talones: 3 % de los ítems",
     "Caminata en puntas de pie: 3 % de los ítems",
+    "Caminata talón-punta: 3 % de los ítems",
     "Caminata hacia atrás: 3 % de los ítems",
-    "Caminata de costado: 3 % de los ítems",
-    "Caminata talón-punta: 3 % de los ítems"
+    "Remo con mancuerna a una mano: 3 % de los ítems"
   ],
   "estacionesMasUsadas": [
-    "Mancuernas sueltas (set): 6 % de los ítems",
-    "Dual Lat Pulldown & Row: 4 % de los ítems",
-    "Rack de mancuernas hexagonales: 4 % de los ítems",
+    "Mancuernas sueltas (set): 7 % de los ítems",
+    "Rig de pared (dominadas + bolsa de boxeo + soga + TRX): 4 % de los ítems",
     "Cross Over funcional doble (Dual Cable Cross): 4 % de los ítems",
-    "Rig de pared (dominadas + bolsa de boxeo + soga + TRX): 4 % de los ítems"
+    "Rack de mancuernas hexagonales: 4 % de los ítems",
+    "Dual Lat Pulldown & Row: 4 % de los ítems"
   ],
   "avisosPorPlan": {
-    "media": 8.7,
-    "max": 17
+    "media": 9.6,
+    "max": 20
   },
   "sesionesQuePasanLosMinutosDeclarados": "23 %",
   "cambiaElPlanAlCambiarSolo": {
-    "goal": "96 %",
-    "nivel": "100 %",
-    "edad": "64 %",
-    "sexo": "6 %",
-    "sesiones": "38 %",
+    "goal": "97 %",
+    "nivel": "99 %",
+    "edad": "69 %",
+    "sexo": "7 %",
+    "sesiones": "46 %",
     "minutos": "0 %",
-    "deporte": "47 %",
-    "fase": "52 %",
-    "molestia": "69 %",
+    "deporte": "51 %",
+    "fase": "48 %",
+    "molestia": "63 %",
     "ausencia": "0 %",
-    "salud": "38 %"
+    "salud": "36 %",
+    "movimientos": "75 %"
   }
 }

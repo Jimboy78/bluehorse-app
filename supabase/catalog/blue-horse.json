@@ -508,6 +508,7 @@
       "isUnilateral": false,
       "isExplosive": true,
       "modality": "reps_bodyweight",
+      "requiresMovements": ["jumping"],
       "skillLevel": "intermediate",
       "cues": "Subís saltando y bajás caminando, nunca saltando: la bajada es donde se lastiman las rodillas.",
       "equipment": ["Cajones pliométricos"]
@@ -521,6 +522,7 @@
       "isUnilateral": false,
       "isExplosive": true,
       "modality": "reps_bodyweight",
+      "requiresMovements": ["overhead"],
       "skillLevel": "intermediate",
       "cues": "Sentadilla completa y el lanzamiento sale de las piernas, no de los brazos.",
       "equipment": ["Wall balls"]
@@ -545,6 +547,7 @@
       "isCompound": true,
       "isUnilateral": false,
       "modality": "reps_weight",
+      "requiresMovements": ["floor"],
       "skillLevel": "novice",
       "cues": "Omóplatos apoyados en el banco, la barra sobre la cadera con la almohadilla. Subís hasta que el cuerpo quede recto.",
       "equipment": ["Riel de Hip Thrust con barra (sled)"]
@@ -616,6 +619,7 @@
       "isExplosive": true,
       "modality": "reps_bodyweight",
       "loadsSpinalFlexion": true,
+      "requiresMovements": ["overhead"],
       "skillLevel": "novice",
       "cues": "La pelota baja con todo el cuerpo, no solo con los brazos. Acompañás el golpe flexionando la cadera.",
       "equipment": ["Slam balls"]
@@ -728,6 +732,7 @@
       "isCompound": true,
       "isUnilateral": false,
       "modality": "reps_bodyweight",
+      "requiresMovements": ["floor"],
       "skillLevel": "beginner",
       "cues": "El cuerpo queda como una tabla: si la cadera se hunde, apoyá las rodillas.",
       "equipment": ["Colchonetas plegables"]
@@ -792,6 +797,7 @@
       "isCompound": true,
       "isUnilateral": false,
       "modality": "reps_weight",
+      "requiresMovements": ["overhead"],
       "skillLevel": "beginner",
       "cues": "Espalda apoyada, no arquees la lumbar para sacar el último empuje.",
       "equipment": ["Press Militar Inclinado en Pronación"]
@@ -804,6 +810,7 @@
       "isCompound": true,
       "isUnilateral": false,
       "modality": "reps_weight",
+      "requiresMovements": ["overhead"],
       "skillLevel": "novice",
       "cues": "Codos apenas adelante del cuerpo, no en línea con las orejas. Subís sin trabar el codo.",
       "equipment": ["Mancuernas sueltas (set)", "Rack de mancuernas hexagonales"]
@@ -816,6 +823,7 @@
       "isCompound": true,
       "isUnilateral": false,
       "modality": "reps_weight",
+      "requiresMovements": ["overhead"],
       "skillLevel": "intermediate",
       "cues": "La barra sube por delante de la cara, nunca por detrás de la nuca. Glúteo y abdomen firmes.",
       "equipment": [
@@ -834,6 +842,7 @@
       "isCompound": true,
       "isUnilateral": false,
       "modality": "reps_weight",
+      "requiresMovements": ["overhead"],
       "skillLevel": "beginner",
       "cues": "Tirás la barra al pecho con el torso apenas inclinado atrás. Los codos van al bolsillo.",
       "equipment": ["Lat Pulldown (jalón al pecho)", "Dual Lat Pulldown & Row"]
@@ -846,6 +855,7 @@
       "isCompound": true,
       "isUnilateral": false,
       "modality": "reps_weight",
+      "requiresMovements": ["overhead"],
       "skillLevel": "beginner",
       "cues": "Palmas enfrentadas: es el agarre que menos molesta el hombro.",
       "equipment": ["Lat Pulldown (jalón al pecho)", "Dual Lat Pulldown & Row"]
@@ -858,6 +868,7 @@
       "isCompound": true,
       "isUnilateral": false,
       "modality": "reps_bodyweight",
+      "requiresMovements": ["overhead", "hanging"],
       "skillLevel": "advanced",
       "cues": "Arrancás con los omóplatos abajo, no colgado muerto. Subís hasta pasar el mentón.",
       "equipment": [
@@ -900,6 +911,7 @@
       "isCompound": false,
       "isUnilateral": false,
       "modality": "time",
+      "requiresMovements": ["floor"],
       "skillLevel": "beginner",
       "cues": "Codos bajo los hombros, glúteo apretado. Si la cadera se cae, cortá la serie.",
       "equipment": ["Colchonetas plegables", "Pelotas suizas"]
@@ -912,6 +924,7 @@
       "isCompound": false,
       "isUnilateral": false,
       "modality": "reps_bodyweight",
+      "requiresMovements": ["floor"],
       "skillLevel": "advanced",
       "cues": "La lumbar no se arquea en ningún momento: si se arquea, no estirás tan lejos.",
       "equipment": ["Ab wheel"]
@@ -938,6 +951,7 @@
       "isUnilateral": false,
       "isExplosive": false,
       "modality": "reps_bodyweight",
+      "requiresMovements": ["floor"],
       "skillLevel": "beginner",
       "cues": "Boca arriba, brazos al techo y rodillas dobladas en el aire. Bajás un brazo y la pierna contraria sin que la zona lumbar se despegue del piso, y cambiás.",
       "equipment": ["Colchonetas plegables"]
@@ -1022,6 +1036,7 @@
       "isCompound": false,
       "isUnilateral": false,
       "modality": "reps_weight",
+      "requiresMovements": ["overhead"],
       "skillLevel": "novice",
       "cues": "La mancuerna baja detrás de la cabeza con los codos apuntando arriba, no abiertos.",
       "equipment": ["Mancuernas sueltas (set)", "Rack en A de mancuernas livianas"]
@@ -1207,6 +1222,7 @@
       "isUnilateral": false,
       "isExplosive": true,
       "modality": "reps_bodyweight",
+      "requiresMovements": ["jumping"],
       "skillLevel": "novice",
       "cues": "Caés suave y rebotás enseguida: el suelo se toca poco. Si aterrizás pesado, frená.",
       "equipment": ["Mini-vallas de agilidad"]
@@ -1220,6 +1236,7 @@
       "isUnilateral": false,
       "isExplosive": true,
       "modality": "reps_bodyweight",
+      "requiresMovements": ["jumping"],
       "skillLevel": "beginner",
       "cues": "Rodillas casi rectas, rebote de tobillo. El talón no llega a apoyar.",
       "equipment": []
@@ -1233,6 +1250,7 @@
       "isUnilateral": false,
       "isExplosive": true,
       "modality": "reps_bodyweight",
+      "requiresMovements": ["jumping"],
       "skillLevel": "intermediate",
       "cues": "Te dejás caer del cajón, no saltás de él, y salís hacia arriba apenas tocás el piso.",
       "equipment": ["Cajones pliométricos"]
@@ -1246,6 +1264,7 @@
       "isUnilateral": true,
       "isExplosive": true,
       "modality": "reps_bodyweight",
+      "requiresMovements": ["jumping"],
       "skillLevel": "intermediate",
       "cues": "Cambiás de pierna en el aire y caés con la rodilla de adelante sobre el pie.",
       "equipment": []
@@ -1259,6 +1278,7 @@
       "isUnilateral": false,
       "isExplosive": true,
       "modality": "reps_weight",
+      "requiresMovements": ["jumping"],
       "skillLevel": "intermediate",
       "cues": "Carga liviana y cada salto a máxima velocidad. Si la altura cae, terminó la serie.",
       "equipment": ["Porta-barras (Z, hexagonal/trap, recta)"]
@@ -1286,6 +1306,7 @@
       "isExplosive": false,
       "modality": "reps_weight",
       "loadsSpinalFlexion": true,
+      "requiresMovements": ["floor"],
       "skillLevel": "novice",
       "cues": "De rodillas, la cadera quieta: el que baja es el pecho hacia las rodillas, no los brazos.",
       "equipment": ["Cross Over funcional doble (Dual Cable Cross)"]
@@ -1300,6 +1321,7 @@
       "isExplosive": false,
       "modality": "reps_bodyweight",
       "loadsSpinalFlexion": true,
+      "requiresMovements": ["overhead", "hanging"],
       "skillLevel": "intermediate",
       "cues": "Sin balanceo: subís las piernas enrollando la pelvis y bajás controlado.",
       "equipment": [
@@ -1317,6 +1339,7 @@
       "isUnilateral": false,
       "isExplosive": false,
       "modality": "time",
+      "requiresMovements": ["floor"],
       "skillLevel": "beginner",
       "cues": "Sin rebote y sin dolor: llevá cada posición hasta donde llegás con control y sostenela. Cadera (90/90, estocada baja) y tobillo (rodilla a la pared).",
       "equipment": ["Colchonetas plegables"]
@@ -1487,6 +1510,7 @@
       "isCompound": true,
       "isUnilateral": false,
       "modality": "reps_bodyweight",
+      "requiresMovements": ["jumping"],
       "skillLevel": "beginner",
       "cues": "Saltos bajos con los dos pies, apenas despegando del piso. Caé suave, sobre la parte de adelante del pie y con las rodillas flojas.",
       "equipment": []

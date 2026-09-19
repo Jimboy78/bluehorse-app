@@ -4,6 +4,7 @@ import type {
   ExperienceLevel,
   Goal,
   HealthCondition,
+  MovementLimit,
   MovementPattern,
   MuscleGroup,
   Profile,
@@ -60,6 +61,8 @@ export const ORDEN_DE_AVISOS = [
   'supervision',
   'ausencia',
   'cobertura',
+  // Lo que cambia por un movimiento que el socio no puede (`docs/research/58`).
+  'movimiento',
   'tiempo',
   'frecuencia',
   'volumen',
@@ -110,6 +113,12 @@ export interface ContextoDelSocio {
    * aviso de potencia no tiene que inventar otro motivo.
    */
   readonly sinExplosivosConAviso: boolean;
+  /**
+   * Los movimientos declarados que alcanzan para dejar sin nada explosivo a
+   * este socio: todo lo explosivo de su nivel pide alguno de ellos. Vacío si no
+   * alcanzan o si lo explosivo ya lo sacó una molestia (`docs/research/58`).
+   */
+  readonly explosivosPorMovimiento: readonly MovementLimit[];
   /** El bloque de equilibrio si este socio lo recibe. */
   readonly equilibrio: BalanceConfig | null;
   /** Los bloques que se suman al final de cada sesión, en orden. */
@@ -192,6 +201,8 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
     conMolestia && ruleset.safety?.painSubstitution?.avoidExplosive === true;
 
   const salud = efectosDeSalud(ruleset, user.conditions);
+  const movimientos = movimientosQueNoPuede(user.constraints);
+  decir('movimiento', avisosDeMovimiento(ruleset, movimientos));
   const exclusiones: Exclusion[] = [
     { modulo: 'restriccion', excluye: (ex) => isBlocked(ex, user.constraints) },
     {
@@ -237,6 +248,12 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
     avoidRules,
     explosivos,
     sinExplosivosConAviso: salud.sinExplosivos || operacion.sinSaltos,
+    explosivosPorMovimiento: explosivosQueSacaElMovimiento({
+      exercises: input.gym.exercises,
+      movimientos,
+      level,
+      conMolestia,
+    }),
     equilibrio,
     bloques,
     exclusiones,
@@ -1038,6 +1055,56 @@ export function isBlocked(exercise: Exercise, constraints: readonly UserConstrai
       (c.type === 'avoid_exercise' && c.exerciseId === exercise.id) ||
       (c.type === 'avoid_equipment' &&
         c.equipmentId !== null &&
-        exercise.equipmentIds.includes(c.equipmentId)),
+        exercise.equipmentIds.includes(c.equipmentId)) ||
+      (c.type === 'avoid_movement' &&
+        c.movement !== undefined &&
+        exercise.requiresMovements.includes(c.movement)),
   );
+}
+
+// ------------------------------------------------------------------ movimientos
+
+/**
+ * Los movimientos que el socio declaró que no puede, sin repetir
+ * (`docs/research/58`). No son molestias: no activan reglas de dolor ni sacan
+ * lo explosivo por sí mismos. Sacan el ejercicio que los pide, y nada más.
+ */
+export function movimientosQueNoPuede(
+  constraints: readonly UserConstraint[],
+): readonly MovementLimit[] {
+  const out = new Set<MovementLimit>();
+  for (const c of constraints) {
+    if (c.type === 'avoid_movement' && c.movement !== undefined) out.add(c.movement);
+  }
+  return [...out];
+}
+
+/** Los avisos propios de cada movimiento declarado, en el orden del ruleset. */
+function avisosDeMovimiento(ruleset: Ruleset, movimientos: readonly MovementLimit[]): string[] {
+  const notas = ruleset.safety?.movementLimits?.notes ?? {};
+  return movimientos.flatMap((m) => {
+    const nota = notas[m];
+    return nota ? [nota] : [];
+  });
+}
+
+/**
+ * Los movimientos declarados que dejan sin nada explosivo: si todo lo explosivo
+ * al alcance del nivel pide alguno, son la razón; si queda uno que no, la razón
+ * de que el plan no traiga explosivos es otra (la edad, por ejemplo) y el aviso
+ * no puede echarle la culpa al movimiento. Con una molestia, lo explosivo ya
+ * salió entero por ella.
+ */
+function explosivosQueSacaElMovimiento(input: {
+  readonly exercises: readonly Exercise[];
+  readonly movimientos: readonly MovementLimit[];
+  readonly level: ExperienceLevel;
+  readonly conMolestia: boolean;
+}): readonly MovementLimit[] {
+  const { exercises, movimientos, level } = input;
+  if (input.conMolestia || movimientos.length === 0) return [];
+  const explosivos = exercises.filter((e) => e.isExplosive && isWithinSkillLevel(e, level));
+  const pedidos = (e: Exercise) => e.requiresMovements.filter((m) => movimientos.includes(m));
+  if (explosivos.length === 0 || !explosivos.every((e) => pedidos(e).length > 0)) return [];
+  return movimientos.filter((m) => explosivos.some((e) => pedidos(e).includes(m)));
 }

@@ -101,6 +101,7 @@ describe('exerciseRowSchema + toDomainExercise', () => {
       is_explosive: false,
       loads_spinal_flexion: false,
       head_below_heart: false,
+      requires_movements: [],
       is_unilateral: false,
       skill_level: 'intermediate',
       cues: 'Bajá controlado.',
@@ -110,5 +111,30 @@ describe('exerciseRowSchema + toDomainExercise', () => {
     const exercise = toDomainExercise(row, ['eq-1', 'eq-2']);
     expect(exercise.gymId).toBeNull();
     expect(exercise.equipmentIds).toEqual(['eq-1', 'eq-2']);
+    expect(exercise.requiresMovements).toEqual([]);
+  });
+
+  it('trae los movimientos que pide, y rechaza uno que no existe (`docs/research/58`)', () => {
+    const fila = {
+      id: '11111111-1111-4111-8111-111111111111',
+      gym_id: null,
+      name: 'Dominadas',
+      pattern: 'vertical_pull',
+      primary_muscles: ['lats'],
+      secondary_muscles: [],
+      modality: 'reps_bodyweight',
+      is_compound: true,
+      is_explosive: false,
+      loads_spinal_flexion: false,
+      head_below_heart: false,
+      requires_movements: ['overhead', 'hanging'],
+      is_unilateral: false,
+      skill_level: 'advanced',
+      cues: null,
+      is_active: true,
+    };
+    const exercise = toDomainExercise(exerciseRowSchema.parse(fila), []);
+    expect(exercise.requiresMovements).toEqual(['overhead', 'hanging']);
+    expect(() => exerciseRowSchema.parse({ ...fila, requires_movements: ['crawling'] })).toThrow();
   });
 });

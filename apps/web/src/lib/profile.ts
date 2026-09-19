@@ -1,4 +1,12 @@
-import type { BodyRegion, ExperienceLevel, Goal, Id, Sex, UserConstraint } from '@bh/domain';
+import type {
+  BodyRegion,
+  ExperienceLevel,
+  Goal,
+  Id,
+  MovementLimit,
+  Sex,
+  UserConstraint,
+} from '@bh/domain';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './auth/AuthProvider.tsx';
 import { requireSupabase } from './supabase.ts';
@@ -156,6 +164,8 @@ export interface ConstraintDetail {
   /** Solo en una operación: el mes en que fue y si ya terminó la rehabilitación. */
   readonly occurredOn: string | null;
   readonly rehabDone: boolean | null;
+  /** Solo en `avoid_movement`: el movimiento que no puede (`docs/research/58`). */
+  readonly movement: MovementLimit | null;
 }
 
 /**
@@ -181,6 +191,7 @@ export function paraElMotor(
     severity: c.severity,
     ...(c.occurredOn !== null ? { occurredOn: c.occurredOn } : {}),
     ...(c.rehabDone !== null ? { rehabDone: c.rehabDone } : {}),
+    ...(c.movement !== null ? { movement: c.movement } : {}),
   }));
 }
 
@@ -204,7 +215,7 @@ export function useConstraints() {
       const { data, error } = await client
         .from('user_constraints')
         .select(
-          'id, type, body_region, severity, note, active_from, exercise_id, equipment_id, occurred_on, rehab_done, exercises(name), equipment(name)',
+          'id, type, body_region, severity, note, active_from, exercise_id, equipment_id, occurred_on, rehab_done, movement, exercises(name), equipment(name)',
         )
         .eq('user_id', user?.id as string)
         .is('active_to', null)
@@ -223,6 +234,7 @@ export function useConstraints() {
           equipment_id: string | null;
           occurred_on: string | null;
           rehab_done: boolean | null;
+          movement: MovementLimit | null;
           exercises: { name: string } | null;
           equipment: { name: string } | null;
         };
@@ -238,6 +250,7 @@ export function useConstraints() {
           equipmentId: row.equipment_id,
           occurredOn: row.occurred_on,
           rehabDone: row.rehab_done,
+          movement: row.movement,
         };
       });
     },
@@ -322,6 +335,62 @@ export function useDeclareConstraints() {
     },
   });
 }
+
+/**
+ * Anotar los movimientos que el socio no puede hacer (`docs/research/58`), desde
+ * /salud o el perfil. La severidad es la de "no puede" de la escala; el motor no
+ * la lee para esto, pero una fila que dice "no puede" no dice "molestia leve".
+ * Un movimiento ya anotado no se vuelve a mandar: la base lo rechazaría (índice
+ * único sobre los vigentes). Se mira acá y no solo en la pantalla porque /salud
+ * vuelve a pasar por esta pregunta cuando se renueva el aviso legal.
+ */
+export function useDeclareMovements() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, readonly MovementLimit[]>({
+    mutationFn: async (movimientos) => {
+      if (!user) throw new Error('No hay sesión activa.');
+      if (movimientos.length === 0) return;
+      const client = requireSupabase();
+      const vigentes = await client
+        .from('user_constraints')
+        .select('movement')
+        .eq('user_id', user.id)
+        .eq('type', 'avoid_movement')
+        .is('active_to', null);
+      if (vigentes.error) throw vigentes.error;
+      const nuevos = movimientosNuevos(
+        movimientos,
+        (vigentes.data ?? []).map((r) => r.movement),
+      );
+      if (nuevos.length === 0) return;
+      const { error } = await client.from('user_constraints').insert(
+        nuevos.map((movement) => ({
+          user_id: user.id,
+          type: 'avoid_movement' as const,
+          movement,
+          severity: SEVERIDAD_NO_PUEDE,
+        })),
+      );
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['constraints', user?.id] });
+    },
+  });
+}
+
+/** Los pedidos que no están ya vigentes, sin repetir. */
+export function movimientosNuevos(
+  pedidos: readonly MovementLimit[],
+  vigentes: readonly (MovementLimit | null)[],
+): MovementLimit[] {
+  return [...new Set(pedidos)].filter((m) => !vigentes.includes(m));
+}
+
+/** El tope de `severity` en la base: "5 = no puede" (`UserConstraint.severity`). */
+const SEVERIDAD_NO_PUEDE = 5;
 
 /**
  * Marcar que terminó la rehabilitación de una operación. Desde ahí la zona deja

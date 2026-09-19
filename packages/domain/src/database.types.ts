@@ -306,6 +306,7 @@ export type Database = {
           name: string
           pattern: Database["public"]["Enums"]["movement_pattern"]
           primary_muscles: Database["public"]["Enums"]["muscle_group"][]
+          requires_movements: Database["public"]["Enums"]["movement_limit"][]
           secondary_muscles: Database["public"]["Enums"]["muscle_group"][]
           skill_level: Database["public"]["Enums"]["experience_level"]
         }
@@ -325,6 +326,7 @@ export type Database = {
           name: string
           pattern: Database["public"]["Enums"]["movement_pattern"]
           primary_muscles?: Database["public"]["Enums"]["muscle_group"][]
+          requires_movements?: Database["public"]["Enums"]["movement_limit"][]
           secondary_muscles?: Database["public"]["Enums"]["muscle_group"][]
           skill_level?: Database["public"]["Enums"]["experience_level"]
         }
@@ -344,6 +346,7 @@ export type Database = {
           name?: string
           pattern?: Database["public"]["Enums"]["movement_pattern"]
           primary_muscles?: Database["public"]["Enums"]["muscle_group"][]
+          requires_movements?: Database["public"]["Enums"]["movement_limit"][]
           secondary_muscles?: Database["public"]["Enums"]["muscle_group"][]
           skill_level?: Database["public"]["Enums"]["experience_level"]
         }
@@ -1037,6 +1040,7 @@ export type Database = {
           equipment_id: string | null
           exercise_id: string | null
           id: string
+          movement: Database["public"]["Enums"]["movement_limit"] | null
           note: string | null
           occurred_on: string | null
           rehab_done: boolean | null
@@ -1051,6 +1055,7 @@ export type Database = {
           equipment_id?: string | null
           exercise_id?: string | null
           id?: string
+          movement?: Database["public"]["Enums"]["movement_limit"] | null
           note?: string | null
           occurred_on?: string | null
           rehab_done?: boolean | null
@@ -1065,6 +1070,7 @@ export type Database = {
           equipment_id?: string | null
           exercise_id?: string | null
           id?: string
+          movement?: Database["public"]["Enums"]["movement_limit"] | null
           note?: string | null
           occurred_on?: string | null
           rehab_done?: boolean | null
@@ -1314,6 +1320,7 @@ export type Database = {
         | "tendinopathy"
         | "surgery"
         | "sprain"
+        | "avoid_movement"
       equipment_category:
         | "selectorized"
         | "plate_loaded"
@@ -1352,6 +1359,7 @@ export type Database = {
         | "bodyweight"
         | "none"
       member_role: "member" | "staff" | "admin"
+      movement_limit: "overhead" | "floor" | "hanging" | "jumping"
       movement_pattern:
         | "squat"
         | "hinge"
@@ -1557,6 +1565,7 @@ export const Constants = {
         "tendinopathy",
         "surgery",
         "sprain",
+        "avoid_movement",
       ],
       equipment_category: [
         "selectorized",
@@ -1599,6 +1608,7 @@ export const Constants = {
         "none",
       ],
       member_role: ["member", "staff", "admin"],
+      movement_limit: ["overhead", "floor", "hanging", "jumping"],
       movement_pattern: [
         "squat",
         "hinge",

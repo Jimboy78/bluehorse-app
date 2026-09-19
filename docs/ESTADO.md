@@ -1,6 +1,19 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T3i: esguince de tobillo)
+## Última actualización: 19 de septiembre de 2026 (T3j: movimientos que no puede)
+
+`docs/research/58`. En /salud, después de la puerta de lesiones: "¿Hay algún movimiento que no
+puedas hacer?", con cuatro chips: brazos arriba de la cabeza, bajar al piso y levantarse,
+colgarse de una barra, saltar. También se agregan y se dan de baja en el perfil. Cada ejercicio
+del catálogo marca los movimientos que pide (`requires_movements`, 24 marcados a mano; saltar
+solo lo que tiene vuelo, así que lanzamientos, swing y pisadas siguen). Lo que pide un movimiento
+declarado sale del plan y de "cambiar ejercicio". Si se vacía un patrón, se sustituye y el aviso
+dice por qué, con o sin sustituto. No es molestia. El piso suma un aviso: levantarse se reaprende
+practicando (guía mundial de caídas 2022; Tinetti 1993: 47 % de los mayores que se caen no se
+levantan solos). La traducción de restricciones de `plan.ts` pasa a `mappers/constraint.ts`, con
+test. T3 queda completa; la vuelta al deporte es de T6. Sigue T4 (tiempo).
+
+## 19 de septiembre de 2026 (T3i: esguince de tobillo)
 
 `docs/research/57`. "Un esguince" en la puerta de lesiones, solo en el tobillo, con el mes. Durante
 12 meses suma al final de cada sesión un bloque de equilibrio en un pie (Vuurberg 2018: RR 0,62 de

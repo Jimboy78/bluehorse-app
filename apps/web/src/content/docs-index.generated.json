@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-19T10:59:56.180Z",
+ "generatedAt": "2026-09-19T15:12:11.159Z",
  "docs": [
   {
    "id": "metodo",
@@ -463,6 +463,14 @@
    "titulo": "Esguince de tobillo",
    "resumen": "Fecha: 19/09/2026. Tanda: T3i del plan de variables. En el checklist es pedir: \"esguinces\".",
    "archivo": "57-esguince-de-tobillo.md",
+   "bloques": 23
+  },
+  {
+   "id": "58-movimientos-que-no-puede",
+   "orden": 58,
+   "titulo": "Movimientos que no puede",
+   "resumen": "Fecha: 19/09/2026. Tanda: T3j del plan de variables. En el checklist es pedir: \"movimientos que no puede\".",
+   "archivo": "58-movimientos-que-no-puede.md",
    "bloques": 23
   },
   {

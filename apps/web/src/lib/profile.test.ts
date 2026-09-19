@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { yearsSince } from './profile.ts';
+import { type ConstraintDetail, movimientosNuevos, paraElMotor, yearsSince } from './profile.ts';
 
 /**
  * `yearsSince` es la única cuenta que hace Perfil con la fecha de
@@ -70,5 +70,39 @@ describe('yearsSince', () => {
   it('límite exacto: 129 es válido, 130 ya no', () => {
     expect(yearsSince(yearsAgo(129))).toBe(129);
     expect(yearsSince(yearsAgo(130))).toBeNull();
+  });
+});
+
+describe('paraElMotor', () => {
+  const detalle: ConstraintDetail = {
+    id: 'c1',
+    type: 'avoid_movement',
+    bodyRegion: null,
+    severity: 5,
+    note: null,
+    since: '2026-09-19T12:00:00.000Z',
+    targetName: null,
+    exerciseId: null,
+    equipmentId: null,
+    occurredOn: null,
+    rehabDone: null,
+    movement: 'floor',
+  };
+
+  it('el movimiento que no puede llega al motor (`docs/research/58`), y lo nulo se omite', () => {
+    const [c] = paraElMotor([detalle]);
+    expect(c?.movement).toBe('floor');
+    expect(c && 'occurredOn' in c).toBe(false);
+    const [sin] = paraElMotor([{ ...detalle, type: 'pain', bodyRegion: 'knee', movement: null }]);
+    expect(sin && 'movement' in sin).toBe(false);
+  });
+});
+
+describe('movimientosNuevos', () => {
+  it('no vuelve a mandar lo vigente ni repite: la base lo rechazaría', () => {
+    expect(movimientosNuevos(['floor', 'overhead', 'floor'], ['overhead', null])).toEqual([
+      'floor',
+    ]);
+    expect(movimientosNuevos(['jumping'], [])).toEqual(['jumping']);
   });
 });

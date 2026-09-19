@@ -1798,6 +1798,15 @@
       "avoidExplosive": true,
       "confidence": "low"
     },
+    "movementLimits": {
+      "substitutionText": "Como anotaste que no podés {movement}, en {session} cambiamos el trabajo de {pattern} por otros ejercicios que mueven los mismos músculos. El día queda igual de completo.",
+      "emptyText": "En {session} no quedó ningún ejercicio de {pattern}: los que hay piden {movement}, y anotaste que no podés. Es lo esperable y no hace falta que hagas nada.",
+      "noExplosiveNote": "Este plan no trae saltos ni lanzamientos: los que hay en el gimnasio piden {movement}, y anotaste que no podés. Se entrena con series cortas y rápidas sobre los ejercicios de siempre.",
+      "notes": {
+        "floor": "Anotaste que no podés bajar al piso y levantarte, así que el plan no trae nada en el piso. Levantarse del piso se vuelve a aprender practicándolo paso por paso: pedile a un instructor que lo practique con vos."
+      },
+      "confidence": "low"
+    },
     "inSessionPain": {
       "limitsMovementFrom": 4,
       "text": "Anotado. Podés cambiar este ejercicio por otra forma de hacerlo, saltearlo y seguir con el resto, o hacerlo igual si te banca. Lo tenemos en cuenta para el próximo plan.",

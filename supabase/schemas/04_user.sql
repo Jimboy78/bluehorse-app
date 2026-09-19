@@ -37,16 +37,27 @@ create table user_constraints (
   -- El mes en que pasó (día 1): la operación (56) y el esguince (57). Obligatorio
   -- para esos dos tipos y vacío para los demás.
   occurred_on date,
+  -- El movimiento que no puede hacer (docs/research/58). Solo para
+  -- `type = 'avoid_movement'`, y ahí obligatorio.
+  movement movement_limit,
   constraint user_constraints_surgery_fields check (
     (type = 'surgery') = (rehab_done is not null)
   ),
   constraint user_constraints_occurred_on check (
     (type in ('surgery', 'sprain')) = (occurred_on is not null)
+  ),
+  constraint user_constraints_movement check (
+    (type = 'avoid_movement') = (movement is not null)
   )
 );
 
 create index user_constraints_active_idx on user_constraints (user_id)
   where active_to is null;
+
+-- Un movimiento se declara una vez: marcar el mismo chip dos veces no es otra
+-- restricción.
+create unique index user_constraints_movement_idx on user_constraints (user_id, movement)
+  where type = 'avoid_movement' and active_to is null;
 
 -- Condiciones de salud marcadas detrás de la puerta de salud (docs/research/43).
 -- No deciden si puede entrenar (eso es health_screenings): deciden cómo. Una

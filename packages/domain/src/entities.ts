@@ -6,6 +6,7 @@ import type {
   Goal,
   LoadUnit,
   Modality,
+  MovementLimit,
   MovementPattern,
   MuscleGroup,
   ProposalStatus,
@@ -72,6 +73,11 @@ export interface Exercise {
    * retinopatía se evita — ver `docs/research/47`.
    */
   readonly headBelowHeart: boolean;
+  /**
+   * Los movimientos que el ejercicio exige. Quien declaró que no puede uno no
+   * lo recibe — ver `docs/research/58`.
+   */
+  readonly requiresMovements: readonly MovementLimit[];
   readonly skillLevel: ExperienceLevel;
   /** Indicaciones de ejecución, en castellano. */
   readonly cues: string | null;
@@ -124,7 +130,8 @@ export interface UserConstraint {
    * que se trata como dolor crónico porque la carga es su tratamiento
    * (`docs/research/55`). `surgery`, una operación: lleva el mes en que fue y
    * si ya terminó la rehabilitación (`docs/research/56`). `sprain`, un esguince:
-   * lleva el mes en que fue (`docs/research/57`).
+   * lleva el mes en que fue (`docs/research/57`). `avoid_movement`, un
+   * movimiento que no puede hacer: lleva cuál (`docs/research/58`).
    */
   readonly type:
     | 'injury'
@@ -133,7 +140,8 @@ export interface UserConstraint {
     | 'surgery'
     | 'sprain'
     | 'avoid_exercise'
-    | 'avoid_equipment';
+    | 'avoid_equipment'
+    | 'avoid_movement';
   readonly bodyRegion: BodyRegion | null;
   readonly exerciseId: Id | null;
   readonly equipmentId: Id | null;
@@ -143,6 +151,8 @@ export interface UserConstraint {
   readonly occurredOn?: string;
   /** Solo en una operación: si ya le dieron el alta de la rehabilitación. */
   readonly rehabDone?: boolean;
+  /** Solo en `avoid_movement`: cuál. */
+  readonly movement?: MovementLimit;
 }
 
 /**

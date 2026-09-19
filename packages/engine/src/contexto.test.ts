@@ -1,5 +1,5 @@
-import type { Exercise, UserConstraint } from '@bh/domain';
-import { HEALTH_CONDITIONS } from '@bh/domain';
+import type { Exercise, MovementLimit, UserConstraint } from '@bh/domain';
+import { HEALTH_CONDITIONS, MOVEMENT_LIMITS } from '@bh/domain';
 import { describe, expect, it } from 'vitest';
 import { excluido, ocultaElPulso, ordenarAvisos, resolverContexto } from './contexto.ts';
 import type { GeneratePlanInput, GymSnapshot, UserSnapshot } from './contract.ts';
@@ -22,6 +22,7 @@ function ex(id: string, over: Partial<Exercise> = {}): Exercise {
     isExplosive: false,
     loadsSpinalFlexion: false,
     headBelowHeart: false,
+    requiresMovements: [],
     skillLevel: 'beginner',
     cues: null,
     equipmentIds: [],
@@ -849,6 +850,223 @@ describe('resolverContexto', () => {
       // Sin esguince, el mayor no pide unilaterales.
       const sinEsguince = deEquilibrio(resolverContexto(input({ edad: balance.fromAge + 10 })));
       expect(sinEsguince[0]?.unilateralesPrimero).toBe(0);
+    });
+  });
+
+  describe('movimientos que no puede (`docs/research/58`)', () => {
+    const cfg = V1_RESEARCH.safety?.movementLimits;
+    const noPuede = (movement: MovementLimit): UserConstraint => ({
+      type: 'avoid_movement',
+      bodyRegion: null,
+      exerciseId: null,
+      equipmentId: null,
+      severity: 5,
+      movement,
+    });
+    const deMovimiento = (ctx: ReturnType<typeof resolverContexto>) =>
+      ctx.avisos.filter((a) => a.modulo === 'movimiento').map((a) => a.texto);
+
+    it('cada movimiento saca lo que lo pide y nada más, desde la restricción', () => {
+      for (const m of MOVEMENT_LIMITS) {
+        const ctx = resolverContexto(input({ constraints: [noPuede(m)] }));
+        const restriccion = ctx.exclusiones.find((e) => e.modulo === 'restriccion');
+        for (const otro of MOVEMENT_LIMITS) {
+          const pide = ex(`pide-${otro}`, { requiresMovements: [otro] });
+          expect(excluido(ctx, pide), `${m} contra ${otro}`).toBe(otro === m);
+          expect(restriccion?.excluye(pide), `${m} contra ${otro}`).toBe(otro === m);
+        }
+        // Uno que pide dos movimientos sale con cualquiera de los dos.
+        expect(excluido(ctx, ex('dos', { requiresMovements: ['overhead', m] }))).toBe(true);
+        expect(excluido(ctx, sentadilla)).toBe(false);
+      }
+    });
+
+    it('no es una molestia: no saca saltos sueltos, ni el par, ni suma avisos de dolor', () => {
+      const sano = resolverContexto(input({ sport: 'futbol', edad: 25 }));
+      for (const m of MOVEMENT_LIMITS) {
+        const ctx = resolverContexto(
+          input({ sport: 'futbol', edad: 25, constraints: [noPuede(m)] }),
+        );
+        expect(ctx.explosivos).toEqual(sano.explosivos);
+        expect(ctx.bloques).toEqual(sano.bloques);
+        expect(ctx.painRules).toEqual([]);
+        expect(ctx.avisos.filter((a) => a.modulo === 'molestia')).toEqual([]);
+        // Un explosivo que no pide el movimiento sigue entrando.
+        expect(excluido(ctx, ex('lanzamiento', { isExplosive: true }))).toBe(false);
+      }
+    });
+
+    it('el aviso del piso sale solo con el piso, y una sola vez aunque esté dos veces', () => {
+      const nota = cfg?.notes.floor;
+      if (!nota) throw new Error('sin aviso de piso');
+      const piso = resolverContexto(input({ constraints: [noPuede('floor'), noPuede('floor')] }));
+      expect(deMovimiento(piso)).toEqual([nota]);
+      for (const m of MOVEMENT_LIMITS.filter((x) => x !== 'floor')) {
+        expect(deMovimiento(resolverContexto(input({ constraints: [noPuede(m)] })))).toEqual([]);
+      }
+    });
+
+    it('una fila sin movimiento no saca nada', () => {
+      const { movement: _, ...sinMovimiento } = noPuede('overhead');
+      const ctx = resolverContexto(input({ constraints: [sinMovimiento] }));
+      expect(excluido(ctx, ex('press', { requiresMovements: ['overhead'] }))).toBe(false);
+    });
+
+    describe('en el plan', () => {
+      const pressMaquina = ex('press-maquina', {
+        pattern: 'vertical_push',
+        primaryMuscles: ['front_delts'],
+        requiresMovements: ['overhead'],
+      });
+      const pressMancuernas = ex('press-mancuernas', {
+        pattern: 'vertical_push',
+        primaryMuscles: ['front_delts', 'side_delts'],
+        requiresMovements: ['overhead'],
+      });
+      const laterales = ex('laterales', {
+        pattern: 'isolation',
+        primaryMuscles: ['front_delts', 'side_delts'],
+        isCompound: false,
+      });
+      const dorsalera = ex('dorsalera', {
+        pattern: 'vertical_pull',
+        primaryMuscles: ['lats'],
+        requiresMovements: ['overhead'],
+      });
+      const dominadas = ex('dominadas', {
+        pattern: 'vertical_pull',
+        primaryMuscles: ['lats'],
+        requiresMovements: ['overhead', 'hanging'],
+      });
+      const remoDorsal = ex('remo-dorsal', {
+        pattern: 'horizontal_pull',
+        primaryMuscles: ['lats'],
+      });
+      const conHombro: GymSnapshot = {
+        ...gym,
+        exercises: [
+          ...gym.exercises,
+          pressMaquina,
+          pressMancuernas,
+          laterales,
+          dorsalera,
+          dominadas,
+          remoDorsal,
+        ],
+      };
+      const plan = (constraints: UserConstraint[]) =>
+        createPlaceholderEngine().generatePlan({ ...input({ constraints }), gym: conHombro });
+      const ids = (p: ReturnType<typeof plan>) =>
+        new Set(p.sessions.flatMap((s) => s.items.map((i) => i.exerciseId)));
+
+      it('sin brazos arriba se van el empuje y el tirón verticales, y el aviso dice por qué', () => {
+        const texto = cfg?.substitutionText;
+        if (!texto) throw new Error('sin texto de sustitución');
+        const sano = plan([]);
+        expect(ids(sano).has(pressMaquina.id) || ids(sano).has(pressMancuernas.id)).toBe(true);
+
+        const p = plan([noPuede('overhead')]);
+        for (const e of [pressMaquina, pressMancuernas, dorsalera, dominadas]) {
+          expect(ids(p).has(e.id), e.id).toBe(false);
+        }
+        const [antes] = texto
+          .replace('{movement}', 'llevar los brazos arriba de la cabeza')
+          .split('{session}');
+        if (!antes) throw new Error('el texto no lleva {session}');
+        // Uno por patrón: el empuje en la sesión A y el tirón en la B.
+        expect(p.warnings.filter((w) => w.startsWith(antes))).toHaveLength(2);
+        // Y el día no queda corto: el complemento ocupa el lugar.
+        expect(ids(p).has(laterales.id)).toBe(true);
+        expect(ids(p).has(remoDorsal.id)).toBe(true);
+      });
+
+      it('sin colgarse queda la dorsalera: no hay patrón vacío ni aviso', () => {
+        const p = plan([noPuede('hanging')]);
+        expect(ids(p).has(dominadas.id)).toBe(false);
+        expect(ids(p).has(dorsalera.id)).toBe(true);
+        expect(p.warnings.some((w) => w.includes('no podés colgarte'))).toBe(false);
+      });
+
+      it('sin nada con qué sustituir, el aviso igual nombra el movimiento', () => {
+        const texto = cfg?.emptyText;
+        if (!texto) throw new Error('sin texto de patrón vacío');
+        const sinLaterales = {
+          ...conHombro,
+          exercises: conHombro.exercises.filter((e) => e.id !== laterales.id),
+        };
+        const p = createPlaceholderEngine().generatePlan({
+          ...input({ constraints: [noPuede('overhead')] }),
+          gym: sinLaterales,
+        });
+        const esperado = texto
+          .replace('{movement}', 'llevar los brazos arriba de la cabeza')
+          .replace('{session}', 'Sesión A')
+          .replace('{pattern}', 'empuje vertical');
+        expect(p.warnings).toContain(esperado);
+      });
+
+      it('"cambiar ejercicio" tampoco ofrece lo que pide el movimiento', () => {
+        const opciones = (constraints: UserConstraint[]) =>
+          createPlaceholderEngine()
+            .findSubstitutes({
+              context: { now: '2026-09-10T12:00:00.000Z', seed: 1 },
+              item: { exerciseId: dorsalera.id, equipmentId: null },
+              gym: conHombro,
+              constraints,
+              unavailableEquipmentIds: [],
+              ruleset: V1_RESEARCH,
+            })
+            .map((o) => o.exerciseId);
+        expect(opciones([])).toContain(dominadas.id);
+        expect(opciones([noPuede('hanging')])).not.toContain(dominadas.id);
+      });
+    });
+
+    describe('potencia', () => {
+      const nota = cfg?.noExplosiveNote ?? '';
+      const salto = ex('salto', { isExplosive: true, requiresMovements: ['jumping'] });
+      const lanzamiento = ex('lanzamiento', {
+        pattern: 'horizontal_push',
+        primaryMuscles: ['chest'],
+        isExplosive: true,
+      });
+      const avisos = (exercises: Exercise[], edad: number, constraints: UserConstraint[]) =>
+        createPlaceholderEngine().generatePlan({
+          ...input({ goal: 'power', edad, constraints }),
+          gym: { ...gym, exercises: [...gym.exercises, ...exercises] },
+        }).warnings;
+      const porMovimiento = nota.replace('{movement}', 'saltar');
+      const generico = (w: readonly string[]) =>
+        w.some((x) => x.startsWith('Este plan no trae saltos') && x !== porMovimiento);
+
+      it('si todo lo explosivo pide saltar, el aviso lo dice en vez de culpar a una molestia', () => {
+        const w = avisos([salto], 25, [noPuede('jumping')]);
+        expect(w).toContain(porMovimiento);
+        expect(generico(w)).toBe(false);
+      });
+
+      it('si queda un lanzamiento, el par lo usa y no hay aviso', () => {
+        const w = avisos([salto, lanzamiento], 25, [noPuede('jumping')]);
+        expect(w).not.toContain(porMovimiento);
+        expect(generico(w)).toBe(false);
+      });
+
+      it('si lo que sacó lo explosivo fue la edad, el aviso no culpa al movimiento', () => {
+        const w = avisos([salto, lanzamiento], 85, [noPuede('jumping')]);
+        expect(w).not.toContain(porMovimiento);
+        expect(generico(w)).toBe(true);
+      });
+
+      it('con una molestia, la razón es la molestia', () => {
+        const leve: UserConstraint = { ...lesionRodilla, type: 'pain', severity: 1 };
+        const i = input({ goal: 'power', constraints: [noPuede('jumping'), leve] });
+        const sinMolestia = input({ goal: 'power', constraints: [noPuede('jumping')] });
+        const conSalto = { ...gym, exercises: [...gym.exercises, salto] };
+        expect(resolverContexto({ ...sinMolestia, gym: conSalto }).explosivosPorMovimiento).toEqual(
+          ['jumping'],
+        );
+        expect(resolverContexto({ ...i, gym: conSalto }).explosivosPorMovimiento).toEqual([]);
+      });
     });
   });
 

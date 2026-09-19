@@ -1,4 +1,4 @@
-import type { Sex } from '@bh/domain';
+import { MOVEMENT_LIMITS, type Sex } from '@bh/domain';
 import {
   Activity,
   AlertCircle,
@@ -32,6 +32,7 @@ import { AppShell } from '../components/AppShell.tsx';
 import { BodyMetricsForm } from '../components/BodyMetricsForm.tsx';
 import { CondicionesDeSalud } from '../components/CondicionesDeSalud.tsx';
 import { LesionesDeclaradas } from '../components/LesionesDeclaradas.tsx';
+import { MovimientosQueNoPuede } from '../components/MovimientosQueNoPuede.tsx';
 import { ProfileForm } from '../components/ProfileForm.tsx';
 import {
   Button,
@@ -56,6 +57,7 @@ import {
   deporteLabel,
   EXPERIENCE_LABELS,
   GOAL_LABELS,
+  MOVEMENT_LIMIT_LABELS,
   SEX_LABELS,
 } from '../lib/labels.ts';
 import { breathing, fadeUp, listContainer, listItem, spring, tappable } from '../lib/motion.ts';
@@ -768,7 +770,7 @@ function ConstraintsSection() {
   return (
     <section className="flex flex-col gap-2.5">
       <SectionLabel icon={<Ban size={13} aria-hidden="true" />}>
-        Molestias y ejercicios descartados
+        Molestias, movimientos y ejercicios descartados
       </SectionLabel>
 
       {constraints.isPending && (
@@ -825,6 +827,8 @@ function ConstraintsSection() {
         </Button>
       )}
 
+      {constraints.data && <AgregarMovimiento constraints={constraints.data} />}
+
       <ConfirmDialog
         open={asking !== null}
         icon={<Trash2 size={18} aria-hidden="true" />}
@@ -835,11 +839,52 @@ function ConstraintsSection() {
         onCancel={() => setAsking(null)}
         onConfirm={() => void handleClear()}
       >
-        El motor va a volver a considerar
-        {asking?.targetName ? ` ${asking.targetName}` : ' esta zona'} en tus próximos planes.
+        El motor va a volver a considerar {queVuelve(asking)} en tus próximos planes.
       </ConfirmDialog>
     </section>
   );
+}
+
+/** Qué vuelve a entrar al plan si se da de baja la restricción. */
+function queVuelve(c: ConstraintDetail | null): string {
+  if (c?.targetName) return c.targetName;
+  if (c?.movement) return 'los ejercicios que piden ese movimiento';
+  return 'esta zona';
+}
+
+/**
+ * Sumar un movimiento que no puede (`docs/research/58`). Solo ofrece los que no
+ * están anotados, y desaparece cuando ya están los cuatro.
+ */
+function AgregarMovimiento({ constraints }: { readonly constraints: readonly ConstraintDetail[] }) {
+  const [abierto, setAbierto] = useState(false);
+  const yaDeclarados = constraints.flatMap((c) => (c.movement ? [c.movement] : []));
+  if (yaDeclarados.length === MOVEMENT_LIMITS.length) return null;
+
+  return abierto ? (
+    <Card tone="nested" className="px-4 py-3.5">
+      <MovimientosQueNoPuede
+        conPuerta={false}
+        yaDeclarados={yaDeclarados}
+        textoBoton="Guardar"
+        onGuardado={() => setAbierto(false)}
+      />
+    </Card>
+  ) : (
+    <Button variant="ghost" onClick={() => setAbierto(true)}>
+      <Plus className="size-4" aria-hidden="true" />
+      Agregar un movimiento que no puedo hacer
+    </Button>
+  );
+}
+
+/** El título de la fila: la zona, el movimiento o lo descartado. */
+function tituloDeRestriccion(c: ConstraintDetail, conZona: boolean): string {
+  if (c.movement) return MOVEMENT_LIMIT_LABELS[c.movement];
+  if (conZona && c.bodyRegion) {
+    return BODY_REGION_LABELS[c.bodyRegion as keyof typeof BODY_REGION_LABELS];
+  }
+  return c.targetName ?? CONSTRAINT_TYPE_LABELS[c.type];
 }
 
 function ConstraintRow({
@@ -868,9 +913,7 @@ function ConstraintRow({
       </span>
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <p className="text-sm font-semibold text-ink">
-          {(isPain || conMes) && constraint.bodyRegion
-            ? BODY_REGION_LABELS[constraint.bodyRegion as keyof typeof BODY_REGION_LABELS]
-            : (constraint.targetName ?? CONSTRAINT_TYPE_LABELS[constraint.type])}
+          {tituloDeRestriccion(constraint, isPain || conMes)}
         </p>
         <p className="text-xs text-slate">
           {CONSTRAINT_TYPE_LABELS[constraint.type]}
