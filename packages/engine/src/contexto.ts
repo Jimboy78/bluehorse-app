@@ -224,29 +224,7 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
       : salud.impacto === 'add'
         ? (ruleset.impact ?? null)
         : porEdad;
-  // Van al final de la sesión en este orden: el impacto antes que el
-  // equilibrio, que cierra (Otago hace el equilibrio después de la fuerza).
-  const bloques: BloqueDeContexto[] = [];
-  if (impacto)
-    bloques.push({ ...impacto, modulo: 'impacto', pattern: 'impact', unilateralesPrimero: 0 });
-  // Con un esguince reciente, el equilibrio en un pie. Si ya entra el bloque de
-  // los mayores no se suma otro: ese elige primero los unilaterales.
-  const unilaterales = esguince?.cfg.exercisesPerSession ?? 0;
-  if (equilibrio) {
-    bloques.push({
-      ...equilibrio,
-      modulo: 'equilibrio',
-      pattern: 'balance',
-      unilateralesPrimero: unilaterales,
-    });
-  } else if (esguince) {
-    bloques.push({
-      ...esguince.cfg,
-      modulo: 'equilibrio',
-      pattern: 'balance',
-      unilateralesPrimero: unilaterales,
-    });
-  }
+  const bloques = bloquesDeContexto(impacto, equilibrio, esguince?.cfg ?? null);
 
   return {
     goal,
@@ -469,6 +447,34 @@ function balanceBlock(ruleset: Ruleset, profile: Profile, now: string): BalanceC
   if (!cfg || !profile.birthDate) return null;
   const age = ageAt(profile.birthDate, now);
   return age !== null && age >= cfg.fromAge ? cfg : null;
+}
+
+/**
+ * Los bloques que van al final de la sesión, en este orden: el impacto antes
+ * que el equilibrio, que cierra (Otago hace el equilibrio después de la
+ * fuerza). Con un esguince reciente, el equilibrio en un pie; si ya entra el
+ * bloque de los mayores no se suma otro: ese elige primero los unilaterales
+ * (`docs/research/57`).
+ */
+function bloquesDeContexto(
+  impacto: ImpactConfig | null,
+  equilibrio: BalanceConfig | null,
+  esguince: SprainConfig | null,
+): BloqueDeContexto[] {
+  const bloques: BloqueDeContexto[] = [];
+  if (impacto) {
+    bloques.push({ ...impacto, modulo: 'impacto', pattern: 'impact', unilateralesPrimero: 0 });
+  }
+  const deEquilibrio = equilibrio ?? esguince;
+  if (deEquilibrio) {
+    bloques.push({
+      ...deEquilibrio,
+      modulo: 'equilibrio',
+      pattern: 'balance',
+      unilateralesPrimero: esguince?.exercisesPerSession ?? 0,
+    });
+  }
+  return bloques;
 }
 
 type SprainConfig = NonNullable<Ruleset['sprain']>;
