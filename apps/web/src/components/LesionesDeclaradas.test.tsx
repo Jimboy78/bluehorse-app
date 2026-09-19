@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { MotionGlobalConfig } from 'motion/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MolestiaDeclarada } from '../lib/profile.ts';
-import { conBorrador, LesionesDeclaradas } from './LesionesDeclaradas.tsx';
+import { armarBorrador, conBorrador, LesionesDeclaradas } from './LesionesDeclaradas.tsx';
 
 /**
  * LA PUERTA DE LESIONES
@@ -87,6 +87,53 @@ describe('LesionesDeclaradas', () => {
         { region: 'ankle', type: 'pain', severity: 2 },
       ]),
     );
+  });
+
+  it('una operación pide el mes y la rehabilitación, no la intensidad', async () => {
+    const { container } = render(<LesionesDeclaradas conPuerta textoBoton="Seguir" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Sí' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Rodilla' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Una operación' }));
+    expect(screen.queryByText('¿Cuánto?')).toBeNull();
+    expect(seguir()).toHaveProperty('disabled', true);
+
+    const mes = container.querySelector('input[type="month"]');
+    if (!mes) throw new Error('sin campo de mes');
+    fireEvent.change(mes, { target: { value: '2026-03' } });
+    // Sin decir si terminó la rehabilitación no está completo.
+    expect(seguir()).toHaveProperty('disabled', true);
+    fireEvent.click(screen.getByRole('button', { name: 'Todavía no' }));
+    fireEvent.click(seguir());
+    await waitFor(() =>
+      expect(declarar).toHaveBeenCalledWith([
+        {
+          region: 'knee',
+          type: 'surgery',
+          severity: 1,
+          surgeryMonth: '2026-03',
+          rehabDone: false,
+        },
+      ]),
+    );
+  });
+
+  it('armarBorrador: una operación sin mes válido no está completa', () => {
+    const base = {
+      region: 'knee' as const,
+      tipo: 'surgery' as const,
+      severity: null,
+      rehabDone: true,
+      escalonMinimo: 1,
+    };
+    expect(armarBorrador({ ...base, mes: '' })).toBeNull();
+    expect(armarBorrador({ ...base, mes: '2026-3' })).toBeNull();
+    expect(armarBorrador({ ...base, mes: '2026-03' })).toEqual({
+      region: 'knee',
+      type: 'surgery',
+      severity: 1,
+      surgeryMonth: '2026-03',
+      rehabDone: true,
+    });
   });
 
   it('conBorrador: una por zona y tipo', () => {

@@ -432,6 +432,24 @@ const safetySchema = z.object({
       confidence: z.enum(CONFIDENCE_LEVELS),
     })
     .optional(),
+  /**
+   * Una operación declarada (`docs/research/56`). Mientras dura la
+   * rehabilitación, la zona cuenta como la lesión más fuerte de la escala: la
+   * maneja el kinesiólogo y el plan entrena el resto. Con el alta deja de
+   * contar como molestia. Aparte, en las zonas de `jumpFree`, los saltos y el
+   * impacto quedan afuera hasta `months` meses desde la operación.
+   */
+  postSurgery: z
+    .object({
+      inRehabNote: z.string().min(1).includes('{region}'),
+      jumpFree: z.object({
+        regions: z.array(z.enum(BODY_REGIONS)).min(1),
+        months: z.number().int().positive(),
+        note: z.string().min(1),
+      }),
+      confidence: z.enum(CONFIDENCE_LEVELS),
+    })
+    .optional(),
   /** Situaciones que requieren autorización médica antes de entrenar. */
   specialPopulations: z
     .array(

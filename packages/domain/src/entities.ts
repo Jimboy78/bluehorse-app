@@ -122,14 +122,25 @@ export interface UserConstraint {
    * `pain` es un dolor que viene arrastrando; `injury`, una lesión reciente, que
    * el motor trata del lado prudente; `tendinopathy`, un tendón diagnosticado,
    * que se trata como dolor crónico porque la carga es su tratamiento
-   * (`docs/research/55`).
+   * (`docs/research/55`). `surgery`, una operación: lleva el mes en que fue y
+   * si ya terminó la rehabilitación (`docs/research/56`).
    */
-  readonly type: 'injury' | 'pain' | 'tendinopathy' | 'avoid_exercise' | 'avoid_equipment';
+  readonly type:
+    | 'injury'
+    | 'pain'
+    | 'tendinopathy'
+    | 'surgery'
+    | 'avoid_exercise'
+    | 'avoid_equipment';
   readonly bodyRegion: BodyRegion | null;
   readonly exerciseId: Id | null;
   readonly equipmentId: Id | null;
   /** 1 = molestia leve, 5 = no puede. */
   readonly severity: number;
+  /** Solo en una operación: el mes en que fue, como fecha ISO del día 1. */
+  readonly surgeryOn?: string;
+  /** Solo en una operación: si ya le dieron el alta de la rehabilitación. */
+  readonly rehabDone?: boolean;
 }
 
 /**

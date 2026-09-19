@@ -84,6 +84,7 @@ const TEMAS = {
   53: 'Artrosis y prótesis',
   54: 'Hernia de disco y columna',
   55: 'Tendinopatía y puerta de lesiones',
+  56: 'Operación y hace cuánto',
 };
 
 // El `]` y el `(` cierran un enlace de markdown: sin ellos, un DOI escrito como

@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-19T04:48:55.630Z",
+ "generatedAt": "2026-09-19T05:12:50.966Z",
  "docs": [
   {
    "id": "metodo",
@@ -448,6 +448,14 @@
    "resumen": "Fecha: 19/09/2026. Tanda: T3g del plan de variables. Empezó como \"tendinopatía\" (pedir en el checklist) y terminó siendo la puerta de lesiones entera, por lo que se encontró al buscar dónde se declaraba.",
    "archivo": "55-tendinopatia-y-puerta-de-lesiones.md",
    "bloques": 18
+  },
+  {
+   "id": "56-operacion-y-hace-cuanto",
+   "orden": 56,
+   "titulo": "Operación y hace cuánto",
+   "resumen": "Fecha: 19/09/2026. Tanda: T3h del plan de variables. En el checklist es pedir: \"operación y hace cuánto\".",
+   "archivo": "56-operacion-y-hace-cuanto.md",
+   "bloques": 19
   },
   {
    "id": "auditoria",

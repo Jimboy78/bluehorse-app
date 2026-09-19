@@ -1038,7 +1038,9 @@ export type Database = {
           exercise_id: string | null
           id: string
           note: string | null
+          rehab_done: boolean | null
           severity: number
+          surgery_on: string | null
           type: Database["public"]["Enums"]["constraint_type"]
           user_id: string
         }
@@ -1050,7 +1052,9 @@ export type Database = {
           exercise_id?: string | null
           id?: string
           note?: string | null
+          rehab_done?: boolean | null
           severity?: number
+          surgery_on?: string | null
           type: Database["public"]["Enums"]["constraint_type"]
           user_id: string
         }
@@ -1062,7 +1066,9 @@ export type Database = {
           exercise_id?: string | null
           id?: string
           note?: string | null
+          rehab_done?: boolean | null
           severity?: number
+          surgery_on?: string | null
           type?: Database["public"]["Enums"]["constraint_type"]
           user_id?: string
         }
@@ -1306,6 +1312,7 @@ export type Database = {
         | "avoid_exercise"
         | "avoid_equipment"
         | "tendinopathy"
+        | "surgery"
       equipment_category:
         | "selectorized"
         | "plate_loaded"
@@ -1547,6 +1554,7 @@ export const Constants = {
         "avoid_exercise",
         "avoid_equipment",
         "tendinopathy",
+        "surgery",
       ],
       equipment_category: [
         "selectorized",

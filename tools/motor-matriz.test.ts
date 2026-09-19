@@ -594,6 +594,47 @@ const PERFILES: readonly Perfil[] = [
     minutos: 60,
     condiciones: ['osteoarthritis', 'joint_replacement'],
   },
+  // Operación de rodilla (`docs/research/56`): en rehabilitación la zona queda
+  // afuera entera; con el alta y antes de los nueve meses, sin saltos ni impacto.
+  {
+    nombre: 'rodilla operada, en rehabilitación · fuerza intermedio',
+    goal: 'strength',
+    nivel: 'intermediate',
+    nacimiento: '1998-05-01',
+    sesiones: 3,
+    minutos: 60,
+    limitaciones: [
+      {
+        type: 'surgery',
+        bodyRegion: 'knee',
+        exerciseId: null,
+        equipmentId: null,
+        severity: 1,
+        surgeryOn: '2026-07-01',
+        rehabDone: false,
+      },
+    ],
+  },
+  {
+    nombre: 'rodilla operada hace cinco meses, con el alta · potencia avanzado',
+    goal: 'power',
+    nivel: 'advanced',
+    nacimiento: '2003-05-01',
+    sesiones: 3,
+    minutos: 60,
+    deporte: 'futbol',
+    limitaciones: [
+      {
+        type: 'surgery',
+        bodyRegion: 'knee',
+        exerciseId: null,
+        equipmentId: null,
+        severity: 1,
+        surgeryOn: '2026-04-01',
+        rehabDone: true,
+      },
+    ],
+  },
   // Adolescentes (`docs/research/41`): el que recién empieza recibe la dosis de
   // inicio; el que ya entrena, la del adulto.
   {
@@ -1214,8 +1255,10 @@ describe('el aviso de potencia sin explosivos', () => {
         s.items.some((i) => explosivosDelGimnasio.includes(i.ejercicio)),
       );
       // Avisa solo el que no recibió ninguno (molestia, edad, nivel). Si los
-      // sacó una condición de salud, el aviso es el de la condición.
-      expect(avisaDeExplosivos(perfil)).toBe(!conExplosivo && !sinSaltosPorSalud(perfil));
+      // sacó una condición de salud o una operación, el aviso es el de ellas.
+      expect(avisaDeExplosivos(perfil)).toBe(
+        !conExplosivo && !sinSaltosPorSalud(perfil) && !sinSaltosPorOperacion(perfil),
+      );
     }
   });
 
@@ -1230,6 +1273,18 @@ describe('el aviso de potencia sin explosivos', () => {
       expect(avisaDeExplosivos(perfil)).toBe(false);
       for (const nota of notas) expect(avisos).toContain(nota);
     }
+  });
+
+  /** El aviso de la operación ya dice que no hay saltos (`docs/research/56`). */
+  function sinSaltosPorOperacion(p: Perfil): boolean {
+    const nota = V1_RESEARCH.safety?.postSurgery?.jumpFree.note;
+    return nota !== undefined && planDe(p, V1_RESEARCH).warnings.includes(nota);
+  }
+
+  it('con una operación de rodilla reciente, el aviso de potencia no aparece', () => {
+    const operados = PERFILES.filter((p) => p.goal === 'power' && sinSaltosPorOperacion(p));
+    expect(operados.length).toBeGreaterThan(0);
+    for (const perfil of operados) expect(avisaDeExplosivos(perfil)).toBe(false);
   });
 
   function sinSaltosPorSalud(p: Perfil): boolean {

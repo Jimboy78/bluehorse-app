@@ -14,7 +14,36 @@ const TIPOS: readonly { id: MolestiaDeclarada['type']; texto: string }[] = [
   { id: 'pain', texto: 'Un dolor que vengo arrastrando' },
   { id: 'injury', texto: 'Una lesión reciente' },
   { id: 'tendinopathy', texto: 'Una tendinitis o tendinopatía' },
+  { id: 'surgery', texto: 'Una operación' },
 ];
+
+/**
+ * El borrador completo, o `null` si falta algo. Una operación no pide
+ * intensidad: pide el mes y si terminó la rehabilitación, y va con el escalón
+ * más bajo de la escala. Si además duele, eso se carga aparte como dolor
+ * (`docs/research/56`).
+ */
+export function armarBorrador(d: {
+  readonly region: BodyRegion | null;
+  readonly tipo: MolestiaDeclarada['type'] | null;
+  readonly severity: number | null;
+  readonly mes: string;
+  readonly rehabDone: boolean | null;
+  readonly escalonMinimo: number | null;
+}): MolestiaDeclarada | null {
+  if (d.region === null || d.tipo === null) return null;
+  if (d.tipo !== 'surgery') {
+    return d.severity === null ? null : { region: d.region, type: d.tipo, severity: d.severity };
+  }
+  if (!/^\d{4}-\d{2}$/.test(d.mes) || d.rehabDone === null || d.escalonMinimo === null) return null;
+  return {
+    region: d.region,
+    type: 'surgery',
+    severity: d.escalonMinimo,
+    surgeryMonth: d.mes,
+    rehabDone: d.rehabDone,
+  };
+}
 
 /** Una por zona y tipo: volver a agregar la misma cambia la intensidad. */
 export function conBorrador(
@@ -48,9 +77,11 @@ export function LesionesDeclaradas({
   const [region, setRegion] = useState<BodyRegion | null>(null);
   const [tipo, setTipo] = useState<MolestiaDeclarada['type'] | null>(null);
   const [severity, setSeverity] = useState<number | null>(null);
+  const [mes, setMes] = useState('');
+  const [rehabDone, setRehabDone] = useState<boolean | null>(null);
 
-  const borrador: MolestiaDeclarada | null =
-    region !== null && tipo !== null && severity !== null ? { region, type: tipo, severity } : null;
+  const escalonMinimo = escala.length > 0 ? Math.min(...escala.map((e) => e.severity)) : null;
+  const borrador = armarBorrador({ region, tipo, severity, mes, rehabDone, escalonMinimo });
   // Lo que se guarda: lo agregado más el borrador completo, si lo hay. Quien
   // completa zona, tipo e intensidad y aprieta "Seguir" sin "Agregar" no pierde
   // lo que cargó.
@@ -64,6 +95,8 @@ export function LesionesDeclaradas({
     setRegion(null);
     setTipo(null);
     setSeverity(null);
+    setMes('');
+    setRehabDone(null);
   }
 
   async function onGuardar() {
@@ -76,7 +109,7 @@ export function LesionesDeclaradas({
       {conPuerta && (
         <Card>
           <p className="mb-3 text-sm font-medium text-ice">
-            ¿Tenés ahora alguna lesión, dolor o tendinitis?
+            ¿Tenés ahora alguna lesión, dolor, tendinitis o una operación reciente?
           </p>
           <div className="flex gap-2">
             <Chip className="flex-1" selected={puerta === false} onClick={() => setPuerta(false)}>
@@ -124,7 +157,17 @@ export function LesionesDeclaradas({
             </fieldset>
           )}
 
-          {region && tipo && <Intensidad escala={escala} valor={severity} onElegir={setSeverity} />}
+          {region && tipo === 'surgery' && (
+            <DatosDeOperacion
+              mes={mes}
+              onMes={setMes}
+              rehabDone={rehabDone}
+              onRehab={setRehabDone}
+            />
+          )}
+          {region && tipo && tipo !== 'surgery' && (
+            <Intensidad escala={escala} valor={severity} onElegir={setSeverity} />
+          )}
 
           {borrador && (
             <Button variant="ghost" onClick={agregar}>
@@ -215,5 +258,52 @@ function Intensidad({
         ))}
       </div>
     </fieldset>
+  );
+}
+
+/** El mes de la operación y si terminó la rehabilitación. */
+function DatosDeOperacion({
+  mes,
+  onMes,
+  rehabDone,
+  onRehab,
+}: {
+  readonly mes: string;
+  readonly onMes: (v: string) => void;
+  readonly rehabDone: boolean | null;
+  readonly onRehab: (v: boolean) => void;
+}) {
+  // El mes de hoy como tope: una operación no puede ser del futuro. La hora del
+  // sistema se lee acá, en la pantalla, no en el motor.
+  const hoy = new Date();
+  const tope = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
+  return (
+    <div className="flex flex-col gap-4">
+      <label className="flex flex-col gap-2">
+        <span className="font-display text-xs font-semibold uppercase tracking-[0.12em] text-slate">
+          ¿En qué mes fue?
+        </span>
+        <input
+          type="month"
+          value={mes}
+          max={tope}
+          onChange={(e) => onMes(e.target.value)}
+          className="rounded-card border border-line bg-surface px-3.5 py-2.5 text-sm text-ink"
+        />
+      </label>
+      <fieldset className="flex flex-col gap-2">
+        <legend className="mb-1 font-display text-xs font-semibold uppercase tracking-[0.12em] text-slate">
+          ¿Ya terminaste la rehabilitación?
+        </legend>
+        <div className="flex gap-2">
+          <Chip className="flex-1" selected={rehabDone === false} onClick={() => onRehab(false)}>
+            Todavía no
+          </Chip>
+          <Chip className="flex-1" selected={rehabDone === true} onClick={() => onRehab(true)}>
+            Sí, me dieron el alta
+          </Chip>
+        </div>
+      </fieldset>
+    </div>
   );
 }

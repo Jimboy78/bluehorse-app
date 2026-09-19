@@ -58,6 +58,8 @@ const N = Number(process.env.BARRIDO_N ?? 3000);
 const GYM_ID = 'gym';
 const AHORA = '2026-09-10T12:00:00.000Z';
 
+type Operacion = { surgeryOn: string; rehabDone: boolean; sinSaltos: boolean };
+
 /**
  * Las condiciones que sacan saltos, lanzamientos y el bloque de impacto. Escrito
  * a mano y no leído del ruleset: si alguien le borra el flag a una entrada, el
@@ -199,15 +201,29 @@ const DIM = {
       ['upper_back', 3, 'injury'],
       ['knee', 3, 'tendinopathy'],
       ['elbow', 4, 'tendinopathy'],
-    ] as ([BodyRegion, number, UserConstraint['type']] | null)[],
+      // Operaciones (`docs/research/56`). El último campo dice, escrito a mano y
+      // no leído del ruleset, si esa operación deja al socio sin saltos: en
+      // rehabilitación siempre; con el alta, solo la rodilla de hace menos de
+      // nueve meses. Una operación vieja con el alta es un socio sano.
+      ['knee', 1, 'surgery', { surgeryOn: '2026-07-01', rehabDone: false, sinSaltos: true }],
+      ['knee', 1, 'surgery', { surgeryOn: '2026-04-01', rehabDone: true, sinSaltos: true }],
+      ['knee', 1, 'surgery', { surgeryOn: '2025-06-01', rehabDone: true, sinSaltos: false }],
+      ['shoulder', 1, 'surgery', { surgeryOn: '2026-08-01', rehabDone: false, sinSaltos: true }],
+    ] as (
+      | [BodyRegion, number, UserConstraint['type']]
+      | [BodyRegion, number, 'surgery', Operacion]
+      | null
+    )[],
     (b, v) => {
       if (!v) return;
+      const op = v[3];
       b.constraints.push({
         type: v[2],
         bodyRegion: v[0],
         exerciseId: null,
         equipmentId: null,
         severity: v[1],
+        ...(op ? { surgeryOn: op.surgeryOn, rehabDone: op.rehabDone } : {}),
       });
     },
   ),
@@ -249,6 +265,12 @@ const DIM = {
 };
 type Clave = keyof typeof DIM;
 type Perfil = { [K in Clave]: (typeof DIM)[K]['valores'][number] };
+
+/** Toda molestia deja sin saltos; una operación, solo si su último campo lo dice. */
+function sinSaltosPorMolestia(p: Perfil): boolean {
+  if (!p.molestia) return false;
+  return p.molestia[3]?.sinSaltos ?? true;
+}
 
 function rng(seed: number) {
   let s = seed >>> 0;
@@ -349,6 +371,7 @@ describe('barrido de socios generados', () => {
   let conImpacto = 0;
   let conPisoDeRir = 0;
   let conZonaEvitada = 0;
+  let conEnRehab = 0;
 
   /**
    * Desde la edad del ruleset, toda sesión cierra con equilibrio; antes, ninguna
@@ -368,7 +391,7 @@ describe('barrido de socios generados', () => {
     const corresponde =
       !!cfg &&
       (porEdad || p.salud.includes('osteoporosis')) &&
-      p.molestia === null &&
+      !sinSaltosPorMolestia(p) &&
       !p.salud.some((c) => SIN_SALTOS.includes(c));
     if (!corresponde && cuantos > 0) violaciones.push(`impacto sin corresponder: ${id}`);
     if (corresponde) {
@@ -503,7 +526,7 @@ describe('barrido de socios generados', () => {
     if (it.supersetGroup === null || previo?.supersetGroup !== it.supersetGroup) {
       violaciones.push(`${nombre} suelto, sin su levantamiento: ${id}`);
     }
-    if (p.molestia) violaciones.push(`${nombre} con una molestia declarada: ${id}`);
+    if (sinSaltosPorMolestia(p)) violaciones.push(`${nombre} con una molestia declarada: ${id}`);
     const sinSaltos = p.salud.filter((c) => SIN_SALTOS.includes(c));
     if (sinSaltos.length > 0) violaciones.push(`${nombre} con ${sinSaltos.join(', ')}: ${id}`);
     if (explosivo && p.edad > explosivo.maxAge) violaciones.push(`${nombre} a los ${p.edad}`);
@@ -532,6 +555,12 @@ describe('barrido de socios generados', () => {
     chequearAvisos(p, inp, b);
     const evitar = resolverContexto(inp).avoidRules;
     if (evitar.length > 0) conZonaEvitada += 1;
+    // Una operación en rehabilitación deja su zona entera en manos del kinesiólogo.
+    const op = p.molestia?.[3];
+    if (op && !op.rehabDone && !evitar.some((r) => r.bodyRegion === p.molestia?.[0])) {
+      violaciones.push(`zona en rehabilitación sin evitar: ${JSON.stringify(p)}`);
+    }
+    if (op && !op.rehabDone) conEnRehab += 1;
     for (const s of b.sessions) {
       if (s.items.length === 0) violaciones.push(`sesión vacía: ${JSON.stringify(p)}`);
       s.items.forEach((it, i) => {
@@ -567,6 +596,7 @@ describe('barrido de socios generados', () => {
     expect(conImpacto).toBeGreaterThan(N / 10);
     expect(conPisoDeRir).toBeGreaterThan(N);
     expect(conZonaEvitada).toBeGreaterThan(N / 10);
+    expect(conEnRehab).toBeGreaterThan(N / 50);
   });
 
   it('ninguna combinación rompe una invariante', () => {

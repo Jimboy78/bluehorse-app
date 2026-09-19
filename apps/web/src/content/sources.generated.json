@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-19",
-  "resolved": 156,
+  "resolved": 157,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -2237,6 +2237,25 @@
       ],
       "documentos": [
         "47-ojos-epilepsia-respiracion.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2016-096031",
+      "title": "Simple decision rules can reduce reinjury risk by 84% after ACL reconstruction: the Delaware-Oslo ACL cohort study",
+      "authors": [
+        "Grindem",
+        "Snyder-Mackler",
+        "Moksnes"
+      ],
+      "moreAuthors": 2,
+      "year": 2016,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Operación y hace cuánto"
+      ],
+      "documentos": [
+        "56-operacion-y-hace-cuanto.md"
       ]
     },
     {

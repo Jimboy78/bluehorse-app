@@ -105,10 +105,11 @@ export interface ContextoDelSocio {
   /** El bloque explosivo si este socio lo recibe. */
   readonly explosivos: ExplosiveConfig | null;
   /**
-   * Una condición de salud saca lo explosivo (embarazo, pérdidas de orina). Su
-   * aviso ya dice por qué, así que el de potencia no tiene que inventar otro.
+   * Lo explosivo lo sacó algo que ya tiene su propio aviso: una condición de
+   * salud (embarazo, pérdidas de orina) o una operación reciente de rodilla. El
+   * aviso de potencia no tiene que inventar otro motivo.
    */
-  readonly sinExplosivosPorSalud: boolean;
+  readonly sinExplosivosConAviso: boolean;
   /** El bloque de equilibrio si este socio lo recibe. */
   readonly equilibrio: BalanceConfig | null;
   /** Los bloques que se suman al final de cada sesión, en orden. */
@@ -175,6 +176,8 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
   const painRules = activePainRules(ruleset, user.constraints, 'monitor');
   const avoidRules = activePainRules(ruleset, user.constraints, 'avoid');
   decir('molestia', safetyWarnings(ruleset, user.constraints, painRules));
+  const operacion = efectosDeOperaciones(ruleset, user.constraints, context.now);
+  decir('molestia', operacion.avisos);
 
   // Cualquier molestia o lesión declarada, aunque sea leve y no active ninguna
   // regla de dolor: sumar impacto no es lo que se ajusta, es lo que se evita.
@@ -183,7 +186,8 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
   // *prefiere* no explosivos, y con osteoporosis (sin abdominales que flexionen)
   // más una molestia que sacaba la plancha, el único core que quedaba era el
   // lanzamiento rotacional. Medido en el barrido.
-  const conMolestia = user.constraints.some(esMolestia);
+  const conMolestia =
+    comoMolestias(ruleset, user.constraints).some(esMolestia) || operacion.sinSaltos;
   const sinSaltosPorMolestia =
     conMolestia && ruleset.safety?.painSubstitution?.avoidExplosive === true;
 
@@ -234,7 +238,7 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
     painRules,
     avoidRules,
     explosivos,
-    sinExplosivosPorSalud: salud.sinExplosivos,
+    sinExplosivosConAviso: salud.sinExplosivos || operacion.sinSaltos,
     equilibrio,
     bloques,
     exclusiones,
@@ -646,10 +650,11 @@ export function activePainRules(
 ): readonly PainRule[] {
   const rules = ruleset.safety?.painRules;
   if (!rules) return [];
+  const molestias = comoMolestias(ruleset, constraints);
 
   return rules.filter((rule) => {
     const floor = level === 'avoid' ? rule.avoidFrom : rule.monitorFrom;
-    return constraints.some((c) => {
+    return molestias.some((c) => {
       if (!esMolestia(c)) return false;
       if (c.bodyRegion !== rule.bodyRegion) return false;
       // Una lesión no accede al tramo permisivo. Los dos umbrales salen de
@@ -678,7 +683,12 @@ function safetyWarnings(
   const out: string[] = [];
   let hayLesion = false;
 
-  for (const rule of masSeveraPorZona(painRules)) {
+  // Una zona que está solo por una operación en rehabilitación no lleva el
+  // consejo de dolor (que autoriza a cargar hasta 5 sobre 10): lleva el aviso de
+  // rehabilitación, que sale aparte (`efectosDeOperaciones`).
+  const declaradas = new Set(constraints.filter(esMolestia).map((c) => c.bodyRegion));
+  const propias = painRules.filter((r) => declaradas.has(r.bodyRegion));
+  for (const rule of masSeveraPorZona(propias)) {
     const region = regionLabel(rule.bodyRegion);
     const lesion = isInjuryRegion(constraints, rule);
     hayLesion ||= lesion;
@@ -702,7 +712,7 @@ function safetyWarnings(
   const monitoring = ruleset.safety?.painMonitoring;
   const acute = ruleset.safety?.acuteInjury;
   if (hayLesion && acute) out.push(acute.note);
-  else if (painRules.length > 0 && monitoring) out.push(monitoring.text);
+  else if (propias.length > 0 && monitoring) out.push(monitoring.text);
 
   return out;
 }
@@ -771,6 +781,66 @@ function avisosDeTendon(ruleset: Ruleset, constraints: readonly UserConstraint[]
     if (c.type === 'tendinopathy' && c.bodyRegion !== null) zonas.add(c.bodyRegion);
   }
   return [...zonas].map((region) => nota.replace('{region}', regionLabel(region)));
+}
+
+/**
+ * Las restricciones como las lee la parte de dolor del motor. Una operación en
+ * rehabilitación cuenta como la lesión más fuerte de la escala en su zona: esa
+ * zona la maneja el kinesiólogo. Con el alta deja de contar; si le sigue
+ * doliendo, eso se declara como dolor (`docs/research/56`).
+ */
+function comoMolestias(
+  ruleset: Ruleset,
+  constraints: readonly UserConstraint[],
+): readonly UserConstraint[] {
+  const escala = ruleset.safety?.severityScale ?? [];
+  const maxima = Math.max(...escala.map((e) => e.severity));
+  return constraints.flatMap((c) => {
+    if (c.type !== 'surgery') return [c];
+    if (c.rehabDone !== false || escala.length === 0) return [];
+    return [{ ...c, type: 'injury' as const, severity: maxima }];
+  });
+}
+
+/** Meses enteros cumplidos entre dos instantes ISO; `null` si alguno no se lee. */
+function mesesEntre(desde: string, hasta: string): number | null {
+  const a = new Date(Date.parse(desde));
+  const b = new Date(Date.parse(hasta));
+  if (Number.isNaN(a.getTime()) || Number.isNaN(b.getTime())) return null;
+  const meses =
+    (b.getUTCFullYear() - a.getUTCFullYear()) * 12 + (b.getUTCMonth() - a.getUTCMonth());
+  return b.getUTCDate() < a.getUTCDate() ? meses - 1 : meses;
+}
+
+/**
+ * Lo que las operaciones suman aparte de las reglas de dolor: el aviso de
+ * rehabilitación por zona, y sin saltos ni impacto en las zonas de `jumpFree`
+ * hasta los meses del ruleset (Grindem 2016, `docs/research/56`).
+ */
+function efectosDeOperaciones(
+  ruleset: Ruleset,
+  constraints: readonly UserConstraint[],
+  now: string,
+): { readonly sinSaltos: boolean; readonly avisos: readonly string[] } {
+  const reglas = ruleset.safety?.postSurgery;
+  const operaciones = constraints.filter((c) => c.type === 'surgery' && c.bodyRegion !== null);
+  if (!reglas || operaciones.length === 0) return { sinSaltos: false, avisos: [] };
+
+  const avisos: string[] = [];
+  const enRehab = new Set(
+    operaciones.filter((c) => c.rehabDone === false).map((c) => c.bodyRegion),
+  );
+  for (const region of enRehab) {
+    if (region) avisos.push(reglas.inRehabNote.replace('{region}', regionLabel(region)));
+  }
+  const { regions, months, note } = reglas.jumpFree;
+  const sinSaltos = operaciones.some((c) => {
+    if (!c.bodyRegion || !regions.includes(c.bodyRegion) || !c.surgeryOn) return false;
+    const meses = mesesEntre(c.surgeryOn, now);
+    return meses !== null && meses < months;
+  });
+  if (sinSaltos) avisos.push(note);
+  return { sinSaltos, avisos };
 }
 
 /** Si la zona de esta regla es una lesión declarada y no un dolor de arrastre. */

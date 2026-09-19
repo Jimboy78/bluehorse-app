@@ -153,6 +153,9 @@ export interface ConstraintDetail {
    */
   readonly exerciseId: Id | null;
   readonly equipmentId: Id | null;
+  /** Solo en una operación: el mes en que fue y si ya terminó la rehabilitación. */
+  readonly surgeryOn: string | null;
+  readonly rehabDone: boolean | null;
 }
 
 /**
@@ -176,6 +179,8 @@ export function paraElMotor(
     exerciseId: c.exerciseId,
     equipmentId: c.equipmentId,
     severity: c.severity,
+    ...(c.surgeryOn !== null ? { surgeryOn: c.surgeryOn } : {}),
+    ...(c.rehabDone !== null ? { rehabDone: c.rehabDone } : {}),
   }));
 }
 
@@ -199,7 +204,7 @@ export function useConstraints() {
       const { data, error } = await client
         .from('user_constraints')
         .select(
-          'id, type, body_region, severity, note, active_from, exercise_id, equipment_id, exercises(name), equipment(name)',
+          'id, type, body_region, severity, note, active_from, exercise_id, equipment_id, surgery_on, rehab_done, exercises(name), equipment(name)',
         )
         .eq('user_id', user?.id as string)
         .is('active_to', null)
@@ -216,6 +221,8 @@ export function useConstraints() {
           active_from: string;
           exercise_id: string | null;
           equipment_id: string | null;
+          surgery_on: string | null;
+          rehab_done: boolean | null;
           exercises: { name: string } | null;
           equipment: { name: string } | null;
         };
@@ -229,6 +236,8 @@ export function useConstraints() {
           targetName: row.exercises?.name ?? row.equipment?.name ?? null,
           exerciseId: row.exercise_id,
           equipmentId: row.equipment_id,
+          surgeryOn: row.surgery_on,
+          rehabDone: row.rehab_done,
         };
       });
     },
@@ -263,11 +272,14 @@ export function useClearConstraint() {
   });
 }
 
-/** Una lesión, un dolor o un tendón que el socio declara fuera de la sesión. */
+/** Una lesión, un dolor, un tendón o una operación que el socio declara fuera de la sesión. */
 export interface MolestiaDeclarada {
   readonly region: BodyRegion;
-  readonly type: 'pain' | 'injury' | 'tendinopathy';
+  readonly type: 'pain' | 'injury' | 'tendinopathy' | 'surgery';
   readonly severity: number;
+  /** Solo en una operación: el mes (`YYYY-MM`) y si ya terminó la rehabilitación. */
+  readonly surgeryMonth?: string;
+  readonly rehabDone?: boolean;
 }
 
 /**
@@ -293,8 +305,34 @@ export function useDeclareConstraints() {
           type: m.type,
           body_region: m.region,
           severity: m.severity,
+          surgery_on: m.type === 'surgery' && m.surgeryMonth ? `${m.surgeryMonth}-01` : null,
+          rehab_done: m.type === 'surgery' ? (m.rehabDone ?? false) : null,
         })),
       );
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['constraints', user?.id] });
+    },
+  });
+}
+
+/**
+ * Marcar que terminó la rehabilitación de una operación. Desde ahí la zona deja
+ * de contar como lesión para el plan (`docs/research/56`).
+ */
+export function useFinishRehab() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, Id>({
+    mutationFn: async (constraintId) => {
+      if (!user) throw new Error('No hay sesión activa.');
+      const { error } = await requireSupabase()
+        .from('user_constraints')
+        .update({ rehab_done: true })
+        .eq('id', constraintId)
+        .eq('user_id', user.id);
       if (error) throw error;
     },
     onSuccess: () => {

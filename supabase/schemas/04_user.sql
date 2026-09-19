@@ -30,7 +30,14 @@ create table user_constraints (
   severity smallint not null default 3 check (severity between 1 and 5),
   note text,
   active_from timestamptz not null default now(),
-  active_to timestamptz
+  active_to timestamptz,
+  -- Una operación (docs/research/56): el mes en que fue (día 1) y si ya terminó
+  -- la rehabilitación. Solo para `type = 'surgery'`, y ahí obligatorio el mes.
+  surgery_on date,
+  rehab_done boolean,
+  constraint user_constraints_surgery_fields check (
+    (type = 'surgery') = (surgery_on is not null and rehab_done is not null)
+  )
 );
 
 create index user_constraints_active_idx on user_constraints (user_id)

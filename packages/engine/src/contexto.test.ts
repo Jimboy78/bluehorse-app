@@ -429,7 +429,7 @@ describe('resolverContexto', () => {
       expect(ctx.params).toEqual(sana.params);
       expect(ctx.bloques.map((b) => b.modulo)).not.toContain('impacto');
       expect(ctx.explosivos).toBeNull();
-      expect(ctx.sinExplosivosPorSalud).toBe(true);
+      expect(ctx.sinExplosivosConAviso).toBe(true);
       expect(excluido(ctx, salto)).toBe(true);
       const notas = V1_RESEARCH.conditions?.find((x) => x.id === c)?.notes ?? [];
       expect(notas.length).toBeGreaterThan(0);
@@ -439,7 +439,7 @@ describe('resolverContexto', () => {
     expect(mujer(['osteoporosis', 'postpartum']).bloques.map((b) => b.modulo)).not.toContain(
       'impacto',
     );
-    expect(sana.sinExplosivosPorSalud).toBe(false);
+    expect(sana.sinExplosivosConAviso).toBe(false);
   });
 
   it('cadera: sin zancadas desde 4, sin sentadillas con 4; el trabajo de glúteo sigue', () => {
@@ -636,6 +636,102 @@ describe('resolverContexto', () => {
     // No recibe la nota de lesión aguda, que le diría que no cargue.
     expect(tendon).not.toContain(V1_RESEARCH.safety?.acuteInjury.note);
     expect(rodilla('pain', 3).avisos.map((a) => a.texto)).not.toContain(nota);
+  });
+
+  describe('operación (`docs/research/56`)', () => {
+    // `now` del input: 2026-09-10.
+    const zancada = ex('zancada', { pattern: 'lunge' });
+    const salto = ex('salto', { isExplosive: true });
+    const reglas = V1_RESEARCH.safety?.postSurgery;
+    const operado = (
+      bodyRegion: UserConstraint['bodyRegion'],
+      surgeryOn: string,
+      rehabDone: boolean,
+    ) =>
+      resolverContexto(
+        input({
+          constraints: [
+            {
+              type: 'surgery',
+              bodyRegion,
+              exerciseId: null,
+              equipmentId: null,
+              severity: 1,
+              surgeryOn,
+              rehabDone,
+            },
+          ],
+        }),
+      );
+    const textos = (ctx: ReturnType<typeof resolverContexto>) => ctx.avisos.map((a) => a.texto);
+
+    it('en rehabilitación: la zona queda afuera entera, con el aviso de rehab y no el de dolor', () => {
+      const ctx = operado('knee', '2026-08-01', false);
+      expect(excluido(ctx, zancada)).toBe(true);
+      expect(excluido(ctx, sentadilla)).toBe(true);
+      expect(excluido(ctx, salto)).toBe(true);
+      const t = textos(ctx);
+      expect(t.some((x) => x.startsWith('Mientras dure la rehabilitación'))).toBe(true);
+      // El consejo de dolor autoriza a cargar hasta 5 de 10: no va.
+      expect(t).not.toContain(V1_RESEARCH.safety?.painMonitoring?.text);
+      expect(t.some((x) => x.startsWith('Por la'))).toBe(false);
+    });
+
+    it('con el alta y menos de los meses del ruleset: entrena la rodilla, sin saltos ni impacto', () => {
+      const ctx = operado('knee', '2026-06-01', true);
+      expect(excluido(ctx, zancada)).toBe(false);
+      expect(excluido(ctx, sentadilla)).toBe(false);
+      expect(excluido(ctx, salto)).toBe(true);
+      expect(textos(ctx)).toContain(reglas?.jumpFree.note);
+      expect(textos(ctx).some((x) => x.startsWith('Mientras dure'))).toBe(false);
+    });
+
+    it('el borde de los meses: se cuentan meses cumplidos, no meses de calendario', () => {
+      const meses = reglas?.jumpFree.months ?? 0;
+      expect(meses).toBeGreaterThan(0);
+      // 2025-12-15 → 2026-09-10: ocho meses y veintiséis días. Todavía no.
+      expect(meses).toBe(9);
+      expect(excluido(operado('knee', '2025-12-15', true), salto)).toBe(true);
+      // 2025-12-10 → 2026-09-10: nueve cumplidos. Ya puede.
+      expect(excluido(operado('knee', '2025-12-10', true), salto)).toBe(false);
+    });
+
+    it('con el alta y pasado el plazo, o en una zona sin plazo: el plan es el de alguien sano', () => {
+      const sano = resolverContexto(input({}));
+      for (const ctx of [
+        operado('knee', '2025-01-01', true),
+        operado('shoulder', '2026-08-01', true),
+      ]) {
+        expect(ctx.params).toEqual(sano.params);
+        expect(excluido(ctx, salto)).toBe(false);
+        expect(ctx.avisos).toEqual(sano.avisos);
+      }
+    });
+
+    it('en potencia, el aviso de la operación explica los saltos; el de potencia no inventa otro motivo', () => {
+      const i = input({
+        goal: 'power',
+        constraints: [
+          {
+            type: 'surgery',
+            bodyRegion: 'knee',
+            exerciseId: null,
+            equipmentId: null,
+            severity: 1,
+            surgeryOn: '2026-06-01',
+            rehabDone: true,
+          },
+        ],
+      });
+      expect(resolverContexto(i).sinExplosivosConAviso).toBe(true);
+      const w = createPlaceholderEngine().generatePlan(i).warnings;
+      expect(w).toContain(reglas?.jumpFree.note);
+      expect(w.some((t) => t.startsWith('Este plan no trae saltos'))).toBe(false);
+    });
+
+    it('una fecha que no se lee no inventa un plazo', () => {
+      expect(excluido(operado('knee', 'no-es-fecha', true), salto)).toBe(false);
+    });
   });
 
   it('asma: el plan no cambia, sale el aviso del broncodilatador', () => {

@@ -64,6 +64,7 @@ import type { ConstraintDetail } from '../lib/profile.ts';
 import {
   useClearConstraint,
   useConstraints,
+  useFinishRehab,
   useProfileDetail,
   useUpdateProfile,
 } from '../lib/profile.ts';
@@ -753,6 +754,7 @@ function HealthConditionsSection({ sex }: { readonly sex: Sex }) {
 function ConstraintsSection() {
   const constraints = useConstraints();
   const clear = useClearConstraint();
+  const alta = useFinishRehab();
   const [asking, setAsking] = useState<ConstraintDetail | null>(null);
   const [agregando, setAgregando] = useState(false);
 
@@ -799,8 +801,9 @@ function ConstraintsSection() {
             <motion.li key={constraint.id} variants={listItem}>
               <ConstraintRow
                 constraint={constraint}
-                busy={clear.isPending}
+                busy={clear.isPending || alta.isPending}
                 onClear={() => setAsking(constraint)}
+                onFinishRehab={() => alta.mutate(constraint.id)}
               />
             </motion.li>
           ))}
@@ -818,7 +821,7 @@ function ConstraintsSection() {
       ) : (
         <Button variant="ghost" onClick={() => setAgregando(true)}>
           <Plus className="size-4" aria-hidden="true" />
-          Agregar una lesión, dolor o tendinitis
+          Agregar una lesión, dolor, tendinitis u operación
         </Button>
       )}
 
@@ -843,15 +846,19 @@ function ConstraintRow({
   constraint,
   busy,
   onClear,
+  onFinishRehab,
 }: {
   readonly constraint: ConstraintDetail;
   readonly busy: boolean;
   readonly onClear: () => void;
+  readonly onFinishRehab: () => void;
 }) {
   const isPain =
     constraint.type === 'injury' ||
     constraint.type === 'pain' ||
     constraint.type === 'tendinopathy';
+  const esOperacion = constraint.type === 'surgery';
+  const enRehab = esOperacion && constraint.rehabDone === false;
 
   return (
     <Card tone="warn" className="flex items-start gap-3 p-3.5">
@@ -860,16 +867,28 @@ function ConstraintRow({
       </span>
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <p className="text-sm font-semibold text-ink">
-          {isPain && constraint.bodyRegion
+          {(isPain || esOperacion) && constraint.bodyRegion
             ? BODY_REGION_LABELS[constraint.bodyRegion as keyof typeof BODY_REGION_LABELS]
             : (constraint.targetName ?? CONSTRAINT_TYPE_LABELS[constraint.type])}
         </p>
         <p className="text-xs text-slate">
           {CONSTRAINT_TYPE_LABELS[constraint.type]}
           {isPain && ` · intensidad ${constraint.severity}/5`}
-          {' · desde '}
-          {formatDate(constraint.since)}
+          {esOperacion && constraint.surgeryOn
+            ? ` · ${formatMonth(constraint.surgeryOn)}${enRehab ? ' · en rehabilitación' : ''}`
+            : ` · desde ${formatDate(constraint.since)}`}
         </p>
+        {enRehab && (
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={busy}
+            onClick={onFinishRehab}
+            className="mt-1 self-start"
+          >
+            Terminé la rehabilitación
+          </Button>
+        )}
         {constraint.note && <p className="text-xs text-slate-dim">{constraint.note}</p>}
       </div>
       <Button variant="ghost" size="sm" disabled={busy} onClick={onClear} className="shrink-0">
@@ -877,6 +896,15 @@ function ConstraintRow({
       </Button>
     </Card>
   );
+}
+
+/** `surgery_on` es una fecha sin hora (el día 1 del mes): se formatea en UTC para no correrla de mes. */
+function formatMonth(fecha: string): string {
+  return new Intl.DateTimeFormat('es-AR', {
+    timeZone: 'UTC',
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(`${fecha}T00:00:00Z`));
 }
 
 function formatDate(iso: string): string {

@@ -1690,6 +1690,17 @@
       "note": "Por el tendón en {region}: el tendón mejora cargándolo, no descansando. Entrená con peso, no todos los días, y usá el dolor como guía: hasta 5 sobre 10 mientras hacés el ejercicio, y a la mañana siguiente como empezaste. Si pasa de eso, bajá el peso de ese ejercicio en vez de dejarlo.",
       "confidence": "medium"
     },
+    "postSurgery": {
+      "inRehabNote": "Mientras dure la rehabilitación de {region}, esa zona la maneja tu kinesiólogo: el plan la deja afuera y entrena el resto. Cuando te den el alta, marcalo en tu perfil.",
+      "jumpFree": {
+        "regions": [
+          "knee"
+        ],
+        "months": 9,
+        "note": "Te operaron la rodilla hace menos de nueve meses: los saltos y el impacto quedan afuera hasta entonces. Volver antes a saltar y girar multiplica el riesgo de volver a lesionarte, y lo que más protege es tener la fuerza del cuádriceps pareja en las dos piernas."
+      },
+      "confidence": "medium"
+    },
     "specialPopulations": [
       {
         "id": "pregnancy",

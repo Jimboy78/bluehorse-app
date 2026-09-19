@@ -1,12 +1,20 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T3g: tendinopatía y puerta de lesiones)
+## Última actualización: 19 de septiembre de 2026 (T3h: operación y hace cuánto)
+
+`docs/research/56`. La puerta de lesiones suma "Una operación": mes y si terminó la rehabilitación.
+En rehabilitación la zona sale entera (se trata como lesión en el escalón más alto) con un aviso
+propio; el alta se marca desde el perfil. Con el alta, una rodilla operada hace menos de 9 meses
+queda sin saltos ni impacto (Grindem 2016). Columnas `surgery_on` y `rehab_done` con `check`,
+migradas en prod. Falta de T3: vuelta al deporte y movimientos que no puede.
+
+## 19 de septiembre de 2026 (T3g: tendinopatía y puerta de lesiones)
 
 `docs/research/55`. La app nunca creaba restricciones de tipo lesión: la vía de lesión del motor era
 inalcanzable. Ahora hay puerta de lesiones en `/salud` (después de condiciones) y "agregar" en
 Perfil: zona, qué es (dolor, lesión reciente, tendinitis) y cuánto. `constraint_type` suma
 `tendinopathy`, que va por el camino del dolor crónico con un aviso propio (la carga es el
-tratamiento). Falta: operación y hace cuánto (T3h).
+tratamiento).
 
 ## 19 de septiembre de 2026 (T3f: hernia de disco y columna)
 
