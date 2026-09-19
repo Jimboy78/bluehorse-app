@@ -1,6 +1,17 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T5b: prevención de rodilla)
+## Última actualización: 19 de septiembre de 2026 (T5c: hombro, sin bloque)
+
+`docs/research/64`. No hay bloque de hombro en los deportes de brazo arriba. Hay un solo ensayo
+bueno, en handball de élite, con efecto en los problemas leves y no en los importantes, y la
+revisión sistemática no saca conclusiones. Queda un aviso de entrada en calor de hombro solo en
+handball. La rotación externa con banda sigue entrando por slot. Con esto la prevención por
+deporte queda cerrada (`62`-`64`).
+
+Sigue el resto de T5: posición en el deporte, deportes con categoría de peso, y partidos y
+entrenamientos por semana.
+
+## 19 de septiembre de 2026 (T5b: prevención de rodilla)
 
 `docs/research/63`. El enum `prevention_program` suma `knee` (en prod). El catálogo suma dos
 aterrizajes, "Aterrizaje desde cajón" y "Salto lateral a un pie con aterrizaje clavado" (87

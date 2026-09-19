@@ -1108,6 +1108,10 @@
         {
           "sports": ["basquet", "handball", "voley", "hockey"],
           "text": "Si tu equipo no hace una entrada en calor con saltos, aterrizajes y cambios de dirección, proponela: hecha dos veces por semana, unos 20 minutos antes de entrenar, baja a la mitad las lesiones de rodilla."
+        },
+        {
+          "sports": ["handball"],
+          "text": "Si tu equipo no hace ejercicios de hombro en la entrada en calor, proponelos: rotaciones con banda, fuerza alrededor del omóplato y movilidad, tres veces por semana. En handball bajaron los problemas de hombro."
         }
       ]
     },

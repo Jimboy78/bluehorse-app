@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-19",
-  "resolved": 185,
+  "resolved": 189,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -2116,6 +2116,103 @@
       ]
     },
     {
+      "doi": "10.1136/bjsports-2016-096226",
+      "title": "Preventing overuse shoulder injuries among throwing athletes: a cluster-randomised controlled trial in 660 elite handball players",
+      "authors": [
+        "Andersson",
+        "Bahr",
+        "Clarsen"
+      ],
+      "moreAuthors": 1,
+      "year": 2016,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Hombro en deportes de brazo arriba",
+        "Prevención por deporte"
+      ],
+      "documentos": [
+        "62-prevencion-por-deporte.md",
+        "64-hombro-en-deportes-de-brazo-arriba.md"
+      ]
+    },
+    {
+      "doi": "10.1111/sms.13674",
+      "title": "Does an effective shoulder injury prevention program affect risk factors in handball? A randomized controlled study",
+      "authors": [
+        "Fredriksen",
+        "Cools",
+        "Bahr"
+      ],
+      "moreAuthors": 1,
+      "year": 2020,
+      "journal": "Scandinavian Journal of Medicine & Science in Sports",
+      "type": "journal-article",
+      "temas": [
+        "Hombro en deportes de brazo arriba"
+      ],
+      "documentos": [
+        "64-hombro-en-deportes-de-brazo-arriba.md"
+      ]
+    },
+    {
+      "doi": "10.1016/j.ptsp.2021.09.004",
+      "title": "Effectiveness of shoulder injury prevention programs in an overhead athletic population: A systematic review",
+      "authors": [
+        "Wright",
+        "Ness",
+        "Donaldson"
+      ],
+      "moreAuthors": 3,
+      "year": 2021,
+      "journal": "Physical Therapy in Sport",
+      "type": "journal-article",
+      "temas": [
+        "Hombro en deportes de brazo arriba"
+      ],
+      "documentos": [
+        "64-hombro-en-deportes-de-brazo-arriba.md"
+      ]
+    },
+    {
+      "doi": "10.1177/0363546519861378",
+      "title": "Throwing Injuries in Youth Baseball Players: Can a Prevention Program Help? A Randomized Controlled Trial",
+      "authors": [
+        "Sakata",
+        "Nakamura",
+        "Suzuki"
+      ],
+      "moreAuthors": 5,
+      "year": 2019,
+      "journal": "The American Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Hombro en deportes de brazo arriba"
+      ],
+      "documentos": [
+        "64-hombro-en-deportes-de-brazo-arriba.md"
+      ]
+    },
+    {
+      "doi": "10.3390/diagnostics14212415",
+      "title": "Prevention of Overhead Shoulder Injuries in Throwing Athletes: A Systematic Review",
+      "authors": [
+        "Moiroux--Sahraoui",
+        "Mazeas",
+        "Delgado"
+      ],
+      "moreAuthors": 5,
+      "year": 2024,
+      "journal": "Diagnostics",
+      "type": "journal-article",
+      "temas": [
+        "Hombro en deportes de brazo arriba"
+      ],
+      "documentos": [
+        "64-hombro-en-deportes-de-brazo-arriba.md"
+      ]
+    },
+    {
       "doi": "10.1007/s40279-017-0788-x",
       "title": "Effects of Rest Interval Duration in Resistance Training on Measures of Muscular Strength: A Systematic Review",
       "authors": [
@@ -3055,25 +3152,6 @@
       "moreAuthors": 3,
       "year": 2025,
       "journal": "Scandinavian Journal of Medicine & Science in Sports",
-      "type": "journal-article",
-      "temas": [
-        "Prevención por deporte"
-      ],
-      "documentos": [
-        "62-prevencion-por-deporte.md"
-      ]
-    },
-    {
-      "doi": "10.1136/bjsports-2016-096226",
-      "title": "Preventing overuse shoulder injuries among throwing athletes: a cluster-randomised controlled trial in 660 elite handball players",
-      "authors": [
-        "Andersson",
-        "Bahr",
-        "Clarsen"
-      ],
-      "moreAuthors": 1,
-      "year": 2016,
-      "journal": "British Journal of Sports Medicine",
       "type": "journal-article",
       "temas": [
         "Prevención por deporte"

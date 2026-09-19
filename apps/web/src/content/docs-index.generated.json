@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-19T18:16:06.296Z",
+ "generatedAt": "2026-09-19T19:04:32.189Z",
  "docs": [
   {
    "id": "metodo",
@@ -512,6 +512,14 @@
    "resumen": "Fecha: 19/09/2026. Tanda: T5b del plan de variables. Sigue a 62, que armó la infraestructura de la prevención por deporte con los isquios.",
    "archivo": "63-prevencion-de-rodilla.md",
    "bloques": 21
+  },
+  {
+   "id": "64-hombro-en-deportes-de-brazo-arriba",
+   "orden": 64,
+   "titulo": "Hombro en los deportes de brazo arriba",
+   "resumen": "Fecha: 19/09/2026. Tanda: T5c del plan de variables. Cierra la prevención por deporte que empezó en 62 (isquios) y 63 (rodilla).",
+   "archivo": "64-hombro-en-deportes-de-brazo-arriba.md",
+   "bloques": 16
   },
   {
    "id": "auditoria",
