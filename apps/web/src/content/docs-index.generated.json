@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-19T04:03:47.096Z",
+ "generatedAt": "2026-09-19T04:23:16.977Z",
  "docs": [
   {
    "id": "metodo",
@@ -432,6 +432,14 @@
    "resumen": "La confianza es low porque lo único que cambia el plan, sacar el impacto, es opinión de expertos. Es el lado prudente: el costo de sacar los saltos a alguien con prótesis es chico, el de desgastarla o aflojarla no.",
    "archivo": "53-artrosis-y-protesis.md",
    "bloques": 17
+  },
+  {
+   "id": "54-hernia-de-disco-y-columna",
+   "orden": 54,
+   "titulo": "Hernia de disco y problemas de columna",
+   "resumen": "Las dos son la misma entrada: la opción pasa a llamarse \"Hernia de disco u otro problema de columna\". No hace falta un valor nuevo en la base.",
+   "archivo": "54-hernia-de-disco-y-columna.md",
+   "bloques": 14
   },
   {
    "id": "auditoria",

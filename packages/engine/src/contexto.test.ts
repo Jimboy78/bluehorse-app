@@ -582,6 +582,32 @@ describe('resolverContexto', () => {
     expect(ambas.bloques.map((b) => b.modulo)).not.toContain('impacto');
   });
 
+  it('hernia de disco o columna: el plan no cambia; la urgencia sale también con dolor lumbar', () => {
+    const sano = resolverContexto(input({}));
+    const columna = resolverContexto(input({ conditions: ['back_problem'] }));
+    expect(columna.params).toEqual(sano.params);
+    expect(columna.bloques).toEqual(sano.bloques);
+    const avisos = columna.avisos.filter((a) => a.modulo === 'salud').map((a) => a.texto);
+    expect(avisos).toHaveLength(1);
+    expect(avisos[0]).toContain('guardia');
+    // Quien no marcó la condición pero declara dolor lumbar recibe la misma
+    // señal de cauda equina (`docs/research/54`).
+    const lumbar = resolverContexto(
+      input({
+        constraints: [
+          {
+            type: 'pain',
+            bodyRegion: 'lower_back',
+            exerciseId: null,
+            equipmentId: null,
+            severity: 3,
+          },
+        ],
+      }),
+    );
+    expect(lumbar.avisos.some((a) => a.texto.includes('entre las piernas'))).toBe(true);
+  });
+
   it('asma: el plan no cambia, sale el aviso del broncodilatador', () => {
     const sano = resolverContexto(input({}));
     const asma = resolverContexto(input({ conditions: ['asthma'] }));

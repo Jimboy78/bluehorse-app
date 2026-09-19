@@ -1270,6 +1270,16 @@
       "confidenceNote": "EULAR 2023: a toda persona con artrosis de cadera o rodilla hay que ofrecerle ejercicio con dosis adecuada y progresión, junto con educación; ninguna modalidad le gana a otra. La condición no dice qué articulación es, así que no saca nada: el ajuste por zona lo hacen las reglas de dolor. docs/research/53."
     },
     {
+      "id": "back_problem",
+      "minRir": null,
+      "hidesHeartRate": false,
+      "notes": [
+        "Con una hernia de disco o un problema de columna podés entrenar: moverse ayuda más que cuidarse de más, y la mayoría de las hernias se achican solas con el tiempo. Si te duele la espalda o te baja dolor a la pierna o al brazo, anotalo como molestia en la zona lumbar o el cuello y el plan se ajusta. Si se te duerme la zona entre las piernas, te cuesta orinar o no podés contener, andá a una guardia."
+      ],
+      "confidence": "medium",
+      "confidenceNote": "Con ciática, mantenerse activo y el ejercicio supervisado dan lo mismo a mediano y largo plazo (Fernandez 2015, evidencia moderada). Entre el 62 y el 66 % de las hernias lumbares con síntomas se reabsorben (Yu 2022, citando un metaanálisis de 38 estudios). En atletas, el 81,5 % vuelve a jugar sin operarse, igual que operados (Sedrak 2021). Las señales de cauda equina son más específicas que sensibles: si aparecen, se consulta ya (Dionne 2019). La condición no dice dónde duele hoy, así que no saca nada: el ajuste lo hacen las reglas de dolor. docs/research/54."
+    },
+    {
       "id": "joint_replacement",
       "minRir": null,
       "hidesHeartRate": false,
@@ -1520,7 +1530,7 @@
           "lower_back"
         ],
         "keepDoing": "Trabajo de core y glúteos en posición neutra, y caminar. Lo que no conviene es quedarse quieto del todo.",
-        "referIf": "El dolor pasa dos semanas sin mejorar, empeora tras 48 horas de reposo, o aparece hormigueo, debilidad en las piernas o fiebre.",
+        "referIf": "El dolor pasa dos semanas sin mejorar, empeora tras 48 horas de reposo, o aparece hormigueo, debilidad en las piernas o fiebre. Si se te duerme la zona entre las piernas, te cuesta orinar o no podés contener, es una urgencia: andá a una guardia.",
         "confidence": "low"
       },
       {

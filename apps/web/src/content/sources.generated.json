@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-19",
-  "resolved": 151,
+  "resolved": 154,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -1893,6 +1893,84 @@
       ]
     },
     {
+      "doi": "10.1016/j.msksp.2019.05.004",
+      "title": "What is the diagnostic accuracy of red flags related to cauda equina syndrome (CES), when compared to Magnetic Resonance Imaging (MRI)? A systematic review",
+      "authors": [
+        "Dionne",
+        "Adefolarin",
+        "Kunzelman"
+      ],
+      "moreAuthors": 5,
+      "year": 2019,
+      "journal": "Musculoskeletal Science and Practice",
+      "type": "journal-article",
+      "temas": [
+        "Hernia de disco y columna",
+        "Red flags lumbares"
+      ],
+      "documentos": [
+        "32-red-flags-lumbares.md",
+        "54-hernia-de-disco-y-columna.md"
+      ]
+    },
+    {
+      "doi": "10.1097/BRS.0000000000001036",
+      "title": "Advice to Stay Active or Structured Exercise in the Management of Sciatica",
+      "authors": [
+        "Fernandez",
+        "Hartvigsen",
+        "Ferreira"
+      ],
+      "moreAuthors": 5,
+      "year": 2015,
+      "journal": "Spine",
+      "type": "journal-article",
+      "temas": [
+        "Hernia de disco y columna"
+      ],
+      "documentos": [
+        "54-hernia-de-disco-y-columna.md"
+      ]
+    },
+    {
+      "doi": "10.1186/s13075-022-02894-8",
+      "title": "Characteristics and mechanisms of resorption in lumbar disc herniation",
+      "authors": [
+        "Yu",
+        "Mao",
+        "Chen"
+      ],
+      "moreAuthors": 5,
+      "year": 2022,
+      "journal": "Arthritis Research & Therapy",
+      "type": "journal-article",
+      "temas": [
+        "Hernia de disco y columna"
+      ],
+      "documentos": [
+        "54-hernia-de-disco-y-columna.md"
+      ]
+    },
+    {
+      "doi": "10.1177/1941738121991782",
+      "title": "Return to Play After Symptomatic Lumbar Disc Herniation in Elite Athletes: A Systematic Review and Meta-analysis of Operative Versus Nonoperative Treatment",
+      "authors": [
+        "Sedrak",
+        "Shahbaz",
+        "Gohal"
+      ],
+      "moreAuthors": 3,
+      "year": 2021,
+      "journal": "Sports Health: A Multidisciplinary Approach",
+      "type": "journal-article",
+      "temas": [
+        "Hernia de disco y columna"
+      ],
+      "documentos": [
+        "54-hernia-de-disco-y-columna.md"
+      ]
+    },
+    {
       "doi": "10.1136/bjsports-2017-098983",
       "title": "Musculoskeletal pain and exercise—challenging existing paradigms and introducing new",
       "authors": [
@@ -2713,25 +2791,6 @@
       "moreAuthors": 2,
       "year": 2016,
       "journal": "European Spine Journal",
-      "type": "journal-article",
-      "temas": [
-        "Red flags lumbares"
-      ],
-      "documentos": [
-        "32-red-flags-lumbares.md"
-      ]
-    },
-    {
-      "doi": "10.1016/j.msksp.2019.05.004",
-      "title": "What is the diagnostic accuracy of red flags related to cauda equina syndrome (CES), when compared to Magnetic Resonance Imaging (MRI)? A systematic review",
-      "authors": [
-        "Dionne",
-        "Adefolarin",
-        "Kunzelman"
-      ],
-      "moreAuthors": 5,
-      "year": 2019,
-      "journal": "Musculoskeletal Science and Practice",
       "type": "journal-article",
       "temas": [
         "Red flags lumbares"

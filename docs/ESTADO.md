@@ -1,6 +1,12 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T3e: artrosis y prótesis)
+## Última actualización: 19 de septiembre de 2026 (T3f: hernia de disco y columna)
+
+`docs/research/54`. "Un problema de columna" pasa a "Hernia de disco u otro problema de columna".
+No saca nada (mantenerse activo rinde igual que el ejercicio; 62-66 % de las hernias se reabsorben);
+suma un aviso con la urgencia de cauda equina, que también le faltaba a la regla de dolor lumbar.
+
+## 19 de septiembre de 2026 (T3e: artrosis y prótesis)
 
 `docs/research/53`. La artrosis suma un aviso (el ejercicio es el tratamiento; anotar la articulación
 que duele como molestia). La prótesis es una condición nueva (`joint_replacement`, migración

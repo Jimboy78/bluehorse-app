@@ -37,25 +37,25 @@
     "Mancuernas sueltas (set): 6 % de los ítems",
     "Dual Lat Pulldown & Row: 4 % de los ítems",
     "Rack de mancuernas hexagonales: 4 % de los ítems",
-    "Cross Over funcional doble (Dual Cable Cross): 4 % de los ítems",
-    "Cajones pliométricos: 4 % de los ítems"
+    "Cajones pliométricos: 4 % de los ítems",
+    "Cross Over funcional doble (Dual Cable Cross): 4 % de los ítems"
   ],
   "avisosPorPlan": {
     "media": 8.9,
     "max": 18
   },
-  "sesionesQuePasanLosMinutosDeclarados": "22 %",
+  "sesionesQuePasanLosMinutosDeclarados": "23 %",
   "cambiaElPlanAlCambiarSolo": {
     "goal": "96 %",
     "nivel": "100 %",
     "edad": "65 %",
-    "sexo": "6 %",
+    "sexo": "7 %",
     "sesiones": "38 %",
     "minutos": "0 %",
     "deporte": "48 %",
     "fase": "52 %",
-    "molestia": "66 %",
+    "molestia": "67 %",
     "ausencia": "0 %",
-    "salud": "36 %"
+    "salud": "39 %"
   }
 }

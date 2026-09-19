@@ -237,6 +237,7 @@ const DIM = {
       ['osteoporosis', 'postpartum'],
       ['osteoarthritis'],
       ['joint_replacement'],
+      ['back_problem'],
       ['osteoarthritis', 'joint_replacement', 'osteoporosis'],
     ] as HealthCondition[][],
     (b, v) => {

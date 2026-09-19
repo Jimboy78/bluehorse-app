@@ -46,7 +46,7 @@ export const GRUPOS_DE_CONDICIONES: readonly GrupoDeCondiciones[] = [
     opciones: [
       { id: 'osteoarthritis', texto: 'Artrosis' },
       { id: 'osteoporosis', texto: 'Osteoporosis' },
-      { id: 'back_problem', texto: 'Un problema de columna' },
+      { id: 'back_problem', texto: 'Hernia de disco u otro problema de columna' },
       { id: 'joint_replacement', texto: 'Una prótesis de cadera o rodilla' },
     ],
   },
