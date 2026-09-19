@@ -459,6 +459,16 @@ describe('barrido de socios generados', () => {
    * Lo que una regla de dolor saca no vuelve a entrar por ningún lado: ni por la
    * plantilla, ni por un bloque, ni por una sustitución (`docs/research/49`).
    */
+  /** Una operación en rehabilitación deja su zona entera en manos del kinesiólogo (`56`). */
+  function chequearRehabilitacion(p: Perfil, evitar: readonly PainRule[]) {
+    const op = p.molestia?.[3];
+    if (!op || op.rehabDone) return;
+    conEnRehab += 1;
+    if (!evitar.some((r) => r.bodyRegion === p.molestia?.[0])) {
+      violaciones.push(`zona en rehabilitación sin evitar: ${JSON.stringify(p)}`);
+    }
+  }
+
   function chequearZonaQueDuele(p: Perfil, it: SessionItemBlueprint, reglas: readonly PainRule[]) {
     const ex = exPorId.get(it.exerciseId);
     if (!ex) return;
@@ -555,12 +565,7 @@ describe('barrido de socios generados', () => {
     chequearAvisos(p, inp, b);
     const evitar = resolverContexto(inp).avoidRules;
     if (evitar.length > 0) conZonaEvitada += 1;
-    // Una operación en rehabilitación deja su zona entera en manos del kinesiólogo.
-    const op = p.molestia?.[3];
-    if (op && !op.rehabDone && !evitar.some((r) => r.bodyRegion === p.molestia?.[0])) {
-      violaciones.push(`zona en rehabilitación sin evitar: ${JSON.stringify(p)}`);
-    }
-    if (op && !op.rehabDone) conEnRehab += 1;
+    chequearRehabilitacion(p, evitar);
     for (const s of b.sessions) {
       if (s.items.length === 0) violaciones.push(`sesión vacía: ${JSON.stringify(p)}`);
       s.items.forEach((it, i) => {
