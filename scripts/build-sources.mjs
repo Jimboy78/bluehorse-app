@@ -93,6 +93,7 @@ const TEMAS = {
   62: 'Prevención por deporte',
   63: 'Prevención de rodilla',
   64: 'Hombro en deportes de brazo arriba',
+  65: 'Temporada y día de partido',
 };
 
 // El `]` y el `(` cierran un enlace de markdown: sin ellos, un DOI escrito como

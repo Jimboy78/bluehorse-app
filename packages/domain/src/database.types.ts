@@ -438,6 +438,48 @@ export type Database = {
           },
         ]
       }
+      match_exceptions: {
+        Row: {
+          created_at: string
+          day: string
+          gym_id: string
+          id: string
+          plays: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day: string
+          gym_id: string
+          id?: string
+          plays: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day?: string
+          gym_id?: string
+          id?: string
+          plays?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_exceptions_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_exceptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pain_reports: {
         Row: {
           body_region: Database["public"]["Enums"]["body_region"]
@@ -1146,6 +1188,7 @@ export type Database = {
           goal: Database["public"]["Enums"]["training_goal"]
           id: string
           is_active: boolean
+          match_weekday: number | null
           priority: number
           season_phase: Database["public"]["Enums"]["season_phase"]
           session_minutes_target: number
@@ -1158,6 +1201,7 @@ export type Database = {
           goal: Database["public"]["Enums"]["training_goal"]
           id?: string
           is_active?: boolean
+          match_weekday?: number | null
           priority?: number
           season_phase?: Database["public"]["Enums"]["season_phase"]
           session_minutes_target?: number
@@ -1170,6 +1214,7 @@ export type Database = {
           goal?: Database["public"]["Enums"]["training_goal"]
           id?: string
           is_active?: boolean
+          match_weekday?: number | null
           priority?: number
           season_phase?: Database["public"]["Enums"]["season_phase"]
           session_minutes_target?: number
@@ -1233,6 +1278,7 @@ export type Database = {
           created_at: string
           ended_at: string | null
           id: string
+          match_day_state: Database["public"]["Enums"]["match_day_state"] | null
           notes: string | null
           plan_session_id: string | null
           pre_energy: number | null
@@ -1247,6 +1293,9 @@ export type Database = {
           created_at?: string
           ended_at?: string | null
           id?: string
+          match_day_state?:
+            | Database["public"]["Enums"]["match_day_state"]
+            | null
           notes?: string | null
           plan_session_id?: string | null
           pre_energy?: number | null
@@ -1261,6 +1310,9 @@ export type Database = {
           created_at?: string
           ended_at?: string | null
           id?: string
+          match_day_state?:
+            | Database["public"]["Enums"]["match_day_state"]
+            | null
           notes?: string | null
           plan_session_id?: string | null
           pre_energy?: number | null
@@ -1361,6 +1413,12 @@ export type Database = {
         | "band"
         | "bodyweight"
         | "none"
+      match_day_state:
+        | "normal"
+        | "day_after"
+        | "two_days_after"
+        | "day_before"
+        | "match_day"
       member_role: "member" | "staff" | "admin"
       movement_limit: "overhead" | "floor" | "hanging" | "jumping"
       movement_pattern:
@@ -1610,6 +1668,13 @@ export const Constants = {
         "band",
         "bodyweight",
         "none",
+      ],
+      match_day_state: [
+        "normal",
+        "day_after",
+        "two_days_after",
+        "day_before",
+        "match_day",
       ],
       member_role: ["member", "staff", "admin"],
       movement_limit: ["overhead", "floor", "hanging", "jumping"],

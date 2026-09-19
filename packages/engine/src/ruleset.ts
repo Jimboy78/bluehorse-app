@@ -757,6 +757,12 @@ const sportsSchema = z.object({
       avoidExplosive: z.boolean(),
       /** Qué se le dice al socio y por qué. Se muestra tal cual. */
       note: z.string().min(1),
+      /**
+       * Cuántos días pasaron desde el partido: 1 es "jugué ayer", −1 "juego
+       * mañana", 0 el día del partido. `null` en el día normal, que es todo lo
+       * que no cae cerca de un partido (`docs/research/65`).
+       */
+      daysFromMatch: z.number().int().nullable(),
     }),
   ),
   /**

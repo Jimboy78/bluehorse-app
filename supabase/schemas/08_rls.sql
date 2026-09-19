@@ -28,6 +28,7 @@ alter table pain_reports enable row level security;
 alter table adaptation_proposals enable row level security;
 alter table personal_records enable row level security;
 alter table rest_days enable row level security;
+alter table match_exceptions enable row level security;
 
 -- ---------------------------------------------------------------- gimnasio
 
@@ -167,6 +168,21 @@ create policy "marcar descanso propio" on rest_days
   with check (user_id = auth.uid() and gym_id = current_gym_id());
 
 create policy "desmarcar descanso propio" on rest_days
+  for delete to authenticated using (user_id = auth.uid());
+
+create policy "partidos propios" on match_exceptions
+  for select to authenticated using (user_id = auth.uid());
+
+create policy "declarar partido propio" on match_exceptions
+  for insert to authenticated
+  with check (user_id = auth.uid() and gym_id = current_gym_id());
+
+create policy "corregir partido propio" on match_exceptions
+  for update to authenticated
+  using (user_id = auth.uid())
+  with check (user_id = auth.uid() and gym_id = current_gym_id());
+
+create policy "borrar partido propio" on match_exceptions
   for delete to authenticated using (user_id = auth.uid());
 
 create policy "records propios" on personal_records

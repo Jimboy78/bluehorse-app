@@ -1,4 +1,4 @@
-import { MOVEMENT_LIMITS, type Sex } from '@bh/domain';
+import { MOVEMENT_LIMITS, type SeasonPhase, type Sex } from '@bh/domain';
 import {
   Activity,
   AlertCircle,
@@ -11,6 +11,7 @@ import {
   Dumbbell,
   FileText,
   HeartPulse,
+  Loader2,
   Mail,
   MapPin,
   Pencil,
@@ -34,6 +35,7 @@ import { CondicionesDeSalud } from '../components/CondicionesDeSalud.tsx';
 import { LesionesDeclaradas } from '../components/LesionesDeclaradas.tsx';
 import { MovimientosQueNoPuede } from '../components/MovimientosQueNoPuede.tsx';
 import { ProfileForm } from '../components/ProfileForm.tsx';
+import { TemporadaYDia } from '../components/TemporadaYDia.tsx';
 import {
   Button,
   Card,
@@ -69,6 +71,7 @@ import {
   useFinishRehab,
   useProfileDetail,
   useUpdateProfile,
+  useUpdateSeason,
 } from '../lib/profile.ts';
 import { useResetProfile } from '../lib/reset-profile.ts';
 import { isStandaloneDisplay } from '../lib/use-install-prompt.ts';
@@ -437,6 +440,7 @@ function GoalCard({
             <Stat label="Sesiones/semana" value={String(goal.sessionsPerWeekTarget)} />
             <Stat label="Minutos/sesión" value={String(goal.sessionMinutesTarget)} />
           </div>
+          {goal.sport && <EditarTemporada goal={goal} sport={goal.sport} />}
         </Card>
       ) : (
         <EmptyState icon={<Target size={20} aria-hidden="true" />} title="Sin objetivo cargado">
@@ -444,6 +448,56 @@ function GoalCard({
         </EmptyState>
       )}
     </section>
+  );
+}
+
+/**
+ * La temporada cambia a lo largo del año, y el día de partido también: es lo
+ * único del objetivo que se edita desde acá (`docs/research/65`).
+ */
+function EditarTemporada({
+  goal,
+  sport,
+}: {
+  readonly goal: NonNullable<NonNullable<ReturnType<typeof useProfileDetail>['data']>['goal']>;
+  readonly sport: string;
+}) {
+  const guardar = useUpdateSeason();
+  const [seasonPhase, setSeasonPhase] = useState<SeasonPhase>(goal.seasonPhase);
+  const [matchWeekday, setMatchWeekday] = useState<number | null>(goal.matchWeekday);
+  const cambio = seasonPhase !== goal.seasonPhase || matchWeekday !== goal.matchWeekday;
+
+  return (
+    <form
+      className="flex flex-col gap-3 border-t border-line/60 pt-3"
+      onSubmit={(e) => {
+        e.preventDefault();
+        guardar.mutate({ sport, seasonPhase, matchWeekday });
+      }}
+    >
+      <TemporadaYDia
+        sport={sport}
+        seasonPhase={seasonPhase}
+        matchWeekday={matchWeekday}
+        onSeasonPhase={setSeasonPhase}
+        onMatchWeekday={setMatchWeekday}
+      />
+      <Button type="submit" variant="secondary" disabled={!cambio || guardar.isPending}>
+        {guardar.isPending && <Loader2 size={15} className="animate-spin" aria-hidden="true" />}
+        Guardar
+      </Button>
+      {guardar.isSuccess && !cambio && (
+        <Notice tone="info" role="status">
+          Guardado. La temporada se aplica en tu próximo plan; el día de partido, desde tu próxima
+          sesión.
+        </Notice>
+      )}
+      {guardar.isError && (
+        <Notice tone="error" role="alert" icon={<AlertCircle size={15} aria-hidden="true" />}>
+          No se pudo guardar. Probá de nuevo.
+        </Notice>
+      )}
+    </form>
   );
 }
 

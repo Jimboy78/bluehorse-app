@@ -8,7 +8,8 @@ import { requireSupabase } from './supabase.ts';
  * Borra cada fila propia del socio —objetivo, medidas, restricciones,
  * baselines, ajustes de máquina, planes (con sus sesiones e ítems, por
  * cascada), entrenamientos registrados (con sus series y eventos, por
- * cascada), reportes de dolor, propuestas de adaptación y récords— y
+ * cascada), reportes de dolor, propuestas de adaptación, récords, días de
+ * descanso marcados y cambios al día de partido— y
  * después vuelve `profiles.onboarded_at` a `null`, que es lo único que mira
  * `RequireOnboarding` para mandar de nuevo al wizard.
  *
@@ -43,6 +44,8 @@ export function useResetProfile() {
         'user_baselines',
         'user_equipment_settings',
         'body_metrics',
+        'rest_days',
+        'match_exceptions',
         'user_goals',
       ] as const;
 

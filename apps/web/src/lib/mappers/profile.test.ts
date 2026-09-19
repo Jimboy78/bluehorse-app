@@ -52,9 +52,34 @@ describe('toUserGoalInsert', () => {
       user_id: 'user-1',
       goal: 'hypertrophy',
       sport: 'futbol',
+      season_phase: 'none',
+      match_weekday: null,
       priority: 1,
       sessions_per_week_target: 4,
       session_minutes_target: 60,
+    });
+  });
+
+  it('en temporada con un deporte de partidos guarda el día; si no, no (`docs/research/65`)', () => {
+    const enTemporada = { ...input, seasonPhase: 'in_season' as const, matchWeekday: 6 };
+    expect(toUserGoalInsert('user-1', enTemporada)).toMatchObject({
+      season_phase: 'in_season',
+      match_weekday: 6,
+    });
+    // En pretemporada no hay partidos: el día que haya quedado no se guarda.
+    expect(toUserGoalInsert('user-1', { ...enTemporada, seasonPhase: 'preseason' })).toMatchObject({
+      season_phase: 'preseason',
+      match_weekday: null,
+    });
+    // Un deporte sin partidos (running) guarda la temporada, no el día.
+    expect(toUserGoalInsert('user-1', { ...enTemporada, sport: 'running' })).toMatchObject({
+      season_phase: 'in_season',
+      match_weekday: null,
+    });
+    // Sin deporte no hay temporada.
+    expect(toUserGoalInsert('user-1', { ...enTemporada, sport: undefined })).toMatchObject({
+      season_phase: 'none',
+      match_weekday: null,
     });
   });
 

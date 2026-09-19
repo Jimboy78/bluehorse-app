@@ -1,4 +1,4 @@
-import type { BodyRegion } from '@bh/domain';
+import type { BodyRegion, MatchDayState } from '@bh/domain';
 import { toKg } from '@bh/domain';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -163,6 +163,8 @@ export function useSessionLog(
   userId: string | undefined,
   planSessionId: string,
   restored?: RestoredSession,
+  /** El momento del partido con el que arranca la sesión; queda en su `workout_log`. */
+  matchDayState: MatchDayState | null = null,
 ) {
   const queryClient = useQueryClient();
   const workoutLogIdRef = useRef<{ sessionId: string; workoutLogId: string } | null>(null);
@@ -234,6 +236,7 @@ export function useSessionLog(
           planSessionId,
           newClientId(),
           new Date().toISOString(),
+          matchDayState,
         ),
         userId,
       );

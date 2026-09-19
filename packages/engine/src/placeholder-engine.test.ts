@@ -1239,6 +1239,7 @@ describe('deporte, temporada y día de partido', () => {
           upperBodyVolumeMultiplier: 1,
           avoidExplosive: false,
           note: 'normal',
+          daysFromMatch: null,
         },
         day_after: {
           label: 'Ayer',
@@ -1246,6 +1247,7 @@ describe('deporte, temporada y día de partido', () => {
           upperBodyVolumeMultiplier: 1,
           avoidExplosive: true,
           note: 'jugaste ayer',
+          daysFromMatch: 1,
         },
         two_days_after: {
           label: 'Anteayer',
@@ -1253,6 +1255,7 @@ describe('deporte, temporada y día de partido', () => {
           upperBodyVolumeMultiplier: 1,
           avoidExplosive: true,
           note: 'anteayer',
+          daysFromMatch: 2,
         },
         day_before: {
           label: 'Mañana',
@@ -1260,6 +1263,7 @@ describe('deporte, temporada y día de partido', () => {
           upperBodyVolumeMultiplier: 1,
           avoidExplosive: true,
           note: 'jugás mañana',
+          daysFromMatch: -1,
         },
         match_day: {
           label: 'Hoy',
@@ -1267,6 +1271,7 @@ describe('deporte, temporada y día de partido', () => {
           upperBodyVolumeMultiplier: 0.5,
           avoidExplosive: true,
           note: 'jugás hoy',
+          daysFromMatch: 0,
         },
       },
       confidence: 'low',

@@ -1,6 +1,28 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T5c: hombro, sin bloque)
+## Última actualización: 19 de septiembre de 2026 (T5d: temporada y día de partido)
+
+`docs/research/65`. **La temporada y el partido no le llegaban a ningún socio**: la app no
+preguntaba ninguno de los dos.
+
+- La temporada se pregunta en el onboarding cuando hay deporte, y se edita en Perfil.
+- En temporada, con un deporte de partidos, se pide un día fijo (o "Varía").
+- Hoy muestra el estado del día, aplica `adjustSession` a la sesión y deja corregirlo desde
+  "¿Cambió el partido?".
+- El estado queda en `workout_logs.match_day_state`.
+- Esquema nuevo, en prod: el enum `match_day_state`, `user_goals.match_weekday`, la tabla
+  `match_exceptions` y la columna de `workout_logs`.
+- Motor: `partido.ts` (`estadoDelDia`, `excepcionesParaEstado`), puro; `daysFromMatch` va en el
+  ruleset.
+- El reseteo de perfil ahora borra también `rest_days` y `match_exceptions`.
+- Falsificado: 11 de 11.
+- **Pendiente:** la prueba en el navegador (necesita el OK del dueño para enviar formularios,
+  aunque sea contra la base local).
+
+Siguen de T5: posición y qué quiere mejorar, deportes con categoría de peso, y carga semanal del
+deporte.
+
+## 19 de septiembre de 2026 (T5c: hombro, sin bloque)
 
 `docs/research/64`. No hay bloque de hombro en los deportes de brazo arriba. Hay un solo ensayo
 bueno, en handball de élite, con efecto en los problemas leves y no en los importantes, y la

@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-19T19:04:32.189Z",
+ "generatedAt": "2026-09-19T20:48:25.583Z",
  "docs": [
   {
    "id": "metodo",
@@ -520,6 +520,14 @@
    "resumen": "Fecha: 19/09/2026. Tanda: T5c del plan de variables. Cierra la prevención por deporte que empezó en 62 (isquios) y 63 (rodilla).",
    "archivo": "64-hombro-en-deportes-de-brazo-arriba.md",
    "bloques": 16
+  },
+  {
+   "id": "65-temporada-y-dia-de-partido",
+   "orden": 65,
+   "titulo": "La temporada y el día de partido llegan al socio",
+   "resumen": "Fecha: 19/09/2026. Tanda: T5d del plan de variables. En el checklist: \"días al partido, que el motor ya soporta y la app no pregunta\".",
+   "archivo": "65-temporada-y-dia-de-partido.md",
+   "bloques": 17
   },
   {
    "id": "auditoria",

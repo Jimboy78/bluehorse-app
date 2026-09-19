@@ -12,7 +12,21 @@ describe('toWorkoutLogInsert', () => {
       plan_session_id: 'session-1',
       started_at: '2026-09-05T10:00:00Z',
       client_id: 'client-1',
+      match_day_state: null,
     });
+  });
+
+  it('guarda en qué momento del partido se entrenó (`docs/research/65`)', () => {
+    expect(
+      toWorkoutLogInsert(
+        'w-1',
+        'user-1',
+        'session-1',
+        'client-1',
+        '2026-09-05T10:00:00Z',
+        'day_before',
+      ).match_day_state,
+    ).toBe('day_before');
   });
 });
 

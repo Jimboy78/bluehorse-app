@@ -18,7 +18,10 @@ create table workout_logs (
   /* Clave de idempotencia generada en el teléfono. Ancla de la cola offline:
      si el envío se reintenta, no se duplica la sesión. */
   client_id text not null unique,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  /* En qué momento del partido se entrenó (`docs/research/65`). Nulo: sin
+     partidos. Una sesión recortada porque juega mañana no es una incompleta. */
+  match_day_state match_day_state
 );
 
 create index workout_logs_user_idx on workout_logs (user_id, started_at desc);
@@ -99,6 +102,19 @@ create table rest_days (
   user_id uuid not null references profiles (id) on delete cascade,
   gym_id uuid not null references gyms (id) on delete restrict,
   day date not null,
+  created_at timestamptz not null default now(),
+  unique (user_id, day)
+);
+
+-- Los cambios al partido fijo de una semana (`docs/research/65`): un día en que
+-- juega sin que sea el fijo (`plays` true), o un fijo que no se juega (false).
+-- Único por socio y día: declararlo dos veces no son dos partidos.
+create table match_exceptions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references profiles (id) on delete cascade,
+  gym_id uuid not null references gyms (id) on delete restrict,
+  day date not null,
+  plays boolean not null,
   created_at timestamptz not null default now(),
   unique (user_id, day)
 );

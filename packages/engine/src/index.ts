@@ -6,6 +6,8 @@ import rawV1 from './rulesets/v1-research.json' with { type: 'json' };
 export type { Aviso, ContextoDelSocio, Modulo } from './contexto.ts';
 export { excluido, ORDEN_DE_AVISOS, ocultaElPulso, resolverContexto } from './contexto.ts';
 export * from './contract.ts';
+export type { PartidosDelSocio } from './partido.ts';
+export { estadoDelDia, excepcionesParaEstado } from './partido.ts';
 export { createPlaceholderEngine } from './placeholder-engine.ts';
 export { createRng } from './rng.ts';
 export * from './ruleset.ts';

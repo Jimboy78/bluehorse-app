@@ -14,6 +14,10 @@ create type sex as enum ('female', 'male', 'other', 'undisclosed');
 -- Momento de la temporada. Espejo de SEASON_PHASES en packages/domain.
 create type season_phase as enum ('preseason', 'in_season', 'off_season', 'none');
 
+-- Momento del partido del día (`docs/research/07`, `65`). Espejo de
+-- MATCH_DAY_STATES en packages/domain/src/enums.ts.
+create type match_day_state as enum ('normal', 'day_after', 'two_days_after', 'day_before', 'match_day');
+
 create type movement_pattern as enum (
   'squat', 'hinge', 'lunge', 'horizontal_push', 'horizontal_pull',
   'vertical_push', 'vertical_pull', 'carry', 'core', 'isolation', 'cardio', 'mobility',

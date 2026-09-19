@@ -1,4 +1,4 @@
-import type { EquipmentLoadSpec, LoadReading, LoadUnit } from '@bh/domain';
+import type { EquipmentLoadSpec, LoadReading, LoadUnit, MatchDayState } from '@bh/domain';
 import { toKg } from '@bh/domain';
 
 /**
@@ -15,6 +15,8 @@ export interface WorkoutLogInsertRow {
   readonly plan_session_id: string;
   readonly started_at: string;
   readonly client_id: string;
+  /** En qué momento del partido se entrenó; `null` sin partidos (`docs/research/65`). */
+  readonly match_day_state: MatchDayState | null;
 }
 
 export function toWorkoutLogInsert(
@@ -23,6 +25,7 @@ export function toWorkoutLogInsert(
   planSessionId: string,
   clientId: string,
   startedAt: string,
+  matchDayState: MatchDayState | null = null,
 ): WorkoutLogInsertRow {
   return {
     id,
@@ -30,6 +33,7 @@ export function toWorkoutLogInsert(
     plan_session_id: planSessionId,
     started_at: startedAt,
     client_id: clientId,
+    match_day_state: matchDayState,
   };
 }
 

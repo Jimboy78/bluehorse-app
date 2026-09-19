@@ -24,6 +24,7 @@ import type { SetActual } from '../lib/mappers/session-log.ts';
 import { checkPop, fadeUp, listContainer, listItem, screen, tappable } from '../lib/motion.ts';
 import { objetivoDeLaFila, repsDeLaSerie } from '../lib/objetivo.ts';
 import { onboardingUnavailable, useProfileStatus } from '../lib/onboarding.ts';
+import { useAjusteDelPartido } from '../lib/partido.ts';
 import type { ActiveSessionItem } from '../lib/plan.ts';
 import { useActivePlan, useGeneratePlan, useRequestNextPlan } from '../lib/plan.ts';
 import { useRestToday, useSetRestToday } from '../lib/rest-days.ts';
@@ -32,6 +33,7 @@ import { useRestoredSession } from '../lib/session-restore.ts';
 import { proximoDeLaVuelta, superserieDe } from '../lib/superserie.ts';
 import { CardioRow } from './CardioRow.tsx';
 import { CargaPorMaximo } from './CargaPorMaximo.tsx';
+import { DiaDePartido } from './DiaDePartido.tsx';
 import { ElegirDia } from './ElegirDia.tsx';
 import { carriesLoad } from './LoadInput.tsx';
 import { PainReport } from './PainReport.tsx';
@@ -77,6 +79,9 @@ export function Hoy() {
 
   const profile = useProfileStatus();
   const restToday = useRestToday();
+  // El partido (`docs/research/65`): el estado del día y el catálogo para que
+  // el motor ajuste la sesión. Mientras no llegan, la sesión va como está.
+  const delPartido = useAjusteDelPartido();
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   // Por ejercicio, no una lista sola: en el gimnasio se vuelve a la lista todo
   // el tiempo (a ver qué máquina está libre) y las series que ya hiciste no se
@@ -115,6 +120,7 @@ export function Hoy() {
     user?.id,
     activePlanSessionId,
     restored.data,
+    delPartido.estado,
   );
 
   // Reconstruye en pantalla lo que ya está registrado en la base. Se hace una
@@ -153,7 +159,8 @@ export function Hoy() {
     );
   }
 
-  const session = plan.data.session;
+  const ajuste = delPartido.aplicar(plan.data.session.items);
+  const session = { ...plan.data.session, items: ajuste.items };
   const original = session.items.find((i) => i.id === activeItemId);
   const substitution = original ? substitutions[original.id] : undefined;
   // Los objetivos (series, reps, descanso) son los de la prescripción
@@ -333,6 +340,14 @@ export function Hoy() {
               focus={session.focus}
               seriesCompletas={seriesCompletas}
               seriesTotales={seriesTotales}
+            />
+
+            <DiaDePartido
+              estado={delPartido.estado}
+              nota={ajuste.nota}
+              cambiando={delPartido.cambiando}
+              error={delPartido.errorAlCambiar}
+              onCambiar={delPartido.cambiar}
             />
 
             <motion.ul

@@ -1,4 +1,4 @@
-import { EXPERIENCE_LEVELS, GOALS, SEXES } from '@bh/domain';
+import { EXPERIENCE_LEVELS, GOALS, SEASON_PHASES, SEXES } from '@bh/domain';
 import { z } from 'zod';
 import { activeRuleset } from '../../lib/engine.ts';
 
@@ -30,6 +30,13 @@ export const goalStepSchema = z.object({
       message: 'Elegí un deporte de la lista.',
     })
     .optional(),
+  /**
+   * Solo con deporte (`docs/research/65`). Sin deporte el mapper guarda
+   * `none` pase lo que pase, y sin temporada con partidos no guarda el día.
+   */
+  seasonPhase: z.enum(SEASON_PHASES).optional(),
+  /** 1 lunes … 7 domingo; `null` es "varía". */
+  matchWeekday: z.number().int().min(1).max(7).nullable().optional(),
 });
 
 /**

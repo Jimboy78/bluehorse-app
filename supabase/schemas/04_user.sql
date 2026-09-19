@@ -15,7 +15,11 @@ create table user_goals (
   sessions_per_week_target smallint not null check (sessions_per_week_target between 1 and 7),
   session_minutes_target smallint not null default 60 check (session_minutes_target between 15 and 180),
   is_active boolean not null default true,
-  started_at timestamptz not null default now()
+  started_at timestamptz not null default now(),
+  -- Día fijo de partido, ISO (1 lunes … 7 domingo). Nulo: no tiene partido fijo
+  -- o no lo declaró. Solo se pregunta en temporada, con un deporte de partidos
+  -- (`docs/research/65`). Los cambios de una semana van en `match_exceptions`.
+  match_weekday smallint check (match_weekday between 1 and 7)
 );
 
 create index user_goals_active_idx on user_goals (user_id) where is_active;

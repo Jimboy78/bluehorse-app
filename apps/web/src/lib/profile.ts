@@ -4,11 +4,13 @@ import type {
   Goal,
   Id,
   MovementLimit,
+  SeasonPhase,
   Sex,
   UserConstraint,
 } from '@bh/domain';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './auth/AuthProvider.tsx';
+import { temporadaYDia } from './partido.ts';
 import { requireSupabase } from './supabase.ts';
 
 /**
@@ -43,6 +45,9 @@ export interface ProfileDetail {
 export interface ActiveGoalDetail {
   readonly goal: Goal;
   readonly sport: string | null;
+  readonly seasonPhase: SeasonPhase;
+  /** 1 lunes … 7 domingo; `null` sin día fijo (`docs/research/65`). */
+  readonly matchWeekday: number | null;
   readonly sessionsPerWeekTarget: number;
   readonly sessionMinutesTarget: number;
   readonly startedAt: string;
@@ -69,7 +74,9 @@ export function useProfileDetail() {
 
       const { data: goalRow, error: goalError } = await client
         .from('user_goals')
-        .select('goal, sport, sessions_per_week_target, session_minutes_target, started_at')
+        .select(
+          'goal, sport, season_phase, match_weekday, sessions_per_week_target, session_minutes_target, started_at',
+        )
         .eq('user_id', userId)
         .eq('is_active', true)
         .order('priority')
@@ -100,12 +107,44 @@ export function useProfileDetail() {
           ? {
               goal: goalRow.goal as Goal,
               sport: goalRow.sport,
+              seasonPhase: goalRow.season_phase,
+              matchWeekday: goalRow.match_weekday,
               sessionsPerWeekTarget: goalRow.sessions_per_week_target,
               sessionMinutesTarget: goalRow.session_minutes_target,
               startedAt: goalRow.started_at,
             }
           : null,
       };
+    },
+  });
+}
+
+/**
+ * Cambia el momento de la temporada y el día de partido del objetivo activo
+ * (`docs/research/65`). La temporada se aplica en el próximo plan; el día de
+ * partido, desde la próxima sesión.
+ */
+export function useUpdateSeason() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: {
+      readonly sport: string | null;
+      readonly seasonPhase: SeasonPhase;
+      readonly matchWeekday: number | null;
+    }) => {
+      if (!user) throw new Error('No hay sesión activa.');
+      const limpio = temporadaYDia(input);
+      const { error } = await requireSupabase()
+        .from('user_goals')
+        .update({ season_phase: limpio.seasonPhase, match_weekday: limpio.matchWeekday })
+        .eq('user_id', user.id)
+        .eq('is_active', true);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['profile-detail', user?.id] });
     },
   });
 }

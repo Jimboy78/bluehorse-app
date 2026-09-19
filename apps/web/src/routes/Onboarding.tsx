@@ -1,4 +1,4 @@
-import type { ExperienceLevel, Goal, Sex } from '@bh/domain';
+import type { ExperienceLevel, Goal, SeasonPhase, Sex } from '@bh/domain';
 import {
   Activity,
   AlertCircle,
@@ -18,6 +18,7 @@ import { type FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router';
 import type { z } from 'zod';
 import { PlanPreview } from '../components/PlanPreview.tsx';
+import { TemporadaYDia } from '../components/TemporadaYDia.tsx';
 import {
   BrandMark,
   Button,
@@ -114,6 +115,8 @@ const STEPS = ['objetivo', 'personal', 'experiencia', 'frecuencia', 'calibracion
  */
 const FIELDS: Record<string, { readonly label: string; readonly step: number }> = {
   goal: { label: 'el objetivo', step: 0 },
+  seasonPhase: { label: 'el momento de la temporada', step: 0 },
+  matchWeekday: { label: 'el día de partido', step: 0 },
   birthDate: { label: 'la fecha de nacimiento', step: 1 },
   sex: { label: 'el sexo', step: 1 },
   weightKg: { label: 'el peso', step: 1 },
@@ -488,12 +491,14 @@ function StepNav({
 function GoalStep({ initial, onNext }: { initial: Draft; onNext: (patch: Draft) => void }) {
   const [goal, setGoal] = useState<Goal | null>(initial.goal ?? null);
   const [sport, setSport] = useState(initial.sport ?? '');
+  const [seasonPhase, setSeasonPhase] = useState<SeasonPhase>(initial.seasonPhase ?? 'none');
+  const [matchWeekday, setMatchWeekday] = useState<number | null>(initial.matchWeekday ?? null);
   const [touched, setTouched] = useState(false);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setTouched(true);
-    const parsed = goalStepSchema.safeParse({ goal, sport });
+    const parsed = goalStepSchema.safeParse({ goal, sport, seasonPhase, matchWeekday });
     if (!parsed.success) return;
     onNext(parsed.data);
   }
@@ -553,6 +558,16 @@ function GoalStep({ initial, onNext }: { initial: Draft; onNext: (patch: Draft) 
           ))}
         </select>
       </Field>
+
+      {sport && (
+        <TemporadaYDia
+          sport={sport}
+          seasonPhase={seasonPhase}
+          matchWeekday={matchWeekday}
+          onSeasonPhase={setSeasonPhase}
+          onMatchWeekday={setMatchWeekday}
+        />
+      )}
 
       <StepNav />
     </motion.form>

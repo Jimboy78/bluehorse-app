@@ -1,5 +1,6 @@
-import type { ExperienceLevel, Goal, Sex } from '@bh/domain';
+import type { ExperienceLevel, Goal, SeasonPhase, Sex } from '@bh/domain';
 import type { OnboardingInput } from '../../routes/onboarding/schemas.ts';
+import { temporadaYDia } from '../partido.ts';
 
 /**
  * Traducción entre el `camelCase` del dominio/formularios y el `snake_case`
@@ -30,6 +31,8 @@ export interface UserGoalInsertRow {
   readonly user_id: string;
   readonly goal: Goal;
   readonly sport: string | null;
+  readonly season_phase: SeasonPhase;
+  readonly match_weekday: number | null;
   readonly priority: number;
   readonly sessions_per_week_target: number;
   readonly session_minutes_target: number;
@@ -58,10 +61,18 @@ export function toBodyMetricInsert(
 }
 
 export function toUserGoalInsert(userId: string, input: OnboardingInput): UserGoalInsertRow {
+  const sport = input.sport?.trim() || null;
+  const { seasonPhase, matchWeekday } = temporadaYDia({
+    sport,
+    seasonPhase: input.seasonPhase,
+    matchWeekday: input.matchWeekday,
+  });
   return {
     user_id: userId,
     goal: input.goal,
-    sport: input.sport?.trim() || null,
+    sport,
+    season_phase: seasonPhase,
+    match_weekday: matchWeekday,
     priority: 1,
     sessions_per_week_target: input.sessionsPerWeekTarget,
     session_minutes_target: input.sessionMinutesTarget,
