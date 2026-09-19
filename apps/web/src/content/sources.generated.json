@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-19",
-  "resolved": 138,
+  "resolved": 142,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -835,6 +835,82 @@
       ],
       "documentos": [
         "07-dias-pre-y-post-partido.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bmj.k1662",
+      "title": "Education plus exercise versus corticosteroid injection use versus a wait and see approach on global outcome and pain from gluteal tendinopathy: prospective, single blinded, randomised clinical trial",
+      "authors": [
+        "Mellor",
+        "Bennell",
+        "Grimaldi"
+      ],
+      "moreAuthors": 5,
+      "year": 2018,
+      "journal": "BMJ",
+      "type": "journal-article",
+      "temas": [
+        "Dolor de cadera"
+      ],
+      "documentos": [
+        "49-dolor-de-cadera.md"
+      ]
+    },
+    {
+      "doi": "10.1177/20503121211022582",
+      "title": "Greater trochanteric pain syndrome: Evaluation and management of a wide spectrum of pathology",
+      "authors": [
+        "Pianka",
+        "Serino",
+        "DeFroda"
+      ],
+      "moreAuthors": 1,
+      "year": 2021,
+      "journal": "SAGE Open Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Dolor de cadera"
+      ],
+      "documentos": [
+        "49-dolor-de-cadera.md"
+      ]
+    },
+    {
+      "doi": "10.1136/ard-2023-225041",
+      "title": "EULAR recommendations for the non-pharmacological core management of hip and knee osteoarthritis: 2023 update",
+      "authors": [
+        "Moseng",
+        "Vliet Vlieland",
+        "Battista"
+      ],
+      "moreAuthors": 22,
+      "year": 2024,
+      "journal": "Annals of the Rheumatic Diseases",
+      "type": "journal-article",
+      "temas": [
+        "Dolor de cadera"
+      ],
+      "documentos": [
+        "49-dolor-de-cadera.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2019-101690",
+      "title": "Improving function in people with hip-related pain: a systematic review and meta-analysis of physiotherapist-led interventions for hip-related pain",
+      "authors": [
+        "Kemp",
+        "Mosler",
+        "Hart"
+      ],
+      "moreAuthors": 5,
+      "year": 2020,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Dolor de cadera"
+      ],
+      "documentos": [
+        "49-dolor-de-cadera.md"
       ]
     },
     {

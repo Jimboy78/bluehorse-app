@@ -21,6 +21,7 @@ import { EXPERIENCE_LEVELS } from '@bh/domain';
 import type {
   GeneratePlanInput,
   GymSnapshot,
+  PainRule,
   PlanBlueprint,
   SessionItemBlueprint,
   UserSnapshot,
@@ -175,6 +176,8 @@ const DIM = {
       ['knee', 4, 'injury'],
       ['shoulder', 3, 'pain'],
       ['hip', 3, 'pain'],
+      ['hip', 4, 'pain'],
+      ['hip', 3, 'injury'],
     ] as ([BodyRegion, number, UserConstraint['type']] | null)[],
     (b, v) => {
       if (!v) return;
@@ -320,6 +323,7 @@ describe('barrido de socios generados', () => {
   let conEquilibrio = 0;
   let conImpacto = 0;
   let conPisoDeRir = 0;
+  let conZonaEvitada = 0;
 
   /**
    * Desde la edad del ruleset, toda sesión cierra con equilibrio; antes, ninguna
@@ -401,6 +405,22 @@ describe('barrido de socios generados', () => {
     if (b.warnings.slice(0, molestia.length).join('|') !== molestia.join('|')) {
       violaciones.push(`los avisos de molestia no van primero: ${id}`);
     }
+  }
+
+  /**
+   * Lo que una regla de dolor saca no vuelve a entrar por ningún lado: ni por la
+   * plantilla, ni por un bloque, ni por una sustitución (`docs/research/49`).
+   */
+  function chequearZonaQueDuele(p: Perfil, it: SessionItemBlueprint, reglas: readonly PainRule[]) {
+    const ex = exPorId.get(it.exerciseId);
+    if (!ex) return;
+    const regla = reglas.find(
+      (r) =>
+        r.avoidPatterns.includes(ex.pattern) ||
+        ex.primaryMuscles.some((m) => r.avoidMuscles.includes(m)),
+    );
+    if (regla)
+      violaciones.push(`${ex.name} con ${regla.bodyRegion} a evitar: ${JSON.stringify(p)}`);
   }
 
   function chequearItem(
@@ -485,11 +505,14 @@ describe('barrido de socios generados', () => {
     const b = engine.generatePlan(inp);
     avisosPorPlan.push(b.warnings.length);
     chequearAvisos(p, inp, b);
+    const evitar = resolverContexto(inp).avoidRules;
+    if (evitar.length > 0) conZonaEvitada += 1;
     for (const s of b.sessions) {
       if (s.items.length === 0) violaciones.push(`sesión vacía: ${JSON.stringify(p)}`);
       s.items.forEach((it, i) => {
         items += 1;
         chequearItem(p, it, s.items[i - 1]);
+        chequearZonaQueDuele(p, it, evitar);
         usoEx.set(it.exerciseId, (usoEx.get(it.exerciseId) ?? 0) + 1);
         if (it.equipmentId) usoEq.set(it.equipmentId, (usoEq.get(it.equipmentId) ?? 0) + 1);
       });
@@ -518,6 +541,7 @@ describe('barrido de socios generados', () => {
     expect(conEquilibrio).toBeGreaterThan(N);
     expect(conImpacto).toBeGreaterThan(N / 10);
     expect(conPisoDeRir).toBeGreaterThan(N);
+    expect(conZonaEvitada).toBeGreaterThan(N / 10);
   });
 
   it('ninguna combinación rompe una invariante', () => {

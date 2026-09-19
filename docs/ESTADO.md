@@ -1,6 +1,13 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T2f: embarazo y posparto)
+## Última actualización: 19 de septiembre de 2026 (T3a: dolor de cadera)
+
+`docs/research/49`. La cadera tiene regla de dolor: con 7 de 10 o más salen zancadas y sentadillas,
+las bisagras y el glúteo siguen (la fuerza es el tratamiento: LEAP 2018, EULAR 2023). El barrido
+suma una invariante que no existía para ninguna zona: lo que una regla de dolor saca no vuelve a
+entrar. Quedan sin regla codo, espalda alta, tobillo y "otra".
+
+## 19 de septiembre de 2026 (T2f: embarazo y posparto)
 
 `docs/research/48`. Las dos sacan saltos, lanzamientos e impacto, y no tocan la dosis: la fuerza
 intensa fue bien tolerada en el embarazo (Moolyk 2025) y la OMS no pide autorización para la

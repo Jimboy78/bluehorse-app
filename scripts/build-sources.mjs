@@ -77,6 +77,7 @@ const TEMAS = {
   46: 'Osteoporosis, suelo pélvico y hernia',
   47: 'Ojos, epilepsia y respiración',
   48: 'Embarazo y posparto',
+  49: 'Dolor de cadera',
 };
 
 // El `]` y el `(` cierran un enlace de markdown: sin ellos, un DOI escrito como

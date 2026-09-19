@@ -310,7 +310,7 @@ const safetySchema = z.object({
   /**
    * Qué se le dice a quien declara una zona para la que **no hay regla**.
    *
-   * El socio elige entre diez zonas (`BODY_REGIONS`) y `painRules` cubre cinco.
+   * El socio elige entre diez zonas (`BODY_REGIONS`) y `painRules` no cubre todas.
    * Sin esto, declarar una lesión de severidad 5 en la cadera producía el plan
    * completo y **cero avisos** — indistinguible de "miramos y no hay nada que
    * ajustar". Es la regla dura 4 al revés: el silencio afirma una cobertura que

@@ -730,9 +730,9 @@ function masSeveraPorZona(rules: readonly PainRule[]): readonly PainRule[] {
 /**
  * Las zonas declaradas para las que el ruleset no tiene regla.
  *
- * `BODY_REGIONS` ofrece diez y `painRules` cubre cinco. Codo, espalda alta,
- * cadera, tobillo y "otra" no tienen ninguna, y hasta acá eso se veía igual que
- * no tener nada: plan completo y ni un aviso. Ver `27-zonas-sin-regla.md`.
+ * `BODY_REGIONS` ofrece diez zonas y `painRules` no las cubre todas (la cadera
+ * entró en `49`). Antes de `27`, una zona sin regla se veía igual que no tener
+ * nada: plan completo y ni un aviso.
  */
 function avisosDeZonaSinRegla(ruleset: Ruleset, constraints: readonly UserConstraint[]): string[] {
   const texto = ruleset.safety?.noRuleForRegion?.text;

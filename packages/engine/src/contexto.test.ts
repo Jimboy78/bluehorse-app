@@ -442,6 +442,32 @@ describe('resolverContexto', () => {
     expect(sana.sinExplosivosPorSalud).toBe(false);
   });
 
+  it('cadera: sin zancadas desde 4, sin sentadillas con 4; el trabajo de glúteo sigue', () => {
+    // `docs/research/49`: la fuerza es el tratamiento; lo que empeora es la
+    // sentadilla profunda y las escaleras (zancada, subida al cajón).
+    const zancada = ex('zancada', { pattern: 'lunge' });
+    const sentadilla = ex('sentadilla', { pattern: 'squat' });
+    const hipThrust = ex('hip-thrust', { pattern: 'hinge', primaryMuscles: ['glutes'] });
+    const cadera = (severity: number, type: UserConstraint['type'] = 'pain') =>
+      resolverContexto(
+        input({
+          constraints: [{ type, bodyRegion: 'hip', exerciseId: null, equipmentId: null, severity }],
+        }),
+      );
+    const leve = cadera(3);
+    expect(excluido(leve, zancada)).toBe(false);
+    expect(leve.avisos.some((a) => a.texto.includes('la cadera'))).toBe(true);
+    const fuerte = cadera(4);
+    expect(excluido(fuerte, zancada)).toBe(true);
+    expect(excluido(fuerte, sentadilla)).toBe(true);
+    expect(excluido(fuerte, hipThrust)).toBe(false);
+    // Una lesión saca desde el umbral de monitoreo.
+    expect(excluido(cadera(3, 'injury'), zancada)).toBe(true);
+    // Ya no es una zona sin regla.
+    const sinRegla = V1_RESEARCH.safety?.noRuleForRegion?.text.replace('{region}', 'la cadera');
+    expect(fuerte.avisos.map((a) => a.texto)).not.toContain(sinRegla);
+  });
+
   it('asma: el plan no cambia, sale el aviso del broncodilatador', () => {
     const sano = resolverContexto(input({}));
     const asma = resolverContexto(input({ conditions: ['asthma'] }));

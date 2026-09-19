@@ -1529,6 +1529,31 @@
         "confidence": "low"
       },
       {
+        "bodyRegion": "hip",
+        "monitorFrom": 3,
+        "avoidFrom": 4,
+        "avoidPatterns": [
+          "lunge"
+        ],
+        "avoidMuscles": [],
+        "keepDoing": "Seguí fortaleciendo los glúteos con lo que no duela (hip thrust, abductores, puente): es lo que más la mejora. Evitá lo que aprieta el costado de la cadera: cruzar las piernas, dormir sobre ese lado, sentadillas muy profundas. La bici suele andar bien.",
+        "referIf": "Te caíste y te cuesta apoyar la pierna, el dolor es en la ingle y empeora al correr o saltar hasta no dejarte seguir, o te duele también quieto y de noche.",
+        "confidence": "low"
+      },
+      {
+        "bodyRegion": "hip",
+        "monitorFrom": 4,
+        "avoidFrom": 4,
+        "avoidPatterns": [
+          "lunge",
+          "squat"
+        ],
+        "avoidMuscles": [],
+        "keepDoing": "Trabajo de glúteos sin flexionar mucho la cadera (hip thrust, abductores en máquina), tren superior y core. Evitá cruzar las piernas y dormir sobre ese lado.",
+        "referIf": "Te caíste y te cuesta apoyar la pierna, el dolor es en la ingle y empeora al correr o saltar hasta no dejarte seguir, o te duele también quieto y de noche.",
+        "confidence": "low"
+      },
+      {
         "bodyRegion": "shoulder",
         "monitorFrom": 3,
         "avoidFrom": 4,

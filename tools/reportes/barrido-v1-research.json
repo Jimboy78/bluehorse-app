@@ -22,39 +22,39 @@
     "Sandbags"
   ],
   "ejerciciosMasUsados": [
-    "Caminata en puntas de pie: 5 % de los ítems",
-    "Caminata en talones: 5 % de los ítems",
     "Caminata de costado: 5 % de los ítems",
+    "Caminata en talones: 5 % de los ítems",
+    "Caminata en puntas de pie: 5 % de los ítems",
     "Caminata talón-punta: 5 % de los ítems",
     "Caminata hacia atrás: 5 % de los ítems",
     "Pararse y sentarse: 4 % de los ítems",
     "Remo sentado: 4 % de los ítems",
-    "Remo invertido en TRX: 3 % de los ítems",
     "Dead bug: 3 % de los ítems",
+    "Remo invertido en TRX: 3 % de los ítems",
     "Dorsalera con agarre neutro: 3 % de los ítems"
   ],
   "estacionesMasUsadas": [
-    "Mancuernas sueltas (set): 7 % de los ítems",
+    "Mancuernas sueltas (set): 6 % de los ítems",
     "Dual Lat Pulldown & Row: 4 % de los ítems",
     "Rack de mancuernas hexagonales: 4 % de los ítems",
     "Cross Over funcional doble (Dual Cable Cross): 4 % de los ítems",
-    "Cajones pliométricos: 4 % de los ítems"
+    "Rig de pared (dominadas + bolsa de boxeo + soga + TRX): 4 % de los ítems"
   ],
   "avisosPorPlan": {
-    "media": 8.7,
+    "media": 9.5,
     "max": 19
   },
   "sesionesQuePasanLosMinutosDeclarados": "22 %",
   "cambiaElPlanAlCambiarSolo": {
     "goal": "96 %",
     "nivel": "100 %",
-    "edad": "64 %",
-    "sexo": "6 %",
+    "edad": "63 %",
+    "sexo": "4 %",
     "sesiones": "38 %",
     "minutos": "0 %",
-    "deporte": "47 %",
+    "deporte": "46 %",
     "fase": "52 %",
-    "molestia": "60 %",
+    "molestia": "74 %",
     "ausencia": "0 %",
     "salud": "34 %"
   }

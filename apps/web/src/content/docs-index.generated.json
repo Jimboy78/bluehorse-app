@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-19T02:28:34.345Z",
+ "generatedAt": "2026-09-19T02:46:00.428Z",
  "docs": [
   {
    "id": "metodo",
@@ -392,6 +392,14 @@
    "resumen": "Fecha: 19/09/2026. Tanda: T2f del plan de variables. Las dos entradas del grupo \"solo mujeres\" de la lista de salud (43). No se le muestran a quien declaró sexo masculino.",
    "archivo": "48-embarazo-y-posparto.md",
    "bloques": 24
+  },
+  {
+   "id": "49-dolor-de-cadera",
+   "orden": 49,
+   "titulo": "Dolor de cadera: la regla que faltaba",
+   "resumen": "Fecha: 19/09/2026. Tanda: T3a del plan de variables, la primera de lesiones. 27 dejó cinco zonas sin regla (codo, espalda alta, cadera, tobillo y \"otra\") y dejó como decisión del dueño si investigarlas. En el checklist, el dueño marcó \"z…",
+   "archivo": "49-dolor-de-cadera.md",
+   "bloques": 23
   },
   {
    "id": "auditoria",
