@@ -88,6 +88,7 @@ const TEMAS = {
   57: 'Esguince de tobillo',
   58: 'Movimientos que no puede',
   59: 'Minutos por sesión',
+  60: 'La pausa del principiante',
 };
 
 // El `]` y el `(` cierran un enlace de markdown: sin ellos, un DOI escrito como

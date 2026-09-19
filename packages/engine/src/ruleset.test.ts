@@ -88,3 +88,46 @@ describe('notas de confianza por objetivo', () => {
     expect(V1_RESEARCH.prescription.strength?.confidence).toBe('high');
   });
 });
+
+/**
+ * LA PAUSA DEL QUE RECIÉN EMPIEZA (`docs/research/60`)
+ *
+ * El principiante descansaba más que el intermedio (210 s contra 180 en el
+ * principal de fuerza) por un "×1,2" que `04` le atribuía a ACSM 2009, y ACSM
+ * no dice eso. Grgic 2017 (23 estudios): en no entrenados alcanzan 60-120 s.
+ * Singer 2024: en hipertrofia no se ve diferencia pasando de 90 s.
+ */
+describe('la pausa del principiante', () => {
+  const slots = ['primary', 'secondary', 'isolation'] as const;
+  const pausasDe = (goal: 'strength' | 'hypertrophy' | 'recomposition') => {
+    const p = resolveParams(V1_RESEARCH, goal, 'beginner');
+    return slots.map((s) => p[s].restSeconds);
+  };
+
+  // Solo en los multiarticulares, que es por donde entraba el ×1,2. El aislado
+  // de hipertrofia queda en 90 s por decisión del dueño (19/09/2026: "90 s en
+  // todos"), arriba de los 60 del nivel por defecto y dentro de lo que Singer
+  // 2024 todavía ve rendir.
+  it('en los multiarticulares nunca es más larga que la del nivel por defecto', () => {
+    for (const goal of Object.keys(V1_RESEARCH.prescription) as (keyof Ruleset['prescription'])[]) {
+      const base = V1_RESEARCH.prescription[goal]?.default;
+      if (!base) continue;
+      const principiante = resolveParams(V1_RESEARCH, goal, 'beginner');
+      for (const s of ['primary', 'secondary'] as const) {
+        expect(principiante[s].restSeconds, `${goal}.${s}`).toBeLessThanOrEqual(
+          base[s].restSeconds,
+        );
+      }
+    }
+  });
+
+  it('en fuerza queda en lo que alcanza a quien no entrenó (Grgic 2017: 60-120 s)', () => {
+    for (const pausa of pausasDe('strength')) expect(pausa).toBeLessThanOrEqual(120);
+  });
+
+  it('en hipertrofia y recomposición no pasa de 90 s (Singer 2024)', () => {
+    for (const pausa of [...pausasDe('hypertrophy'), ...pausasDe('recomposition')]) {
+      expect(pausa).toBeLessThanOrEqual(90);
+    }
+  });
+});

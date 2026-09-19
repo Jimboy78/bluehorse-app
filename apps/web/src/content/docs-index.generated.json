@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-19T16:01:38.135Z",
+ "generatedAt": "2026-09-19T16:17:26.300Z",
  "docs": [
   {
    "id": "metodo",
@@ -39,7 +39,7 @@
    "titulo": "Individualización y seguridad",
    "resumen": "Fuentes: Ratamess et al. (ACSM) 2009; Phillips et al. (resumen ACSM 2023); Phillips et al. (BJSports 2023); Haugen et al. 2023 (meta libre vs máquina); Makaruk et al. 2024 (RT y rendimiento deportivo); Phillips et al. (narrativo diferenc…",
    "archivo": "04-individualizacion-seguridad.md",
-   "bloques": 9
+   "bloques": 10
   },
   {
    "id": "05-seguridad-reforzada",
@@ -480,6 +480,14 @@
    "resumen": "Fecha: 19/09/2026. Tanda: T4a del plan de variables. En el checklist es pedir: \"días por semana, minutos por sesión, descanso\".",
    "archivo": "59-minutos-por-sesion.md",
    "bloques": 25
+  },
+  {
+   "id": "60-la-pausa-del-principiante",
+   "orden": 60,
+   "titulo": "La pausa del principiante, y el descanso que no se pregunta",
+   "resumen": "Fecha: 19/09/2026. Tanda: T4b del plan de variables. En el checklist, \"descanso\" es pedir; el dueño aclaró que es el descanso entre series (los días de descanso salen de los días por semana).",
+   "archivo": "60-la-pausa-del-principiante.md",
+   "bloques": 18
   },
   {
    "id": "auditoria",

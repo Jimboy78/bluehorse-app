@@ -154,7 +154,6 @@ motor. Lo nuevo está en el ruleset:
   suya si el cardio continuo baja con los minutos (y hasta dónde).
 - **El piso de pausa es por nivel, no por objetivo.** Para hipertrofia, Singer 2024 no encuentra
   beneficio en pasar de 90 s, y el piso de un intermedio es 120 s. Queda así, del lado prudente.
-- **La pausa del principiante en fuerza es de 210 s** en el ruleset, y Grgic 2017 dice que en no
-  entrenados alcanzan 60-120 s. El ajuste la baja a 90 s solo cuando no entra; con tiempo de sobra
-  queda en 210. Es una pregunta para el dueño, no un cambio de esta tanda.
-- **El descanso entre series como preferencia del socio** (T4b).
+- **La pausa del principiante** era más larga que la del intermedio, sin respaldo. Se corrigió en
+  `60`, que también decide no preguntarle al socio por el descanso.
+- **El cardio continuo** baja con los minutos hasta un piso (T4c).

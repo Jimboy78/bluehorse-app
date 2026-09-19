@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-19",
-  "resolved": 167,
+  "resolved": 169,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -15,11 +15,13 @@
       "type": "journal-article",
       "temas": [
         "ACSM 2026",
+        "La pausa del principiante",
         "Progresión y descarga"
       ],
       "documentos": [
         "03-progresion-descarga.md",
-        "26-acsm-2026.md"
+        "26-acsm-2026.md",
+        "60-la-pausa-del-principiante.md"
       ]
     },
     {
@@ -2072,6 +2074,86 @@
       ]
     },
     {
+      "doi": "10.1007/s40279-017-0788-x",
+      "title": "Effects of Rest Interval Duration in Resistance Training on Measures of Muscular Strength: A Systematic Review",
+      "authors": [
+        "Grgic",
+        "Schoenfeld",
+        "Skrepnik"
+      ],
+      "moreAuthors": 2,
+      "year": 2017,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "La pausa del principiante",
+        "Minutos por sesión"
+      ],
+      "documentos": [
+        "59-minutos-por-sesion.md",
+        "60-la-pausa-del-principiante.md"
+      ]
+    },
+    {
+      "doi": "10.3389/fspor.2024.1429789",
+      "title": "Give it a rest: a systematic review with Bayesian meta-analysis on the effect of inter-set rest interval duration on muscle hypertrophy",
+      "authors": [
+        "Singer",
+        "Wolf",
+        "Generoso"
+      ],
+      "moreAuthors": 8,
+      "year": 2024,
+      "journal": "Frontiers in Sports and Active Living",
+      "type": "journal-article",
+      "temas": [
+        "La pausa del principiante",
+        "Minutos por sesión"
+      ],
+      "documentos": [
+        "59-minutos-por-sesion.md",
+        "60-la-pausa-del-principiante.md"
+      ]
+    },
+    {
+      "doi": "10.1519/JSC.0000000000001272",
+      "title": "Longer Interset Rest Periods Enhance Muscle Strength and Hypertrophy in Resistance-Trained Men",
+      "authors": [
+        "Schoenfeld",
+        "Pope",
+        "Benik"
+      ],
+      "moreAuthors": 10,
+      "year": 2016,
+      "journal": "Journal of Strength and Conditioning Research",
+      "type": "journal-article",
+      "temas": [
+        "La pausa del principiante"
+      ],
+      "documentos": [
+        "60-la-pausa-del-principiante.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s00421-014-3014-7",
+      "title": "Short rest interval lengths between sets optimally enhance body composition and performance with 8 weeks of strength resistance training in older men",
+      "authors": [
+        "Villanueva",
+        "Lane",
+        "Schroeder"
+      ],
+      "moreAuthors": 0,
+      "year": 2014,
+      "journal": "European Journal of Applied Physiology",
+      "type": "journal-article",
+      "temas": [
+        "La pausa del principiante"
+      ],
+      "documentos": [
+        "60-la-pausa-del-principiante.md"
+      ]
+    },
+    {
       "doi": "10.1136/bjsports-2017-098983",
       "title": "Musculoskeletal pain and exercise—challenging existing paradigms and introducing new",
       "authors": [
@@ -2206,25 +2288,6 @@
       ]
     },
     {
-      "doi": "10.1007/s40279-017-0788-x",
-      "title": "Effects of Rest Interval Duration in Resistance Training on Measures of Muscular Strength: A Systematic Review",
-      "authors": [
-        "Grgic",
-        "Schoenfeld",
-        "Skrepnik"
-      ],
-      "moreAuthors": 2,
-      "year": 2017,
-      "journal": "Sports Medicine",
-      "type": "journal-article",
-      "temas": [
-        "Minutos por sesión"
-      ],
-      "documentos": [
-        "59-minutos-por-sesion.md"
-      ]
-    },
-    {
       "doi": "10.1080/17461391.2017.1340524",
       "title": "The effects of short versus long inter‐set rest intervals in resistance training on measures of muscle hypertrophy: A systematic review",
       "authors": [
@@ -2235,25 +2298,6 @@
       "moreAuthors": 2,
       "year": 2017,
       "journal": "European Journal of Sport Science",
-      "type": "journal-article",
-      "temas": [
-        "Minutos por sesión"
-      ],
-      "documentos": [
-        "59-minutos-por-sesion.md"
-      ]
-    },
-    {
-      "doi": "10.3389/fspor.2024.1429789",
-      "title": "Give it a rest: a systematic review with Bayesian meta-analysis on the effect of inter-set rest interval duration on muscle hypertrophy",
-      "authors": [
-        "Singer",
-        "Wolf",
-        "Generoso"
-      ],
-      "moreAuthors": 8,
-      "year": 2024,
-      "journal": "Frontiers in Sports and Active Living",
       "type": "journal-article",
       "temas": [
         "Minutos por sesión"

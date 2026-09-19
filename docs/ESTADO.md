@@ -1,6 +1,17 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T4a: los minutos arman la sesión)
+## Última actualización: 19 de septiembre de 2026 (T4b: la pausa del principiante)
+
+`docs/research/60`. El principiante descansaba más que el intermedio (210 s contra 180 en el
+principal de fuerza) por un ×1,2 que `04` le atribuía a ACSM 2009 y ACSM no dice. Grgic 2017: en
+no entrenados alcanzan 60-120 s; Singer 2024: en hipertrofia nada se ve pasando de 90 s.
+Corregido por decisión del dueño: principiante de fuerza 120/90/90 s, de hipertrofia y
+recomposición 90 s en todos (el aislado sube de 75 a 90: así lo decidió). La sesión de fuerza de un
+principiante baja de 41 a 27 minutos. El descanso no se le pregunta al socio: lo gobiernan los
+minutos (T4a). Tres tests nuevos en `ruleset.test.ts`, rojos con los valores viejos. Sigue T4c: el
+cardio continuo baja con los minutos hasta un piso.
+
+## 19 de septiembre de 2026 (T4a: los minutos arman la sesión)
 
 `docs/research/59`. El motor estima cada sesión desde la prescripción (30 s por serie más la
 pausa, Schoenfeld 2019) y, si no entra en los minutos declarados, la achica en el orden del dueño:
