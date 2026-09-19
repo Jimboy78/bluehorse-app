@@ -1,6 +1,13 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T3b: dolor de tobillo)
+## Última actualización: 19 de septiembre de 2026 (T3c: dolor de codo)
+
+`docs/research/51`. El codo tiene regla: desde 7 de 10 sale el agarre puro (caminata del granjero);
+con "no puedo", también el curl. Remos y dorsalera siguen, con correas o agarre neutro. Falta en el
+catálogo un ejercicio de extensores de muñeca, que sería el tratamiento específico. Quedan sin regla
+espalda alta y "otra".
+
+## 19 de septiembre de 2026 (T3b: dolor de tobillo)
 
 `docs/research/50`. El tobillo tiene regla: los saltos y el impacto ya salían con cualquier molestia
 (es lo que pide la guía de Aquiles); desde 7 de 10 salen también las zancadas. Gemelos y equilibrio

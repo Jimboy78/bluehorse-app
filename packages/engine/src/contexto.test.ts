@@ -497,6 +497,35 @@ describe('resolverContexto', () => {
     expect(fuerte.avisos.map((a) => a.texto)).not.toContain(sinRegla);
   });
 
+  it('codo: sin agarre puro desde 4, sin curl con "no puedo"; los tirones siguen', () => {
+    // `docs/research/51`: lo que carga el tendón es agarrar fuerte; con
+    // ejercicio mejora antes que esperando (Bisset 2006).
+    const granjero = ex('granjero', { pattern: 'carry', primaryMuscles: ['forearms', 'traps'] });
+    const curl = ex('curl', { pattern: 'isolation', primaryMuscles: ['biceps'] });
+    const remo = ex('remo', {
+      pattern: 'horizontal_pull',
+      primaryMuscles: ['back', 'lats'],
+      secondaryMuscles: ['biceps'],
+    });
+    const codo = (severity: number, type: UserConstraint['type'] = 'pain') =>
+      resolverContexto(
+        input({
+          constraints: [
+            { type, bodyRegion: 'elbow', exerciseId: null, equipmentId: null, severity },
+          ],
+        }),
+      );
+    expect(excluido(codo(3), granjero)).toBe(false);
+    expect(excluido(codo(4), granjero)).toBe(true);
+    expect(excluido(codo(4), curl)).toBe(false);
+    expect(excluido(codo(5), curl)).toBe(true);
+    expect(excluido(codo(5), remo)).toBe(false);
+    // Una lesión saca desde el umbral de monitoreo de cada tramo.
+    expect(excluido(codo(4, 'injury'), curl)).toBe(true);
+    const sinRegla = V1_RESEARCH.safety?.noRuleForRegion?.text.replace('{region}', 'el codo');
+    expect(codo(4).avisos.map((a) => a.texto)).not.toContain(sinRegla);
+  });
+
   it('asma: el plan no cambia, sale el aviso del broncodilatador', () => {
     const sano = resolverContexto(input({}));
     const asma = resolverContexto(input({ conditions: ['asthma'] }));

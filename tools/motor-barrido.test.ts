@@ -168,8 +168,14 @@ const DIM = {
   fase: dim(['none', 'preseason', 'in_season'] as SeasonPhase[], (b, v) => {
     b.goal.seasonPhase = b.goal.sport ? v : 'none';
   }),
+  // Sin molestia pesa cuatro veces: es lo que declara la mayoría, y es la
+  // condición del bloque de impacto. Con una zona nueva por tanda (`49`–`51`), un
+  // solo `null` entre catorce dejaba ese bloque casi sin mirar.
   molestia: dim(
     [
+      null,
+      null,
+      null,
       null,
       ['lower_back', 2, 'pain'],
       ['lower_back', 5, 'pain'],
@@ -181,6 +187,9 @@ const DIM = {
       ['ankle', 3, 'pain'],
       ['ankle', 4, 'pain'],
       ['ankle', 3, 'injury'],
+      ['elbow', 4, 'pain'],
+      ['elbow', 5, 'pain'],
+      ['elbow', 4, 'injury'],
     ] as ([BodyRegion, number, UserConstraint['type']] | null)[],
     (b, v) => {
       if (!v) return;

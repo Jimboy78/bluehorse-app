@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-19",
-  "resolved": 145,
+  "resolved": 147,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -911,6 +911,44 @@
       ],
       "documentos": [
         "49-dolor-de-cadera.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bmj.38961.584653.ae",
+      "title": "Mobilisation with movement and exercise, corticosteroid injection, or wait and see for tennis elbow: randomised trial",
+      "authors": [
+        "Bisset",
+        "Beller",
+        "Jull"
+      ],
+      "moreAuthors": 3,
+      "year": 2006,
+      "journal": "BMJ",
+      "type": "journal-article",
+      "temas": [
+        "Dolor de codo"
+      ],
+      "documentos": [
+        "51-dolor-de-codo.md"
+      ]
+    },
+    {
+      "doi": "10.1177/2325967116670635",
+      "title": "Lateral Elbow Tendinopathy",
+      "authors": [
+        "Bhabra",
+        "Wang",
+        "Ebert"
+      ],
+      "moreAuthors": 3,
+      "year": 2016,
+      "journal": "Orthopaedic Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Dolor de codo"
+      ],
+      "documentos": [
+        "51-dolor-de-codo.md"
       ]
     },
     {

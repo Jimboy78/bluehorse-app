@@ -1566,6 +1566,35 @@
         "confidence": "low"
       },
       {
+        "bodyRegion": "elbow",
+        "monitorFrom": 3,
+        "avoidFrom": 4,
+        "avoidPatterns": [
+          "carry"
+        ],
+        "avoidMuscles": [
+          "forearms"
+        ],
+        "keepDoing": "Seguí entrenando: con ejercicio mejora antes que esperando. Lo que más carga el codo es agarrar fuerte, así que en remos y dorsalera usá correas o el agarre neutro, y bajá el peso si apretar la manija duele más de 5 sobre 10.",
+        "referIf": "El dolor baja por el antebrazo con hormigueo o la mano se te duerme, perdiste fuerza para agarrar, o el codo se hinchó o se trabó después de un golpe.",
+        "confidence": "low"
+      },
+      {
+        "bodyRegion": "elbow",
+        "monitorFrom": 4,
+        "avoidFrom": 5,
+        "avoidPatterns": [
+          "carry"
+        ],
+        "avoidMuscles": [
+          "forearms",
+          "biceps"
+        ],
+        "keepDoing": "Tren inferior, empujes y core. En los tirones, correas o agarre neutro y menos peso; si igual duele al apretar, salteálos hasta que afloje.",
+        "referIf": "El dolor baja por el antebrazo con hormigueo o la mano se te duerme, perdiste fuerza para agarrar, o el codo se hinchó o se trabó después de un golpe.",
+        "confidence": "low"
+      },
+      {
         "bodyRegion": "shoulder",
         "monitorFrom": 3,
         "avoidFrom": 4,

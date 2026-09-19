@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-19T03:03:40.271Z",
+ "generatedAt": "2026-09-19T03:22:57.759Z",
  "docs": [
   {
    "id": "metodo",
@@ -408,6 +408,14 @@
    "resumen": "Fecha: 19/09/2026. Tanda: T3b del plan de variables. Es la segunda zona que 27 había dejado sin regla, después de la cadera (49). En un gimnasio, el tobillo que duele es casi siempre un esguince (agudo o que se repite) o una tendinopatía…",
    "archivo": "50-dolor-de-tobillo.md",
    "bloques": 21
+  },
+  {
+   "id": "51-dolor-de-codo",
+   "orden": 51,
+   "titulo": "Dolor de codo: la regla que faltaba",
+   "resumen": "Fecha: 19/09/2026. Tanda: T3c del plan de variables. Es la tercera zona que 27 había dejado sin regla, después de la cadera (49) y el tobillo (50). En un gimnasio, el codo que duele es casi siempre una tendinopatía lateral (\"codo de teni…",
+   "archivo": "51-dolor-de-codo.md",
+   "bloques": 17
   },
   {
    "id": "auditoria",

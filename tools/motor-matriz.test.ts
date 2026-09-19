@@ -2785,15 +2785,15 @@ describe('las zonas sin regla de dolor', () => {
     const plan = planDe(
       {
         ...base,
-        nombre: 'codo y espalda alta',
-        limitaciones: [molestia('elbow', 5, 'injury'), molestia('upper_back', 3)],
+        nombre: 'espalda alta y otra',
+        limitaciones: [molestia('upper_back', 5, 'injury'), molestia('other', 3)],
       },
       V1_RESEARCH,
     );
     const avisos = plan.warnings.filter((a) => a.includes(MARCA_SIN_REGLA));
     expect(avisos).toHaveLength(2);
-    expect(avisos.join('\n')).toContain('el codo');
     expect(avisos.join('\n')).toContain('la espalda alta');
+    expect(avisos.join('\n')).toContain('la zona que marcaste');
   });
 });
 
