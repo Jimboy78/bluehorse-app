@@ -874,9 +874,14 @@ function powerWarnings(
   if (goal.goal !== 'power' || ctx.sinExplosivosConAviso) return [];
 
   const exerciseById = new Map(gym.exercises.map((e) => [e.id, e]));
+  // Los aterrizajes de la prevención de rodilla son saltos, pero no el trabajo
+  // de potencia que este aviso extraña (`docs/research/63`).
   const hayExplosivo = sessions
     .flatMap((s) => s.items)
-    .some((item) => exerciseById.get(item.exerciseId)?.isExplosive === true);
+    .some((item) => {
+      const ex = exerciseById.get(item.exerciseId);
+      return ex?.isExplosive === true && !esDeBloque(ex);
+    });
 
   if (hayExplosivo) return [];
 

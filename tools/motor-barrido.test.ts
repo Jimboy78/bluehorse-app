@@ -182,7 +182,7 @@ const DIM = {
     b.goal.sessionMinutesTarget = v;
   }),
   deporte: dim(
-    [null, 'futbol', 'tenis', 'running', 'rugby', 'golf'] as (string | null)[],
+    [null, 'futbol', 'tenis', 'running', 'rugby', 'golf', 'voley'] as (string | null)[],
     (b, v) => {
       b.goal.sport = v;
     },
@@ -353,6 +353,8 @@ const PIDE: Readonly<Record<MovementLimit, readonly string[]>> = {
     'Zancada con salto',
     'Salto con barra hexagonal',
     'Saltitos en el lugar',
+    'Aterrizaje desde cajón',
+    'Salto lateral a un pie con aterrizaje clavado',
   ],
 };
 type Perfil = { [K in Clave]: (typeof DIM)[K]['valores'][number] };
@@ -670,7 +672,7 @@ describe('barrido de socios generados', () => {
     if (it.targetSets < 1 || it.targetRepsMin > it.targetRepsMax || it.restSeconds < 0) {
       violaciones.push(`dosis imposible en ${ex.name}: ${id}`);
     }
-    if (ex.isExplosive) chequearExplosivo(p, it, previo, ex.name);
+    if (esDelPar(ex)) chequearExplosivo(p, it, previo, ex.name);
     if (ex.loadsSpinalFlexion && p.salud.includes('osteoporosis')) {
       violaciones.push(`${ex.name} con osteoporosis: ${id}`);
     }
@@ -687,6 +689,11 @@ describe('barrido de socios generados', () => {
    * le llega a un adolescente con osteoporosis, `docs/research/46`; el nórdico,
    * a un adolescente que juega al fútbol, `62`); el cardio va por tiempo.
    */
+  /** Un explosivo del par: los aterrizajes de rodilla son explosivos de bloque (`63`). */
+  function esDelPar(ex: Exercise): boolean {
+    return ex.isExplosive && ex.prevents.length === 0;
+  }
+
   function chequearAdolescente(p: Perfil, it: SessionItemBlueprint, ex: Exercise) {
     const y = V1_RESEARCH.modifiers?.youth;
     if (!y || p.edad < y.fromAge || p.edad > y.toAge || !y.levels.includes(p.nivel)) return;
@@ -867,8 +874,17 @@ describe('barrido de socios generados', () => {
       }
     }
     if (p.fase !== 'in_season') return;
+    // Solo los programas con tope en temporada (el nórdico): los de rodilla van
+    // en toda sesión de pierna a propósito (`63`).
+    const conTope = new Set(
+      (V1_RESEARCH.sports?.prevention?.programs ?? [])
+        .filter((x) => x.inSeasonSessions !== null)
+        .map((x) => x.id),
+    );
     const { cuentan, peso } = semanaDe(b, p);
-    const veces = cuentan.filter((i) => (exPorId.get(i.exerciseId)?.prevents.length ?? 0) > 0);
+    const veces = cuentan.filter((i) =>
+      exPorId.get(i.exerciseId)?.prevents.some((x) => conTope.has(x)),
+    );
     if (veces.length > 0) prevencionEnTemporada.push(veces.length * peso);
   }
 
@@ -895,11 +911,17 @@ describe('barrido de socios generados', () => {
       .filter((s) => !s.items.some(esDePierna))
       .map(() => 'prevención sin pierna');
     const dePierna = vuelta.filter((s) => s.items.some(esDePierna)).length;
-    const cuota = p.fase === 'in_season' ? Math.min(prog.inSeasonSessions, dePierna) : dePierna;
+    const cuota = cuotaDePrevencion(p, prog, dePierna);
     if (conEste.length !== cuota) {
       quejas.push(`prevención en ${conEste.length} sesiones, tocaban ${cuota}`);
     }
     return quejas;
+  }
+
+  /** En cuántas sesiones de pierna de la plantilla va el programa: todas, o su tope en temporada. */
+  function cuotaDePrevencion(p: Perfil, prog: Programa, dePierna: number): number {
+    const tope = p.fase === 'in_season' ? prog.inSeasonSessions : null;
+    return tope === null ? dePierna : Math.min(tope, dePierna);
   }
 
   /**
@@ -943,11 +965,13 @@ describe('barrido de socios generados', () => {
         .join();
     if (multis(holgado) !== multis(b)) violaciones.push(`el tiempo sacó un multiarticular: ${id}`);
     chequearPisoSemanal(p, holgado, b);
+    // Por sesión y ejercicio: el mismo puede ir de secundario en una sesión y de
+    // aislado en otra, con otra dosis, y el ajuste sacar solo el aislado.
     const dosis = (x: PlanBlueprint) =>
       new Map(
         x.sessions.flatMap((s) =>
           s.items.map((i) => [
-            i.exerciseId,
+            `${s.label}:${i.exerciseId}`,
             `${i.targetRepsMin}-${i.targetRepsMax}r${i.targetRir}`,
           ]),
         ),

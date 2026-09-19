@@ -1188,7 +1188,10 @@ function explosivosQueSacaElMovimiento(input: {
 }): readonly MovementLimit[] {
   const { exercises, movimientos, level } = input;
   if (input.conMolestia || movimientos.length === 0) return [];
-  const explosivos = exercises.filter((e) => e.isExplosive && isWithinSkillLevel(e, level));
+  // Los del par: los de bloque (los aterrizajes de rodilla, `63`) no entran a él.
+  const explosivos = exercises.filter(
+    (e) => e.isExplosive && !esDeBloque(e) && isWithinSkillLevel(e, level),
+  );
   const pedidos = (e: Exercise) => e.requiresMovements.filter((m) => movimientos.includes(m));
   if (explosivos.length === 0 || !explosivos.every((e) => pedidos(e).length > 0)) return [];
   return movimientos.filter((m) => explosivos.some((e) => pedidos(e).includes(m)));

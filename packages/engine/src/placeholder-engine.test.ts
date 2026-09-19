@@ -2132,13 +2132,14 @@ describe('la prevención del deporte (`docs/research/62`)', () => {
     new Set(p.sessions.filter(conNordico).map((s) => s.label)).size;
 
   it('en temporada, en tantas sesiones de la plantilla como diga el programa', () => {
-    if (!programa) throw new Error('sin programa');
+    const cuota = programa?.inSeasonSessions;
+    if (cuota == null) throw new Error('el programa de isquios no tiene tope en temporada');
     let conMas = 0;
     for (const dias of [2, 3, 4, 5]) {
       const fuera = sesionesConNordico(plan('futbol', 'none', dias));
       const dentro = sesionesConNordico(plan('futbol', 'in_season', dias));
-      expect(dentro, `${dias} días`).toBe(Math.min(programa.inSeasonSessions, fuera));
-      if (fuera > programa.inSeasonSessions) conMas += 1;
+      expect(dentro, `${dias} días`).toBe(Math.min(cuota, fuera));
+      if (fuera > cuota) conMas += 1;
     }
     // Si ninguna plantilla tiene más sesiones de pierna que la cuota, el tope no se prueba.
     expect(conMas).toBeGreaterThan(0);
@@ -2224,5 +2225,128 @@ describe('la prevención del deporte (`docs/research/62`)', () => {
       ruleset: V1_RESEARCH,
     });
     expect(deCurl.map((o) => o.exerciseId)).not.toContain('ex-nordico');
+  });
+});
+
+describe('la prevención de rodilla (`docs/research/63`)', () => {
+  const programa = V1_RESEARCH.sports?.prevention?.programs.find((p) => p.id === 'knee');
+  const aterrizaje = exercise('ex-aterrizaje', 'Aterrizaje desde cajón', {
+    pattern: 'squat',
+    primaryMuscles: ['quads', 'glutes'],
+    isExplosive: true,
+    modality: 'reps_bodyweight',
+    requiresMovements: ['jumping'],
+    prevents: ['knee'],
+    equipmentIds: ['eq-prensa'],
+  });
+  const lateral = exercise('ex-lateral', 'Salto lateral a un pie', {
+    pattern: 'lunge',
+    primaryMuscles: ['quads', 'glutes'],
+    isExplosive: true,
+    isUnilateral: true,
+    modality: 'reps_bodyweight',
+    requiresMovements: ['jumping'],
+    prevents: ['knee'],
+    equipmentIds: ['eq-mancuernas'],
+  });
+  const DE_RODILLA = new Set(['ex-aterrizaje', 'ex-lateral']);
+
+  function gymCon(...extra: Exercise[]): GymSnapshot {
+    const gym = buildGym();
+    return { ...gym, exercises: [...gym.exercises, ...extra] };
+  }
+
+  function plan(
+    over: Partial<UserGoal> = {},
+    constraints: UserSnapshot['constraints'] = [],
+    gym = gymCon(aterrizaje, lateral),
+  ) {
+    const base = buildUser().goals[0];
+    if (!base) throw new Error('sin objetivo');
+    const goal: UserGoal = { ...base, sport: 'voley', sessionMinutesTarget: 180, ...over };
+    return engine.generatePlan({
+      context,
+      user: buildUser({ goals: [goal], constraints }),
+      gym,
+      ruleset: V1_RESEARCH,
+    });
+  }
+
+  const deRodilla = <T extends { exerciseId: string }>(s: { items: readonly T[] }): T[] =>
+    s.items.filter((i) => DE_RODILLA.has(i.exerciseId));
+  const PIERNA = new Set(['ex-prensa', 'ex-peso-muerto', 'ex-zancada']);
+  const conPierna = (s: { items: readonly { exerciseId: string }[] }) =>
+    s.items.some((i) => PIERNA.has(i.exerciseId));
+
+  it('el ruleset lo trae para el vóley, sin tope en temporada, y no para el tenis', () => {
+    expect(programa?.sports).toContain('voley');
+    expect(programa?.sports).not.toContain('tenis');
+    expect(programa?.inSeasonSessions).toBeNull();
+  });
+
+  it('en cada sesión de pierna, también en temporada, con la dosis del programa', () => {
+    if (!programa) throw new Error('sin programa');
+    const dosis = [programa.sets, programa.repsMin, programa.repsMax, programa.restSeconds];
+    const sesiones = (['none', 'in_season'] as const).flatMap((seasonPhase) =>
+      [2, 3, 4].flatMap((dias) =>
+        plan({ seasonPhase, sessionsPerWeekTarget: dias }).sessions.map((s) => ({
+          donde: `${seasonPhase}/${dias}/${s.label}`,
+          s,
+        })),
+      ),
+    );
+    for (const { donde, s } of sesiones) {
+      const items = deRodilla(s);
+      expect(items.length, donde).toBe(conPierna(s) ? programa.exercisesPerSession : 0);
+      for (const i of items) {
+        expect([i.targetSets, i.targetRepsMin, i.targetRepsMax, i.restSeconds], donde).toEqual(
+          dosis,
+        );
+        expect(i.supersetGroup, donde).toBeNull();
+      }
+    }
+    expect(sesiones.length).toBeGreaterThan(10);
+  });
+
+  it('sale justo los días que sacan lo explosivo', () => {
+    const gym = gymCon(aterrizaje, lateral);
+    const sesion = plan().sessions.find((s) => deRodilla(s).length > 0);
+    if (!sesion) throw new Error('ninguna sesión con los aterrizajes');
+    const estados = Object.entries(V1_RESEARCH.sports?.matchDay ?? {}) as [
+      MatchDayState,
+      { avoidExplosive: boolean },
+    ][];
+    expect(estados.some(([, r]) => r.avoidExplosive)).toBe(true);
+    expect(estados.some(([, r]) => !r.avoidExplosive)).toBe(true);
+    for (const [state, regla] of estados) {
+      const out = engine.adjustSession({ items: sesion.items, gym, state, ruleset: V1_RESEARCH });
+      expect(deRodilla(out).length > 0, state).toBe(!regla.avoidExplosive);
+    }
+  });
+
+  it('una molestia, o no poder saltar, lo saca', () => {
+    const molestia: UserSnapshot['constraints'] = [
+      { type: 'pain', bodyRegion: 'lower_back', exerciseId: null, equipmentId: null, severity: 3 },
+    ];
+    const sinSaltar: UserSnapshot['constraints'] = [
+      {
+        type: 'avoid_movement',
+        bodyRegion: null,
+        exerciseId: null,
+        equipmentId: null,
+        severity: 5,
+        movement: 'jumping',
+      },
+    ];
+    expect(plan().sessions.flatMap(deRodilla).length).toBeGreaterThan(0);
+    expect(plan({}, molestia).sessions.flatMap(deRodilla)).toEqual([]);
+    expect(plan({}, sinSaltar).sessions.flatMap(deRodilla)).toEqual([]);
+  });
+
+  it('no tapa el aviso de potencia: los aterrizajes no son el trabajo explosivo', () => {
+    const potencia = plan({ goal: 'power' });
+    // El gimnasio de prueba no tiene otro explosivo: el plan no trae par.
+    expect(potencia.sessions.flatMap(deRodilla).length).toBeGreaterThan(0);
+    expect(potencia.warnings.some((w) => w.includes('no trae saltos ni lanzamientos'))).toBe(true);
   });
 });

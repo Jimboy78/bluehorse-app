@@ -3634,7 +3634,8 @@ describe('explosivos en par con un levantamiento', () => {
       for (const sesion of planDe(perfil, V1_RESEARCH).sessions) {
         sesion.items.forEach((item, i) => {
           const ex = exPorId.get(item.exerciseId);
-          if (!ex?.isExplosive) return;
+          // Los aterrizajes de rodilla van en su bloque, no en par (`docs/research/63`).
+          if (!ex?.isExplosive || ex.prevents.length > 0) return;
           pares += 1;
           const previo = sesion.items[i - 1];
           const lift = previo ? exPorId.get(previo.exerciseId) : undefined;
@@ -3844,16 +3845,15 @@ describe('la prevención del deporte (`docs/research/62`)', () => {
   });
 
   it('en pretemporada, en cada sesión de pierna; en temporada, en las que diga el programa', () => {
-    if (!programa) throw new Error('sin programa');
+    const cuota = programa?.inSeasonSessions;
+    if (cuota == null) throw new Error('el programa de isquios no tiene tope en temporada');
     const pre = sesionesCon(planDe(perfil('fútbol · pretemporada'), V1_RESEARCH));
-    expect(pre.size).toBeGreaterThan(programa.inSeasonSessions);
+    expect(pre.size).toBeGreaterThan(cuota);
     const en = sesionesCon(
       planDe({ ...perfil('fútbol · pretemporada'), fase: 'in_season' }, V1_RESEARCH),
     );
-    expect(en.size).toBe(programa.inSeasonSessions);
-    expect(sesionesCon(planDe(perfil('fútbol · en temporada'), V1_RESEARCH)).size).toBe(
-      programa.inSeasonSessions,
-    );
+    expect(en.size).toBe(cuota);
+    expect(sesionesCon(planDe(perfil('fútbol · en temporada'), V1_RESEARCH)).size).toBe(cuota);
   });
 
   it('en los deportes fuera del programa no entra', () => {
@@ -3892,5 +3892,81 @@ describe('la prevención del deporte (`docs/research/62`)', () => {
         firma,
     );
     expect(conSuDosis).toEqual([]);
+  });
+});
+
+/**
+ * LA PREVENCIÓN DE RODILLA (`docs/research/63`)
+ *
+ * Sobre el catálogo real: los aterrizajes entran en los deportes de giro, en
+ * toda sesión de pierna también en temporada, dos por sesión y nunca en par.
+ */
+describe('la prevención de rodilla (`docs/research/63`)', () => {
+  const programa = V1_RESEARCH.sports?.prevention?.programs.find((p) => p.id === 'knee');
+  const porId = new Map(gym.exercises.map((e) => [e.id, e]));
+  const deRodilla = (i: { exerciseId: string }) =>
+    porId.get(i.exerciseId)?.prevents.includes('knee') === true;
+  const perfil = (nombre: string) => {
+    const p = PERFILES.find((x) => x.nombre === nombre);
+    if (!p) throw new Error(`sin perfil ${nombre}`);
+    return p;
+  };
+
+  it('el catálogo trae los ejercicios que pide el programa', () => {
+    if (!programa) throw new Error('sin programa');
+    const suyos = gym.exercises.filter((e) => e.prevents.includes('knee'));
+    expect(suyos.length).toBeGreaterThanOrEqual(programa.exercisesPerSession);
+    for (const e of suyos) {
+      expect(e.isExplosive, e.name).toBe(true);
+      expect(e.requiresMovements, e.name).toContain('jumping');
+    }
+  });
+
+  it('vóley y fútbol, en y fuera de temporada: completo y suelto', () => {
+    if (!programa) throw new Error('sin programa');
+    const casos = ['vóley · fuera de temporada', 'fútbol · pretemporada'].flatMap((nombre) =>
+      (['off_season', 'in_season'] as const).map((fase) => ({
+        donde: `${nombre}/${fase}`,
+        plan: planDe({ ...perfil(nombre), fase }, V1_RESEARCH),
+      })),
+    );
+    let vistos = 0;
+    for (const { donde, plan } of casos) {
+      const items = plan.sessions.map((s) => s.items.filter(deRodilla)).filter((x) => x.length);
+      expect(items.length, donde).toBeGreaterThan(0);
+      for (const deSesion of items) {
+        vistos += deSesion.length;
+        expect(deSesion.length, donde).toBe(programa.exercisesPerSession);
+        expect(
+          deSesion.every((i) => i.supersetGroup === null),
+          donde,
+        ).toBe(true);
+      }
+    }
+    expect(vistos).toBeGreaterThan(8);
+  });
+
+  it('la temporada no le pone tope', () => {
+    const base = perfil('vóley · fuera de temporada');
+    const sesiones = (fase: 'off_season' | 'in_season') =>
+      new Set(
+        planDe({ ...base, fase }, V1_RESEARCH)
+          .sessions.filter((s) => s.items.some(deRodilla))
+          .map((s) => s.label),
+      ).size;
+    expect(sesiones('in_season')).toBe(sesiones('off_season'));
+    expect(sesiones('in_season')).toBeGreaterThan(1);
+  });
+
+  it('en los deportes sin giro no entra', () => {
+    if (!programa) throw new Error('sin programa');
+    let mirados = 0;
+    for (const p of PERFILES) {
+      if (!p.deporte || programa.sports.includes(p.deporte)) continue;
+      mirados += 1;
+      const items = planDe(p, V1_RESEARCH).sessions.flatMap((s) => s.items);
+      expect(items.filter(deRodilla), p.nombre).toEqual([]);
+    }
+    expect(mirados).toBeGreaterThan(1);
   });
 });

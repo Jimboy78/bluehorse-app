@@ -84,7 +84,8 @@ Lo decidió el dueño mirando las indicaciones de cada ejercicio (19/09/2026):
 - **Colgarse de una barra**: dominadas y elevación de piernas colgado. El remo invertido en TRX no,
   porque los pies van apoyados.
 - **Saltar**: salto al cajón, salto con vallas, pogo jumps, salto en profundidad, zancada con
-  salto, salto con barra hexagonal y saltitos en el lugar. Lo que tiene fase de vuelo.
+  salto, salto con barra hexagonal y saltitos en el lugar. Lo que tiene fase de vuelo. Desde `63`,
+  también los dos aterrizajes de la prevención de rodilla.
 
 ### Por qué "saltar" se marca a mano y no se deduce de lo explosivo
 

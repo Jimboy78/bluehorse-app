@@ -995,6 +995,36 @@
       "equipment": ["Colchonetas plegables"]
     },
     {
+      "name": "Aterrizaje desde cajón",
+      "pattern": "squat",
+      "primaryMuscles": ["quads", "glutes"],
+      "secondaryMuscles": ["hamstrings", "calves"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "isExplosive": true,
+      "modality": "reps_bodyweight",
+      "requiresMovements": ["jumping"],
+      "prevents": ["knee"],
+      "skillLevel": "beginner",
+      "cues": "Parado arriba de un cajón bajo, dejate caer adelante (no saltes para arriba) y aterrizá en los dos pies a la vez, en puntas primero. Doblá rodillas y cadera para frenar sin ruido, con las rodillas apuntando a los dedos, nunca hacia adentro, y quedate quieto dos segundos.",
+      "equipment": ["Cajones pliométricos"]
+    },
+    {
+      "name": "Salto lateral a un pie con aterrizaje clavado",
+      "pattern": "lunge",
+      "primaryMuscles": ["quads", "glutes"],
+      "secondaryMuscles": ["calves"],
+      "isCompound": true,
+      "isUnilateral": true,
+      "isExplosive": true,
+      "modality": "reps_bodyweight",
+      "requiresMovements": ["jumping"],
+      "prevents": ["knee"],
+      "skillLevel": "novice",
+      "cues": "Parado en un pie, saltá de costado hacia el otro pie, una distancia corta. Aterrizá suave, con la rodilla doblada y apuntando a los dedos, sin que se vaya hacia adentro, y quedate quieto dos segundos antes de volver. Cada lado cuenta como uno.",
+      "equipment": []
+    },
+    {
       "name": "Gemelos sentado",
       "pattern": "isolation",
       "primaryMuscles": ["calves"],

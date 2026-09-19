@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-19",
-  "resolved": 178,
+  "resolved": 185,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -2815,6 +2815,160 @@
       ]
     },
     {
+      "doi": "10.3389/fpubh.2026.1801019",
+      "title": "Age-related differences in the effectiveness of neuromuscular training for preventing anterior cruciate ligament injuries in athletes: a systematic review and meta-analysis",
+      "authors": [
+        "Yao",
+        "Niu",
+        "Shao"
+      ],
+      "moreAuthors": 1,
+      "year": 2026,
+      "journal": "Frontiers in Public Health",
+      "type": "journal-article",
+      "temas": [
+        "Prevención de rodilla",
+        "Prevención por deporte"
+      ],
+      "documentos": [
+        "62-prevencion-por-deporte.md",
+        "63-prevencion-de-rodilla.md"
+      ]
+    },
+    {
+      "doi": "10.1177/0363546519870175",
+      "title": "A Majority of Anterior Cruciate Ligament Injuries Can Be Prevented by Injury Prevention Programs: A Systematic Review of Randomized Controlled Trials and Cluster–Randomized Controlled Trials With Meta-analysis",
+      "authors": [
+        "Huang",
+        "Jung",
+        "Mulligan"
+      ],
+      "moreAuthors": 2,
+      "year": 2019,
+      "journal": "The American Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Prevención de rodilla"
+      ],
+      "documentos": [
+        "63-prevencion-de-rodilla.md"
+      ]
+    },
+    {
+      "doi": "10.1177/03635465251376670",
+      "title": "A Systematic Review and Meta-analysis of Anterior Cruciate Ligament Injury Prevention Programs: Training to Stay in the Game",
+      "authors": [
+        "Watson",
+        "Gohal",
+        "Owen"
+      ],
+      "moreAuthors": 3,
+      "year": 2026,
+      "journal": "The American Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Prevención de rodilla"
+      ],
+      "documentos": [
+        "63-prevencion-de-rodilla.md"
+      ]
+    },
+    {
+      "doi": "10.1016/j.jphys.2022.09.001",
+      "title": "Injury prevention programs that include plyometric exercises reduce the incidence of anterior cruciate ligament injury: a systematic review of cluster randomised trials",
+      "authors": [
+        "Al Attar",
+        "Bakhsh",
+        "Khaledi"
+      ],
+      "moreAuthors": 2,
+      "year": 2022,
+      "journal": "Journal of Physiotherapy",
+      "type": "journal-article",
+      "temas": [
+        "Prevención de rodilla"
+      ],
+      "documentos": [
+        "63-prevencion-de-rodilla.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s40279-013-0135-9",
+      "title": "Dosage Effects of Neuromuscular Training Intervention to Reduce Anterior Cruciate Ligament Injuries in Female Athletes: Meta- and Sub-Group Analyses",
+      "authors": [
+        "Sugimoto",
+        "Myer",
+        "Barber Foss"
+      ],
+      "moreAuthors": 1,
+      "year": 2013,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Prevención de rodilla"
+      ],
+      "documentos": [
+        "63-prevencion-de-rodilla.md"
+      ]
+    },
+    {
+      "doi": "10.1177/15563316221140860",
+      "title": "Higher Adherence to Anterior Cruciate Ligament Injury Prevention Programs Is Associated With Lower Injury Rates: A Meta-Analysis and Meta-Regression",
+      "authors": [
+        "Halvorsen",
+        "Marx",
+        "Wolfe"
+      ],
+      "moreAuthors": 4,
+      "year": 2022,
+      "journal": "HSS Journal®: The Musculoskeletal Journal of Hospital for Special Surgery",
+      "type": "journal-article",
+      "temas": [
+        "Prevención de rodilla"
+      ],
+      "documentos": [
+        "63-prevencion-de-rodilla.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2013-092358",
+      "title": "Evaluation of the effectiveness of anterior cruciate ligament injury prevention programme training components: a systematic review and meta-analysis",
+      "authors": [
+        "Taylor",
+        "Waxman",
+        "Richter"
+      ],
+      "moreAuthors": 1,
+      "year": 2013,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Prevención de rodilla"
+      ],
+      "documentos": [
+        "63-prevencion-de-rodilla.md"
+      ]
+    },
+    {
+      "doi": "10.2519/jospt.2023.0301",
+      "title": "Exercise-Based Knee and Anterior Cruciate Ligament Injury Prevention",
+      "authors": [
+        "Arundale",
+        "Bizzini",
+        "Dix"
+      ],
+      "moreAuthors": 7,
+      "year": 2023,
+      "journal": "Journal of Orthopaedic & Sports Physical Therapy",
+      "type": "journal-article",
+      "temas": [
+        "Prevención de rodilla"
+      ],
+      "documentos": [
+        "63-prevencion-de-rodilla.md"
+      ]
+    },
+    {
       "doi": "10.1136/bjsports-2013-092538",
       "title": "The effectiveness of exercise interventions to prevent sports injuries: a systematic review and meta-analysis of randomised controlled trials",
       "authors": [
@@ -2920,25 +3074,6 @@
       "moreAuthors": 1,
       "year": 2016,
       "journal": "British Journal of Sports Medicine",
-      "type": "journal-article",
-      "temas": [
-        "Prevención por deporte"
-      ],
-      "documentos": [
-        "62-prevencion-por-deporte.md"
-      ]
-    },
-    {
-      "doi": "10.3389/fpubh.2026.1801019",
-      "title": "Age-related differences in the effectiveness of neuromuscular training for preventing anterior cruciate ligament injuries in athletes: a systematic review and meta-analysis",
-      "authors": [
-        "Yao",
-        "Niu",
-        "Shao"
-      ],
-      "moreAuthors": 1,
-      "year": 2026,
-      "journal": "Frontiers in Public Health",
       "type": "journal-article",
       "temas": [
         "Prevención por deporte"

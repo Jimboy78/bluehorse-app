@@ -1398,7 +1398,7 @@ export type Database = {
         | "lower_back"
         | "full_body"
       plan_origin: "engine" | "manual"
-      prevention_program: "hamstring"
+      prevention_program: "hamstring" | "knee"
       proposal_status: "pending" | "accepted" | "rejected" | "expired"
       proposal_type:
         | "load_increase"
@@ -1650,7 +1650,7 @@ export const Constants = {
         "full_body",
       ],
       plan_origin: ["engine", "manual"],
-      prevention_program: ["hamstring"],
+      prevention_program: ["hamstring", "knee"],
       proposal_status: ["pending", "accepted", "rejected", "expired"],
       proposal_type: [
         "load_increase",

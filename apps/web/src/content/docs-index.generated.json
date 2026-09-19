@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-19T17:50:03.972Z",
+ "generatedAt": "2026-09-19T18:16:06.296Z",
  "docs": [
   {
    "id": "metodo",
@@ -504,6 +504,14 @@
    "resumen": "Fecha: 19/09/2026. Tanda: T5a del plan de variables. En el checklist, el deporte ya era pedir; lo nuevo es qué suma el deporte al plan para prevenir lesiones, no solo qué músculos prioriza (07) ni cuánto recorta cerca del partido.",
    "archivo": "62-prevencion-por-deporte.md",
    "bloques": 22
+  },
+  {
+   "id": "63-prevencion-de-rodilla",
+   "orden": 63,
+   "titulo": "Prevención de rodilla en los deportes de giro",
+   "resumen": "Fecha: 19/09/2026. Tanda: T5b del plan de variables. Sigue a 62, que armó la infraestructura de la prevención por deporte con los isquios.",
+   "archivo": "63-prevencion-de-rodilla.md",
+   "bloques": 21
   },
   {
    "id": "auditoria",

@@ -1,6 +1,26 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T5a: prevención por deporte, isquios)
+## Última actualización: 19 de septiembre de 2026 (T5b: prevención de rodilla)
+
+`docs/research/63`. El enum `prevention_program` suma `knee` (en prod). El catálogo suma dos
+aterrizajes, "Aterrizaje desde cajón" y "Salto lateral a un pie con aterrizaje clavado" (87
+ejercicios): son explosivos, piden saltar y van de bloque.
+
+- Deportes de giro (fútbol, futsal, básquet, handball, vóley y hockey): dos por sesión de pierna,
+  2×5-8, 60 s.
+- En temporada, sin tope: `inSeasonSessions` ahora admite `null`.
+- Salen con la regla de lo explosivo cerca del partido y con cualquier exclusión de saltos.
+- Aviso de entrada en calor para básquet, handball, vóley y hockey.
+- Se cerraron dos fugas: el aviso de potencia y la razón por movimientos contaban los explosivos de
+  bloque.
+- El barrido encontró que su guarda de reps/RIR indexaba solo por ejercicio; ahora indexa por
+  sesión y ejercicio.
+- Sensibilidad del deporte: 67 %. Falsificado: 9 de 9.
+- "Fútbol · pretemporada" con 60 minutos ahora recibe el aviso de ajuste al tiempo.
+
+Sigue T5c: el hombro en los deportes de brazo arriba.
+
+## 19 de septiembre de 2026 (T5a: prevención por deporte, isquios)
 
 `docs/research/62`. Esquema nuevo: `exercises.prevents` (enum `prevention_program`, hoy solo
 `hamstring`), en prod. El catálogo suma el **curl nórdico** (85 ejercicios): es de bloque, como el

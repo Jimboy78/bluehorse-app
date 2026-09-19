@@ -1068,6 +1068,16 @@ describe('resolverContexto', () => {
         );
         expect(resolverContexto({ ...i, gym: conSalto }).explosivosPorMovimiento).toEqual([]);
       });
+
+      it('un explosivo de bloque no cuenta: no entra al par (`docs/research/63`)', () => {
+        // Un aterrizaje de rodilla que no pidiera saltar no deja al par con qué armarse.
+        const deBloque = ex('aterrizaje', { isExplosive: true, prevents: ['knee'] });
+        const i = input({ goal: 'power', constraints: [noPuede('jumping')] });
+        const conAmbos = { ...gym, exercises: [...gym.exercises, salto, deBloque] };
+        expect(resolverContexto({ ...i, gym: conAmbos }).explosivosPorMovimiento).toEqual([
+          'jumping',
+        ]);
+      });
     });
   });
 
@@ -1122,33 +1132,45 @@ describe('prevención del deporte (`docs/research/62`)', () => {
     expect(cfg?.notes.length).toBeGreaterThan(0);
   });
 
-  it('un bloque solo para los deportes del programa, con su dosis', () => {
-    if (!isquios) throw new Error('sin programa');
-    let mirados = 0;
-    for (const s of V1_RESEARCH.sports?.catalog ?? []) {
-      mirados += 1;
-      const bloques = dePrevencion(conFase(s.id, 'none'));
-      if (!isquios.sports.includes(s.id)) {
-        expect(bloques, s.id).toEqual([]);
-        continue;
-      }
-      expect(bloques, s.id).toHaveLength(1);
-      const [b] = bloques;
-      expect(b?.soloPierna).toBe(true);
-      expect(b?.maxSesiones).toBeNull();
-      expect([b?.sets, b?.repsMin, b?.repsMax, b?.restSeconds]).toEqual([
-        isquios.sets,
-        isquios.repsMin,
-        isquios.repsMax,
-        isquios.restSeconds,
-      ]);
+  type Programa = NonNullable<typeof cfg>['programs'][number];
+
+  /** El bloque de un programa para un deporte y una fase, contra lo que dice el ruleset. */
+  function revisarBloque(p: Programa, sport: string, fase: 'none' | 'in_season') {
+    // Un ejercicio de ese programa y nada más: el bloque que lo trae es el suyo.
+    const suyo = ex(`de-${p.id}`, { prevents: [p.id] });
+    const bloques = dePrevencion(conFase(sport, fase)).filter((b) => b.entra(suyo));
+    if (!p.sports.includes(sport)) {
+      expect(bloques, `${p.id}/${sport}`).toEqual([]);
+      return;
     }
-    expect(mirados).toBeGreaterThan(isquios.sports.length);
+    expect(bloques, `${p.id}/${sport}`).toHaveLength(1);
+    const [b] = bloques;
+    expect(b?.soloPierna).toBe(true);
+    expect(b?.maxSesiones).toBe(fase === 'in_season' ? p.inSeasonSessions : null);
+    expect([b?.exercisesPerSession, b?.sets, b?.repsMin, b?.repsMax, b?.restSeconds]).toEqual([
+      p.exercisesPerSession,
+      p.sets,
+      p.repsMin,
+      p.repsMax,
+      p.restSeconds,
+    ]);
+  }
+
+  it('un bloque por programa, solo en sus deportes, con su dosis y su tope', () => {
+    const programas = cfg?.programs ?? [];
+    expect(programas.length).toBeGreaterThan(1);
+    const casos = programas.flatMap((p) =>
+      (V1_RESEARCH.sports?.catalog ?? []).flatMap((s) =>
+        (['none', 'in_season'] as const).map((fase) => ({ p, sport: s.id, fase })),
+      ),
+    );
+    for (const { p, sport, fase } of casos) revisarBloque(p, sport, fase);
+    expect(casos.length).toBeGreaterThan(programas.length * 20);
     expect(dePrevencion(conFase(null, 'none'))).toEqual([]);
   });
 
   it('trae los ejercicios de su programa y ninguno más', () => {
-    const [b] = dePrevencion(conFase('futbol', 'none'));
+    const b = dePrevencion(conFase('futbol', 'none')).find((x) => x.entra(nordico));
     expect(b?.entra(nordico)).toBe(true);
     expect(b?.entra(pesoMuerto)).toBe(false);
     expect(b?.entra(ex('equilibrio', { pattern: 'balance' }))).toBe(false);

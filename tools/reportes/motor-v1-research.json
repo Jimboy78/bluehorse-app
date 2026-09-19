@@ -3,7 +3,7 @@
   "ruleset": "v1-research",
   "catalogo": {
     "estaciones": 62,
-    "ejercicios": 85
+    "ejercicios": 87
   },
   "perfiles": {
     "fuerza · intermedio": {
@@ -7459,6 +7459,7 @@
       "rulesetVersion": "v1-research",
       "source": "research",
       "warnings": [
+        "Para que cada sesión entre en tus 60 minutos: pausas más cortas entre series, algunos ejercicios de a dos, alternando una serie de cada uno sin pausa y menos ejercicios de un solo músculo. Lo que se mantiene es lo que más rinde: los ejercicios de varias articulaciones y un mínimo de series por músculo.",
         "Si tu equipo no hace el FIFA 11+ en la entrada en calor, proponelo: son unos 20 minutos antes de entrenar, en la cancha, y bajan las lesiones. Se encuentra buscando \"FIFA 11+\".",
         "Tu deporte trabaja sobre todo oblicuos, y este plan no lo cubre: no aparece en ninguna sesion ni entre los equivalentes que podes elegir en su lugar. El gimnasio no tiene hoy con que entrenarlo dentro de un plan. Consultalo con el staff si te importa esa parte."
       ],
@@ -7466,7 +7467,7 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 60,
+          "minutos": 58,
           "items": [
             {
               "ejercicio": "Sentadilla en Smith",
@@ -7495,7 +7496,7 @@
               "series": 4,
               "reps": "1-5",
               "rir": 3,
-              "descanso": 180,
+              "descanso": 120,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -7524,20 +7525,31 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Curl nórdico",
               "series": 2,
-              "reps": "6-10",
-              "rir": 3,
-              "descanso": 90,
+              "reps": "4-6",
+              "rir": null,
+              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
               "par": null
             },
             {
-              "ejercicio": "Curl nórdico",
+              "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
-              "reps": "4-6",
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
               "rir": null,
               "descanso": 60,
               "carga": null,
@@ -7550,7 +7562,7 @@
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "minutos": 60,
+          "minutos": 55,
           "items": [
             {
               "ejercicio": "Peso muerto",
@@ -7579,11 +7591,22 @@
               "series": 4,
               "reps": "1-5",
               "rir": 3,
-              "descanso": 180,
+              "descanso": 0,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
-              "par": null
+              "par": 2
+            },
+            {
+              "ejercicio": "Extensión de tríceps con mancuerna",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 2
             },
             {
               "ejercicio": "Zancadas",
@@ -7608,20 +7631,31 @@
               "par": null
             },
             {
-              "ejercicio": "Extensión de tríceps con mancuerna",
+              "ejercicio": "Curl nórdico",
               "series": 2,
-              "reps": "6-10",
-              "rir": 3,
-              "descanso": 90,
+              "reps": "4-6",
+              "rir": null,
+              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
               "par": null
             },
             {
-              "ejercicio": "Curl nórdico",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
               "series": 2,
-              "reps": "4-6",
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Aterrizaje desde cajón",
+              "series": 2,
+              "reps": "5-8",
               "rir": null,
               "descanso": 60,
               "carga": null,
@@ -7634,7 +7668,7 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 60,
+          "minutos": 58,
           "items": [
             {
               "ejercicio": "Sentadilla en Smith",
@@ -7663,7 +7697,7 @@
               "series": 4,
               "reps": "1-5",
               "rir": 3,
-              "descanso": 180,
+              "descanso": 120,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -7692,20 +7726,31 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Curl nórdico",
               "series": 2,
-              "reps": "6-10",
-              "rir": 3,
-              "descanso": 90,
+              "reps": "4-6",
+              "rir": null,
+              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
               "par": null
             },
             {
-              "ejercicio": "Curl nórdico",
+              "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
-              "reps": "4-6",
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
               "rir": null,
               "descanso": 60,
               "carga": null,
@@ -7718,7 +7763,7 @@
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "minutos": 60,
+          "minutos": 55,
           "items": [
             {
               "ejercicio": "Peso muerto",
@@ -7747,11 +7792,22 @@
               "series": 4,
               "reps": "1-5",
               "rir": 3,
-              "descanso": 180,
+              "descanso": 0,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
-              "par": null
+              "par": 2
+            },
+            {
+              "ejercicio": "Extensión de tríceps con mancuerna",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 2
             },
             {
               "ejercicio": "Zancadas",
@@ -7776,20 +7832,31 @@
               "par": null
             },
             {
-              "ejercicio": "Extensión de tríceps con mancuerna",
+              "ejercicio": "Curl nórdico",
               "series": 2,
-              "reps": "6-10",
-              "rir": 3,
-              "descanso": 90,
+              "reps": "4-6",
+              "rir": null,
+              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
               "par": null
             },
             {
-              "ejercicio": "Curl nórdico",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
               "series": 2,
-              "reps": "4-6",
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Aterrizaje desde cajón",
+              "series": 2,
+              "reps": "5-8",
               "rir": null,
               "descanso": 60,
               "carga": null,
@@ -7802,7 +7869,7 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 60,
+          "minutos": 58,
           "items": [
             {
               "ejercicio": "Sentadilla en Smith",
@@ -7831,7 +7898,7 @@
               "series": 4,
               "reps": "1-5",
               "rir": 3,
-              "descanso": 180,
+              "descanso": 120,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -7860,20 +7927,31 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Curl nórdico",
               "series": 2,
-              "reps": "6-10",
-              "rir": 3,
-              "descanso": 90,
+              "reps": "4-6",
+              "rir": null,
+              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
               "par": null
             },
             {
-              "ejercicio": "Curl nórdico",
+              "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
-              "reps": "4-6",
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
               "rir": null,
               "descanso": 60,
               "carga": null,
@@ -7886,7 +7964,7 @@
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "minutos": 60,
+          "minutos": 55,
           "items": [
             {
               "ejercicio": "Peso muerto",
@@ -7915,11 +7993,22 @@
               "series": 4,
               "reps": "1-5",
               "rir": 3,
-              "descanso": 180,
+              "descanso": 0,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
-              "par": null
+              "par": 2
+            },
+            {
+              "ejercicio": "Extensión de tríceps con mancuerna",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 2
             },
             {
               "ejercicio": "Zancadas",
@@ -7944,20 +8033,31 @@
               "par": null
             },
             {
-              "ejercicio": "Extensión de tríceps con mancuerna",
+              "ejercicio": "Curl nórdico",
               "series": 2,
-              "reps": "6-10",
-              "rir": 3,
-              "descanso": 90,
+              "reps": "4-6",
+              "rir": null,
+              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
               "par": null
             },
             {
-              "ejercicio": "Curl nórdico",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
               "series": 2,
-              "reps": "4-6",
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Aterrizaje desde cajón",
+              "series": 2,
+              "reps": "5-8",
               "rir": null,
               "descanso": 60,
               "carga": null,
@@ -7970,7 +8070,7 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 60,
+          "minutos": 58,
           "items": [
             {
               "ejercicio": "Sentadilla en Smith",
@@ -7999,7 +8099,7 @@
               "series": 4,
               "reps": "1-5",
               "rir": 3,
-              "descanso": 180,
+              "descanso": 120,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -8028,20 +8128,31 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Curl nórdico",
               "series": 2,
-              "reps": "6-10",
-              "rir": 3,
-              "descanso": 90,
+              "reps": "4-6",
+              "rir": null,
+              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
               "par": null
             },
             {
-              "ejercicio": "Curl nórdico",
+              "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
-              "reps": "4-6",
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
               "rir": null,
               "descanso": 60,
               "carga": null,
@@ -8054,7 +8165,7 @@
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "minutos": 60,
+          "minutos": 55,
           "items": [
             {
               "ejercicio": "Peso muerto",
@@ -8083,11 +8194,22 @@
               "series": 4,
               "reps": "1-5",
               "rir": 3,
-              "descanso": 180,
+              "descanso": 0,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
-              "par": null
+              "par": 2
+            },
+            {
+              "ejercicio": "Extensión de tríceps con mancuerna",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 2
             },
             {
               "ejercicio": "Zancadas",
@@ -8112,20 +8234,31 @@
               "par": null
             },
             {
-              "ejercicio": "Extensión de tríceps con mancuerna",
+              "ejercicio": "Curl nórdico",
               "series": 2,
-              "reps": "6-10",
-              "rir": 3,
-              "descanso": 90,
+              "reps": "4-6",
+              "rir": null,
+              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
               "par": null
             },
             {
-              "ejercicio": "Curl nórdico",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
               "series": 2,
-              "reps": "4-6",
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Aterrizaje desde cajón",
+              "series": 2,
+              "reps": "5-8",
               "rir": null,
               "descanso": 60,
               "carga": null,
@@ -8150,7 +8283,7 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 34,
+          "minutos": 40,
           "items": [
             {
               "ejercicio": "Sentadilla en Smith",
@@ -8228,13 +8361,35 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Aterrizaje desde cajón",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
             }
           ]
         },
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "minutos": 31,
+          "minutos": 37,
           "items": [
             {
               "ejercicio": "Peso muerto",
@@ -8297,6 +8452,28 @@
               "reps": "6-10",
               "rir": 3,
               "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Aterrizaje desde cajón",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -8307,7 +8484,7 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 34,
+          "minutos": 40,
           "items": [
             {
               "ejercicio": "Sentadilla en Smith",
@@ -8385,13 +8562,35 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Aterrizaje desde cajón",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
             }
           ]
         },
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "minutos": 31,
+          "minutos": 37,
           "items": [
             {
               "ejercicio": "Peso muerto",
@@ -8454,6 +8653,28 @@
               "reps": "6-10",
               "rir": 3,
               "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Aterrizaje desde cajón",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -8464,7 +8685,7 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 34,
+          "minutos": 40,
           "items": [
             {
               "ejercicio": "Sentadilla en Smith",
@@ -8542,13 +8763,35 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Aterrizaje desde cajón",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
             }
           ]
         },
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "minutos": 31,
+          "minutos": 37,
           "items": [
             {
               "ejercicio": "Peso muerto",
@@ -8611,6 +8854,28 @@
               "reps": "6-10",
               "rir": 3,
               "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Aterrizaje desde cajón",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -8621,7 +8886,7 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 34,
+          "minutos": 40,
           "items": [
             {
               "ejercicio": "Sentadilla en Smith",
@@ -8699,13 +8964,35 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Aterrizaje desde cajón",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
             }
           ]
         },
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "minutos": 31,
+          "minutos": 37,
           "items": [
             {
               "ejercicio": "Peso muerto",
@@ -8768,6 +9055,28 @@
               "reps": "6-10",
               "rir": 3,
               "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Aterrizaje desde cajón",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -9884,7 +10193,8 @@
       "rulesetVersion": "v1-research",
       "source": "research",
       "warnings": [
-        "Con 4 sesiones por semana, estos músculos quedan abajo de las 6 series semanales mínimas: isquiotibiales (4), lumbares (4). Sumar una sesión más por semana los cubre."
+        "Con 4 sesiones por semana, estos músculos quedan abajo de las 6 series semanales mínimas: isquiotibiales (4), lumbares (4). Sumar una sesión más por semana los cubre.",
+        "Si tu equipo no hace una entrada en calor con saltos, aterrizajes y cambios de dirección, proponela: hecha dos veces por semana, unos 20 minutos antes de entrenar, baja a la mitad las lesiones de rodilla."
       ],
       "sesiones": [
         {
@@ -9963,7 +10273,7 @@
         {
           "label": "Pierna A",
           "focus": "Tren inferior",
-          "minutos": 39,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Sentadilla hack",
@@ -10014,6 +10324,28 @@
               "series": 2,
               "reps": "10-15",
               "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Aterrizaje desde cajón",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
               "descanso": 60,
               "carga": null,
               "duracionSeg": null,
@@ -10087,7 +10419,7 @@
         {
           "label": "Pierna B",
           "focus": "Tren inferior · cadena posterior",
-          "minutos": 35,
+          "minutos": 41,
           "items": [
             {
               "ejercicio": "Peso muerto",
@@ -10138,6 +10470,28 @@
               "series": 2,
               "reps": "10-15",
               "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Aterrizaje desde cajón",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
               "descanso": 60,
               "carga": null,
               "duracionSeg": null,
@@ -10222,7 +10576,7 @@
         {
           "label": "Pierna A",
           "focus": "Tren inferior",
-          "minutos": 39,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Sentadilla hack",
@@ -10273,6 +10627,28 @@
               "series": 2,
               "reps": "10-15",
               "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Aterrizaje desde cajón",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
               "descanso": 60,
               "carga": null,
               "duracionSeg": null,
@@ -10346,7 +10722,7 @@
         {
           "label": "Pierna B",
           "focus": "Tren inferior · cadena posterior",
-          "minutos": 35,
+          "minutos": 41,
           "items": [
             {
               "ejercicio": "Peso muerto",
@@ -10397,6 +10773,28 @@
               "series": 2,
               "reps": "10-15",
               "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Aterrizaje desde cajón",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
               "descanso": 60,
               "carga": null,
               "duracionSeg": null,
@@ -23341,7 +23739,7 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 59,
+          "minutos": 60,
           "items": [
             {
               "ejercicio": "Sentadilla en Smith",
@@ -23378,7 +23776,7 @@
             },
             {
               "ejercicio": "Remo invertido en TRX",
-              "series": 3,
+              "series": 2,
               "reps": "3-8",
               "rir": 3,
               "descanso": 120,
@@ -23389,7 +23787,7 @@
             },
             {
               "ejercicio": "Press de hombro con mancuernas",
-              "series": 3,
+              "series": 2,
               "reps": "3-8",
               "rir": 3,
               "descanso": 120,
@@ -23410,9 +23808,9 @@
               "par": null
             },
             {
-              "ejercicio": "Elevación de talón en un pie",
+              "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
-              "reps": "10-10",
+              "reps": "5-8",
               "rir": null,
               "descanso": 60,
               "carga": null,
@@ -23421,9 +23819,9 @@
               "par": null
             },
             {
-              "ejercicio": "Flexión de rodilla en un pie sobre disco",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
               "series": 2,
-              "reps": "10-10",
+              "reps": "5-8",
               "rir": null,
               "descanso": 60,
               "carga": null,
@@ -23435,90 +23833,6 @@
               "ejercicio": "Balanceo de pierna en un pie",
               "series": 2,
               "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            }
-          ]
-        },
-        {
-          "label": "Sesión B",
-          "focus": "Cuerpo completo · tracción",
-          "minutos": 58,
-          "items": [
-            {
-              "ejercicio": "Peso muerto",
-              "series": 4,
-              "reps": "1-5",
-              "rir": 3,
-              "descanso": 120,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": 1
-            },
-            {
-              "ejercicio": "Slam ball",
-              "series": 4,
-              "reps": "5-10",
-              "rir": null,
-              "descanso": 180,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": 1
-            },
-            {
-              "ejercicio": "Dorsalera al pecho",
-              "series": 4,
-              "reps": "1-5",
-              "rir": 3,
-              "descanso": 0,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": 2
-            },
-            {
-              "ejercicio": "Extensión de tríceps con mancuerna",
-              "series": 2,
-              "reps": "6-10",
-              "rir": 3,
-              "descanso": 120,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": 2
-            },
-            {
-              "ejercicio": "Zancadas",
-              "series": 3,
-              "reps": "3-8",
-              "rir": 3,
-              "descanso": 120,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Remo con barra (Pendlay)",
-              "series": 3,
-              "reps": "3-8",
-              "rir": 3,
-              "descanso": 120,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Curl nórdico",
-              "series": 2,
-              "reps": "4-6",
               "rir": null,
               "descanso": 60,
               "carga": null,
@@ -23547,9 +23861,126 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 60,
+          "items": [
+            {
+              "ejercicio": "Peso muerto",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Slam ball",
+              "series": 4,
+              "reps": "5-10",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Dorsalera al pecho",
+              "series": 3,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Zancadas",
+              "series": 2,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo con barra (Pendlay)",
+              "series": 2,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Curl nórdico",
+              "series": 2,
+              "reps": "4-6",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Aterrizaje desde cajón",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie sobre disco",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
             },
             {
               "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -23564,7 +23995,7 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 59,
+          "minutos": 60,
           "items": [
             {
               "ejercicio": "Sentadilla en Smith",
@@ -23601,7 +24032,7 @@
             },
             {
               "ejercicio": "Remo invertido en TRX",
-              "series": 3,
+              "series": 2,
               "reps": "3-8",
               "rir": 3,
               "descanso": 120,
@@ -23612,7 +24043,7 @@
             },
             {
               "ejercicio": "Press de hombro con mancuernas",
-              "series": 3,
+              "series": 2,
               "reps": "3-8",
               "rir": 3,
               "descanso": 120,
@@ -23633,9 +24064,9 @@
               "par": null
             },
             {
-              "ejercicio": "Elevación de talón en un pie",
+              "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
-              "reps": "10-10",
+              "reps": "5-8",
               "rir": null,
               "descanso": 60,
               "carga": null,
@@ -23644,9 +24075,9 @@
               "par": null
             },
             {
-              "ejercicio": "Flexión de rodilla en un pie sobre disco",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
               "series": 2,
-              "reps": "10-10",
+              "reps": "5-8",
               "rir": null,
               "descanso": 60,
               "carga": null,
@@ -23658,90 +24089,6 @@
               "ejercicio": "Balanceo de pierna en un pie",
               "series": 2,
               "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            }
-          ]
-        },
-        {
-          "label": "Sesión B",
-          "focus": "Cuerpo completo · tracción",
-          "minutos": 58,
-          "items": [
-            {
-              "ejercicio": "Peso muerto",
-              "series": 4,
-              "reps": "1-5",
-              "rir": 3,
-              "descanso": 120,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": 1
-            },
-            {
-              "ejercicio": "Slam ball",
-              "series": 4,
-              "reps": "5-10",
-              "rir": null,
-              "descanso": 180,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": 1
-            },
-            {
-              "ejercicio": "Dorsalera al pecho",
-              "series": 4,
-              "reps": "1-5",
-              "rir": 3,
-              "descanso": 0,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": 2
-            },
-            {
-              "ejercicio": "Extensión de tríceps con mancuerna",
-              "series": 2,
-              "reps": "6-10",
-              "rir": 3,
-              "descanso": 120,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": 2
-            },
-            {
-              "ejercicio": "Zancadas",
-              "series": 3,
-              "reps": "3-8",
-              "rir": 3,
-              "descanso": 120,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Remo con barra (Pendlay)",
-              "series": 3,
-              "reps": "3-8",
-              "rir": 3,
-              "descanso": 120,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Curl nórdico",
-              "series": 2,
-              "reps": "4-6",
               "rir": null,
               "descanso": 60,
               "carga": null,
@@ -23770,9 +24117,126 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 60,
+          "items": [
+            {
+              "ejercicio": "Peso muerto",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Slam ball",
+              "series": 4,
+              "reps": "5-10",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Dorsalera al pecho",
+              "series": 3,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Zancadas",
+              "series": 2,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo con barra (Pendlay)",
+              "series": 2,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Curl nórdico",
+              "series": 2,
+              "reps": "4-6",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Aterrizaje desde cajón",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie sobre disco",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
             },
             {
               "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -23787,7 +24251,7 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 59,
+          "minutos": 60,
           "items": [
             {
               "ejercicio": "Sentadilla en Smith",
@@ -23824,7 +24288,7 @@
             },
             {
               "ejercicio": "Remo invertido en TRX",
-              "series": 3,
+              "series": 2,
               "reps": "3-8",
               "rir": 3,
               "descanso": 120,
@@ -23835,7 +24299,7 @@
             },
             {
               "ejercicio": "Press de hombro con mancuernas",
-              "series": 3,
+              "series": 2,
               "reps": "3-8",
               "rir": 3,
               "descanso": 120,
@@ -23856,9 +24320,9 @@
               "par": null
             },
             {
-              "ejercicio": "Elevación de talón en un pie",
+              "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
-              "reps": "10-10",
+              "reps": "5-8",
               "rir": null,
               "descanso": 60,
               "carga": null,
@@ -23867,9 +24331,9 @@
               "par": null
             },
             {
-              "ejercicio": "Flexión de rodilla en un pie sobre disco",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
               "series": 2,
-              "reps": "10-10",
+              "reps": "5-8",
               "rir": null,
               "descanso": 60,
               "carga": null,
@@ -23881,90 +24345,6 @@
               "ejercicio": "Balanceo de pierna en un pie",
               "series": 2,
               "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            }
-          ]
-        },
-        {
-          "label": "Sesión B",
-          "focus": "Cuerpo completo · tracción",
-          "minutos": 58,
-          "items": [
-            {
-              "ejercicio": "Peso muerto",
-              "series": 4,
-              "reps": "1-5",
-              "rir": 3,
-              "descanso": 120,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": 1
-            },
-            {
-              "ejercicio": "Slam ball",
-              "series": 4,
-              "reps": "5-10",
-              "rir": null,
-              "descanso": 180,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": 1
-            },
-            {
-              "ejercicio": "Dorsalera al pecho",
-              "series": 4,
-              "reps": "1-5",
-              "rir": 3,
-              "descanso": 0,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": 2
-            },
-            {
-              "ejercicio": "Extensión de tríceps con mancuerna",
-              "series": 2,
-              "reps": "6-10",
-              "rir": 3,
-              "descanso": 120,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": 2
-            },
-            {
-              "ejercicio": "Zancadas",
-              "series": 3,
-              "reps": "3-8",
-              "rir": 3,
-              "descanso": 120,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Remo con barra (Pendlay)",
-              "series": 3,
-              "reps": "3-8",
-              "rir": 3,
-              "descanso": 120,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Curl nórdico",
-              "series": 2,
-              "reps": "4-6",
               "rir": null,
               "descanso": 60,
               "carga": null,
@@ -23993,9 +24373,126 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 60,
+          "items": [
+            {
+              "ejercicio": "Peso muerto",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Slam ball",
+              "series": 4,
+              "reps": "5-10",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Dorsalera al pecho",
+              "series": 3,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Zancadas",
+              "series": 2,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo con barra (Pendlay)",
+              "series": 2,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Curl nórdico",
+              "series": 2,
+              "reps": "4-6",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Aterrizaje desde cajón",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie sobre disco",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
             },
             {
               "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -24010,7 +24507,7 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 59,
+          "minutos": 60,
           "items": [
             {
               "ejercicio": "Sentadilla en Smith",
@@ -24047,7 +24544,7 @@
             },
             {
               "ejercicio": "Remo invertido en TRX",
-              "series": 3,
+              "series": 2,
               "reps": "3-8",
               "rir": 3,
               "descanso": 120,
@@ -24058,7 +24555,7 @@
             },
             {
               "ejercicio": "Press de hombro con mancuernas",
-              "series": 3,
+              "series": 2,
               "reps": "3-8",
               "rir": 3,
               "descanso": 120,
@@ -24079,9 +24576,9 @@
               "par": null
             },
             {
-              "ejercicio": "Elevación de talón en un pie",
+              "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
-              "reps": "10-10",
+              "reps": "5-8",
               "rir": null,
               "descanso": 60,
               "carga": null,
@@ -24090,9 +24587,9 @@
               "par": null
             },
             {
-              "ejercicio": "Flexión de rodilla en un pie sobre disco",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
               "series": 2,
-              "reps": "10-10",
+              "reps": "5-8",
               "rir": null,
               "descanso": 60,
               "carga": null,
@@ -24104,90 +24601,6 @@
               "ejercicio": "Balanceo de pierna en un pie",
               "series": 2,
               "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            }
-          ]
-        },
-        {
-          "label": "Sesión B",
-          "focus": "Cuerpo completo · tracción",
-          "minutos": 58,
-          "items": [
-            {
-              "ejercicio": "Peso muerto",
-              "series": 4,
-              "reps": "1-5",
-              "rir": 3,
-              "descanso": 120,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": 1
-            },
-            {
-              "ejercicio": "Slam ball",
-              "series": 4,
-              "reps": "5-10",
-              "rir": null,
-              "descanso": 180,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": 1
-            },
-            {
-              "ejercicio": "Dorsalera al pecho",
-              "series": 4,
-              "reps": "1-5",
-              "rir": 3,
-              "descanso": 0,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": 2
-            },
-            {
-              "ejercicio": "Extensión de tríceps con mancuerna",
-              "series": 2,
-              "reps": "6-10",
-              "rir": 3,
-              "descanso": 120,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": 2
-            },
-            {
-              "ejercicio": "Zancadas",
-              "series": 3,
-              "reps": "3-8",
-              "rir": 3,
-              "descanso": 120,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Remo con barra (Pendlay)",
-              "series": 3,
-              "reps": "3-8",
-              "rir": 3,
-              "descanso": 120,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Curl nórdico",
-              "series": 2,
-              "reps": "4-6",
               "rir": null,
               "descanso": 60,
               "carga": null,
@@ -24216,9 +24629,126 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 60,
+          "items": [
+            {
+              "ejercicio": "Peso muerto",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Slam ball",
+              "series": 4,
+              "reps": "5-10",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Dorsalera al pecho",
+              "series": 3,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Zancadas",
+              "series": 2,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo con barra (Pendlay)",
+              "series": 2,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Curl nórdico",
+              "series": 2,
+              "reps": "4-6",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Aterrizaje desde cajón",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie sobre disco",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
             },
             {
               "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,

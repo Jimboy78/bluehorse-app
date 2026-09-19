@@ -183,7 +183,7 @@ export type MovementLimit = (typeof MOVEMENT_LIMITS)[number];
  * ejercicio del catálogo dice de cuáles forma parte (`prevents`), y entra al
  * plan solo por ese bloque.
  */
-export const PREVENTION_PROGRAMS = ['hamstring'] as const;
+export const PREVENTION_PROGRAMS = ['hamstring', 'knee'] as const;
 export type PreventionProgram = (typeof PREVENTION_PROGRAMS)[number];
 
 export const SESSION_STATUSES = ['pending', 'in_progress', 'completed', 'skipped'] as const;

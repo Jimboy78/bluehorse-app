@@ -1084,12 +1084,30 @@
           "rationale": "Previene los desgarros de la parte de atrás del muslo, los más comunes en los deportes con pique. Cada repetición, bajá lo más lento que puedas: la dificultad sube sola cuando aguantás más abajo.",
           "confidence": "medium",
           "confidenceNote": "Sumar el curl nórdico a la prevención baja las lesiones de isquios a la mitad en varios deportes (van Dyk 2019, 15 estudios, RR 0,49; 0,52 solo con los ensayos aleatorizados). El volumen bajo rinde como el alto en fuerza excéntrica y largo del fascículo, con un mínimo de 6 semanas (Cuthbert 2020): 2 x 4-6 sale de ahí. Una vez por semana en temporada es el esquema de los ensayos. La pausa de 60 s y la lista de deportes con pique son criterio de práctica. Ver docs/research/62."
+        },
+        {
+          "id": "knee",
+          "sports": ["futbol", "futsal", "basquet", "handball", "voley", "hockey"],
+          "exercisesPerSession": 2,
+          "sets": 2,
+          "repsMin": 5,
+          "repsMax": 8,
+          "restSeconds": 60,
+          "inSeasonSessions": null,
+          "removeOn": [],
+          "rationale": "Enseña a caer de un salto sin que la rodilla se vaya hacia adentro, que es como se rompen los ligamentos en los deportes con giros y cambios de dirección. Lo que cuenta es aterrizar suave y quieto, no saltar alto.",
+          "confidence": "medium",
+          "confidenceNote": "Los programas neuromusculares bajan las roturas de ligamento cruzado a la mitad (Huang 2020, 8 ensayos, IRR 0,47; Watson 2026, RR 0,46), y los que traen saltos más que los que no (Al Attar 2022, IRR 0,40). Dos o más veces por semana rinde más que una, también en temporada; con menos de 15 minutos por semana el riesgo igual baja un 44 % (Sugimoto 2014). La dosis por ejercicio (2 x 5-8) y la pausa son criterio de práctica: los programas se miden enteros, no ejercicio por ejercicio. Cerca del partido sale por la regla de lo explosivo. Ver docs/research/63."
         }
       ],
       "notes": [
         {
           "sports": ["futbol", "futsal"],
           "text": "Si tu equipo no hace el FIFA 11+ en la entrada en calor, proponelo: son unos 20 minutos antes de entrenar, en la cancha, y bajan las lesiones. Se encuentra buscando \"FIFA 11+\"."
+        },
+        {
+          "sports": ["basquet", "handball", "voley", "hockey"],
+          "text": "Si tu equipo no hace una entrada en calor con saltos, aterrizajes y cambios de dirección, proponela: hecha dos veces por semana, unos 20 minutos antes de entrenar, baja a la mitad las lesiones de rodilla."
         }
       ]
     },

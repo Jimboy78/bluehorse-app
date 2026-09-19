@@ -780,11 +780,16 @@ const sportsSchema = z.object({
           restSeconds: z.number().int().min(0).max(600),
           /**
            * En temporada, en cuántas sesiones de la plantilla va: los ensayos
-           * bajan a una vez por semana. Fuera de temporada, en toda sesión de
-           * pierna.
+           * del nórdico bajan a una vez por semana. `null`, sin tope: el
+           * neuromuscular de rodilla rinde más con dos o más por semana también
+           * en temporada (`63`). Fuera de temporada, en toda sesión de pierna.
            */
-          inSeasonSessions: z.number().int().positive(),
-          /** Los días del partido en que sale: lo excéntrico suma daño (`07`). */
+          inSeasonSessions: z.number().int().positive().nullable(),
+          /**
+           * Los días del partido en que sale: lo excéntrico suma daño (`07`).
+           * Un ejercicio explosivo sale además por la regla del día
+           * (`avoidExplosive`), así que un programa de saltos no los repite.
+           */
           removeOn: z.array(z.enum(MATCH_DAY_STATES)),
           rationale: z.string().min(1),
           confidence: z.enum(CONFIDENCE_LEVELS),
