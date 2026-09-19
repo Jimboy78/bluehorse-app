@@ -41,6 +41,7 @@ function exercise(id: string, name: string, over: Partial<Exercise> = {}): Exerc
     isCompound: true,
     isUnilateral: false,
     isExplosive: false,
+    loadsSpinalFlexion: false,
     skillLevel: 'beginner',
     cues: null,
     equipmentIds: [],
@@ -1530,6 +1531,7 @@ describe('sustitución por molestia', () => {
           pattern: 'carry',
           primaryMuscles: ['glutes', 'hamstrings'],
           isExplosive: true,
+          loadsSpinalFlexion: false,
           equipmentIds: ['eq-mancuernas'],
         }),
       ],
@@ -1833,6 +1835,7 @@ describe('un reemplazo tiene que hacerse como el original', () => {
     primaryMuscles: ['quads'],
     modality: 'reps_bodyweight',
     isExplosive: true,
+    loadsSpinalFlexion: false,
     equipmentIds: [],
   });
 
@@ -1944,6 +1947,7 @@ describe('lo explosivo en un plan regulado por RIR', () => {
     pattern: 'squat',
     primaryMuscles: ['quads'],
     isExplosive: true,
+    loadsSpinalFlexion: false,
     equipmentIds: ['eq-prensa'],
   });
 

@@ -61,7 +61,11 @@ create table exercises (
   cues text,
   media_url text,
   is_active boolean not null default true,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  -- El movimiento es flexionar el tronco (abdominales, crunch, enrollar la
+  -- pelvis). Con osteoporosis se evita: hubo fracturas vertebrales con flexión
+  -- cargada, repetida o al final del rango. Ver docs/research/46.
+  loads_spinal_flexion boolean not null default false
 );
 
 create index exercises_pattern_idx on exercises (pattern) where is_active;

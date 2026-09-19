@@ -94,6 +94,7 @@ function gimnasio(): GymSnapshot {
     isCompound: x.isCompound,
     isUnilateral: x.isUnilateral,
     isExplosive: 'isExplosive' in x ? Boolean(x.isExplosive) : false,
+    loadsSpinalFlexion: 'loadsSpinalFlexion' in x ? Boolean(x.loadsSpinalFlexion) : false,
     skillLevel: x.skillLevel as ExperienceLevel,
     cues: x.cues ?? null,
     equipmentIds: (x.equipment ?? [])
@@ -191,6 +192,10 @@ const DIM = {
       ['diabetes'],
       ['diabetes', 'beta_blockers'],
       ['anticoagulants'],
+      ['osteoporosis'],
+      ['pelvic_floor'],
+      ['osteoporosis', 'pelvic_floor'],
+      ['abdominal_hernia'],
     ] as HealthCondition[][],
     (b, v) => {
       b.conditions = [...v];
@@ -311,8 +316,14 @@ describe('barrido de socios generados', () => {
     const cfg = V1_RESEARCH.impact;
     const id = JSON.stringify(p);
     const cuantos = items.filter((i) => exPorId.get(i.exerciseId)?.pattern === 'impact').length;
+    // Por sexo y edad, o por osteoporosis; nunca con molestia ni con pérdidas
+    // de orina (`docs/research/46`).
+    const porEdad = !!cfg && cfg.sexes.includes(p.sexo) && p.edad >= cfg.fromAge;
     const corresponde =
-      !!cfg && cfg.sexes.includes(p.sexo) && p.edad >= cfg.fromAge && p.molestia === null;
+      !!cfg &&
+      (porEdad || p.salud.includes('osteoporosis')) &&
+      p.molestia === null &&
+      !p.salud.includes('pelvic_floor');
     if (!corresponde && cuantos > 0) violaciones.push(`impacto sin corresponder: ${id}`);
     if (corresponde) {
       conImpacto += 1;
@@ -393,18 +404,23 @@ describe('barrido de socios generados', () => {
       violaciones.push(`dosis imposible en ${ex.name}: ${id}`);
     }
     if (ex.isExplosive) chequearExplosivo(p, it, previo, ex.name);
+    if (ex.loadsSpinalFlexion && p.salud.includes('osteoporosis')) {
+      violaciones.push(`${ex.name} con osteoporosis: ${id}`);
+    }
     chequearAdolescente(p, it, ex);
   }
 
   /**
    * Un adolescente que recién empieza no recibe más series ni menos
-   * repeticiones que la dosis de inicio (`docs/research/41`). El par explosivo
-   * y el equilibrio llevan su propia dosis; el cardio va por tiempo.
+   * repeticiones que la dosis de inicio (`docs/research/41`). El par explosivo,
+   * el equilibrio y el impacto llevan su propia dosis (el impacto le llega a un
+   * adolescente con osteoporosis, `docs/research/46`); el cardio va por tiempo.
    */
   function chequearAdolescente(p: Perfil, it: SessionItemBlueprint, ex: Exercise) {
     const y = V1_RESEARCH.modifiers?.youth;
     if (!y || p.edad < y.fromAge || p.edad > y.toAge || !y.levels.includes(p.nivel)) return;
-    if (ex.isExplosive || ex.pattern === 'balance' || it.targetDurationSeconds !== null) return;
+    const bloque = ex.pattern === 'balance' || ex.pattern === 'impact';
+    if (ex.isExplosive || bloque || it.targetDurationSeconds !== null) return;
     if (it.targetSets > y.maxSets || it.targetRepsMin < y.repsWindow[0]) {
       violaciones.push(
         `${ex.name} ${it.targetSets}×${it.targetRepsMin} a los ${p.edad}: ${JSON.stringify(p)}`,
@@ -423,6 +439,8 @@ describe('barrido de socios generados', () => {
       violaciones.push(`${nombre} suelto, sin su levantamiento: ${id}`);
     }
     if (p.molestia) violaciones.push(`${nombre} con una molestia declarada: ${id}`);
+    if (p.salud.includes('pelvic_floor'))
+      violaciones.push(`${nombre} con pérdidas de orina: ${id}`);
     if (explosivo && p.edad > explosivo.maxAge) violaciones.push(`${nombre} a los ${p.edad}`);
   }
 

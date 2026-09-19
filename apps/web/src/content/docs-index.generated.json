@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-19T01:22:55.202Z",
+ "generatedAt": "2026-09-19T01:51:24.606Z",
  "docs": [
   {
    "id": "metodo",
@@ -368,6 +368,14 @@
    "resumen": "Fecha: 18/09/2026. Tanda: T2c del plan de variables. Las dos se marcan en la lista de salud (43). Esto es lo que cada una cambia en el plan de quien la marca.",
    "archivo": "45-diabetes-y-anticoagulantes.md",
    "bloques": 18
+  },
+  {
+   "id": "46-osteoporosis-suelo-pelvico-hernia",
+   "orden": 46,
+   "titulo": "Osteoporosis, suelo pélvico y hernia: qué cambia en el plan",
+   "resumen": "Fecha: 18/09/2026. Tanda: T2d del plan de variables. Las tres se marcan en la lista de salud (43). Es la primera tanda de condiciones que cruza con un bloque de T1: el impacto para el hueso (42).",
+   "archivo": "46-osteoporosis-suelo-pelvico-hernia.md",
+   "bloques": 22
   },
   {
    "id": "auditoria",

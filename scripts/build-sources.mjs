@@ -74,6 +74,7 @@ const TEMAS = {
   43: 'Salud con puerta',
   44: 'Presión alta, corazón y betabloqueantes',
   45: 'Diabetes y anticoagulantes',
+  46: 'Osteoporosis, suelo pélvico y hernia',
 };
 
 // El `]` y el `(` cierran un enlace de markdown: sin ellos, un DOI escrito como

@@ -1083,29 +1083,42 @@ async function snapshotDe(id) {
   );
   if (!perfil) throw new Error(`No hay perfil para ${id}.`);
 
-  const [goals, constraints, baselines, equipment, exercises, mapeos] = await Promise.all([
-    pick('user_goals', 'goal, sport, priority, sessions_per_week_target, session_minutes_target', {
-      user_id: id,
-      is_active: true,
-    }),
-    pick('user_constraints', 'type, body_region, exercise_id, equipment_id, severity', {
-      user_id: id,
-    }),
-    pick('user_baselines', 'exercise_id, source, load_value, load_unit, reps, recorded_at', {
-      user_id: id,
-    }),
-    pick(
-      'equipment',
-      'id, gym_id, name, category, brand, model, photo_url, location_note, setup_notes, load_unit, load_min, load_max, load_increment, stack_kg, base_weight_kg, quantity, is_active',
-      { gym_id: perfil.gym_id, is_active: true },
-    ),
-    pick(
-      'exercises',
-      'id, gym_id, name, pattern, primary_muscles, secondary_muscles, modality, is_compound, is_unilateral, skill_level, cues, is_active',
-      { is_active: true },
-    ),
-    pick('exercise_equipment', 'exercise_id, equipment_id'),
-  ]);
+  const [goals, constraintRows, baselines, equipment, exercises, mapeos, conditions] =
+    await Promise.all([
+      pick(
+        'user_goals',
+        'goal, sport, season_phase, priority, sessions_per_week_target, session_minutes_target',
+        {
+          user_id: id,
+          is_active: true,
+        },
+      ),
+      pick(
+        'user_constraints',
+        'type, body_region, exercise_id, equipment_id, severity, active_to',
+        {
+          user_id: id,
+        },
+      ),
+      pick('user_baselines', 'exercise_id, source, load_value, load_unit, reps, recorded_at', {
+        user_id: id,
+      }),
+      pick(
+        'equipment',
+        'id, gym_id, name, category, brand, model, photo_url, location_note, setup_notes, load_unit, load_min, load_max, load_increment, stack_kg, base_weight_kg, quantity, is_active',
+        { gym_id: perfil.gym_id, is_active: true },
+      ),
+      pick(
+        'exercises',
+        'id, gym_id, name, pattern, primary_muscles, secondary_muscles, modality, is_compound, is_unilateral, is_explosive, loads_spinal_flexion, skill_level, cues, is_active',
+        { is_active: true },
+      ),
+      pick('exercise_equipment', 'exercise_id, equipment_id'),
+      pick('user_health_conditions', 'condition', { user_id: id }),
+    ]);
+  // Solo las vigentes, como las lee la app (`lib/plan.ts`): una molestia dada de
+  // baja no puede seguir sacando ejercicios en la reproducción.
+  const constraints = constraintRows.filter((c) => c.active_to === null);
 
   if (goals.length === 0)
     throw new Error('El socio no tiene objetivo cargado (falta el onboarding).');
@@ -1131,6 +1144,7 @@ async function snapshotDe(id) {
       goals: goals.map((g) => ({
         goal: g.goal,
         sport: g.sport,
+        seasonPhase: g.season_phase,
         priority: g.priority,
         sessionsPerWeekTarget: g.sessions_per_week_target,
         sessionMinutesTarget: g.session_minutes_target,
@@ -1149,6 +1163,7 @@ async function snapshotDe(id) {
         reps: b.reps ?? 0,
         recordedAt: b.recorded_at,
       })),
+      conditions: conditions.map((c) => c.condition),
     },
     gym: {
       gymId: perfil.gym_id,
@@ -1183,6 +1198,7 @@ async function snapshotDe(id) {
         modality: e.modality,
         isCompound: e.is_compound,
         isExplosive: e.is_explosive,
+        loadsSpinalFlexion: e.loads_spinal_flexion,
         isUnilateral: e.is_unilateral,
         skillLevel: e.skill_level,
         cues: e.cues,

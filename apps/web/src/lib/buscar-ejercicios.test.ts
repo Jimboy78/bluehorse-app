@@ -58,6 +58,7 @@ const CATALOGO: readonly Exercise[] = (
   isCompound: true,
   isUnilateral: false,
   isExplosive: false,
+  loadsSpinalFlexion: false,
   skillLevel: 'beginner',
   cues: null,
   equipmentIds: [],

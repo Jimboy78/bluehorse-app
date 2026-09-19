@@ -3,7 +3,7 @@
   "ruleset": "v1-research",
   "catalogo": {
     "estaciones": 62,
-    "ejercicios": 78
+    "ejercicios": 80
   },
   "perfiles": {
     "fuerza · intermedio": {
@@ -564,7 +564,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "8-12",
               "rir": 3,
@@ -626,7 +626,7 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "8-12",
               "rir": 3,
@@ -688,7 +688,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "8-12",
               "rir": 3,
@@ -750,7 +750,7 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "8-12",
               "rir": 3,
@@ -812,7 +812,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "8-12",
               "rir": 3,
@@ -874,7 +874,7 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "8-12",
               "rir": 3,
@@ -936,7 +936,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "8-12",
               "rir": 3,
@@ -998,7 +998,7 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "8-12",
               "rir": 3,
@@ -1120,7 +1120,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Crunch en polea",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -1222,7 +1222,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Pallof press en polea",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -1335,7 +1335,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Crunch en polea",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -1437,7 +1437,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Pallof press en polea",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -2013,7 +2013,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -2075,7 +2075,7 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -2137,7 +2137,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -2199,7 +2199,7 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -2261,7 +2261,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -2323,7 +2323,7 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -2385,7 +2385,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -2447,7 +2447,7 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -3112,7 +3112,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Abdominales en máquina",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -3236,7 +3236,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Abdominales en máquina",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -3360,7 +3360,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Abdominales en máquina",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -3484,7 +3484,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Abdominales en máquina",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -3668,7 +3668,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Crunch en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -3770,7 +3770,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Pallof press en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -3883,7 +3883,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Crunch en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -3985,7 +3985,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Pallof press en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -4548,7 +4548,7 @@
           "minutos": 40,
           "items": [
             {
-              "ejercicio": "Bicicleta fija",
+              "ejercicio": "Elíptico",
               "series": 4,
               "reps": "1-1",
               "rir": null,
@@ -4559,7 +4559,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "12-15",
               "rir": 3,
@@ -4657,7 +4657,7 @@
           "minutos": 40,
           "items": [
             {
-              "ejercicio": "Bicicleta fija",
+              "ejercicio": "Elíptico",
               "series": 4,
               "reps": "1-1",
               "rir": null,
@@ -4668,7 +4668,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "12-15",
               "rir": 3,
@@ -4766,7 +4766,7 @@
           "minutos": 40,
           "items": [
             {
-              "ejercicio": "Bicicleta fija",
+              "ejercicio": "Elíptico",
               "series": 4,
               "reps": "1-1",
               "rir": null,
@@ -4777,7 +4777,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "12-15",
               "rir": 3,
@@ -4850,7 +4850,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
@@ -4861,7 +4861,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -4884,17 +4895,6 @@
             },
             {
               "ejercicio": "Caminata de costado",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -4956,33 +4956,11 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
               "descanso": 75,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -5000,7 +4978,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata talón-punta",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5062,7 +5062,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
@@ -5073,7 +5073,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5096,17 +5107,6 @@
             },
             {
               "ejercicio": "Caminata de costado",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5168,33 +5168,11 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
               "descanso": 75,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -5212,7 +5190,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata talón-punta",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5274,7 +5274,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
@@ -5285,7 +5285,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5308,17 +5319,6 @@
             },
             {
               "ejercicio": "Caminata de costado",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5380,33 +5380,11 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
               "descanso": 75,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -5424,7 +5402,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata talón-punta",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5486,7 +5486,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
@@ -5497,7 +5497,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5520,17 +5531,6 @@
             },
             {
               "ejercicio": "Caminata de costado",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5592,33 +5592,11 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
               "descanso": 75,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -5636,7 +5614,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata talón-punta",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5707,7 +5707,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Abdominales en máquina",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
@@ -5919,7 +5919,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Abdominales en máquina",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
@@ -6131,7 +6131,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Abdominales en máquina",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
@@ -6343,7 +6343,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Abdominales en máquina",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
@@ -7123,7 +7123,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Crunch en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -7225,7 +7225,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Pallof press en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -7338,7 +7338,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Crunch en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -7440,7 +7440,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Pallof press en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -9297,7 +9297,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -9359,7 +9359,7 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -9421,7 +9421,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -9483,7 +9483,7 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -9545,7 +9545,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -9607,7 +9607,7 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -9669,7 +9669,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -9731,7 +9731,7 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -9999,7 +9999,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Pallof press en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -10258,7 +10258,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Pallof press en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -11386,7 +11386,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Crunch en polea",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -11488,7 +11488,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Pallof press en polea",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -11590,7 +11590,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Crunch en polea",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -11692,7 +11692,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Pallof press en polea",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -12276,7 +12276,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Abdominales en máquina",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -12400,7 +12400,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Abdominales en máquina",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -12524,7 +12524,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Abdominales en máquina",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -12648,7 +12648,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Abdominales en máquina",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -12786,7 +12786,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
@@ -12797,7 +12797,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -12820,17 +12831,6 @@
             },
             {
               "ejercicio": "Caminata de costado",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -12892,33 +12892,11 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
               "descanso": 105,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -12936,7 +12914,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata talón-punta",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -12998,7 +12998,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
@@ -13009,7 +13009,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13032,17 +13043,6 @@
             },
             {
               "ejercicio": "Caminata de costado",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13104,33 +13104,11 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
               "descanso": 105,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -13148,7 +13126,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata talón-punta",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13210,7 +13210,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
@@ -13221,7 +13221,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13244,17 +13255,6 @@
             },
             {
               "ejercicio": "Caminata de costado",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13316,33 +13316,11 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
               "descanso": 105,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -13360,7 +13338,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata talón-punta",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13422,7 +13422,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
@@ -13433,7 +13433,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13456,17 +13467,6 @@
             },
             {
               "ejercicio": "Caminata de costado",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13528,33 +13528,11 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
               "descanso": 105,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -13572,7 +13550,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata talón-punta",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13643,7 +13643,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -13705,7 +13705,7 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -13767,7 +13767,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -13829,7 +13829,7 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -13891,7 +13891,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -13953,7 +13953,7 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -14015,7 +14015,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -14077,7 +14077,7 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 3,
@@ -17781,7 +17781,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Abdominales en máquina",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -17927,7 +17927,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Abdominales en máquina",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -18073,7 +18073,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Abdominales en máquina",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -18219,7 +18219,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Abdominales en máquina",
               "series": 2,
               "reps": "6-10",
               "rir": 3,
@@ -18317,6 +18317,1105 @@
         }
       ]
     },
+    "hombre de 45 con osteoporosis · fuerza": {
+      "rulesetVersion": "v1-research",
+      "source": "research",
+      "warnings": [
+        "Por la osteoporosis el plan no tiene abdominales que doblen la columna, y sí tiene impacto, que es lo que la fortalece. Fuera del gimnasio, lo mismo: para levantar algo del piso, doblá cadera y rodillas con la espalda derecha."
+      ],
+      "sesiones": [
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Sentadilla goblet con kettlebell",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de pecho en máquina",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo sentado",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de hombro con mancuernas",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Dead bug",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pisadas fuertes",
+              "series": 5,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 30,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Hip thrust en máquina",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Dorsalera con agarre neutro",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Subida al cajón",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Curl femoral acostado",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Saltitos en el lugar",
+              "series": 5,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 30,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Sentadilla goblet con kettlebell",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de pecho en máquina",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo sentado",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de hombro con mancuernas",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Dead bug",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pisadas fuertes",
+              "series": 5,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 30,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Hip thrust en máquina",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Dorsalera con agarre neutro",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Subida al cajón",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Curl femoral acostado",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Saltitos en el lugar",
+              "series": 5,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 30,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Sentadilla goblet con kettlebell",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de pecho en máquina",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo sentado",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de hombro con mancuernas",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Dead bug",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pisadas fuertes",
+              "series": 5,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 30,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Hip thrust en máquina",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Dorsalera con agarre neutro",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Subida al cajón",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Curl femoral acostado",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Saltitos en el lugar",
+              "series": 5,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 30,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Sentadilla goblet con kettlebell",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de pecho en máquina",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo sentado",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de hombro con mancuernas",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Dead bug",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pisadas fuertes",
+              "series": 5,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 30,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Hip thrust en máquina",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Dorsalera con agarre neutro",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Subida al cajón",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Curl femoral acostado",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Saltitos en el lugar",
+              "series": 5,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 30,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        }
+      ]
+    },
+    "mujer de 55 con pérdidas de orina · hipertrofia": {
+      "rulesetVersion": "v1-research",
+      "source": "research",
+      "warnings": [
+        "Las pérdidas de orina se tratan: con kinesiología de piso pélvico mejoran en la mayoría de los casos. Mientras tanto el plan no tiene saltos ni impacto; cuando ya no tengas pérdidas, desmarcalo en tu perfil y vuelven.",
+        "Con 3 sesiones por semana, estos músculos quedan abajo de las 6 series semanales mínimas: isquiotibiales (4), lumbares (4). Sumar una sesión más por semana los cubre."
+      ],
+      "sesiones": [
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Sentadilla en Smith",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press inclinado con mancuernas",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de hombro con mancuernas",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Peso muerto",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Dorsalera al pecho",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Zancadas",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo con barra (Pendlay)",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Extensión de tríceps con mancuerna",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Sentadilla en Smith",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press inclinado con mancuernas",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de hombro con mancuernas",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Peso muerto",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Dorsalera al pecho",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Zancadas",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo con barra (Pendlay)",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Extensión de tríceps con mancuerna",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Sentadilla en Smith",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press inclinado con mancuernas",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de hombro con mancuernas",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Peso muerto",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Dorsalera al pecho",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Zancadas",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo con barra (Pendlay)",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Extensión de tríceps con mancuerna",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Sentadilla en Smith",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press inclinado con mancuernas",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de hombro con mancuernas",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Peso muerto",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Dorsalera al pecho",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Zancadas",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo con barra (Pendlay)",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Extensión de tríceps con mancuerna",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        }
+      ]
+    },
     "15 años · fuerza principiante": {
       "rulesetVersion": "v1-research",
       "source": "research",
@@ -18374,7 +19473,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "8-15",
               "rir": 3,
@@ -18436,7 +19535,7 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "8-15",
               "rir": 3,
@@ -18498,7 +19597,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "8-15",
               "rir": 3,
@@ -18560,7 +19659,7 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "8-15",
               "rir": 3,
@@ -18622,7 +19721,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "8-15",
               "rir": 3,
@@ -18684,7 +19783,7 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "8-15",
               "rir": 3,
@@ -18746,7 +19845,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "8-15",
               "rir": 3,
@@ -18808,7 +19907,7 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "8-15",
               "rir": 3,
@@ -20837,7 +21936,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
@@ -20848,7 +21947,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -20871,17 +21981,6 @@
             },
             {
               "ejercicio": "Caminata de costado",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -20943,33 +22042,11 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
               "descanso": 105,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -20987,7 +22064,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata talón-punta",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21049,7 +22148,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
@@ -21060,7 +22159,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21083,17 +22193,6 @@
             },
             {
               "ejercicio": "Caminata de costado",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21155,33 +22254,11 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
               "descanso": 105,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -21199,7 +22276,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata talón-punta",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21261,7 +22360,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
@@ -21272,7 +22371,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21295,17 +22405,6 @@
             },
             {
               "ejercicio": "Caminata de costado",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21367,33 +22466,11 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
               "descanso": 105,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -21411,7 +22488,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata talón-punta",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21473,7 +22572,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
@@ -21484,7 +22583,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21507,17 +22617,6 @@
             },
             {
               "ejercicio": "Caminata de costado",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21579,33 +22678,11 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "7-9",
               "rir": 3,
               "descanso": 105,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -21623,7 +22700,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata talón-punta",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21698,7 +22797,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "1-3",
               "rir": null,
@@ -21709,7 +22808,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21732,17 +22842,6 @@
             },
             {
               "ejercicio": "Caminata de costado",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21804,33 +22903,11 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "1-3",
               "rir": null,
               "descanso": 120,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -21848,7 +22925,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata talón-punta",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21910,7 +23009,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "1-3",
               "rir": null,
@@ -21921,7 +23020,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21944,17 +23054,6 @@
             },
             {
               "ejercicio": "Caminata de costado",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -22016,33 +23115,11 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "1-3",
               "rir": null,
               "descanso": 120,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -22060,7 +23137,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata talón-punta",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -22122,7 +23221,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "1-3",
               "rir": null,
@@ -22133,7 +23232,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -22156,17 +23266,6 @@
             },
             {
               "ejercicio": "Caminata de costado",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -22228,33 +23327,11 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "1-3",
               "rir": null,
               "descanso": 120,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -22272,7 +23349,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata talón-punta",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -22334,7 +23433,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en máquina",
+              "ejercicio": "Dead bug",
               "series": 2,
               "reps": "1-3",
               "rir": null,
@@ -22345,7 +23444,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -22368,17 +23478,6 @@
             },
             {
               "ejercicio": "Caminata de costado",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -22440,33 +23539,11 @@
               "par": null
             },
             {
-              "ejercicio": "Curl femoral acostado",
+              "ejercicio": "Extensión de tríceps en polea",
               "series": 2,
               "reps": "1-3",
               "rir": null,
               "descanso": 120,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -22484,7 +23561,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata talón-punta",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -22710,7 +23809,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Pallof press en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 2,
@@ -22925,7 +24024,7 @@
               "par": null
             },
             {
-              "ejercicio": "Abdominales en camilla",
+              "ejercicio": "Pallof press en polea",
               "series": 2,
               "reps": "10-15",
               "rir": 2,

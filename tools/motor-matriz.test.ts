@@ -123,6 +123,7 @@ function construirGimnasio(): GymSnapshot {
     isCompound: x.isCompound,
     isUnilateral: x.isUnilateral,
     isExplosive: 'isExplosive' in x ? Boolean(x.isExplosive) : false,
+    loadsSpinalFlexion: 'loadsSpinalFlexion' in x ? Boolean(x.loadsSpinalFlexion) : false,
     skillLevel: x.skillLevel as ExperienceLevel,
     cues: x.cues ?? null,
     equipmentIds: (x.equipment ?? [])
@@ -522,6 +523,29 @@ const PERFILES: readonly Perfil[] = [
     sesiones: 3,
     minutos: 60,
     condiciones: ['diabetes', 'beta_blockers'],
+  },
+  // Osteoporosis y suelo pélvico (`docs/research/46`): la osteoporosis saca los
+  // abdominales que flexionan y suma impacto aunque sea un hombre de 45; las
+  // pérdidas de orina sacan el impacto que la edad le daría.
+  {
+    nombre: 'hombre de 45 con osteoporosis · fuerza',
+    goal: 'strength',
+    nivel: 'novice',
+    nacimiento: '1981-03-01',
+    sexo: 'male',
+    sesiones: 3,
+    minutos: 60,
+    condiciones: ['osteoporosis'],
+  },
+  {
+    nombre: 'mujer de 55 con pérdidas de orina · hipertrofia',
+    goal: 'hypertrophy',
+    nivel: 'intermediate',
+    nacimiento: '1971-03-01',
+    sexo: 'female',
+    sesiones: 3,
+    minutos: 60,
+    condiciones: ['pelvic_floor'],
   },
   // Adolescentes (`docs/research/41`): el que recién empieza recibe la dosis de
   // inicio; el que ya entrena, la del adulto.
@@ -1034,9 +1058,12 @@ describe('los números del plan salen del ruleset', () => {
   /** El bloque de impacto: mujeres desde la edad del ruleset, sin molestias. */
   function firmaDeImpacto(p: Perfil): string | null {
     const im = reglas.impact;
-    if (!im?.sexes.includes(p.sexo ?? 'undisclosed') || edadDe(p.nacimiento) < im.fromAge) {
-      return null;
-    }
+    if (!im) return null;
+    const condiciones = p.condiciones ?? [];
+    const porEdad =
+      im.sexes.includes(p.sexo ?? 'undisclosed') && edadDe(p.nacimiento) >= im.fromAge;
+    if (!porEdad && !condiciones.includes('osteoporosis')) return null;
+    if (condiciones.includes('pelvic_floor')) return null;
     if ((p.limitaciones ?? []).some((c) => c.type === 'pain' || c.type === 'injury')) return null;
     return `${im.sets}×${im.repsMin}-${im.repsMax} RIR null d${im.restSeconds}s`;
   }

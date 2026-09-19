@@ -1169,6 +1169,46 @@
       ],
       "confidence": "high",
       "confidenceNote": "La fuerza de intensidad alta mejora más la glucosa que la liviana, así que la dosis no se toca. El riesgo de hipoglucemia está en insulina y secretagogos; los umbrales de 250 con cetonas y 300 sin cetonas, y que los betabloqueantes tapan los síntomas, son de ACSM 2022. docs/research/45."
+    },
+    {
+      "id": "osteoporosis",
+      "minRir": null,
+      "hidesHeartRate": false,
+      "excludesSpinalFlexion": true,
+      "impactBlock": "add",
+      "notes": [
+        "Por la osteoporosis el plan no tiene abdominales que doblen la columna, y sí tiene impacto, que es lo que la fortalece. Fuera del gimnasio, lo mismo: para levantar algo del piso, doblá cadera y rodillas con la espalda derecha."
+      ],
+      "withOther": [
+        {
+          "id": "pelvic_floor",
+          "note": "Por la osteoporosis te conviene el impacto, pero primero van las pérdidas: cuando se resuelvan, desmarcá el suelo pélvico en tu perfil y el plan lo suma."
+        }
+      ],
+      "confidence": "medium",
+      "confidenceNote": "Fuerza progresiva e impacto moderado (unos 50 por sesión) para todos con osteoporosis, y evitar la flexión de columna cargada, repetida o al final del rango, por las fracturas vertebrales reportadas con abdominales: consenso británico 2022 (Brooke-Wavell). Con fractura vertebral el impacto no pasa de caminar rápido, pero eso lo frena la puerta de salud. docs/research/46."
+    },
+    {
+      "id": "pelvic_floor",
+      "minRir": null,
+      "hidesHeartRate": false,
+      "excludesExplosive": true,
+      "impactBlock": "remove",
+      "notes": [
+        "Las pérdidas de orina se tratan: con kinesiología de piso pélvico mejoran en la mayoría de los casos. Mientras tanto el plan no tiene saltos ni impacto; cuando ya no tengas pérdidas, desmarcalo en tu perfil y vuelven."
+      ],
+      "confidence": "medium",
+      "confidenceNote": "El entrenamiento del suelo pélvico cura la incontinencia de esfuerzo en el 56 % contra el 6 % sin tratamiento (Cochrane 2018, calidad alta). Las pérdidas son más frecuentes con impacto alto (Nygaard 2016; Bø y Nygaard 2020), y el consenso de osteoporosis pide tratarlas antes de sumar impacto. Que el impacto dañe a largo plazo no está probado: se saca por los síntomas, no por daño. docs/research/46."
+    },
+    {
+      "id": "abdominal_hernia",
+      "minRir": null,
+      "hidesHeartRate": false,
+      "notes": [
+        "Con una hernia podés entrenar normal. Si el bulto duele fuerte, se pone duro o no vuelve a entrar, frená y andá a una guardia: es una urgencia."
+      ],
+      "confidence": "medium",
+      "confidenceNote": "La espera vigilada es segura en hernias inguinales con pocos síntomas (Fitzgibbons 2006: encarcelación 1,8 cada 1.000 pacientes-año), y después de operarla se vuelve a la actividad normal sin restricciones (HerniaSurge 2018). No hay evidencia para sacar ejercicios. docs/research/46."
     }
   ],
   "cardio": {

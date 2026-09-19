@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-19",
-  "resolved": 118,
+  "resolved": 124,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -1594,10 +1594,12 @@
       "journal": "British Journal of Sports Medicine",
       "type": "journal-article",
       "temas": [
-        "Menopausia y hueso"
+        "Menopausia y hueso",
+        "Osteoporosis, suelo pélvico y hernia"
       ],
       "documentos": [
-        "42-menopausia-y-hueso.md"
+        "42-menopausia-y-hueso.md",
+        "46-osteoporosis-suelo-pelvico-hernia.md"
       ]
     },
     {
@@ -1636,6 +1638,114 @@
       ],
       "documentos": [
         "10-nivel-de-experiencia.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s00198-013-2523-2",
+      "title": "Too Fit To Fracture: exercise recommendations for individuals with osteoporosis or osteoporotic vertebral fracture",
+      "authors": [
+        "Giangregorio",
+        "Papaioannou",
+        "MacIntyre"
+      ],
+      "moreAuthors": 9,
+      "year": 2013,
+      "journal": "Osteoporosis International",
+      "type": "journal-article",
+      "temas": [
+        "Osteoporosis, suelo pélvico y hernia"
+      ],
+      "documentos": [
+        "46-osteoporosis-suelo-pelvico-hernia.md"
+      ]
+    },
+    {
+      "doi": "10.1002/14651858.CD005654.pub4",
+      "title": "Pelvic floor muscle training versus no treatment, or inactive control treatments, for urinary incontinence in women",
+      "authors": [
+        "Dumoulin",
+        "Cacciari",
+        "Hay-Smith"
+      ],
+      "moreAuthors": 0,
+      "year": 2018,
+      "journal": "Cochrane Database of Systematic Reviews",
+      "type": "journal-article",
+      "temas": [
+        "Osteoporosis, suelo pélvico y hernia"
+      ],
+      "documentos": [
+        "46-osteoporosis-suelo-pelvico-hernia.md"
+      ]
+    },
+    {
+      "doi": "10.1016/j.ajog.2015.08.067",
+      "title": "Physical activity and the pelvic floor",
+      "authors": [
+        "Nygaard",
+        "Shaw"
+      ],
+      "moreAuthors": 0,
+      "year": 2016,
+      "journal": "American Journal of Obstetrics and Gynecology",
+      "type": "journal-article",
+      "temas": [
+        "Osteoporosis, suelo pélvico y hernia"
+      ],
+      "documentos": [
+        "46-osteoporosis-suelo-pelvico-hernia.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s40279-019-01243-1",
+      "title": "Is Physical Activity Good or Bad for the Female Pelvic Floor? A Narrative Review",
+      "authors": [
+        "Bø",
+        "Nygaard"
+      ],
+      "moreAuthors": 0,
+      "year": 2019,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Osteoporosis, suelo pélvico y hernia"
+      ],
+      "documentos": [
+        "46-osteoporosis-suelo-pelvico-hernia.md"
+      ]
+    },
+    {
+      "doi": "10.1001/jama.295.3.285",
+      "title": "Watchful Waiting vs Repair of Inguinal Hernia in Minimally Symptomatic Men",
+      "authors": [
+        "Fitzgibbons",
+        "Giobbie-Hurder",
+        "Gibbs"
+      ],
+      "moreAuthors": 12,
+      "year": 2006,
+      "journal": "JAMA",
+      "type": "journal-article",
+      "temas": [
+        "Osteoporosis, suelo pélvico y hernia"
+      ],
+      "documentos": [
+        "46-osteoporosis-suelo-pelvico-hernia.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s10029-017-1668-x",
+      "title": "International guidelines for groin hernia management",
+      "authors": [],
+      "moreAuthors": 0,
+      "year": 2018,
+      "journal": "Hernia",
+      "type": "journal-article",
+      "temas": [
+        "Osteoporosis, suelo pélvico y hernia"
+      ],
+      "documentos": [
+        "46-osteoporosis-suelo-pelvico-hernia.md"
       ]
     },
     {

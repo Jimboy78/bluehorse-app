@@ -1,6 +1,14 @@
 # Estado del trabajo
 
-## Última actualización: 18 de septiembre de 2026 (T2c: diabetes y anticoagulantes)
+## Última actualización: 19 de septiembre de 2026 (T2d: osteoporosis, suelo pélvico y hernia)
+
+`docs/research/46`. El esquema de condiciones suma `excludesSpinalFlexion`, `excludesExplosive` e
+`impactBlock` (`add`/`remove`, gana `remove`). En el catálogo hay un atributo nuevo,
+`loads_spinal_flexion`, y dos core nuevos: Pallof press en polea y Dead bug. `scripts/admin.mjs`
+reproducía el motor sin `is_explosive`, sin fase de temporada, con molestias dadas de baja y sin
+condiciones: quedó corregido.
+
+## 18 de septiembre de 2026 (T2c: diabetes y anticoagulantes)
 
 `docs/research/45`. Diabetes suma dos avisos (hipoglucemia; glucosa alta con cetonas) y, junto con
 betabloqueantes, un tercero mediante `withOther` (avisos que salen solo por combinación). La dosis no

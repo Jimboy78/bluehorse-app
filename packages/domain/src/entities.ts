@@ -62,6 +62,11 @@ export interface Exercise {
    * los días cercanos a un partido — ver `docs/research/07`.
    */
   readonly isExplosive: boolean;
+  /**
+   * El movimiento es flexionar el tronco (abdominales, crunch). Con
+   * osteoporosis se evita — ver `docs/research/46`.
+   */
+  readonly loadsSpinalFlexion: boolean;
   readonly skillLevel: ExperienceLevel;
   /** Indicaciones de ejecución, en castellano. */
   readonly cues: string | null;

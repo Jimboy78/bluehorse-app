@@ -171,27 +171,48 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
   const avoidRules = activePainRules(ruleset, user.constraints, 'avoid');
   decir('molestia', safetyWarnings(ruleset, user.constraints, painRules));
 
-  const exclusiones: Exclusion[] = [
-    { modulo: 'restriccion', excluye: (ex) => isBlocked(ex, user.constraints) },
-    { modulo: 'molestia', excluye: (ex) => isBlockedByPain(ex, avoidRules) },
-    { modulo: 'nivel', excluye: (ex) => !isWithinSkillLevel(ex, level) },
-  ];
-
   // Cualquier molestia o lesión declarada, aunque sea leve y no active ninguna
   // regla de dolor: sumar impacto no es lo que se ajusta, es lo que se evita.
-  // Vale para los saltos del par y para el bloque de impacto.
+  // Vale para los saltos del par, para el bloque de impacto y para un explosivo
+  // que entrara por un slot común. Eso último pasaba: el selector solo
+  // *prefiere* no explosivos, y con osteoporosis (sin abdominales que flexionen)
+  // más una molestia que sacaba la plancha, el único core que quedaba era el
+  // lanzamiento rotacional. Medido en el barrido.
   const conMolestia = user.constraints.some((c) => c.type === 'pain' || c.type === 'injury');
-  const explosivos = explosivePairing({
-    ruleset,
-    goal,
-    sport,
-    profile: user.profile,
-    now: context.now,
-    hasPain: conMolestia,
-  });
+  const sinSaltosPorMolestia =
+    conMolestia && ruleset.safety?.painSubstitution?.avoidExplosive === true;
+
+  const salud = efectosDeSalud(ruleset, user.conditions);
+  const exclusiones: Exclusion[] = [
+    { modulo: 'restriccion', excluye: (ex) => isBlocked(ex, user.constraints) },
+    {
+      modulo: 'molestia',
+      excluye: (ex) => isBlockedByPain(ex, avoidRules) || (sinSaltosPorMolestia && ex.isExplosive),
+    },
+    { modulo: 'nivel', excluye: (ex) => !isWithinSkillLevel(ex, level) },
+    { modulo: 'salud', excluye: salud.excluye },
+  ];
+  const explosivos = salud.sinExplosivos
+    ? null
+    : explosivePairing({
+        ruleset,
+        goal,
+        sport,
+        profile: user.profile,
+        now: context.now,
+        hasPain: conMolestia,
+      });
 
   const equilibrio = balanceBlock(ruleset, user.profile, context.now);
-  const impacto = conMolestia ? null : impactBlock(ruleset, user.profile, context.now);
+  // Una condición puede sumar el impacto (osteoporosis, sin mirar sexo ni edad)
+  // o sacarlo (suelo pélvico). La molestia y el "sacar" ganan siempre.
+  const porEdad = impactBlock(ruleset, user.profile, context.now);
+  const impacto =
+    conMolestia || salud.impacto === 'remove'
+      ? null
+      : salud.impacto === 'add'
+        ? (ruleset.impact ?? null)
+        : porEdad;
   // Van al final de la sesión en este orden: el impacto antes que el
   // equilibrio, que cierra (Otago hace el equilibrio después de la fuerza).
   const bloques: BloqueDeContexto[] = [];
@@ -327,6 +348,29 @@ function applyHealthConditions(
       ...params.progression,
       triggerRirAtLeast: params.progression.triggerRirAtLeast + corrimiento,
     },
+  };
+}
+
+/**
+ * Lo que las condiciones hacen fuera de la dosis: qué ejercicios sacan y qué
+ * pasa con el bloque de impacto (`docs/research/46`). Con una que suma el
+ * impacto y otra que lo saca, gana la que lo saca: con pérdidas de orina, el
+ * consenso de osteoporosis pide tratarlas antes de sumar impacto.
+ */
+function efectosDeSalud(ruleset: Ruleset, conditions: readonly HealthCondition[]) {
+  const activas = condicionesActivas(ruleset, conditions);
+  const sinFlexion = activas.some((c) => c.excludesSpinalFlexion);
+  const sinExplosivos = activas.some((c) => c.excludesExplosive);
+  const impacto: 'add' | 'remove' | null = activas.some((c) => c.impactBlock === 'remove')
+    ? 'remove'
+    : activas.some((c) => c.impactBlock === 'add')
+      ? 'add'
+      : null;
+  return {
+    sinExplosivos,
+    impacto,
+    excluye: (ex: Exercise) =>
+      (sinFlexion && ex.loadsSpinalFlexion) || (sinExplosivos && ex.isExplosive),
   };
 }
 

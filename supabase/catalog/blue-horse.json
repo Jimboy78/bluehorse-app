@@ -615,6 +615,7 @@
       "isUnilateral": false,
       "isExplosive": true,
       "modality": "reps_bodyweight",
+      "loadsSpinalFlexion": true,
       "skillLevel": "novice",
       "cues": "La pelota baja con todo el cuerpo, no solo con los brazos. Acompañás el golpe flexionando la cadera.",
       "equipment": ["Slam balls"]
@@ -872,6 +873,7 @@
       "isCompound": false,
       "isUnilateral": false,
       "modality": "reps_weight",
+      "loadsSpinalFlexion": true,
       "skillLevel": "beginner",
       "cues": "El movimiento es enrollar el tronco, no tirar con los brazos.",
       "equipment": ["Abdominal Isolator (crunch)"]
@@ -884,6 +886,7 @@
       "isCompound": false,
       "isUnilateral": false,
       "modality": "reps_bodyweight",
+      "loadsSpinalFlexion": true,
       "skillLevel": "novice",
       "cues": "Subís despacio y bajás más despacio todavía. Sin tirones de cuello.",
       "equipment": ["Banco abdominal declinado (con rodillos)"]
@@ -911,6 +914,32 @@
       "skillLevel": "advanced",
       "cues": "La lumbar no se arquea en ningún momento: si se arquea, no estirás tan lejos.",
       "equipment": ["Ab wheel"]
+    },
+    {
+      "name": "Pallof press en polea",
+      "pattern": "core",
+      "primaryMuscles": ["obliques", "abs"],
+      "secondaryMuscles": [],
+      "isCompound": false,
+      "isUnilateral": true,
+      "isExplosive": false,
+      "modality": "reps_weight",
+      "skillLevel": "novice",
+      "cues": "De costado a la polea, las manos al pecho. Empujás hacia adelante sin dejar que el cuerpo gire, y volvés. La columna no se mueve: el trabajo es que no gire.",
+      "equipment": ["Cross Over funcional doble (Dual Cable Cross)"]
+    },
+    {
+      "name": "Dead bug",
+      "pattern": "core",
+      "primaryMuscles": ["abs"],
+      "secondaryMuscles": ["obliques"],
+      "isCompound": false,
+      "isUnilateral": false,
+      "isExplosive": false,
+      "modality": "reps_bodyweight",
+      "skillLevel": "beginner",
+      "cues": "Boca arriba, brazos al techo y rodillas dobladas en el aire. Bajás un brazo y la pierna contraria sin que la zona lumbar se despegue del piso, y cambiás.",
+      "equipment": ["Colchonetas plegables"]
     },
     {
       "name": "Extensión de cuádriceps",
@@ -1255,6 +1284,7 @@
       "isUnilateral": false,
       "isExplosive": false,
       "modality": "reps_weight",
+      "loadsSpinalFlexion": true,
       "skillLevel": "novice",
       "cues": "De rodillas, la cadera quieta: el que baja es el pecho hacia las rodillas, no los brazos.",
       "equipment": ["Cross Over funcional doble (Dual Cable Cross)"]
@@ -1268,6 +1298,7 @@
       "isUnilateral": false,
       "isExplosive": false,
       "modality": "reps_bodyweight",
+      "loadsSpinalFlexion": true,
       "skillLevel": "intermediate",
       "cues": "Sin balanceo: subís las piernas enrollando la pelvis y bajás controlado.",
       "equipment": [

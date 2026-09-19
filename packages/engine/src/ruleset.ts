@@ -910,6 +910,16 @@ export const rulesetSchema = z.object({
         minRir: z.number().int().min(0).max(10).nullable(),
         /** La tarjeta de cardio no muestra el % de frecuencia cardíaca máxima. */
         hidesHeartRate: z.boolean(),
+        /** Saca los ejercicios que flexionan el tronco (`loadsSpinalFlexion`). */
+        excludesSpinalFlexion: z.boolean().default(false),
+        /** Saca los saltos y lanzamientos, también el par explosivo. */
+        excludesExplosive: z.boolean().default(false),
+        /**
+         * Qué hace con el bloque de impacto: `add` lo suma aunque el sexo o la
+         * edad no lo pidan; `remove` lo saca. Con las dos, gana `remove`: lo
+         * que se evita pesa más que lo que se suma.
+         */
+        impactBlock: z.enum(['add', 'remove']).nullable().default(null),
         /** Lo que el socio tiene que hacer distinto. Van como avisos del plan. */
         notes: z.array(z.string().min(1)),
         /**

@@ -19,6 +19,7 @@ function ex(id: string, over: Partial<Exercise> = {}): Exercise {
     isCompound: true,
     isUnilateral: false,
     isExplosive: false,
+    loadsSpinalFlexion: false,
     skillLevel: 'beginner',
     cues: null,
     equipmentIds: [],
@@ -325,11 +326,74 @@ describe('resolverContexto', () => {
     expect(salud(['beta_blockers'])).not.toContain(combinado);
   });
 
+  it('osteoporosis: sin flexión de columna, y con impacto aunque el sexo y la edad no lo pidan', () => {
+    const crunch = ex('crunch', {
+      pattern: 'core',
+      primaryMuscles: ['abs'],
+      loadsSpinalFlexion: true,
+    });
+    const plancha = ex('plancha', { pattern: 'core', primaryMuscles: ['abs'] });
+    const hombre = (conditions: UserSnapshot['conditions'], molestia = false) => {
+      const i = input({ edad: 40, conditions, constraints: molestia ? [lesionRodilla] : [] });
+      const profile = { ...i.user.profile, sex: 'male' as const };
+      return resolverContexto({ ...i, user: { ...i.user, profile } });
+    };
+    const sano = hombre([]);
+    expect(excluido(sano, crunch)).toBe(false);
+    expect(sano.bloques.map((b) => b.modulo)).not.toContain('impacto');
+
+    const oste = hombre(['osteoporosis']);
+    expect(excluido(oste, crunch)).toBe(true);
+    expect(excluido(oste, plancha)).toBe(false);
+    expect(oste.bloques.map((b) => b.modulo)).toContain('impacto');
+    // Con una molestia, el impacto no se suma tampoco por la osteoporosis.
+    expect(hombre(['osteoporosis'], true).bloques.map((b) => b.modulo)).not.toContain('impacto');
+    // La dosis no cambia: fuerza progresiva es lo que pide el consenso.
+    expect(oste.params).toEqual(sano.params);
+  });
+
+  it('suelo pélvico: sin impacto ni saltos, y gana sobre la osteoporosis con su aviso', () => {
+    const mujer = (conditions: UserSnapshot['conditions']) => {
+      const i = input({ edad: 55, sport: 'futbol', conditions });
+      const profile = { ...i.user.profile, sex: 'female' as const };
+      return resolverContexto({ ...i, user: { ...i.user, profile } });
+    };
+    const salto = ex('salto', { isExplosive: true });
+    const sana = mujer([]);
+    // Si sin la condición no hubiera impacto ni par, el test no probaría nada.
+    expect(sana.bloques.map((b) => b.modulo)).toContain('impacto');
+    expect(sana.explosivos).not.toBeNull();
+
+    const conPerdidas = mujer(['pelvic_floor']);
+    expect(conPerdidas.bloques.map((b) => b.modulo)).not.toContain('impacto');
+    expect(conPerdidas.explosivos).toBeNull();
+    expect(excluido(conPerdidas, salto)).toBe(true);
+
+    const ambas = mujer(['osteoporosis', 'pelvic_floor']);
+    expect(ambas.bloques.map((b) => b.modulo)).not.toContain('impacto');
+    const combinado = V1_RESEARCH.conditions
+      ?.find((c) => c.id === 'osteoporosis')
+      ?.withOther.find((o) => o.id === 'pelvic_floor')?.note;
+    expect(ambas.avisos.map((a) => a.texto)).toContain(combinado);
+  });
+
+  it('hernia abdominal: el plan no cambia, sale el aviso de urgencia', () => {
+    const sano = resolverContexto(input({}));
+    const hernia = resolverContexto(input({ conditions: ['abdominal_hernia'] }));
+    expect(hernia.params).toEqual(sano.params);
+    expect(hernia.bloques).toEqual(sano.bloques);
+    expect(hernia.avisos.filter((a) => a.modulo === 'salud')).toHaveLength(1);
+  });
+
   it('con una molestia declarada no hay bloque explosivo, aunque el deporte lo pida', () => {
     const leve: UserConstraint = { ...lesionRodilla, type: 'pain', severity: 1 };
     expect(resolverContexto(input({ sport: 'futbol', edad: 25 })).explosivos).not.toBeNull();
-    expect(
-      resolverContexto(input({ sport: 'futbol', edad: 25, constraints: [leve] })).explosivos,
-    ).toBeNull();
+    const conLeve = resolverContexto(input({ sport: 'futbol', edad: 25, constraints: [leve] }));
+    expect(conLeve.explosivos).toBeNull();
+    // Tampoco por un slot común: el selector solo *prefiere* no explosivos, y
+    // cuando no quedaba otro core, entraba el lanzamiento suelto.
+    const lanzamiento = ex('lanzamiento', { pattern: 'core', isExplosive: true });
+    expect(excluido(conLeve, lanzamiento)).toBe(true);
+    expect(excluido(resolverContexto(input({ edad: 25 })), lanzamiento)).toBe(false);
   });
 });
