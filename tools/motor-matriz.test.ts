@@ -610,7 +610,7 @@ const PERFILES: readonly Perfil[] = [
         exerciseId: null,
         equipmentId: null,
         severity: 1,
-        surgeryOn: '2026-07-01',
+        occurredOn: '2026-07-01',
         rehabDone: false,
       },
     ],
@@ -630,8 +630,29 @@ const PERFILES: readonly Perfil[] = [
         exerciseId: null,
         equipmentId: null,
         severity: 1,
-        surgeryOn: '2026-04-01',
+        occurredOn: '2026-04-01',
         rehabDone: true,
+      },
+    ],
+  },
+  // Esguince de tobillo (`docs/research/57`): equilibrio en un pie al final de
+  // cada sesión durante el primer año. No es una molestia: los saltos siguen.
+  {
+    nombre: 'esguince de tobillo hace tres meses · fútbol, fuerza intermedio',
+    goal: 'strength',
+    nivel: 'intermediate',
+    nacimiento: '2000-05-01',
+    sesiones: 3,
+    minutos: 60,
+    deporte: 'futbol',
+    limitaciones: [
+      {
+        type: 'sprain',
+        bodyRegion: 'ankle',
+        exerciseId: null,
+        equipmentId: null,
+        severity: 1,
+        occurredOn: '2026-06-01',
       },
     ],
   },
@@ -1131,7 +1152,9 @@ describe('los números del plan salen del ruleset', () => {
           : slot,
       );
     const firmas = new Set(slots.flatMap((slot) => firmasDeUnSlot(slot, ventana, multiplicador)));
-    for (const firma of [firmaDeEquilibrio(p), firmaDeImpacto(p)]) if (firma) firmas.add(firma);
+    for (const firma of [firmaDeEquilibrio(p), firmaDeEsguince(p), firmaDeImpacto(p)]) {
+      if (firma) firmas.add(firma);
+    }
     return firmas;
   }
 
@@ -1162,6 +1185,17 @@ describe('los números del plan salen del ruleset', () => {
     const eq = reglas.balance;
     if (!eq || edadDe(p.nacimiento) < eq.fromAge) return null;
     return `${eq.sets}×${eq.repsMin}-${eq.repsMax} RIR null d${eq.restSeconds}s`;
+  }
+
+  /**
+   * El equilibrio en un pie por un esguince (`docs/research/57`), con su dosis.
+   * Con el bloque de los mayores no hay otro: la firma es la de ellos.
+   */
+  function firmaDeEsguince(p: Perfil): string | null {
+    const es = reglas.sprain;
+    const tiene = (p.limitaciones ?? []).some((c) => c.type === 'sprain');
+    if (!es || !tiene) return null;
+    return `${es.sets}×${es.repsMin}-${es.repsMax} RIR null d${es.restSeconds}s`;
   }
 
   /**
@@ -3437,7 +3471,8 @@ describe('explosivos en par con un levantamiento', () => {
       const plan = planDe(perfil, V1_RESEARCH);
       const tiene = plan.sessions.some((s) => s.items.some((i) => i.supersetGroup !== null));
       const edad = new Date(AHORA).getUTCFullYear() - new Date(perfil.nacimiento).getUTCFullYear();
-      const conMolestia = (perfil.limitaciones ?? []).length > 0;
+      // Un esguince no es una molestia: los saltos siguen (`docs/research/57`).
+      const conMolestia = (perfil.limitaciones ?? []).some((c) => c.type !== 'sprain');
       if (!loRecibe(perfil) || conMolestia || (cfg && edad > cfg.maxAge + 1)) {
         expect(tiene, `${perfil.nombre} no lo pidió o no le corresponde`).toBe(false);
       }

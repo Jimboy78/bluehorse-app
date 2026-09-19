@@ -213,6 +213,8 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
       });
 
   const equilibrio = balanceBlock(ruleset, user.profile, context.now);
+  const esguince = esguinceReciente(ruleset, user.constraints, context.now);
+  if (esguince) decir('equilibrio', [esguince.aviso]);
   // Una condición puede sumar el impacto (osteoporosis, sin mirar sexo ni edad)
   // o sacarlo (suelo pélvico). La molestia y el "sacar" ganan siempre.
   const porEdad = impactBlock(ruleset, user.profile, context.now);
@@ -225,8 +227,26 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
   // Van al final de la sesión en este orden: el impacto antes que el
   // equilibrio, que cierra (Otago hace el equilibrio después de la fuerza).
   const bloques: BloqueDeContexto[] = [];
-  if (impacto) bloques.push({ ...impacto, modulo: 'impacto', pattern: 'impact' });
-  if (equilibrio) bloques.push({ ...equilibrio, modulo: 'equilibrio', pattern: 'balance' });
+  if (impacto)
+    bloques.push({ ...impacto, modulo: 'impacto', pattern: 'impact', unilateralesPrimero: 0 });
+  // Con un esguince reciente, el equilibrio en un pie. Si ya entra el bloque de
+  // los mayores no se suma otro: ese elige primero los unilaterales.
+  const unilaterales = esguince?.cfg.exercisesPerSession ?? 0;
+  if (equilibrio) {
+    bloques.push({
+      ...equilibrio,
+      modulo: 'equilibrio',
+      pattern: 'balance',
+      unilateralesPrimero: unilaterales,
+    });
+  } else if (esguince) {
+    bloques.push({
+      ...esguince.cfg,
+      modulo: 'equilibrio',
+      pattern: 'balance',
+      unilateralesPrimero: unilaterales,
+    });
+  }
 
   return {
     goal,
@@ -412,6 +432,8 @@ export interface BloqueDeContexto {
   readonly repsMax: number;
   readonly restSeconds: number;
   readonly rationale: string;
+  /** Cuántos de los ejercicios del bloque salen primero de los unilaterales (esguince, `57`). */
+  readonly unilateralesPrimero: number;
 }
 
 /** Los patrones que solo entran como bloque. */
@@ -447,6 +469,29 @@ function balanceBlock(ruleset: Ruleset, profile: Profile, now: string): BalanceC
   if (!cfg || !profile.birthDate) return null;
   const age = ageAt(profile.birthDate, now);
   return age !== null && age >= cfg.fromAge ? cfg : null;
+}
+
+type SprainConfig = NonNullable<Ruleset['sprain']>;
+
+/**
+ * Un esguince en una zona del ruleset, de hace menos de `months` meses
+ * (`docs/research/57`). Sin fecha legible no se inventa un plazo.
+ */
+function esguinceReciente(
+  ruleset: Ruleset,
+  constraints: readonly UserConstraint[],
+  now: string,
+): { readonly cfg: SprainConfig; readonly aviso: string } | null {
+  const cfg = ruleset.sprain;
+  if (!cfg) return null;
+  const esguince = constraints.find((c) => {
+    if (c.type !== 'sprain' || !c.bodyRegion || !cfg.regions.includes(c.bodyRegion)) return false;
+    if (!c.occurredOn) return false;
+    const meses = mesesEntre(c.occurredOn, now);
+    return meses !== null && meses < cfg.months;
+  });
+  if (!esguince?.bodyRegion) return null;
+  return { cfg, aviso: cfg.note.replace('{region}', regionLabel(esguince.bodyRegion)) };
 }
 
 // ------------------------------------------------------------------ explosivos
@@ -835,8 +880,8 @@ function efectosDeOperaciones(
   }
   const { regions, months, note } = reglas.jumpFree;
   const sinSaltos = operaciones.some((c) => {
-    if (!c.bodyRegion || !regions.includes(c.bodyRegion) || !c.surgeryOn) return false;
-    const meses = mesesEntre(c.surgeryOn, now);
+    if (!c.bodyRegion || !regions.includes(c.bodyRegion) || !c.occurredOn) return false;
+    const meses = mesesEntre(c.occurredOn, now);
     return meses !== null && meses < months;
   });
   if (sinSaltos) avisos.push(note);
@@ -864,11 +909,25 @@ function lowerFirst(text: string): string {
  * es no parar del todo: se saca lo que molesta y se sigue con el resto.
  */
 export function isBlockedByPain(exercise: Exercise, rules: readonly PainRule[]): boolean {
+  const patrones = patronesQueCarga(exercise);
   return rules.some(
     (rule) =>
-      rule.avoidPatterns.includes(exercise.pattern) ||
+      patrones.some((p) => rule.avoidPatterns.includes(p)) ||
       exercise.primaryMuscles.some((m) => rule.avoidMuscles.includes(m)),
   );
+}
+
+/**
+ * Los patrones que carga un ejercicio a los ojos de una regla de dolor. Uno de
+ * equilibrio en un pie que además dobla la rodilla con el peso encima (la
+ * flexión de rodilla en un pie, `docs/research/57`) carga como una zancada: si
+ * la zona saca la zancada, lo saca también. Estar clasificado como equilibrio
+ * lo deja fuera de las ranuras, no de las reglas de dolor.
+ */
+function patronesQueCarga(exercise: Exercise): readonly MovementPattern[] {
+  const unaPiernaConCarga =
+    exercise.pattern === 'balance' && exercise.isUnilateral && exercise.isCompound;
+  return unaPiernaConCarga ? [exercise.pattern, 'lunge'] : [exercise.pattern];
 }
 
 /**

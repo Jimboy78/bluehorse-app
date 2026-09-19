@@ -1118,6 +1118,21 @@
     "confidence": "medium",
     "confidenceNote": "Fuerza con impacto mejora la densidad ósea en posmenopáusicas (Kistler-Fischbacher 2021, 53 ensayos; efecto chico). La dosis de 50 impactos sale del consenso británico de osteoporosis 2022. La pausa de 30 s es criterio de práctica. docs/research/42."
   },
+  "sprain": {
+    "regions": [
+      "ankle"
+    ],
+    "months": 12,
+    "exercisesPerSession": 3,
+    "sets": 2,
+    "repsMin": 10,
+    "repsMax": 10,
+    "restSeconds": 60,
+    "rationale": "Equilibrio en un pie: 10 repeticiones con cada pierna. Empezá al lado de algo firme —una barra fija, el rack, la pared—. Cuando te salga sin apoyarte, soltá el apoyo; después, cerrá los ojos; después, pasá al disco de equilibrio.",
+    "note": "Te esguinzaste {region} hace menos de un año: al final de cada sesión hay equilibrio en un pie, que es lo que baja la chance de volver a esguinzarte. Si todavía te duele, anotalo también como dolor. Para hacer deporte, una tobillera semirrígida también baja ese riesgo.",
+    "confidence": "medium",
+    "confidenceNote": "Que el ejercicio de equilibrio baja la recaída tiene nivel 1 (Vuurberg 2018, 10 ensayos, RR 0,62; efecto hasta 12 meses después del esguince) y lo confirman Hupperets 2009 (RR 0,63, NNT 9) y Wagemans 2022 (OR 0,60). La dosis por ejercicio no está estandarizada (Guo 2024) y el volumen no predijo el efecto (Wagemans): 3 ejercicios de 2 × 10 por pierna quedan en los 5 a 20 minutos por sesión de los ensayos. Los ejercicios y la progresión (con apoyo, sin apoyo, ojos cerrados, disco) salen del programa 2BFit. docs/research/57."
+  },
   "conditions": [
     {
       "id": "hypertension",

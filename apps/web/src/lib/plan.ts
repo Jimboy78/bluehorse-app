@@ -60,7 +60,7 @@ export async function fetchUserSnapshot(
   // ruleset y en el motor, pero nunca recibía con qué dispararse.
   const { data: constraintRows, error: constraintError } = await client
     .from('user_constraints')
-    .select('type, body_region, exercise_id, equipment_id, severity, surgery_on, rehab_done')
+    .select('type, body_region, exercise_id, equipment_id, severity, occurred_on, rehab_done')
     .eq('user_id', userId)
     .is('active_to', null);
   if (constraintError) throw constraintError;
@@ -106,7 +106,7 @@ export async function fetchUserSnapshot(
       equipmentId: c.equipment_id,
       severity: c.severity,
       // Se omiten cuando vienen nulos: el motor pregunta `!== undefined`.
-      ...(c.surgery_on !== null ? { surgeryOn: c.surgery_on } : {}),
+      ...(c.occurred_on !== null ? { occurredOn: c.occurred_on } : {}),
       ...(c.rehab_done !== null ? { rehabDone: c.rehab_done } : {}),
     })),
     // Una fila por ejercicio: la más reciente. La consulta viene ordenada, así

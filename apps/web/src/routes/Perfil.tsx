@@ -821,7 +821,7 @@ function ConstraintsSection() {
       ) : (
         <Button variant="ghost" onClick={() => setAgregando(true)}>
           <Plus className="size-4" aria-hidden="true" />
-          Agregar una lesión, dolor, tendinitis u operación
+          Agregar una lesión, dolor, operación o esguince
         </Button>
       )}
 
@@ -858,6 +858,7 @@ function ConstraintRow({
     constraint.type === 'pain' ||
     constraint.type === 'tendinopathy';
   const esOperacion = constraint.type === 'surgery';
+  const conMes = esOperacion || constraint.type === 'sprain';
   const enRehab = esOperacion && constraint.rehabDone === false;
 
   return (
@@ -867,15 +868,15 @@ function ConstraintRow({
       </span>
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <p className="text-sm font-semibold text-ink">
-          {(isPain || esOperacion) && constraint.bodyRegion
+          {(isPain || conMes) && constraint.bodyRegion
             ? BODY_REGION_LABELS[constraint.bodyRegion as keyof typeof BODY_REGION_LABELS]
             : (constraint.targetName ?? CONSTRAINT_TYPE_LABELS[constraint.type])}
         </p>
         <p className="text-xs text-slate">
           {CONSTRAINT_TYPE_LABELS[constraint.type]}
           {isPain && ` · intensidad ${constraint.severity}/5`}
-          {esOperacion && constraint.surgeryOn
-            ? ` · ${formatMonth(constraint.surgeryOn)}${enRehab ? ' · en rehabilitación' : ''}`
+          {conMes && constraint.occurredOn
+            ? ` · ${formatMonth(constraint.occurredOn)}${enRehab ? ' · en rehabilitación' : ''}`
             : ` · desde ${formatDate(constraint.since)}`}
         </p>
         {enRehab && (
@@ -898,7 +899,7 @@ function ConstraintRow({
   );
 }
 
-/** `surgery_on` es una fecha sin hora (el día 1 del mes): se formatea en UTC para no correrla de mes. */
+/** `occurred_on` es una fecha sin hora (el día 1 del mes): se formatea en UTC para no correrla de mes. */
 function formatMonth(fecha: string): string {
   return new Intl.DateTimeFormat('es-AR', {
     timeZone: 'UTC',

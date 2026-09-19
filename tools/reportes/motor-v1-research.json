@@ -3,7 +3,7 @@
   "ruleset": "v1-research",
   "catalogo": {
     "estaciones": 62,
-    "ejercicios": 80
+    "ejercicios": 84
   },
   "perfiles": {
     "fuerza · intermedio": {
@@ -4861,7 +4861,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -4872,7 +4872,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -4894,7 +4894,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -4967,7 +4967,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -4979,28 +5001,6 @@
             },
             {
               "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5073,7 +5073,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5084,7 +5084,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5106,7 +5106,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5179,7 +5179,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5191,28 +5213,6 @@
             },
             {
               "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5285,7 +5285,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5296,7 +5296,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5318,7 +5318,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5391,7 +5391,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5403,28 +5425,6 @@
             },
             {
               "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5497,7 +5497,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5508,7 +5508,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5530,7 +5530,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5603,7 +5603,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5615,28 +5637,6 @@
             },
             {
               "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5718,18 +5718,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5751,7 +5740,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5824,7 +5824,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5846,18 +5857,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5930,18 +5930,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -5963,7 +5952,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -6036,7 +6036,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -6058,18 +6069,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -6142,18 +6142,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -6175,7 +6164,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -6248,7 +6248,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -6270,18 +6281,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -6354,18 +6354,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -6387,7 +6376,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -6460,7 +6460,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en talones",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -6482,18 +6493,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -12797,7 +12797,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -12808,7 +12808,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -12830,7 +12830,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -12903,7 +12903,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -12915,28 +12937,6 @@
             },
             {
               "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13009,7 +13009,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13020,7 +13020,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13042,7 +13042,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13115,7 +13115,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13127,28 +13149,6 @@
             },
             {
               "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13221,7 +13221,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13232,7 +13232,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13254,7 +13254,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13327,7 +13327,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13339,28 +13361,6 @@
             },
             {
               "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13433,7 +13433,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13444,7 +13444,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13466,7 +13466,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13539,7 +13539,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -13551,28 +13573,6 @@
             },
             {
               "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -19487,7 +19487,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie sobre disco",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -19509,18 +19520,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Balanceo de pierna en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -19604,7 +19604,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -19615,7 +19615,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata talón-punta",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -19677,17 +19677,6 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
               "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
@@ -19699,7 +19688,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Elevación de talón en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -19710,7 +19699,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -19772,7 +19772,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -19783,7 +19783,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Elevación de talón en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -19805,7 +19805,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata talón-punta",
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -19878,7 +19878,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie sobre disco",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -19900,18 +19911,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Balanceo de pierna en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -19995,7 +19995,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -20006,7 +20006,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata talón-punta",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -20068,17 +20068,6 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
               "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
@@ -20090,7 +20079,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Elevación de talón en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -20101,7 +20090,18 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -20163,7 +20163,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -20174,7 +20174,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Elevación de talón en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -20196,7 +20196,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata talón-punta",
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21297,7 +21297,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21308,7 +21308,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21330,7 +21330,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21403,7 +21403,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21415,28 +21437,6 @@
             },
             {
               "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21509,7 +21509,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21520,7 +21520,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21542,7 +21542,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21615,7 +21615,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21627,28 +21649,6 @@
             },
             {
               "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21721,7 +21721,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21732,7 +21732,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21754,7 +21754,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21827,7 +21827,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21839,28 +21861,6 @@
             },
             {
               "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21933,7 +21933,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21944,7 +21944,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -21966,7 +21966,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -22039,7 +22039,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -22051,28 +22073,6 @@
             },
             {
               "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -23094,6 +23094,864 @@
               "reps": "1-3",
               "rir": null,
               "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        }
+      ]
+    },
+    "esguince de tobillo hace tres meses · fútbol, fuerza intermedio": {
+      "rulesetVersion": "v1-research",
+      "source": "research",
+      "warnings": [
+        "Te esguinzaste el tobillo hace menos de un año: al final de cada sesión hay equilibrio en un pie, que es lo que baja la chance de volver a esguinzarte. Si todavía te duele, anotalo también como dolor. Para hacer deporte, una tobillera semirrígida también baja ese riesgo.",
+        "Tu deporte trabaja sobre todo oblicuos, y este plan no lo cubre: no aparece en ninguna sesion ni entre los equivalentes que podes elegir en su lugar. El gimnasio no tiene hoy con que entrenarlo dentro de un plan. Consultalo con el staff si te importa esa parte."
+      ],
+      "sesiones": [
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Sentadilla en Smith",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Salto en profundidad",
+              "series": 4,
+              "reps": "5-10",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Press inclinado con mancuernas",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de hombro con mancuernas",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie sobre disco",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Peso muerto",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Slam ball",
+              "series": 4,
+              "reps": "5-10",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Dorsalera al pecho",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Zancadas",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo con barra (Pendlay)",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Extensión de tríceps con mancuerna",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Sentadilla en Smith",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Salto en profundidad",
+              "series": 4,
+              "reps": "5-10",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Press inclinado con mancuernas",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de hombro con mancuernas",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie sobre disco",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Peso muerto",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Slam ball",
+              "series": 4,
+              "reps": "5-10",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Dorsalera al pecho",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Zancadas",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo con barra (Pendlay)",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Extensión de tríceps con mancuerna",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Sentadilla en Smith",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Salto en profundidad",
+              "series": 4,
+              "reps": "5-10",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Press inclinado con mancuernas",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de hombro con mancuernas",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie sobre disco",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Peso muerto",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Slam ball",
+              "series": 4,
+              "reps": "5-10",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Dorsalera al pecho",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Zancadas",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo con barra (Pendlay)",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Extensión de tríceps con mancuerna",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Sentadilla en Smith",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Salto en profundidad",
+              "series": 4,
+              "reps": "5-10",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Press inclinado con mancuernas",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de hombro con mancuernas",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie sobre disco",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 55,
+          "items": [
+            {
+              "ejercicio": "Peso muerto",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Slam ball",
+              "series": 4,
+              "reps": "5-10",
+              "rir": null,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": 1
+            },
+            {
+              "ejercicio": "Dorsalera al pecho",
+              "series": 4,
+              "reps": "1-5",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Zancadas",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo con barra (Pendlay)",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Extensión de tríceps con mancuerna",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
               "carga": null,
               "duracionSeg": null,
               "zona": null,
@@ -24774,6 +25632,28 @@
               "par": null
             },
             {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
               "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
@@ -24785,29 +25665,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
+              "ejercicio": "Flexión de rodilla en un pie sobre disco",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -24880,6 +25738,17 @@
               "par": null
             },
             {
+              "ejercicio": "Caminata de costado",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
               "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
@@ -24892,17 +25761,6 @@
             },
             {
               "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -24986,6 +25844,28 @@
               "par": null
             },
             {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
               "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
@@ -24997,29 +25877,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
+              "ejercicio": "Flexión de rodilla en un pie sobre disco",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -25092,6 +25950,17 @@
               "par": null
             },
             {
+              "ejercicio": "Caminata de costado",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
               "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
@@ -25104,17 +25973,6 @@
             },
             {
               "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -25198,6 +26056,28 @@
               "par": null
             },
             {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
               "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
@@ -25209,29 +26089,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
+              "ejercicio": "Flexión de rodilla en un pie sobre disco",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -25304,6 +26162,17 @@
               "par": null
             },
             {
+              "ejercicio": "Caminata de costado",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
               "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
@@ -25316,17 +26185,6 @@
             },
             {
               "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -25410,6 +26268,28 @@
               "par": null
             },
             {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
               "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
@@ -25421,29 +26301,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
+              "ejercicio": "Flexión de rodilla en un pie sobre disco",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -25516,6 +26374,17 @@
               "par": null
             },
             {
+              "ejercicio": "Caminata de costado",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
               "ejercicio": "Caminata talón-punta",
               "series": 2,
               "reps": "10-10",
@@ -25528,17 +26397,6 @@
             },
             {
               "ejercicio": "Caminata en puntas de pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -25634,7 +26492,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -25645,7 +26503,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -25667,7 +26525,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -25740,7 +26598,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -25752,28 +26632,6 @@
             },
             {
               "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -25846,7 +26704,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -25857,7 +26715,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -25879,7 +26737,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -25952,7 +26810,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -25964,28 +26844,6 @@
             },
             {
               "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26058,7 +26916,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26069,7 +26927,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26091,7 +26949,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26164,7 +27022,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26176,28 +27056,6 @@
             },
             {
               "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26270,7 +27128,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26281,7 +27139,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26303,7 +27161,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26376,7 +27234,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26388,28 +27268,6 @@
             },
             {
               "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26495,7 +27353,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26506,7 +27364,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26528,7 +27386,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26601,7 +27459,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26613,28 +27493,6 @@
             },
             {
               "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26707,7 +27565,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26718,7 +27576,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26740,7 +27598,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26813,7 +27671,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26825,28 +27705,6 @@
             },
             {
               "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26919,7 +27777,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26930,7 +27788,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26952,7 +27810,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -27025,7 +27883,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -27037,28 +27917,6 @@
             },
             {
               "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -27131,7 +27989,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en talones",
+              "ejercicio": "Caminata hacia atrás",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -27142,7 +28000,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata en puntas de pie",
+              "ejercicio": "Caminata de costado",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -27164,7 +28022,7 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata de costado",
+              "ejercicio": "Caminata en puntas de pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -27237,7 +28095,29 @@
               "par": null
             },
             {
-              "ejercicio": "Caminata hacia atrás",
+              "ejercicio": "Balanceo de pierna en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -27249,28 +28129,6 @@
             },
             {
               "ejercicio": "Caminata talón-punta",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Caminata en talones",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Pararse y sentarse",
               "series": 2,
               "reps": "10-10",
               "rir": null,

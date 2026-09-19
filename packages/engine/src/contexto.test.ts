@@ -645,7 +645,7 @@ describe('resolverContexto', () => {
     const reglas = V1_RESEARCH.safety?.postSurgery;
     const operado = (
       bodyRegion: UserConstraint['bodyRegion'],
-      surgeryOn: string,
+      occurredOn: string,
       rehabDone: boolean,
     ) =>
       resolverContexto(
@@ -657,7 +657,7 @@ describe('resolverContexto', () => {
               exerciseId: null,
               equipmentId: null,
               severity: 1,
-              surgeryOn,
+              occurredOn,
               rehabDone,
             },
           ],
@@ -718,7 +718,7 @@ describe('resolverContexto', () => {
             exerciseId: null,
             equipmentId: null,
             severity: 1,
-            surgeryOn: '2026-06-01',
+            occurredOn: '2026-06-01',
             rehabDone: true,
           },
         ],
@@ -731,6 +731,124 @@ describe('resolverContexto', () => {
 
     it('una fecha que no se lee no inventa un plazo', () => {
       expect(excluido(operado('knee', 'no-es-fecha', true), salto)).toBe(false);
+    });
+  });
+
+  describe('esguince (`docs/research/57`)', () => {
+    // `now` del input: 2026-09-10.
+    const cfg = V1_RESEARCH.sprain;
+    const esguince = (bodyRegion: UserConstraint['bodyRegion'], occurredOn: string) => ({
+      type: 'sprain' as const,
+      bodyRegion,
+      exerciseId: null,
+      equipmentId: null,
+      severity: 1,
+      occurredOn,
+    });
+    const deEquilibrio = (ctx: ReturnType<typeof resolverContexto>) =>
+      ctx.bloques.filter((b) => b.pattern === 'balance');
+    const unPie = ['un-pie-a', 'un-pie-b', 'un-pie-c', 'un-pie-d'].map((id) =>
+      ex(id, { pattern: 'balance', isUnilateral: true, primaryMuscles: ['calves'] }),
+    );
+    const caminatas = ['caminata-a', 'caminata-b', 'caminata-c', 'caminata-d', 'caminata-e'].map(
+      (id) => ex(id, { pattern: 'balance', primaryMuscles: ['calves'] }),
+    );
+    const conEquilibrio: GymSnapshot = {
+      ...gym,
+      exercises: [...gym.exercises, ...caminatas, ...unPie],
+    };
+    const bloqueDelPlan = (i: GeneratePlanInput) => {
+      const plan = createPlaceholderEngine().generatePlan({ ...i, gym: conEquilibrio });
+      const ids = new Set([...unPie, ...caminatas].map((e) => e.id));
+      return (plan.sessions[0]?.items ?? [])
+        .filter((it) => ids.has(it.exerciseId))
+        .map((it) => it.exerciseId);
+    };
+
+    it('tobillo de hace dos meses: un bloque de equilibrio en un pie, con su aviso, sin sacar nada', () => {
+      if (!cfg) throw new Error('sin bloque de esguince');
+      const i = input({ constraints: [esguince('ankle', '2026-07-01')] });
+      const ctx = resolverContexto(i);
+      const bloques = deEquilibrio(ctx);
+      expect(bloques).toHaveLength(1);
+      expect(bloques[0]?.exercisesPerSession).toBe(cfg.exercisesPerSession);
+      expect(bloques[0]?.unilateralesPrimero).toBe(cfg.exercisesPerSession);
+      expect(ctx.avisos.map((a) => a.texto)).toContain(cfg.note.replace('{region}', 'el tobillo'));
+      // No es una molestia: no saca ejercicios ni saltos.
+      expect(excluido(ctx, ex('zancada', { pattern: 'lunge' }))).toBe(false);
+      expect(excluido(ctx, ex('salto', { isExplosive: true }))).toBe(false);
+
+      const elegidos = bloqueDelPlan(i);
+      expect(elegidos).toHaveLength(cfg.exercisesPerSession);
+      for (const id of elegidos) expect(id.startsWith('un-pie')).toBe(true);
+    });
+
+    it('la flexión de rodilla en un pie carga como una zancada: la saca quien saca la zancada', () => {
+      const flexion = ex('flexion-un-pie', {
+        pattern: 'balance',
+        isUnilateral: true,
+        isCompound: true,
+      });
+      const talon = ex('talon-un-pie', {
+        pattern: 'balance',
+        isUnilateral: true,
+        isCompound: false,
+        primaryMuscles: ['calves'],
+      });
+      const dolor = (bodyRegion: UserConstraint['bodyRegion'], severity: number) =>
+        resolverContexto(
+          input({
+            constraints: [
+              { type: 'pain', bodyRegion, exerciseId: null, equipmentId: null, severity },
+            ],
+          }),
+        );
+      // Rodilla, cadera y tobillo sacan la zancada desde 4 de 10.
+      for (const zona of ['knee', 'hip', 'ankle'] as const) {
+        expect(excluido(dolor(zona, 4), flexion)).toBe(true);
+        expect(excluido(dolor(zona, 4), talon)).toBe(false);
+      }
+      expect(excluido(dolor('shoulder', 4), flexion)).toBe(false);
+    });
+
+    it('el borde del año: once meses cumplidos todavía; doce, ya no', () => {
+      expect(cfg?.months).toBe(12);
+      expect(
+        deEquilibrio(resolverContexto(input({ constraints: [esguince('ankle', '2025-09-11')] }))),
+      ).toHaveLength(1);
+      expect(
+        deEquilibrio(resolverContexto(input({ constraints: [esguince('ankle', '2025-09-10')] }))),
+      ).toHaveLength(0);
+    });
+
+    it('en una zona sin programa, o con una fecha que no se lee, el plan es el de alguien sano', () => {
+      const sano = resolverContexto(input({}));
+      for (const c of [esguince('knee', '2026-07-01'), esguince('ankle', 'no-es-fecha')]) {
+        const ctx = resolverContexto(input({ constraints: [c] }));
+        expect(ctx.bloques).toEqual(sano.bloques);
+        expect(ctx.avisos).toEqual(sano.avisos);
+      }
+    });
+
+    it('un mayor con esguince: un solo bloque, el suyo, con los unilaterales primero', () => {
+      const balance = V1_RESEARCH.balance;
+      if (!cfg || !balance) throw new Error('sin bloques');
+      const i = input({
+        edad: balance.fromAge + 10,
+        constraints: [esguince('ankle', '2026-07-01')],
+      });
+      const bloques = deEquilibrio(resolverContexto(i));
+      expect(bloques).toHaveLength(1);
+      expect(bloques[0]?.exercisesPerSession).toBe(balance.exercisesPerSession);
+      expect(bloques[0]?.unilateralesPrimero).toBe(cfg.exercisesPerSession);
+
+      const elegidos = bloqueDelPlan(i);
+      expect(elegidos).toHaveLength(balance.exercisesPerSession);
+      const primeros = elegidos.slice(0, cfg.exercisesPerSession);
+      for (const id of primeros) expect(id.startsWith('un-pie')).toBe(true);
+      // Sin esguince, el mayor no pide unilaterales.
+      const sinEsguince = deEquilibrio(resolverContexto(input({ edad: balance.fromAge + 10 })));
+      expect(sinEsguince[0]?.unilateralesPrimero).toBe(0);
     });
   });
 

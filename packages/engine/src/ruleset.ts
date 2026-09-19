@@ -925,6 +925,32 @@ export const rulesetSchema = z.object({
     .refine((b) => b.repsMin <= b.repsMax, { message: 'repsMin > repsMax' })
     .optional(),
   /**
+   * Equilibrio en un pie después de un esguince (`docs/research/57`): baja la
+   * chance de volver a esguinzarse, con efecto hasta un año después. Entra al
+   * final de cada sesión en las zonas de `regions`, hasta `months` meses desde
+   * el esguince. Elige solo ejercicios de equilibrio unilaterales; si ya entra
+   * el bloque de los mayores, no se suma otro: ese bloque elige primero
+   * `exercisesPerSession` unilaterales.
+   */
+  sprain: z
+    .object({
+      regions: z.array(z.enum(BODY_REGIONS)).min(1),
+      months: z.number().int().positive(),
+      exercisesPerSession: z.number().int().min(1).max(6),
+      sets: z.number().int().min(1).max(6),
+      repsMin: z.number().int().min(1).max(30),
+      repsMax: z.number().int().min(1).max(30),
+      restSeconds: z.number().int().min(0).max(600),
+      /** Se muestra en cada ejercicio del bloque. */
+      rationale: z.string().min(1),
+      /** El aviso del plan. Usa {region}. */
+      note: z.string().min(1).includes('{region}'),
+      confidence: z.enum(CONFIDENCE_LEVELS),
+      confidenceNote: z.string().min(1).optional(),
+    })
+    .refine((b) => b.repsMin <= b.repsMax, { message: 'repsMin > repsMax' })
+    .optional(),
+  /**
    * Lo que cambia en el plan cada condición de salud que el socio marcó
    * (`docs/research/43` y siguientes). Una condición sin entrada no cambia nada.
    * Con varias, el piso de RIR es el más alto y los avisos se suman.

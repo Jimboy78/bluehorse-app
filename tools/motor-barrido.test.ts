@@ -58,7 +58,11 @@ const N = Number(process.env.BARRIDO_N ?? 3000);
 const GYM_ID = 'gym';
 const AHORA = '2026-09-10T12:00:00.000Z';
 
-type Operacion = { surgeryOn: string; rehabDone: boolean; sinSaltos: boolean };
+/**
+ * Lo que lleva mes (operación, esguince). `sinSaltos` y `unPie` dicen, escrito a
+ * mano y no leído del ruleset, qué tiene que pasar en el plan.
+ */
+type ConMes = { occurredOn: string; rehabDone?: boolean; sinSaltos: boolean; unPie?: boolean };
 
 /**
  * Las condiciones que sacan saltos, lanzamientos y el bloque de impacto. Escrito
@@ -205,13 +209,18 @@ const DIM = {
       // no leído del ruleset, si esa operación deja al socio sin saltos: en
       // rehabilitación siempre; con el alta, solo la rodilla de hace menos de
       // nueve meses. Una operación vieja con el alta es un socio sano.
-      ['knee', 1, 'surgery', { surgeryOn: '2026-07-01', rehabDone: false, sinSaltos: true }],
-      ['knee', 1, 'surgery', { surgeryOn: '2026-04-01', rehabDone: true, sinSaltos: true }],
-      ['knee', 1, 'surgery', { surgeryOn: '2025-06-01', rehabDone: true, sinSaltos: false }],
-      ['shoulder', 1, 'surgery', { surgeryOn: '2026-08-01', rehabDone: false, sinSaltos: true }],
+      ['knee', 1, 'surgery', { occurredOn: '2026-07-01', rehabDone: false, sinSaltos: true }],
+      ['knee', 1, 'surgery', { occurredOn: '2026-04-01', rehabDone: true, sinSaltos: true }],
+      ['knee', 1, 'surgery', { occurredOn: '2025-06-01', rehabDone: true, sinSaltos: false }],
+      ['shoulder', 1, 'surgery', { occurredOn: '2026-08-01', rehabDone: false, sinSaltos: true }],
+      // Esguinces (`docs/research/57`): el de tobillo de menos de un año suma
+      // equilibrio en un pie; el viejo y el de otra zona no cambian nada.
+      ['ankle', 1, 'sprain', { occurredOn: '2026-06-01', sinSaltos: false, unPie: true }],
+      ['ankle', 1, 'sprain', { occurredOn: '2025-03-01', sinSaltos: false, unPie: false }],
+      ['knee', 1, 'sprain', { occurredOn: '2026-06-01', sinSaltos: false, unPie: false }],
     ] as (
       | [BodyRegion, number, UserConstraint['type']]
-      | [BodyRegion, number, 'surgery', Operacion]
+      | [BodyRegion, number, 'surgery' | 'sprain', ConMes]
       | null
     )[],
     (b, v) => {
@@ -223,7 +232,8 @@ const DIM = {
         exerciseId: null,
         equipmentId: null,
         severity: v[1],
-        ...(op ? { surgeryOn: op.surgeryOn, rehabDone: op.rehabDone } : {}),
+        ...(op ? { occurredOn: op.occurredOn } : {}),
+        ...(op?.rehabDone !== undefined ? { rehabDone: op.rehabDone } : {}),
       });
     },
   ),
@@ -266,7 +276,12 @@ const DIM = {
 type Clave = keyof typeof DIM;
 type Perfil = { [K in Clave]: (typeof DIM)[K]['valores'][number] };
 
-/** Toda molestia deja sin saltos; una operación, solo si su último campo lo dice. */
+/** Con un esguince de tobillo reciente, según su último campo. */
+function conEsguince(p: Perfil): boolean {
+  return p.molestia?.[3]?.unPie === true;
+}
+
+/** Toda molestia deja sin saltos; una operación o un esguince, solo si su último campo lo dice. */
 function sinSaltosPorMolestia(p: Perfil): boolean {
   if (!p.molestia) return false;
   return p.molestia[3]?.sinSaltos ?? true;
@@ -372,11 +387,8 @@ describe('barrido de socios generados', () => {
   let conPisoDeRir = 0;
   let conZonaEvitada = 0;
   let conEnRehab = 0;
+  let conUnPie = 0;
 
-  /**
-   * Desde la edad del ruleset, toda sesión cierra con equilibrio; antes, ninguna
-   * lo trae. Y va al final: Otago hace primero la fuerza (`docs/research/39`).
-   */
   /**
    * El impacto para el hueso: mujeres desde la edad del ruleset y sin molestias
    * declaradas, en toda sesión; nadie más (`docs/research/42`).
@@ -420,19 +432,39 @@ describe('barrido de socios generados', () => {
     }
   }
 
+  /**
+   * Desde la edad del ruleset, o con un esguince de tobillo reciente, toda
+   * sesión cierra con equilibrio; si no, ninguna lo trae. Y va al final: Otago
+   * hace primero la fuerza (`docs/research/39`). Con el esguince, los primeros
+   * del bloque son en un pie (`57`).
+   */
   function chequearEquilibrio(p: Perfil, items: readonly SessionItemBlueprint[]) {
     const cfg = V1_RESEARCH.balance;
     const id = JSON.stringify(p);
+    const deEquilibrio = items
+      .map((i) => exPorId.get(i.exerciseId))
+      .filter((e) => e?.pattern === 'balance');
     const marca = items.map((i) => exPorId.get(i.exerciseId)?.pattern === 'balance');
-    const cuantos = marca.filter(Boolean).length;
-    if (!cfg || p.edad < cfg.fromAge) {
-      if (cuantos > 0) violaciones.push(`equilibrio antes de los ${cfg?.fromAge}: ${id}`);
+    const cuantos = deEquilibrio.length;
+    const esguince = conEsguince(p);
+    if ((!cfg || p.edad < cfg.fromAge) && !esguince) {
+      if (cuantos > 0) violaciones.push(`equilibrio sin edad ni esguince: ${id}`);
       return;
     }
     conEquilibrio += 1;
-    if (cuantos === 0) violaciones.push(`sesión sin equilibrio a los ${p.edad}: ${id}`);
+    if (cuantos === 0) violaciones.push(`sesión sin equilibrio: ${id}`);
     if (marca.indexOf(true) !== marca.length - cuantos) {
       violaciones.push(`el equilibrio no va al final: ${id}`);
+    }
+    if (esguince) chequearUnPie(id, deEquilibrio);
+  }
+
+  function chequearUnPie(id: string, deEquilibrio: readonly (Exercise | undefined)[]) {
+    conUnPie += 1;
+    const k = V1_RESEARCH.sprain?.exercisesPerSession ?? 0;
+    const primeros = deEquilibrio.slice(0, k);
+    if (primeros.length < k || primeros.some((e) => !e?.isUnilateral)) {
+      violaciones.push(`esguince sin equilibrio en un pie: ${id}`);
     }
   }
 
@@ -455,26 +487,29 @@ describe('barrido de socios generados', () => {
     }
   }
 
-  /**
-   * Lo que una regla de dolor saca no vuelve a entrar por ningún lado: ni por la
-   * plantilla, ni por un bloque, ni por una sustitución (`docs/research/49`).
-   */
   /** Una operación en rehabilitación deja su zona entera en manos del kinesiólogo (`56`). */
   function chequearRehabilitacion(p: Perfil, evitar: readonly PainRule[]) {
     const op = p.molestia?.[3];
-    if (!op || op.rehabDone) return;
+    if (op?.rehabDone !== false) return;
     conEnRehab += 1;
     if (!evitar.some((r) => r.bodyRegion === p.molestia?.[0])) {
       violaciones.push(`zona en rehabilitación sin evitar: ${JSON.stringify(p)}`);
     }
   }
 
+  /**
+   * Lo que una regla de dolor saca no vuelve a entrar por ningún lado: ni por la
+   * plantilla, ni por un bloque, ni por una sustitución (`docs/research/49`).
+   */
   function chequearZonaQueDuele(p: Perfil, it: SessionItemBlueprint, reglas: readonly PainRule[]) {
     const ex = exPorId.get(it.exerciseId);
     if (!ex) return;
+    // Equilibrio en un pie que dobla la rodilla con el peso encima = zancada (`57`).
+    const comoZancada = ex.pattern === 'balance' && ex.isUnilateral && ex.isCompound;
     const regla = reglas.find(
       (r) =>
         r.avoidPatterns.includes(ex.pattern) ||
+        (comoZancada && r.avoidPatterns.includes('lunge')) ||
         ex.primaryMuscles.some((m) => r.avoidMuscles.includes(m)),
     );
     if (regla)
@@ -602,6 +637,7 @@ describe('barrido de socios generados', () => {
     expect(conPisoDeRir).toBeGreaterThan(N);
     expect(conZonaEvitada).toBeGreaterThan(N / 10);
     expect(conEnRehab).toBeGreaterThan(N / 50);
+    expect(conUnPie).toBeGreaterThan(N / 50);
   });
 
   it('ninguna combinación rompe una invariante', () => {

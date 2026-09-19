@@ -15,36 +15,35 @@
   "estacionesQueNuncaSeUsan": [
     "Pec Deck / Fly / Mariposa",
     "Conos de agilidad",
-    "Discos de equilibrio",
     "Foam roller",
     "Pelotas suizas",
     "Rack de discos olímpicos (árbol)",
     "Sandbags"
   ],
   "ejerciciosMasUsados": [
-    "Caminata en puntas de pie: 5 % de los ítems",
-    "Caminata de costado: 5 % de los ítems",
-    "Caminata talón-punta: 5 % de los ítems",
-    "Caminata en talones: 5 % de los ítems",
-    "Caminata hacia atrás: 5 % de los ítems",
-    "Pararse y sentarse: 4 % de los ítems",
     "Remo sentado: 4 % de los ítems",
+    "Balanceo de pierna en un pie: 4 % de los ítems",
+    "Elevación de talón en un pie: 4 % de los ítems",
     "Dead bug: 3 % de los ítems",
     "Remo invertido en TRX: 3 % de los ítems",
-    "Dorsalera con agarre neutro: 3 % de los ítems"
+    "Caminata en talones: 3 % de los ítems",
+    "Caminata en puntas de pie: 3 % de los ítems",
+    "Caminata hacia atrás: 3 % de los ítems",
+    "Caminata de costado: 3 % de los ítems",
+    "Caminata talón-punta: 3 % de los ítems"
   ],
   "estacionesMasUsadas": [
     "Mancuernas sueltas (set): 6 % de los ítems",
     "Dual Lat Pulldown & Row: 4 % de los ítems",
     "Rack de mancuernas hexagonales: 4 % de los ítems",
     "Cross Over funcional doble (Dual Cable Cross): 4 % de los ítems",
-    "Cajones pliométricos: 4 % de los ítems"
+    "Rig de pared (dominadas + bolsa de boxeo + soga + TRX): 4 % de los ítems"
   ],
   "avisosPorPlan": {
-    "media": 8.8,
-    "max": 19
+    "media": 8.7,
+    "max": 17
   },
-  "sesionesQuePasanLosMinutosDeclarados": "22 %",
+  "sesionesQuePasanLosMinutosDeclarados": "23 %",
   "cambiaElPlanAlCambiarSolo": {
     "goal": "96 %",
     "nivel": "100 %",
@@ -52,10 +51,10 @@
     "sexo": "6 %",
     "sesiones": "38 %",
     "minutos": "0 %",
-    "deporte": "46 %",
+    "deporte": "47 %",
     "fase": "52 %",
-    "molestia": "65 %",
+    "molestia": "69 %",
     "ausencia": "0 %",
-    "salud": "37 %"
+    "salud": "38 %"
   }
 }

@@ -1420,6 +1420,54 @@
       "equipment": ["Cajones pliométricos", "Banco de press plano con rack"]
     },
     {
+      "name": "Flexión de rodilla en un pie",
+      "pattern": "balance",
+      "primaryMuscles": ["quads", "glutes"],
+      "secondaryMuscles": ["calves"],
+      "isCompound": true,
+      "isUnilateral": true,
+      "modality": "reps_bodyweight",
+      "skillLevel": "beginner",
+      "cues": "Parado en un pie, al lado de algo firme, bajá doblando apenas la rodilla y volvé a subir. La rodilla apunta hacia el pie, no hacia adentro. Después, cambiá de pierna.",
+      "equipment": []
+    },
+    {
+      "name": "Flexión de rodilla en un pie sobre disco",
+      "pattern": "balance",
+      "primaryMuscles": ["quads", "glutes"],
+      "secondaryMuscles": ["calves"],
+      "isCompound": true,
+      "isUnilateral": true,
+      "modality": "reps_bodyweight",
+      "skillLevel": "intermediate",
+      "cues": "Como en el piso, pero parado sobre el disco de equilibrio. Empezá con una mano apoyada en algo firme. Después, cambiá de pierna.",
+      "equipment": ["Discos de equilibrio"]
+    },
+    {
+      "name": "Elevación de talón en un pie",
+      "pattern": "balance",
+      "primaryMuscles": ["calves"],
+      "secondaryMuscles": [],
+      "isCompound": false,
+      "isUnilateral": true,
+      "modality": "reps_bodyweight",
+      "skillLevel": "beginner",
+      "cues": "Parado en un pie, subí en punta de pie lo más alto que puedas y bajá despacio. Una mano en algo firme hasta que te salga sin apoyo. Después, cambiá de pierna.",
+      "equipment": []
+    },
+    {
+      "name": "Balanceo de pierna en un pie",
+      "pattern": "balance",
+      "primaryMuscles": ["glutes"],
+      "secondaryMuscles": ["abs"],
+      "isCompound": false,
+      "isUnilateral": true,
+      "modality": "reps_bodyweight",
+      "skillLevel": "beginner",
+      "cues": "Parado en un pie, balanceá la otra pierna hacia adelante, hacia atrás y cruzada por delante, sin apoyarla. El tronco quieto. Después, cambiá de pierna.",
+      "equipment": []
+    },
+    {
       "name": "Pisadas fuertes",
       "pattern": "impact",
       "primaryMuscles": ["calves", "quads"],

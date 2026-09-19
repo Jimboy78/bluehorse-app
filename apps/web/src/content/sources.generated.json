@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-19",
-  "resolved": 157,
+  "resolved": 162,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -1568,6 +1568,101 @@
       "documentos": [
         "39-equilibrio-en-mayores.md",
         "40-fragilidad.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2017-098106",
+      "title": "Diagnosis, treatment and prevention of ankle sprains: update of an evidence-based clinical guideline",
+      "authors": [
+        "Vuurberg",
+        "Hoorntje",
+        "Wink"
+      ],
+      "moreAuthors": 12,
+      "year": 2018,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Esguince de tobillo"
+      ],
+      "documentos": [
+        "57-esguince-de-tobillo.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bmj.b2684",
+      "title": "Effect of unsupervised home based proprioceptive training on recurrences of ankle sprain: randomised controlled trial",
+      "authors": [
+        "Hupperets",
+        "Verhagen",
+        "Mechelen"
+      ],
+      "moreAuthors": 0,
+      "year": 2009,
+      "journal": "BMJ",
+      "type": "journal-article",
+      "temas": [
+        "Esguince de tobillo"
+      ],
+      "documentos": [
+        "57-esguince-de-tobillo.md"
+      ]
+    },
+    {
+      "doi": "10.1186/1471-2474-9-71",
+      "title": "The 2BFit study: is an unsupervised proprioceptive balance board training programme, given in addition to usual care, effective in preventing ankle sprain recurrences? Design of a Randomized Controlled Trial",
+      "authors": [
+        "Hupperets",
+        "Verhagen",
+        "van Mechelen"
+      ],
+      "moreAuthors": 0,
+      "year": 2008,
+      "journal": "BMC Musculoskeletal Disorders",
+      "type": "journal-article",
+      "temas": [
+        "Esguince de tobillo"
+      ],
+      "documentos": [
+        "57-esguince-de-tobillo.md"
+      ]
+    },
+    {
+      "doi": "10.1371/journal.pone.0262023",
+      "title": "Exercise-based rehabilitation reduces reinjury following acute lateral ankle sprain: A systematic review update with meta-analysis",
+      "authors": [
+        "Wagemans",
+        "Bleakley",
+        "Taeymans"
+      ],
+      "moreAuthors": 4,
+      "year": 2022,
+      "journal": "PLOS ONE",
+      "type": "journal-article",
+      "temas": [
+        "Esguince de tobillo"
+      ],
+      "documentos": [
+        "57-esguince-de-tobillo.md"
+      ]
+    },
+    {
+      "doi": "10.1186/s13643-024-02455-x",
+      "title": "A systematic review and meta-analysis of balance training in patients with chronic ankle instability",
+      "authors": [
+        "Guo",
+        "Cheng",
+        "Yang"
+      ],
+      "moreAuthors": 3,
+      "year": 2024,
+      "journal": "Systematic Reviews",
+      "type": "journal-article",
+      "temas": [
+        "Esguince de tobillo"
+      ],
+      "documentos": [
+        "57-esguince-de-tobillo.md"
       ]
     },
     {

@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-19T05:12:50.966Z",
+ "generatedAt": "2026-09-19T10:59:56.180Z",
  "docs": [
   {
    "id": "metodo",
@@ -456,6 +456,14 @@
    "resumen": "Fecha: 19/09/2026. Tanda: T3h del plan de variables. En el checklist es pedir: \"operación y hace cuánto\".",
    "archivo": "56-operacion-y-hace-cuanto.md",
    "bloques": 19
+  },
+  {
+   "id": "57-esguince-de-tobillo",
+   "orden": 57,
+   "titulo": "Esguince de tobillo",
+   "resumen": "Fecha: 19/09/2026. Tanda: T3i del plan de variables. En el checklist es pedir: \"esguinces\".",
+   "archivo": "57-esguince-de-tobillo.md",
+   "bloques": 23
   },
   {
    "id": "auditoria",

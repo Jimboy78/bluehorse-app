@@ -110,9 +110,32 @@ describe('LesionesDeclaradas', () => {
           region: 'knee',
           type: 'surgery',
           severity: 1,
-          surgeryMonth: '2026-03',
+          month: '2026-03',
           rehabDone: false,
         },
+      ]),
+    );
+  });
+
+  it('el esguince aparece solo en las zonas del ruleset, y pide el mes y nada más', async () => {
+    const { container } = render(<LesionesDeclaradas conPuerta textoBoton="Seguir" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Sí' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Rodilla' }));
+    expect(screen.queryByRole('button', { name: 'Un esguince' })).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Tobillo' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Un esguince' }));
+    expect(screen.queryByText('¿Cuánto?')).toBeNull();
+    expect(screen.queryByText('¿Ya terminaste la rehabilitación?')).toBeNull();
+    expect(seguir()).toHaveProperty('disabled', true);
+
+    const mes = container.querySelector('input[type="month"]');
+    if (!mes) throw new Error('sin campo de mes');
+    fireEvent.change(mes, { target: { value: '2026-07' } });
+    fireEvent.click(seguir());
+    await waitFor(() =>
+      expect(declarar).toHaveBeenCalledWith([
+        { region: 'ankle', type: 'sprain', severity: 1, month: '2026-07' },
       ]),
     );
   });
@@ -131,7 +154,7 @@ describe('LesionesDeclaradas', () => {
       region: 'knee',
       type: 'surgery',
       severity: 1,
-      surgeryMonth: '2026-03',
+      month: '2026-03',
       rehabDone: true,
     });
   });

@@ -55,7 +55,8 @@ Una operación no es una lesión ni un dolor. Tiene dos etapas, y el motor tiene
 ## El dato
 
 - `constraint_type` suma **`surgery`**.
-- `user_constraints` suma `surgery_on` (fecha, el día 1 del mes) y `rehab_done`.
+- `user_constraints` suma `surgery_on` (fecha, el día 1 del mes) y `rehab_done`. En `57`,
+  `surgery_on` pasó a llamarse `occurred_on`, porque el esguince también lleva el mes.
   - Un `check` obliga a que los dos estén cuando el tipo es operación, y a que no estén cuando no.
 - Se pide el mes y no el día: nadie se acuerda del día, y el plazo se mide en meses.
 

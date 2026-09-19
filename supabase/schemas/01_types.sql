@@ -60,7 +60,7 @@ create type plan_origin as enum ('engine', 'manual');
 
 create type baseline_source as enum ('declared', 'calibrated', 'estimated');
 
-create type constraint_type as enum ('injury', 'pain', 'avoid_exercise', 'avoid_equipment', 'tendinopathy', 'surgery');
+create type constraint_type as enum ('injury', 'pain', 'avoid_exercise', 'avoid_equipment', 'tendinopathy', 'surgery', 'sprain');
 
 -- Espejo de HEALTH_CONDITIONS en packages/domain/src/enums.ts.
 create type health_condition as enum (

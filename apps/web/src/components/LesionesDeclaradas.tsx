@@ -3,7 +3,7 @@ import { Loader2, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import { activeRuleset } from '../lib/engine.ts';
 import { BODY_REGION_LABELS } from '../lib/labels.ts';
-import { type MolestiaDeclarada, useDeclareConstraints } from '../lib/profile.ts';
+import { conMes, type MolestiaDeclarada, useDeclareConstraints } from '../lib/profile.ts';
 import { Button, Card, Chip, Notice } from './ui/index.ts';
 
 /**
@@ -15,13 +15,24 @@ const TIPOS: readonly { id: MolestiaDeclarada['type']; texto: string }[] = [
   { id: 'injury', texto: 'Una lesión reciente' },
   { id: 'tendinopathy', texto: 'Una tendinitis o tendinopatía' },
   { id: 'surgery', texto: 'Una operación' },
+  { id: 'sprain', texto: 'Un esguince' },
 ];
 
 /**
- * El borrador completo, o `null` si falta algo. Una operación no pide
- * intensidad: pide el mes y si terminó la rehabilitación, y va con el escalón
- * más bajo de la escala. Si además duele, eso se carga aparte como dolor
- * (`docs/research/56`).
+ * Los tipos que tienen sentido en esta zona. El esguince solo donde el ruleset
+ * tiene qué hacer con él (`sprain.regions`, `docs/research/57`): en otra zona
+ * se guardaría y el plan no cambiaría nada.
+ */
+function tiposPara(region: BodyRegion): typeof TIPOS {
+  const conEsguince = activeRuleset.sprain?.regions ?? [];
+  return TIPOS.filter((t) => t.id !== 'sprain' || conEsguince.includes(region));
+}
+
+/**
+ * El borrador completo, o `null` si falta algo. Una operación o un esguince no
+ * piden intensidad: piden el mes (y la operación, si terminó la
+ * rehabilitación), y van con el escalón más bajo de la escala. Si además duele,
+ * eso se carga aparte como dolor (`docs/research/56` y `57`).
  */
 export function armarBorrador(d: {
   readonly region: BodyRegion | null;
@@ -32,15 +43,19 @@ export function armarBorrador(d: {
   readonly escalonMinimo: number | null;
 }): MolestiaDeclarada | null {
   if (d.region === null || d.tipo === null) return null;
-  if (d.tipo !== 'surgery') {
+  if (!conMes(d.tipo)) {
     return d.severity === null ? null : { region: d.region, type: d.tipo, severity: d.severity };
   }
-  if (!/^\d{4}-\d{2}$/.test(d.mes) || d.rehabDone === null || d.escalonMinimo === null) return null;
+  if (!/^\d{4}-\d{2}$/.test(d.mes) || d.escalonMinimo === null) return null;
+  if (d.tipo === 'sprain') {
+    return { region: d.region, type: 'sprain', severity: d.escalonMinimo, month: d.mes };
+  }
+  if (d.rehabDone === null) return null;
   return {
     region: d.region,
     type: 'surgery',
     severity: d.escalonMinimo,
-    surgeryMonth: d.mes,
+    month: d.mes,
     rehabDone: d.rehabDone,
   };
 }
@@ -109,7 +124,8 @@ export function LesionesDeclaradas({
       {conPuerta && (
         <Card>
           <p className="mb-3 text-sm font-medium text-ice">
-            ¿Tenés ahora alguna lesión, dolor, tendinitis o una operación reciente?
+            ¿Tenés ahora alguna lesión, dolor o tendinitis, o tuviste hace poco una operación o un
+            esguince?
           </p>
           <div className="flex gap-2">
             <Chip className="flex-1" selected={puerta === false} onClick={() => setPuerta(false)}>
@@ -148,7 +164,7 @@ export function LesionesDeclaradas({
                 ¿Qué es?
               </legend>
               <div className="flex flex-wrap gap-1.5">
-                {TIPOS.map((t) => (
+                {tiposPara(region).map((t) => (
                   <Chip key={t.id} selected={tipo === t.id} onClick={() => setTipo(t.id)}>
                     {t.texto}
                   </Chip>
@@ -157,16 +173,17 @@ export function LesionesDeclaradas({
             </fieldset>
           )}
 
-          {region && tipo === 'surgery' && (
-            <DatosDeOperacion
+          {region && tipo && (
+            <Detalle
+              tipo={tipo}
+              escala={escala}
+              severity={severity}
+              onSeverity={setSeverity}
               mes={mes}
               onMes={setMes}
               rehabDone={rehabDone}
               onRehab={setRehabDone}
             />
-          )}
-          {region && tipo && tipo !== 'surgery' && (
-            <Intensidad escala={escala} valor={severity} onElegir={setSeverity} />
           )}
 
           {borrador && (
@@ -225,6 +242,30 @@ function Agregadas({
   );
 }
 
+/** Lo que se pregunta después del tipo: el mes, o cuánto duele. */
+function Detalle(p: {
+  readonly tipo: MolestiaDeclarada['type'];
+  readonly escala: readonly { readonly severity: number; readonly label: string }[];
+  readonly severity: number | null;
+  readonly onSeverity: (v: number) => void;
+  readonly mes: string;
+  readonly onMes: (v: string) => void;
+  readonly rehabDone: boolean | null;
+  readonly onRehab: (v: boolean) => void;
+}) {
+  if (!conMes(p.tipo)) {
+    return <Intensidad escala={p.escala} valor={p.severity} onElegir={p.onSeverity} />;
+  }
+  return (
+    <DatosConMes
+      mes={p.mes}
+      onMes={p.onMes}
+      rehabDone={p.tipo === 'surgery' ? p.rehabDone : undefined}
+      onRehab={p.onRehab}
+    />
+  );
+}
+
 /** La escala del ruleset, con las frases a la vista, igual que en el reporte de dolor. */
 function Intensidad({
   escala,
@@ -261,8 +302,8 @@ function Intensidad({
   );
 }
 
-/** El mes de la operación y si terminó la rehabilitación. */
-function DatosDeOperacion({
+/** El mes en que pasó y, en una operación, si terminó la rehabilitación. */
+function DatosConMes({
   mes,
   onMes,
   rehabDone,
@@ -270,7 +311,8 @@ function DatosDeOperacion({
 }: {
   readonly mes: string;
   readonly onMes: (v: string) => void;
-  readonly rehabDone: boolean | null;
+  /** `undefined`: no se pregunta (esguince). */
+  readonly rehabDone: boolean | null | undefined;
   readonly onRehab: (v: boolean) => void;
 }) {
   // El mes de hoy como tope: una operación no puede ser del futuro. La hora del
@@ -291,19 +333,21 @@ function DatosDeOperacion({
           className="rounded-card border border-line bg-surface px-3.5 py-2.5 text-sm text-ink"
         />
       </label>
-      <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 font-display text-xs font-semibold uppercase tracking-[0.12em] text-slate">
-          ¿Ya terminaste la rehabilitación?
-        </legend>
-        <div className="flex gap-2">
-          <Chip className="flex-1" selected={rehabDone === false} onClick={() => onRehab(false)}>
-            Todavía no
-          </Chip>
-          <Chip className="flex-1" selected={rehabDone === true} onClick={() => onRehab(true)}>
-            Sí, me dieron el alta
-          </Chip>
-        </div>
-      </fieldset>
+      {rehabDone !== undefined && (
+        <fieldset className="flex flex-col gap-2">
+          <legend className="mb-1 font-display text-xs font-semibold uppercase tracking-[0.12em] text-slate">
+            ¿Ya terminaste la rehabilitación?
+          </legend>
+          <div className="flex gap-2">
+            <Chip className="flex-1" selected={rehabDone === false} onClick={() => onRehab(false)}>
+              Todavía no
+            </Chip>
+            <Chip className="flex-1" selected={rehabDone === true} onClick={() => onRehab(true)}>
+              Sí, me dieron el alta
+            </Chip>
+          </div>
+        </fieldset>
+      )}
     </div>
   );
 }

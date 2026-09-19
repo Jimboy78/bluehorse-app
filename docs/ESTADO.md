@@ -1,12 +1,21 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T3h: operación y hace cuánto)
+## Última actualización: 19 de septiembre de 2026 (T3i: esguince de tobillo)
+
+`docs/research/57`. "Un esguince" en la puerta de lesiones, solo en el tobillo, con el mes. Durante
+12 meses suma al final de cada sesión un bloque de equilibrio en un pie (Vuurberg 2018: RR 0,62 de
+recaída; Hupperets 2009, NNT 9). No es una molestia: no saca nada. Con 60 o más, un solo bloque
+con los unilaterales primero. Cuatro ejercicios en un pie nuevos en el catálogo (usan los discos
+de equilibrio). `surgery_on` pasa a `occurred_on`. La flexión de rodilla en un pie cuenta como
+zancada para las reglas de dolor. Falta de T3: movimientos que no puede.
+
+## 19 de septiembre de 2026 (T3h: operación y hace cuánto)
 
 `docs/research/56`. La puerta de lesiones suma "Una operación": mes y si terminó la rehabilitación.
 En rehabilitación la zona sale entera (se trata como lesión en el escalón más alto) con un aviso
 propio; el alta se marca desde el perfil. Con el alta, una rodilla operada hace menos de 9 meses
 queda sin saltos ni impacto (Grindem 2016). Columnas `surgery_on` y `rehab_done` con `check`,
-migradas en prod. Falta de T3: vuelta al deporte y movimientos que no puede.
+migradas en prod.
 
 ## 19 de septiembre de 2026 (T3g: tendinopatía y puerta de lesiones)
 

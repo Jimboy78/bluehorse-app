@@ -60,6 +60,7 @@ export const CONSTRAINT_TYPE_LABELS: Record<UserConstraint['type'], string> = {
   pain: 'Molestia',
   tendinopathy: 'Tendón',
   surgery: 'Operación',
+  sprain: 'Esguince',
   avoid_exercise: 'Ejercicio descartado',
   avoid_equipment: 'Máquina descartada',
 };

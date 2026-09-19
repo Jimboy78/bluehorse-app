@@ -344,7 +344,10 @@ function addBloque(input: {
   const ordenados = [...input.pool].sort((a, b) => a.name.localeCompare(b.name, 'es'));
 
   for (let n = 0; n < cfg.exercisesPerSession; n += 1) {
-    const libres = ordenados.filter((e) => !usedHere.has(e.id));
+    const todos = ordenados.filter((e) => !usedHere.has(e.id));
+    // Los primeros, unilaterales si el bloque los pide y quedan (`docs/research/57`).
+    const unilaterales = todos.filter((e) => e.isUnilateral);
+    const libres = n < cfg.unilateralesPrimero && unilaterales.length > 0 ? unilaterales : todos;
     const frescos = libres.filter((e) => !input.usedInPlan.has(e.id));
     const exercise = pickDeterministic(frescos.length > 0 ? frescos : libres, input.rng);
     if (!exercise) break;
