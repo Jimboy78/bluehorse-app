@@ -1,6 +1,7 @@
 import type { ExperienceLevel, Goal } from '@bh/domain';
 import {
   BODY_REGIONS,
+  EQUIPMENT_CATEGORIES,
   EXPERIENCE_LEVELS,
   GOALS,
   HEALTH_CONDITIONS,
@@ -143,7 +144,6 @@ const templateSchema = z.object({
       z.object({
         label: z.string().min(1),
         focus: z.string().min(1),
-        estimatedMinutes: z.number().int().min(10).max(180),
         slots: z
           .array(
             z.object({
@@ -570,36 +570,6 @@ const modifiersSchema = z.object({
     })
     .optional(),
   /**
-   * Cuando el plan no entra en el tiempo que el socio dijo tener.
-   *
-   * El onboarding pregunta los minutos por sesión, Perfil los muestra de vuelta,
-   * y el motor **no los leía**: quien contestaba "tengo 30 minutos" recibía el
-   * mismo plan que quien tiene 90, y la pantalla le prometía los 55 de la
-   * plantilla.
-   *
-   * Lo que se compara no es una estimación: es el **descanso solo**, que sale
-   * entero del ruleset (`restSeconds` × series). Una sesión no puede durar menos
-   * que la suma de sus descansos, así que si eso ya no entra, el plan no entra —
-   * sin necesidad de suponer cuánto tarda una serie. Ese supuesto sí sería un
-   * número inventado: la investigación mide el tempo (`01`, confianza ALTA) y
-   * dice que entre 0,5 y 8 segundos por repetición da lo mismo, o sea que da un
-   * rango, no un valor.
-   *
-   * Medido sobre los 33 perfiles: la misma "Sesión A" promete 55 minutos a los
-   * 27 perfiles que la reciben, y el descanso solo va de 12 a 46 minutos. En
-   * fuerza avanzada quedaban 35 segundos por serie para hacer la serie, caminar
-   * hasta el rack y cargar los discos.
-   *
-   * `{declarados}` son los minutos que dijo tener y `{descanso}` los que se van
-   * solo en descansos.
-   */
-  sessionLength: z
-    .object({
-      overTargetNote: z.string().min(1),
-      confidence: z.enum(CONFIDENCE_LEVELS),
-    })
-    .optional(),
-  /**
    * Qué decir cuando el objetivo elegido no tiene señal que la app pueda leer
    * para decidir subir la carga.
    *
@@ -947,6 +917,56 @@ export const rulesetSchema = z.object({
       confidenceNote: z.string().min(1).optional(),
     })
     .refine((b) => b.repsMin <= b.repsMax, { message: 'repsMin > repsMax' })
+    .optional(),
+  /**
+   * Los minutos que el socio declaró arman la sesión (`docs/research/59`).
+   *
+   * El tiempo de una sesión se estima con **lo que tardaron sesiones reales**, no
+   * con un tempo supuesto: `secondsPerSet` sale de Schoenfeld 2019 (7 ejercicios
+   * de 8-12 con 90 s de pausa: 13, 40 y 68 min para 7, 21 y 35 series), e
+   * incluye hacer la serie y acomodarse. A eso se le suma la pausa prescripta.
+   *
+   * Si no entra, se achica en este orden (decisión del dueño, 19/09/2026):
+   * 1. la pausa, hasta `restFloorSeconds` del nivel (Grgic 2017, Singer 2024);
+   * 2. de a dos, alternando sin pausa, ejercicios que no comparten músculo
+   *    (Iversen 2021: la mitad del tiempo sin perder volumen), nunca un
+   *    principal con peso libre (`noPairEquipment`: Iversen no lo aconseja);
+   * 3. sin los aislados;
+   * 4. con menos series, sin bajar de una serie ni dejar un músculo que el
+   *    plan trabaja con multiarticulares por debajo del mínimo semanal del
+   *    objetivo (`weeklyVolume.minSetsPerMuscle`, el mismo que mira el aviso
+   *    de volumen);
+   * 5. recién ahí, los bloques de contexto (equilibrio, impacto, par explosivo).
+   *
+   * Si sobra tiempo no se agrega nada: la dosis sale del ruleset.
+   */
+  sessionTime: z
+    .object({
+      secondsPerSet: z.number().int().positive(),
+      restFloorSeconds: z.record(z.enum(EXPERIENCE_LEVELS), z.number().int().positive()),
+      pairIntraRestSeconds: z.number().int().min(0),
+      /** Antagonistas: los pares que primero se juntan (los que se estudiaron). */
+      antagonists: z.array(z.tuple([z.enum(MOVEMENT_PATTERNS), z.enum(MOVEMENT_PATTERNS)])),
+      noPairEquipment: z.array(z.enum(EQUIPMENT_CATEGORIES)),
+      /** `{minutos}` y `{cambios}`. */
+      fittedNote: z.string().min(1).includes('{minutos}').includes('{cambios}'),
+      changes: z.object({
+        rest: z.string().min(1),
+        pairs: z.string().min(1),
+        isolation: z.string().min(1),
+        sets: z.string().min(1),
+        blocks: z.string().min(1),
+      }),
+      /**
+       * Aun achicadas, no entran. Un solo aviso para todas: `{sesiones}` es la
+       * lista de `sessionOver` (`{sesion}`, `{estimado}`) y `{minutos}` lo
+       * declarado.
+       */
+      overNote: z.string().min(1).includes('{sesiones}').includes('{minutos}'),
+      sessionOver: z.string().min(1).includes('{sesion}').includes('{estimado}'),
+      confidence: z.enum(CONFIDENCE_LEVELS),
+      confidenceNote: z.string().min(1).optional(),
+    })
     .optional(),
   /**
    * Equilibrio en un pie después de un esguince (`docs/research/57`): baja la

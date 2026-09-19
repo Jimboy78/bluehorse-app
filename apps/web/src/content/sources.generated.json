@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-19",
-  "resolved": 163,
+  "resolved": 167,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -505,10 +505,12 @@
       "journal": "Sports Medicine",
       "type": "journal-article",
       "temas": [
-        "Cómo procesa el motor"
+        "Cómo procesa el motor",
+        "Minutos por sesión"
       ],
       "documentos": [
-        "38-como-procesa-el-motor.md"
+        "38-como-procesa-el-motor.md",
+        "59-minutos-por-sesion.md"
       ]
     },
     {
@@ -2182,6 +2184,82 @@
       ],
       "documentos": [
         "42-menopausia-y-hueso.md"
+      ]
+    },
+    {
+      "doi": "10.1249/MSS.0000000000001764",
+      "title": "Resistance Training Volume Enhances Muscle Hypertrophy but Not Strength in Trained Men",
+      "authors": [
+        "Schoenfeld",
+        "Contreras",
+        "Krieger"
+      ],
+      "moreAuthors": 4,
+      "year": 2019,
+      "journal": "Medicine & Science in Sports & Exercise",
+      "type": "journal-article",
+      "temas": [
+        "Minutos por sesión"
+      ],
+      "documentos": [
+        "59-minutos-por-sesion.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s40279-017-0788-x",
+      "title": "Effects of Rest Interval Duration in Resistance Training on Measures of Muscular Strength: A Systematic Review",
+      "authors": [
+        "Grgic",
+        "Schoenfeld",
+        "Skrepnik"
+      ],
+      "moreAuthors": 2,
+      "year": 2017,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Minutos por sesión"
+      ],
+      "documentos": [
+        "59-minutos-por-sesion.md"
+      ]
+    },
+    {
+      "doi": "10.1080/17461391.2017.1340524",
+      "title": "The effects of short versus long inter‐set rest intervals in resistance training on measures of muscle hypertrophy: A systematic review",
+      "authors": [
+        "Grgic",
+        "Lazinica",
+        "Mikulic"
+      ],
+      "moreAuthors": 2,
+      "year": 2017,
+      "journal": "European Journal of Sport Science",
+      "type": "journal-article",
+      "temas": [
+        "Minutos por sesión"
+      ],
+      "documentos": [
+        "59-minutos-por-sesion.md"
+      ]
+    },
+    {
+      "doi": "10.3389/fspor.2024.1429789",
+      "title": "Give it a rest: a systematic review with Bayesian meta-analysis on the effect of inter-set rest interval duration on muscle hypertrophy",
+      "authors": [
+        "Singer",
+        "Wolf",
+        "Generoso"
+      ],
+      "moreAuthors": 8,
+      "year": 2024,
+      "journal": "Frontiers in Sports and Active Living",
+      "type": "journal-article",
+      "temas": [
+        "Minutos por sesión"
+      ],
+      "documentos": [
+        "59-minutos-por-sesion.md"
       ]
     },
     {

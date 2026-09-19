@@ -60,6 +60,7 @@ import {
 import { createRng, pickDeterministic } from './rng.ts';
 import type { GoalParams, PainRule, Ruleset, SlotRole } from './ruleset.ts';
 import { isPlaceholder } from './ruleset.ts';
+import { ajustarAlTiempo, segundosDeSesion } from './tiempo.ts';
 
 /**
  * EL MOTOR — la mecánica. El contenido vive en el ruleset.
@@ -126,6 +127,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
   const resolvedTemplateSessions = template.sessions.map((tplSession) => {
     const used = new Set<Id>();
     const items: SessionItemBlueprint[] = [];
+    const roles = new Map<Id, SlotRole>();
 
     for (const slot of tplSession.slots) {
       let exercise = chooseExercise({
@@ -165,6 +167,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
 
       used.add(exercise.id);
       usedInPlan.add(exercise.id);
+      roles.set(exercise.id, slot.role);
 
       const roleParams = params[slot.role];
       for (const muscle of exercise.primaryMuscles) {
@@ -188,7 +191,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
       );
     }
 
-    return { tplSession, items };
+    return { tplSession, items, roles };
   });
 
   // Después de elegir todo lo demás, para que sumar un par no mueva ninguna
@@ -242,6 +245,22 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
     }
   }
 
+  // Al final, con todo elegido: los minutos declarados achican la sesión si no
+  // entra (`docs/research/59`). No elige nada nuevo, así que no mueve el azar.
+  decir(
+    'tiempo',
+    ajustarSesionesAlTiempo({
+      resolved: resolvedTemplateSessions,
+      ruleset,
+      goal,
+      template,
+      params,
+      level: user.profile.experienceLevel,
+      gym,
+      equipmentById,
+    }),
+  );
+
   const sessions: SessionBlueprint[] = [];
   for (let i = 0; i < ruleset.planning.sessionsAhead; i += 1) {
     const resolved = resolvedTemplateSessions[i % resolvedTemplateSessions.length];
@@ -250,14 +269,13 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
       sequenceIndex: i,
       label: resolved.tplSession.label,
       focus: resolved.tplSession.focus,
-      estimatedMinutes: resolved.tplSession.estimatedMinutes,
+      estimatedMinutes: Math.ceil(segundosDeSesion(resolved.items, ruleset.sessionTime) / 60),
       items: resolved.items,
     });
   }
 
   decir('ruleset', avisosDelRuleset);
   decir('ausencia', comebackWarnings(sessions, ruleset, daysAway, comeback, params));
-  decir('tiempo', sessionLengthWarnings(sessions, ruleset, goal));
   decir('autorregulacion', autoregulationWarnings(params, ruleset, goal));
   decir('volumen', weeklyVolumeWarnings(sessions, template, gym, params, goal));
   decir('interferencia', interferenceWarnings(sessions, gym, ruleset));
@@ -1240,23 +1258,6 @@ function substituteReason(originalName: string, curatedEdge: SubstitutionEdge | 
 // ------------------------------------------------------------------ helpers
 
 /**
- * EL PLAN NO ENTRA EN EL TIEMPO QUE LA PERSONA DIJO TENER
- *
- * El onboarding pregunta los minutos por sesión, Perfil los muestra de vuelta, y
- * el motor no los leía — está anotado en CLAUDE.md como deuda desde hace rato.
- * Quien contestaba "tengo 30 minutos" recibía el mismo plan que quien tiene 90,
- * y la pantalla le prometía los 55 minutos fijos de la plantilla.
- *
- * Lo que se compara acá no es una estimación de cuánto dura la sesión, que
- * obligaría a suponer cuánto tarda una serie. Es el **descanso solo**, que sale
- * entero del ruleset: una sesión no puede durar menos que la suma de sus
- * descansos. Si eso ya no entra, el plan no entra, y no hizo falta inventar
- * nada para saberlo.
- *
- * Se mira la sesión más larga de la plantilla y no el promedio: el socio no
- * entrena promedios, entrena días.
- */
-/**
  * Avisa cuando el objetivo elegido no tiene señal que la app pueda leer para
  * decidir subir la carga.
  *
@@ -1270,26 +1271,78 @@ function autoregulationWarnings(params: GoalParams, ruleset: Ruleset, goal: User
   return [rule.noSignalForGoal.replace('{objetivo}', goalLabel(goal.goal))];
 }
 
-function sessionLengthWarnings(
-  sessions: readonly SessionBlueprint[],
-  ruleset: Ruleset,
-  goal: UserGoal,
-): string[] {
-  const rule = ruleset.modifiers?.sessionLength;
-  if (!rule || goal.sessionMinutesTarget <= 0) return [];
+/**
+ * Aplica `ajustarAlTiempo` a las sesiones de la plantilla y devuelve el aviso.
+ *
+ * Las series se cuentan en la misma semana que mide el aviso de volumen
+ * (`weeklyVolumeWarnings`): las primeras sesiones de la cola, tantas como días
+ * declaró. Así el ajuste no deja abajo del piso un músculo que ese aviso
+ * después señalaría. Con menos días que sesiones de plantilla esa semana no
+ * incluye a todas, y la que queda afuera se podría recortar sin límite: ahí
+ * cuenta el promedio de la rotación (una vez por semana y dos sesiones, 0,5).
+ */
+function ajustarSesionesAlTiempo(input: {
+  readonly resolved: {
+    tplSession: { label: string };
+    items: SessionItemBlueprint[];
+    roles: Map<Id, SlotRole>;
+  }[];
+  readonly ruleset: Ruleset;
+  readonly goal: UserGoal;
+  readonly template: Ruleset['templates'][number];
+  readonly params: GoalParams;
+  readonly level: ExperienceLevel;
+  readonly gym: GymSnapshot;
+  readonly equipmentById: ReadonlyMap<Id, Equipment>;
+}): string[] {
+  const cfg = input.ruleset.sessionTime;
+  const { resolved, goal } = input;
+  if (!cfg || goal.sessionMinutesTarget <= 0 || resolved.length === 0) return [];
+  const porSemana = Math.min(goal.sessionsPerWeekTarget, input.template.sessionsPerWeek[1]);
+  const n = resolved.length;
+  const vecesPorSemana = resolved.map((_, k) =>
+    porSemana < n ? porSemana / n : Math.floor(porSemana / n) + (k < porSemana % n ? 1 : 0),
+  );
+  const ajuste = ajustarAlTiempo({
+    sesiones: resolved.map((r) => ({ label: r.tplSession.label, items: r.items, roles: r.roles })),
+    cfg,
+    minutos: goal.sessionMinutesTarget,
+    level: input.level,
+    vecesPorSemana,
+    pisoSemanal: input.params.weeklyVolume.minSetsPerMuscle,
+    exerciseById: new Map(input.gym.exercises.map((e) => [e.id, e])),
+    equipmentById: input.equipmentById,
+  });
+  ajuste.sesiones.forEach((items, k) => {
+    const r = resolved[k];
+    if (r) r.items = items;
+  });
 
-  const descansoDe = (s: SessionBlueprint) =>
-    s.items.reduce((total, i) => total + i.targetSets * i.restSeconds, 0);
+  const avisos: string[] = [];
+  if (ajuste.cambios.length > 0) {
+    avisos.push(
+      cfg.fittedNote
+        .replace('{minutos}', String(goal.sessionMinutesTarget))
+        .replace('{cambios}', enumerar(ajuste.cambios.map((c) => cfg.changes[c]))),
+    );
+  }
+  if (ajuste.excedidas.length > 0) {
+    const lista = ajuste.excedidas.map((s) =>
+      cfg.sessionOver.replace('{sesion}', s.label).replace('{estimado}', String(s.minutos)),
+    );
+    avisos.push(
+      cfg.overNote
+        .replace('{minutos}', String(goal.sessionMinutesTarget))
+        .replace('{sesiones}', enumerar(lista)),
+    );
+  }
+  return avisos;
+}
 
-  const peor = Math.max(0, ...sessions.map(descansoDe));
-  const minutos = Math.round(peor / 60);
-  if (minutos <= goal.sessionMinutesTarget) return [];
-
-  return [
-    rule.overTargetNote
-      .replace('{declarados}', String(goal.sessionMinutesTarget))
-      .replace('{descanso}', `${minutos} minutos`),
-  ];
+/** "a, b y c". */
+function enumerar(partes: readonly string[]): string {
+  if (partes.length <= 1) return partes.join('');
+  return `${partes.slice(0, -1).join(', ')} y ${partes.at(-1)}`;
 }
 
 /** Un ejercicio es utilizable si el gimnasio tiene activa al menos una de sus estaciones. */

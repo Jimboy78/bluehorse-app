@@ -27,7 +27,7 @@ import type {
   SessionItemBlueprint,
   UserSnapshot,
 } from '@bh/engine';
-import { createPlaceholderEngine, resolverContexto, V1_RESEARCH } from '@bh/engine';
+import { createPlaceholderEngine, resolveParams, resolverContexto, V1_RESEARCH } from '@bh/engine';
 import { describe, expect, it } from 'vitest';
 import catalogo from '../supabase/catalog/blue-horse.json' with { type: 'json' };
 
@@ -166,10 +166,10 @@ const DIM = {
   sexo: dim(['female', 'male', 'undisclosed'] as Sex[], (b, v) => {
     b.profile.sex = v;
   }),
-  sesiones: dim([2, 3, 4, 5, 6], (b, v) => {
+  sesiones: dim([1, 2, 3, 4, 5, 6], (b, v) => {
     b.goal.sessionsPerWeekTarget = v;
   }),
-  minutos: dim([30, 45, 60, 90], (b, v) => {
+  minutos: dim([15, 30, 45, 60, 90], (b, v) => {
     b.goal.sessionMinutesTarget = v;
   }),
   deporte: dim(
@@ -400,6 +400,7 @@ function borrador(p: Perfil): Borrador {
 const engine = createPlaceholderEngine();
 const gym = gimnasio();
 const exPorId = new Map(gym.exercises.map((e) => [e.id, e]));
+const eqPorId = new Map(gym.equipment.map((e) => [e.id, e]));
 
 function entrada(p: Perfil, seed: number): GeneratePlanInput {
   const b = borrador(p);
@@ -438,6 +439,27 @@ function firma(b: PlanBlueprint): string {
     .join('|');
 }
 
+/** Lo que tiene de mal un par por tiempo de dos ítems pegados, si tiene algo. */
+function quejasDelPar(miembros: readonly SessionItemBlueprint[]): string[] {
+  const t = V1_RESEARCH.sessionTime;
+  const exs = miembros.map((i) => exPorId.get(i.exerciseId));
+  const [a, b] = exs;
+  if (!a || !b || !t) return ['par por tiempo sin ejercicio'];
+  const quejas: string[] = [];
+  if (a.primaryMuscles.some((m) => b.primaryMuscles.includes(m))) {
+    quejas.push(`${a.name} y ${b.name} en par con músculo en común`);
+  }
+  miembros.forEach((it, k) => {
+    const cat = it.equipmentId ? eqPorId.get(it.equipmentId)?.category : undefined;
+    if (exs[k]?.isCompound && cat && t.noPairEquipment.includes(cat)) {
+      quejas.push(`${exs[k]?.name} de peso libre en un par`);
+    }
+  });
+  if (miembros[0]?.restSeconds !== t.pairIntraRestSeconds)
+    quejas.push(`${a.name} abre un par con pausa`);
+  return quejas;
+}
+
 describe('barrido de socios generados', () => {
   const r = rng(7);
   const elegir = <T>(a: readonly T[]) => a[Math.floor(r() * a.length)] as T;
@@ -448,6 +470,8 @@ describe('barrido de socios generados', () => {
   const usoEq = new Map<string, number>();
   const avisosPorPlan: number[] = [];
   const minutos = { total: 0, sobre: 0 };
+  /** Por minutos declarados y objetivo: cuántas sesiones igual no entran. */
+  const noEntran = new Map<string, { total: number; sobre: number }>();
   const violaciones: string[] = [];
   const sensibilidad = Object.fromEntries(claves.map((k) => [k, { mirados: 0, cambia: 0 }]));
   let items = 0;
@@ -459,6 +483,8 @@ describe('barrido de socios generados', () => {
   let conEnRehab = 0;
   let conUnPie = 0;
   let conMovimiento = 0;
+  let conAjuste = 0;
+  let conParPorTiempo = 0;
 
   /**
    * El impacto para el hueso: mujeres desde la edad del ruleset y sin molestias
@@ -509,7 +535,11 @@ describe('barrido de socios generados', () => {
    * hace primero la fuerza (`docs/research/39`). Con el esguince, los primeros
    * del bloque son en un pie (`57`).
    */
-  function chequearEquilibrio(p: Perfil, items: readonly SessionItemBlueprint[]) {
+  function chequearEquilibrio(
+    p: Perfil,
+    items: readonly SessionItemBlueprint[],
+    achicoBloques: boolean,
+  ) {
     const cfg = V1_RESEARCH.balance;
     const id = JSON.stringify(p);
     const deEquilibrio = items
@@ -527,12 +557,21 @@ describe('barrido de socios generados', () => {
     if (marca.indexOf(true) !== marca.length - cuantos) {
       violaciones.push(`el equilibrio no va al final: ${id}`);
     }
-    if (esguince) chequearUnPie(id, deEquilibrio);
+    if (esguince) chequearUnPie(id, deEquilibrio, achicoBloques);
   }
 
-  function chequearUnPie(id: string, deEquilibrio: readonly (Exercise | undefined)[]) {
+  /**
+   * Con el esguince, los primeros del bloque son en un pie. Si el tiempo no
+   * alcanzó y el plan avisa que achicó los bloques (`59`), queda al menos uno.
+   */
+  function chequearUnPie(
+    id: string,
+    deEquilibrio: readonly (Exercise | undefined)[],
+    achicoBloques: boolean,
+  ) {
     conUnPie += 1;
-    const k = V1_RESEARCH.sprain?.exercisesPerSession ?? 0;
+    const dosis = V1_RESEARCH.sprain?.exercisesPerSession ?? 0;
+    const k = achicoBloques ? Math.min(1, dosis) : dosis;
     const primeros = deEquilibrio.slice(0, k);
     if (primeros.length < k || primeros.some((e) => !e?.isUnilateral)) {
       violaciones.push(`esguince sin equilibrio en un pie: ${id}`);
@@ -659,18 +698,145 @@ describe('barrido de socios generados', () => {
     if (explosivo && p.edad > explosivo.maxAge) violaciones.push(`${nombre} a los ${p.edad}`);
   }
 
-  function medirSesion(p: Perfil, items: readonly SessionItemBlueprint[]) {
-    // Estimación gruesa: cada serie son 40 s de trabajo más su descanso.
-    const seg = items.reduce(
-      (t, i) =>
-        t +
-        (i.targetDurationSeconds !== null
-          ? i.targetSets * (i.targetDurationSeconds + (i.targetIntervalRestSeconds ?? 0))
-          : i.targetSets * (i.restSeconds + 40)),
-      0,
+  /**
+   * El tiempo (`docs/research/59`): cada sesión entra en los minutos
+   * declarados, o el plan dice cuál no entra y cuánto dura.
+   */
+  function chequearMinutos(p: Perfil, b: PlanBlueprint) {
+    for (const s of b.sessions) {
+      minutos.total += 1;
+      const clave = `${String(p.minutos).padStart(2, '0')} min · ${p.goal}`;
+      const c = noEntran.get(clave) ?? { total: 0, sobre: 0 };
+      noEntran.set(clave, c);
+      c.total += 1;
+      if (s.estimatedMinutes <= p.minutos) continue;
+      minutos.sobre += 1;
+      c.sobre += 1;
+      const dice = b.warnings.some(
+        (w) => w.includes(s.label) && w.includes(String(s.estimatedMinutes)),
+      );
+      if (!dice) violaciones.push(`${s.label} pasa los minutos sin decirlo: ${JSON.stringify(p)}`);
+    }
+  }
+
+  /**
+   * Un par por tiempo junta dos ejercicios sin músculo principal en común, y
+   * ninguno es un multiarticular de peso libre (Iversen 2021). El primero va
+   * sin pausa y los dos van pegados. El par explosivo tiene sus propias reglas
+   * (`chequearExplosivo`).
+   */
+  function chequearPares(p: Perfil, items: readonly SessionItemBlueprint[]) {
+    const grupos = new Set(
+      items.flatMap((i) => (i.supersetGroup === null ? [] : [i.supersetGroup])),
     );
-    minutos.total += 1;
-    if (seg / 60 > p.minutos * 1.15) minutos.sobre += 1;
+    for (const g of grupos) {
+      const idx = items.flatMap((i, k) => (i.supersetGroup === g ? [k] : []));
+      const miembros = idx.map((k) => items[k] as SessionItemBlueprint);
+      if (miembros.some((i) => exPorId.get(i.exerciseId)?.isExplosive)) continue;
+      conParPorTiempo += 1;
+      const pegados = idx.length === 2 && (idx[1] ?? 0) - (idx[0] ?? 0) === 1;
+      const quejas = pegados ? quejasDelPar(miembros) : ['par por tiempo mal armado'];
+      for (const q of quejas) violaciones.push(`${q}: ${JSON.stringify(p)}`);
+    }
+  }
+
+  const esDeFuerza = (i: SessionItemBlueprint, e: Exercise | undefined): e is Exercise =>
+    !!e &&
+    !e.isExplosive &&
+    i.targetDurationSeconds === null &&
+    !['balance', 'impact'].includes(e.pattern);
+
+  /** Los ítems de la semana del aviso de volumen, y cuánto pesa cada uno. */
+  function semanaDe(b: PlanBlueprint, p: Perfil, quedan?: ReadonlySet<string>) {
+    const tpl = V1_RESEARCH.templates.find((t) => t.id === b.templateId);
+    const dias = Math.min(p.sesiones, tpl?.sessionsPerWeek[1] ?? p.sesiones);
+    const n = tpl?.sessions.length ?? 1;
+    const semana = b.sessions.slice(0, Math.max(dias, n));
+    const cuentan = semana.flatMap((s, k) =>
+      s.items.filter((i) => !quedan || quedan.has(`${k % n}:${i.exerciseId}`)),
+    );
+    return { cuentan, peso: dias < n ? dias / n : 1 };
+  }
+
+  /**
+   * Series por semana de cada músculo que el plan trabaja con algún
+   * multiarticular, en la semana del aviso de volumen: las primeras sesiones de
+   * la cola, tantas como días. Con menos días que sesiones, el promedio.
+   * Escrito de nuevo acá, no importado: si el motor cuenta mal, el test no
+   * tiene que contar igual de mal.
+   */
+  function seriesPorSemana(
+    b: PlanBlueprint,
+    p: Perfil,
+    quedan?: ReadonlySet<string>,
+  ): Map<string, number> {
+    const { cuentan, peso } = semanaDe(b, p, quedan);
+    const deFuerza = cuentan.flatMap((i) => {
+      const e = exPorId.get(i.exerciseId);
+      return esDeFuerza(i, e) ? [{ i, e }] : [];
+    });
+    const conMultiarticular = new Set(
+      deFuerza.filter(({ e }) => e.isCompound).flatMap(({ e }) => e.primaryMuscles),
+    );
+    const out = new Map<string, number>();
+    for (const { i, e } of deFuerza) {
+      for (const m of e.primaryMuscles) out.set(m, (out.get(m) ?? 0) + i.targetSets * peso);
+    }
+    return new Map([...out].filter(([m]) => conMultiarticular.has(m)));
+  }
+
+  /**
+   * Contra el mismo socio con tiempo de sobra: el ajuste no saca ningún
+   * multiarticular, no toca repeticiones ni RIR, y bajar series no deja un
+   * músculo por debajo del piso semanal, salvo que ya estuviera abajo. Sacar
+   * un aislado sí puede (es el paso 3, decidido antes que las series): por eso
+   * el "antes" es el plan holgado sin los ejercicios que el ajuste sacó.
+   */
+  function chequearAjuste(p: Perfil, b: PlanBlueprint, seed: number) {
+    const holgado = plan({ ...p, minutos: 600 }, seed);
+    if (firma(holgado) === firma(b)) return;
+    conAjuste += 1;
+    const id = JSON.stringify(p);
+    const multis = (x: PlanBlueprint) =>
+      x.sessions
+        .flatMap((s) => s.items)
+        .filter((i) => {
+          const e = exPorId.get(i.exerciseId);
+          return esDeFuerza(i, e) && e.isCompound;
+        })
+        .map((i) => i.exerciseId)
+        .sort()
+        .join();
+    if (multis(holgado) !== multis(b)) violaciones.push(`el tiempo sacó un multiarticular: ${id}`);
+    chequearPisoSemanal(p, holgado, b);
+    const dosis = (x: PlanBlueprint) =>
+      new Map(
+        x.sessions.flatMap((s) =>
+          s.items.map((i) => [
+            i.exerciseId,
+            `${i.targetRepsMin}-${i.targetRepsMax}r${i.targetRir}`,
+          ]),
+        ),
+      );
+    const d0 = dosis(holgado);
+    for (const [ex, d] of dosis(b)) {
+      if (d0.has(ex) && d0.get(ex) !== d) violaciones.push(`el tiempo cambió reps o RIR: ${id}`);
+    }
+  }
+
+  function chequearPisoSemanal(p: Perfil, holgado: PlanBlueprint, b: PlanBlueprint) {
+    const piso = resolveParams(V1_RESEARCH, p.goal, p.nivel).weeklyVolume.minSetsPerMuscle;
+    const n = V1_RESEARCH.templates.find((t) => t.id === b.templateId)?.sessions.length ?? 1;
+    const quedan = new Set(
+      b.sessions.flatMap((x, k) => x.items.map((i) => `${k % n}:${i.exerciseId}`)),
+    );
+    const despues = seriesPorSemana(b, p);
+    for (const [m, antes] of seriesPorSemana(holgado, p, quedan)) {
+      const ahora = despues.get(m) ?? 0;
+      if (ahora + 1e-9 < Math.min(piso, antes)) {
+        violaciones.push(`${m} bajó a ${ahora} series por semana: ${JSON.stringify(p)}`);
+      }
+    }
   }
 
   for (let n = 0; n < N; n++) {
@@ -684,6 +850,11 @@ describe('barrido de socios generados', () => {
     if (evitar.length > 0) conZonaEvitada += 1;
     chequearRehabilitacion(p, evitar);
     if (p.movimientos.length > 0) conMovimiento += 1;
+    chequearMinutos(p, b);
+    chequearAjuste(p, b, seed);
+    const achicoBloques = b.warnings.some(
+      (w) => !!V1_RESEARCH.sessionTime && w.includes(V1_RESEARCH.sessionTime.changes.blocks),
+    );
     for (const s of b.sessions) {
       if (s.items.length === 0) violaciones.push(`sesión vacía: ${JSON.stringify(p)}`);
       s.items.forEach((it, i) => {
@@ -694,8 +865,8 @@ describe('barrido de socios generados', () => {
         usoEx.set(it.exerciseId, (usoEx.get(it.exerciseId) ?? 0) + 1);
         if (it.equipmentId) usoEq.set(it.equipmentId, (usoEq.get(it.equipmentId) ?? 0) + 1);
       });
-      medirSesion(p, s.items);
-      chequearEquilibrio(p, s.items);
+      chequearPares(p, s.items);
+      chequearEquilibrio(p, s.items, achicoBloques);
       chequearImpacto(p, s.items);
       chequearPisoDeRir(p, s.items);
     }
@@ -723,6 +894,8 @@ describe('barrido de socios generados', () => {
     expect(conEnRehab).toBeGreaterThan(N / 50);
     expect(conUnPie).toBeGreaterThan(N / 50);
     expect(conMovimiento).toBeGreaterThan(N / 3);
+    expect(conAjuste).toBeGreaterThan(N / 5);
+    expect(conParPorTiempo).toBeGreaterThan(N / 10);
   });
 
   it('el catálogo marca justo lo que la lista a mano dice que pide cada movimiento', () => {
@@ -781,6 +954,14 @@ describe('barrido de socios generados', () => {
         max: Math.max(...avisosPorPlan),
       },
       sesionesQuePasanLosMinutosDeclarados: `${pct(minutos.sobre, minutos.total)} %`,
+      // Solo las combinaciones donde alguna no entra: lo que el ajuste no pudo
+      // achicar sin romper un piso, y que el plan avisa.
+      noEntranPorMinutosYObjetivo: Object.fromEntries(
+        [...noEntran]
+          .filter(([, v]) => v.sobre > 0)
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([k, v]) => [k, `${pct(v.sobre, v.total)} %`]),
+      ),
       cambiaElPlanAlCambiarSolo: Object.fromEntries(
         Object.entries(sensibilidad).map(([k, v]) => [k, `${pct(v.cambia, v.mirados)} %`]),
       ),

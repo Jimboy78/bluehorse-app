@@ -1118,6 +1118,33 @@
     "confidence": "medium",
     "confidenceNote": "Fuerza con impacto mejora la densidad ósea en posmenopáusicas (Kistler-Fischbacher 2021, 53 ensayos; efecto chico). La dosis de 50 impactos sale del consenso británico de osteoporosis 2022. La pausa de 30 s es criterio de práctica. docs/research/42."
   },
+  "sessionTime": {
+    "secondsPerSet": 30,
+    "restFloorSeconds": {
+      "beginner": 90,
+      "novice": 90,
+      "intermediate": 120,
+      "advanced": 120
+    },
+    "pairIntraRestSeconds": 0,
+    "antagonists": [
+      ["horizontal_push", "horizontal_pull"],
+      ["vertical_push", "vertical_pull"]
+    ],
+    "noPairEquipment": ["free_weight", "rack"],
+    "fittedNote": "Para que cada sesión entre en tus {minutos} minutos: {cambios}. Lo que se mantiene es lo que más rinde: los ejercicios de varias articulaciones y un mínimo de series por músculo.",
+    "changes": {
+      "rest": "pausas más cortas entre series",
+      "pairs": "algunos ejercicios de a dos, alternando una serie de cada uno sin pausa",
+      "isolation": "menos ejercicios de un solo músculo",
+      "sets": "alguna serie menos",
+      "blocks": "menos ejercicios en los bloques del final"
+    },
+    "overNote": "Aun achicado, el plan no entra en tus {minutos} minutos: {sesiones}. Ya no se puede achicar más sin quedar corto para lo que buscás, así que conviene darle esos minutos de más antes que cortar la sesión.",
+    "sessionOver": "{sesion} dura unos {estimado}",
+    "confidence": "medium",
+    "confidenceNote": "El tiempo por serie sale de sesiones medidas (Schoenfeld 2019: 13, 40 y 68 min para 7, 21 y 35 series con 90 s de pausa). El piso de pausa: 60-120 s alcanzan en no entrenados y más de 2 min en entrenados (Grgic 2017, 23 estudios); en hipertrofia no hay evidencia de que pasar de 90 s agregue (Singer 2024). Los pares alternados de músculos distintos llevan la mitad del tiempo sin perder volumen, en estudios agudos y un ensayo (Iversen 2021, revisión narrativa); no se aconsejan con los multiarticulares pesados de peso libre. Bajar series nunca deja un músculo trabajado con multiarticulares por debajo del mínimo semanal del objetivo (weeklyVolume.minSetsPerMuscle); Iversen 2021 pone el mínimo general en 4. Ver docs/research/59."
+  },
   "sprain": {
     "regions": [
       "ankle"
@@ -1394,10 +1421,6 @@
     }
   },
   "modifiers": {
-    "sessionLength": {
-      "overTargetNote": "Dijiste que tenés {declarados} minutos por sesión, y solo en descansos este plan se lleva {descanso}. Podés hacerlo igual cortando los descansos, pero eso cambia el estímulo: el descanso está para llegar entero a la serie siguiente. Si el tiempo es fijo, avisale al staff y se arma con menos ejercicios en vez de con menos descanso.",
-      "confidence": "low"
-    },
     "autoregulation": {
       "noSignalForGoal": "En {objetivo} la app no te va a proponer sola cuándo subir la carga. Ese objetivo se regula por la velocidad a la que movés el peso, y eso no se puede medir anotando series: hace falta ojo encima o un sensor. Todo lo demás del plan corre igual, y si te quedás corto en las repeticiones te vamos a proponer bajar. Para subir, arreglalo con el staff del gimnasio.",
       "confidence": "high"
@@ -1833,7 +1856,6 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "estimatedMinutes": 55,
           "slots": [
             {
               "pattern": "squat",
@@ -1860,7 +1882,6 @@
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "estimatedMinutes": 55,
           "slots": [
             {
               "pattern": "hinge",
@@ -1902,7 +1923,6 @@
         {
           "label": "Torso A",
           "focus": "Torso · empuje",
-          "estimatedMinutes": 60,
           "slots": [
             {
               "pattern": "horizontal_push",
@@ -1929,7 +1949,6 @@
         {
           "label": "Pierna A",
           "focus": "Tren inferior",
-          "estimatedMinutes": 60,
           "slots": [
             {
               "pattern": "squat",
@@ -1952,7 +1971,6 @@
         {
           "label": "Torso B",
           "focus": "Torso · tracción",
-          "estimatedMinutes": 60,
           "slots": [
             {
               "pattern": "horizontal_pull",
@@ -1975,7 +1993,6 @@
         {
           "label": "Pierna B",
           "focus": "Tren inferior · cadena posterior",
-          "estimatedMinutes": 60,
           "slots": [
             {
               "pattern": "hinge",
@@ -2013,7 +2030,6 @@
         {
           "label": "Continuo",
           "focus": "Aeróbico continuo",
-          "estimatedMinutes": 50,
           "slots": [
             {
               "pattern": "cardio",
@@ -2029,7 +2045,6 @@
         {
           "label": "Intervalos",
           "focus": "Intervalos",
-          "estimatedMinutes": 40,
           "slots": [
             {
               "pattern": "cardio",
@@ -2045,7 +2060,6 @@
         {
           "label": "Fuerza de sostén",
           "focus": "Fuerza general",
-          "estimatedMinutes": 45,
           "slots": [
             {
               "pattern": "squat",

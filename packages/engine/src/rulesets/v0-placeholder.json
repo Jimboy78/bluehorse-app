@@ -568,7 +568,6 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "estimatedMinutes": 55,
           "slots": [
             {
               "pattern": "squat",
@@ -595,7 +594,6 @@
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "estimatedMinutes": 55,
           "slots": [
             {
               "pattern": "hinge",
@@ -637,7 +635,6 @@
         {
           "label": "Torso A",
           "focus": "Torso · empuje",
-          "estimatedMinutes": 60,
           "slots": [
             {
               "pattern": "horizontal_push",
@@ -664,7 +661,6 @@
         {
           "label": "Pierna A",
           "focus": "Tren inferior",
-          "estimatedMinutes": 60,
           "slots": [
             {
               "pattern": "squat",
@@ -687,7 +683,6 @@
         {
           "label": "Torso B",
           "focus": "Torso · tracción",
-          "estimatedMinutes": 60,
           "slots": [
             {
               "pattern": "horizontal_pull",
@@ -710,7 +705,6 @@
         {
           "label": "Pierna B",
           "focus": "Tren inferior · cadena posterior",
-          "estimatedMinutes": 60,
           "slots": [
             {
               "pattern": "hinge",
@@ -748,7 +742,6 @@
         {
           "label": "Continuo",
           "focus": "Aeróbico continuo",
-          "estimatedMinutes": 40,
           "slots": [
             {
               "pattern": "cardio",
@@ -763,7 +756,6 @@
         {
           "label": "Intervalos",
           "focus": "Intervalos",
-          "estimatedMinutes": 35,
           "slots": [
             {
               "pattern": "cardio",
@@ -778,7 +770,6 @@
         {
           "label": "Fuerza de sostén",
           "focus": "Fuerza general",
-          "estimatedMinutes": 45,
           "slots": [
             {
               "pattern": "squat",

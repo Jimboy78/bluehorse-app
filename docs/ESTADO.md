@@ -1,6 +1,23 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T3j: movimientos que no puede)
+## Última actualización: 19 de septiembre de 2026 (T4a: los minutos arman la sesión)
+
+`docs/research/59`. El motor estima cada sesión desde la prescripción (30 s por serie más la
+pausa, Schoenfeld 2019) y, si no entra en los minutos declarados, la achica en el orden del dueño:
+pausa hasta el piso del nivel (Grgic 2017), de a dos sin músculo en común y nunca con peso libre
+(Iversen 2021), aislados, series sin bajar del mínimo semanal del objetivo y, al final, los
+bloques (queda uno de cada uno). Cada paso corre sobre todas las sesiones antes del siguiente. Un
+aviso dice qué cambió; otro, qué sesión igual no entra y cuánto dura. `estimatedMinutes` deja de
+ser la constante de la plantilla. Se fueron `modifiers.sessionLength` y los `estimatedMinutes`
+fijos. Sensibilidad de los minutos en el barrido: de 0 % a 69 %. Falsificado: 18 de 18 guardas en
+rojo; una más resultó redundante y se sacó. Encontrado en el camino: el piso semanal se contaba
+antes de que otra sesión sacara sus aislados, y había dos pisos distintos en el mismo plan.
+Pendiente: prueba en el navegador (la extensión de Chrome no conectó; hay un usuario local
+`t4.quince@bluehorse.test`), el cardio continuo que no baja con los minutos y la pausa de 210 s
+del principiante en fuerza (preguntas para el dueño). Sigue T4b: el descanso entre series como
+preferencia.
+
+## 19 de septiembre de 2026 (T3j: movimientos que no puede)
 
 `docs/research/58`. En /salud, después de la puerta de lesiones: "¿Hay algún movimiento que no
 puedas hacer?", con cuatro chips: brazos arriba de la cabeza, bajar al piso y levantarse,

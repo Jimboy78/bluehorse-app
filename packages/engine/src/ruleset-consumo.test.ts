@@ -61,7 +61,13 @@ describe('bloques del ruleset sin consumir', () => {
    * que no ve es una clave que se alcanza por índice dinámico o que se consume
    * recorriendo el objeto, y esas hay que anotarlas acá con el motivo.
    */
-  const soloEscritas_permitidas = new Set<string>([]);
+  const soloEscritas_permitidas = new Set<string>([
+    // `sessionTime.changes`: el motor las alcanza por índice (`cfg.changes[c]`),
+    // y `tiempo.ts` tipa cada paso con `Record<Cambio, …>`, así que una clave
+    // sin paso no compila.
+    'blocks',
+    'pairs',
+  ]);
 
   /** Claves que son estructura o texto suelto, no un campo que el motor consulte. */
   const ESTRUCTURALES = new Set([

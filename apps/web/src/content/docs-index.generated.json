@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-19T15:12:11.159Z",
+ "generatedAt": "2026-09-19T16:01:38.135Z",
  "docs": [
   {
    "id": "metodo",
@@ -472,6 +472,14 @@
    "resumen": "Fecha: 19/09/2026. Tanda: T3j del plan de variables. En el checklist es pedir: \"movimientos que no puede\".",
    "archivo": "58-movimientos-que-no-puede.md",
    "bloques": 23
+  },
+  {
+   "id": "59-minutos-por-sesion",
+   "orden": 59,
+   "titulo": "Los minutos arman la sesión",
+   "resumen": "Fecha: 19/09/2026. Tanda: T4a del plan de variables. En el checklist es pedir: \"días por semana, minutos por sesión, descanso\".",
+   "archivo": "59-minutos-por-sesion.md",
+   "bloques": 25
   },
   {
    "id": "auditoria",

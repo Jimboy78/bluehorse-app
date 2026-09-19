@@ -762,6 +762,35 @@ const PERFILES: readonly Perfil[] = [
     sesiones: 7,
     minutos: 60,
   },
+  /*
+   * Los minutos arman la sesión (`docs/research/59`). Treinta minutos alcanzan
+   * con pausas al piso y pares; quince obligan a pasar por todos los pasos, y
+   * al mayor con equilibrio le queda el bloque.
+   */
+  {
+    nombre: 'treinta minutos · hipertrofia intermedio',
+    goal: 'hypertrophy',
+    nivel: 'intermediate',
+    nacimiento: '1994-05-10',
+    sesiones: 3,
+    minutos: 30,
+  },
+  {
+    nombre: 'quince minutos · fuerza avanzado',
+    goal: 'strength',
+    nivel: 'advanced',
+    nacimiento: '1990-01-01',
+    sesiones: 4,
+    minutos: 15,
+  },
+  {
+    nombre: 'quince minutos · mayor de 70',
+    goal: 'strength',
+    nivel: 'beginner',
+    nacimiento: '1954-02-02',
+    sesiones: 3,
+    minutos: 15,
+  },
 ];
 
 function socioDe(p: Perfil): UserSnapshot {
@@ -847,7 +876,7 @@ type ItemResumido = ReturnType<typeof resumir>['sesiones'][number]['items'][numb
  * con 0 repeticiones o un RIR fuera del rango declarado, ese número no vino del
  * ruleset — lo puso un default escondido en el motor.
  */
-function* quejasDe(item: ItemResumido): Generator<string> {
+function* quejasDe(item: ItemResumido, siguiente?: ItemResumido): Generator<string> {
   const [min, max] = item.reps.split('-').map(Number);
 
   if (item.series <= 0) yield `con ${item.series} series`;
@@ -856,8 +885,13 @@ function* quejasDe(item: ItemResumido): Generator<string> {
 
   // Un ítem de cardio continuo no tiene descanso: es un solo bloque de N
   // minutos. Se reconoce porque trae duración, no porque el descanso sea 0 —
-  // así una serie de sala con descanso 0 sigue siendo un error.
-  if (item.duracionSeg === null && item.descanso <= 0) yield `descanso ${item.descanso}`;
+  // así una serie de sala con descanso 0 sigue siendo un error. La única
+  // serie de sala sin pausa es la primera de un par, que sigue con la otra.
+  const abrePar = item.par !== null && siguiente?.par === item.par;
+  if (item.duracionSeg === null && item.descanso <= 0 && !abrePar) {
+    yield `descanso ${item.descanso}`;
+  }
+  if (item.par !== null && !abrePar && item.descanso <= 0) yield 'cierra el par sin pausa';
 }
 
 const CACHE = new Map<string, ReturnType<typeof resumir>>();
@@ -917,9 +951,11 @@ describe('matriz del motor', () => {
     const malos: string[] = [];
     for (const [nombre, plan] of Object.entries(reporte.perfiles)) {
       for (const sesion of plan.sesiones) {
-        for (const item of sesion.items) {
-          for (const queja of quejasDe(item)) malos.push(`${nombre}: ${item.ejercicio} ${queja}`);
-        }
+        sesion.items.forEach((item, i) => {
+          for (const queja of quejasDe(item, sesion.items[i + 1])) {
+            malos.push(`${nombre}: ${item.ejercicio} ${queja}`);
+          }
+        });
       }
     }
     expect(malos).toEqual([]);
@@ -946,78 +982,81 @@ describe('matriz del motor', () => {
   });
 
   /**
-   * EL PLAN QUE NO ENTRA EN EL TIEMPO LO DICE
+   * LA SESIÓN ENTRA EN LOS MINUTOS DECLARADOS, O LO DICE
    *
-   * El motor ya no ignora del todo `sessionMinutesTarget`: compara el
-   * **descanso solo** —`restSeconds` × series, todo del ruleset— contra los
-   * minutos que la persona declaró. Una sesión no puede durar menos que la suma
-   * de sus descansos, así que si eso no entra, el plan no entra, y no hace falta
-   * suponer cuánto tarda una serie para saberlo. Suponerlo sí sería inventar: la
-   * investigación mide el tempo y devuelve un rango de 0,5 a 8 segundos por
-   * repetición, no un valor.
+   * Desde T4 (`docs/research/59`) el motor estima cada sesión desde su
+   * prescripción —series × (lo que dura una serie + la pausa)— y la achica
+   * hasta que entre. Lo que no puede achicar sin romper un piso lo avisa con el
+   * nombre de la sesión y los minutos que calcula.
    *
-   * Lo que importa de un aviso es a quién NO le sale. Medido sobre los 33
-   * perfiles: con 30 minutos declarados le sale a 14, con 45 a 2, y con 60 a
-   * ninguno. Un aviso que le saliera a todos no informaría nada.
+   * Se mira sobre los perfiles con 30 minutos y con tres horas: el test pide
+   * que el ajuste le toque a unos cuantos y a nadie con tiempo de sobra.
    */
-  it('avisa cuando el descanso solo no entra en el tiempo declarado', () => {
-    const marca = (V1_RESEARCH.modifiers?.sessionLength?.overTargetNote ?? '').split(
-      '{declarados}',
-    )[0];
-    expect(marca, 'el ruleset dejó de traer el aviso de tiempo').toBeTruthy();
+  /** Las sesiones que pasan los minutos sin que el plan diga cuál y cuánto. */
+  function sinAvisar(plan: PlanBlueprint, minutos: number): string[] {
+    return plan.sessions
+      .filter((s) => s.estimatedMinutes > minutos)
+      .filter(
+        (s) =>
+          !plan.warnings.some((w) => w.includes(s.label) && w.includes(`${s.estimatedMinutes}`)),
+      )
+      .map((s) => `${minutos}': ${s.label} dura ${s.estimatedMinutes} y no lo dice`);
+  }
 
-    let conAviso = 0;
-    let sinAviso = 0;
+  it('cada sesión entra en los minutos declarados, o el plan lo dice', () => {
+    const ajuste = V1_RESEARCH.sessionTime?.fittedNote.split('{')[0] ?? '';
+    expect(ajuste, 'el ruleset dejó de traer el aviso de tiempo').toBeTruthy();
+    const achico = (plan: PlanBlueprint) => plan.warnings.some((w) => w.startsWith(ajuste));
+
+    const quejas: string[] = [];
+    let ajustados = 0;
     for (const perfil of PERFILES) {
-      const apurado = planDe(
-        { ...perfil, nombre: `${perfil.nombre} apurado`, minutos: 30 },
-        V1_RESEARCH,
-      );
-      const holgado = planDe(
-        { ...perfil, nombre: `${perfil.nombre} holgado`, minutos: 180 },
-        V1_RESEARCH,
-      );
-      if (apurado.warnings.some((w) => w.startsWith(marca ?? ''))) conAviso += 1;
-      if (!holgado.warnings.some((w) => w.startsWith(marca ?? ''))) sinAviso += 1;
+      const apurado = planDe({ ...perfil, minutos: 30 }, V1_RESEARCH);
+      const holgado = planDe({ ...perfil, minutos: 180 }, V1_RESEARCH);
+      if (achico(apurado)) ajustados += 1;
+      if (achico(holgado)) quejas.push(`${perfil.nombre}: lo achicó con tres horas`);
+      for (const q of [...sinAvisar(apurado, 30), ...sinAvisar(holgado, 180)]) {
+        quejas.push(`${perfil.nombre} ${q}`);
+      }
     }
-
-    // A unos cuantos sí, para que el aviso exista de verdad.
-    expect(conAviso, 'con 30 minutos no le avisó a nadie').toBeGreaterThan(8);
-    // Y a nadie con tiempo de sobra, para que no sea ruido.
-    expect(sinAviso, 'le avisó a alguien que declaró tres horas').toBe(PERFILES.length);
+    expect(quejas).toEqual([]);
+    expect(ajustados, 'con 30 minutos no se achicó ningún plan').toBeGreaterThan(8);
   });
 
   /**
-   * HUECO QUE QUEDA: el número de minutos que se muestra sigue saliendo de la
-   * plantilla.
+   * EL NÚMERO QUE SE MUESTRA SALE DE LA PRESCRIPCIÓN
    *
-   * El motor ya **lee** `sessionMinutesTarget` para avisar cuando el plan no
-   * entra (test de arriba), pero `estimatedMinutes` —lo que la pantalla le
-   * muestra al socio en `PlanPreview`— sigue siendo la constante de la
-   * plantilla, la misma para todos.
-   *
-   * Medido: la misma "Sesión A" le promete 55 minutos a los 27 perfiles que la
-   * reciben, y el descanso solo va de 12 a 46 minutos según el objetivo y el
-   * nivel. El número no sigue a la prescripción porque no se calcula a partir
-   * de ella.
-   *
-   * Cerrarlo del todo obliga a suponer cuánto tarda una serie, que es una
-   * decisión del dueño y no una que salga de la investigación. Mientras tanto
-   * este test **afirma el hueco** en vez de ignorarlo: si alguien hace que el
-   * motor calcule el tiempo, esta lista deja de coincidir y el test falla
-   * pidiendo que se lo dé vuelta. Un `it.skip` no haría eso, y un test que
-   * simplemente falla rompe `npm run check` todos los días hasta que alguien lo
-   * borra por molesto.
+   * Antes de T4 `estimatedMinutes` era una constante de la plantilla: la misma
+   * "Sesión A" le prometía 55 minutos a los 27 perfiles que la recibían,
+   * mientras el descanso solo iba de 12 a 46 minutos. Ahora se recalcula acá,
+   * desde el ruleset, y tiene que coincidir.
    */
-  it('el número que se muestra todavía sale de la plantilla (hueco conocido)', () => {
-    const desbordes = new Set<string>();
+  it('los minutos de cada sesión salen de sus series y sus pausas', () => {
+    const t = V1_RESEARCH.sessionTime;
+    if (!t) throw new Error('el ruleset no trae sessionTime');
+    const quejas: string[] = [];
+    const porLabel = new Map<string, Set<number>>();
     for (const perfil of PERFILES) {
-      for (const sesion of reporte.perfiles[perfil.nombre].sesiones) {
-        // Un 25% de margen: la estimación no es un cronómetro.
-        if (sesion.minutos > perfil.minutos * 1.25) desbordes.add(perfil.nombre);
+      for (const s of planDe(perfil, V1_RESEARCH).sessions) {
+        const seg = s.items.reduce(
+          (acc, i) =>
+            acc +
+            i.targetSets *
+              ((i.targetDurationSeconds ?? t.secondsPerSet) +
+                (i.targetIntervalRestSeconds ?? i.restSeconds)),
+          0,
+        );
+        if (s.estimatedMinutes !== Math.ceil(seg / 60)) {
+          quejas.push(
+            `${perfil.nombre} ${s.label}: ${s.estimatedMinutes} contra ${Math.ceil(seg / 60)}`,
+          );
+        }
+        porLabel.set(s.label, (porLabel.get(s.label) ?? new Set()).add(s.estimatedMinutes));
       }
     }
-    expect([...desbordes].sort()).toEqual(['frecuencia mínima', 'ochenta años']);
+    expect(quejas).toEqual([]);
+    // Y ya no es una constante: la misma sesión dura distinto según a quién.
+    expect(porLabel.get('Sesión A')?.size ?? 0).toBeGreaterThan(3);
   });
 });
 
@@ -1269,16 +1308,62 @@ describe('los números del plan salen del ruleset', () => {
     const permitidas = firmasPermitidas(perfil);
     if (permitidas.size === 0) return []; // objetivo sin bloque de sala (cardio)
 
-    const sueltos: string[] = [];
-    for (const sesion of reporteDe(perfil).sesiones) {
-      for (const item of sesion.items) {
+    const plan = reporteDe(perfil);
+    const ajustada = ajusteDeTiempo(plan.warnings, permitidas, perfil.nivel);
+    return (
+      plan.sesiones
+        .flatMap((sesion) => sesion.items)
         // El cardio continuo se prescribe por tiempo y zona, no por series.
-        if (item.duracionSeg !== null) continue;
-        const firma = `${item.series}×${item.reps} RIR ${item.rir} d${item.descanso}s`;
-        if (!permitidas.has(firma)) sueltos.push(`${perfil.nombre} · ${item.ejercicio}: ${firma}`);
-      }
-    }
-    return sueltos;
+        .filter((item) => item.duracionSeg === null)
+        .filter((item) => {
+          const firma = `${item.series}×${item.reps} RIR ${item.rir} d${item.descanso}s`;
+          return (
+            !permitidas.has(firma) && !ajustada(item.series, item.reps, item.rir, item.descanso)
+          );
+        })
+        .map(
+          (item) =>
+            `${perfil.nombre} · ${item.ejercicio}: ${item.series}×${item.reps} RIR ${item.rir} d${item.descanso}s`,
+        )
+    );
+  }
+
+  /**
+   * Lo que el ajuste al tiempo (`docs/research/59`) puede hacerle a una firma,
+   * y solo si el plan lo avisó: la pausa baja al piso del nivel, a la de
+   * adentro de un par o a la de la vuelta (la mayor del par, que también es una
+   * pausa del ruleset), y las series bajan si el aviso dice que bajaron. Las
+   * repeticiones y el RIR no se tocan nunca.
+   */
+  function ajusteDeTiempo(
+    avisos: readonly string[],
+    permitidas: ReadonlySet<string>,
+    nivel: ExperienceLevel,
+  ) {
+    const t = reglas.sessionTime;
+    const ninguno = () => false;
+    if (!t) return ninguno;
+    const marca = t.fittedNote.split('{')[0] ?? '';
+    const aviso = avisos.find((w) => marca !== '' && w.startsWith(marca));
+    if (!aviso) return ninguno;
+    const bajaronSeries = aviso.includes(t.changes.sets);
+
+    const base = [...permitidas].map((f) => {
+      const [, sets, resto, pausa] = /^(\d+)×(.+) d(\d+)s$/.exec(f) ?? [];
+      return { sets: Number(sets), resto, pausa: Number(pausa) };
+    });
+    const pausas = new Set([
+      ...base.map((b) => b.pausa),
+      ...base.map((b) => Math.min(b.pausa, t.restFloorSeconds[nivel])),
+      t.pairIntraRestSeconds,
+    ]);
+    return (series: number, reps: string, rir: number | null, descanso: number) =>
+      pausas.has(descanso) &&
+      base.some(
+        (b) =>
+          b.resto === `${reps} RIR ${rir}` &&
+          (b.sets === series || (bajaronSeries && series >= 1 && series < b.sets)),
+      );
   }
 
   it('cada prescripción de sala se explica por el ruleset', () => {
@@ -1463,8 +1548,11 @@ describe('el deporte tiene que cambiar algún ejercicio', () => {
   // en el ruleset, su propio bloque de tests abajo). Lo que se mide acá es el
   // desempate entre los ejercicios de siempre.
   const esExplosivo = new Set(gym.exercises.filter((e) => e.isExplosive).map((e) => e.id));
+  // Y con tiempo de sobra: el par que suma el deporte alarga la sesión, y el
+  // ajuste al tiempo (`59`) saca un aislado que sin deporte entraba. Eso es
+  // dosis, no desempate, y tiene sus propios tests.
   function ejerciciosDe(p: Perfil, deporte: Perfil['deporte']): string[] {
-    return planDe({ ...p, deporte }, V1_RESEARCH).sessions.flatMap((s) =>
+    return planDe({ ...p, deporte, minutos: 600 }, V1_RESEARCH).sessions.flatMap((s) =>
       s.items.map((i) => i.exerciseId).filter((id) => !esExplosivo.has(id)),
     );
   }
@@ -3457,6 +3545,10 @@ describe('el orden del historial', () => {
 describe('explosivos en par con un levantamiento', () => {
   const cfg = V1_RESEARCH.explosive;
   const exPorId = new Map(gym.exercises.map((e) => [e.id, e]));
+  // Un par por tiempo (`59`) también lleva `supersetGroup`: el explosivo es lo
+  // que distingue a este.
+  const conExplosivo = (s: { items: readonly SessionItemBlueprint[] }) =>
+    s.items.some((i) => i.supersetGroup !== null && exPorId.get(i.exerciseId)?.isExplosive);
 
   function loRecibe(p: Perfil): boolean {
     if (!cfg) return false;
@@ -3501,7 +3593,7 @@ describe('explosivos en par con un levantamiento', () => {
     let conPar = 0;
     for (const perfil of PERFILES) {
       const plan = planDe(perfil, V1_RESEARCH);
-      const tiene = plan.sessions.some((s) => s.items.some((i) => i.supersetGroup !== null));
+      const tiene = plan.sessions.some(conExplosivo);
       const edad = new Date(AHORA).getUTCFullYear() - new Date(perfil.nacimiento).getUTCFullYear();
       // Un esguince no es una molestia: los saltos siguen (`docs/research/57`).
       // Un movimiento que no puede tampoco (`58`).
@@ -3519,10 +3611,9 @@ describe('explosivos en par con un levantamiento', () => {
         { ...perfil, limitaciones: [molestia('lower_back', 2)] },
         V1_RESEARCH,
       );
-      expect(
-        planConMolestia.sessions.some((s) => s.items.some((i) => i.supersetGroup !== null)),
-        `${perfil.nombre} con una molestia`,
-      ).toBe(false);
+      expect(planConMolestia.sessions.some(conExplosivo), `${perfil.nombre} con una molestia`).toBe(
+        false,
+      );
     }
     expect(conPar).toBeGreaterThanOrEqual(5);
   });
@@ -3533,8 +3624,8 @@ describe('explosivos en par con un levantamiento', () => {
     if (!potencia || !cfg) return;
     const nacidoHace = (años: number) => `${new Date(AHORA).getUTCFullYear() - años}-01-01`;
     const conPar = (años: number) =>
-      planDe({ ...potencia, nacimiento: nacidoHace(años) }, V1_RESEARCH).sessions.some((s) =>
-        s.items.some((i) => i.supersetGroup !== null),
+      planDe({ ...potencia, nacimiento: nacidoHace(años) }, V1_RESEARCH).sessions.some(
+        conExplosivo,
       );
     expect(conPar(70)).toBe(true);
     expect(conPar(cfg.maxAge + 2)).toBe(false);
@@ -3544,15 +3635,13 @@ describe('explosivos en par con un levantamiento', () => {
     const futbol = PERFILES.find((p) => p.nombre === 'fútbol · pretemporada');
     expect(futbol).toBeDefined();
     if (!futbol) return;
-    const sesion = planDe(futbol, V1_RESEARCH).sessions.find((s) =>
-      s.items.some((i) => i.supersetGroup !== null),
-    );
+    const sesion = planDe(futbol, V1_RESEARCH).sessions.find(conExplosivo);
     expect(sesion).toBeDefined();
     if (!sesion) return;
-    const lift = sesion.items.find(
-      (i) => i.supersetGroup !== null && !exPorId.get(i.exerciseId)?.isExplosive,
-    );
     const salto = sesion.items.find((i) => exPorId.get(i.exerciseId)?.isExplosive);
+    const lift = sesion.items.find(
+      (i) => i.supersetGroup === salto?.supersetGroup && !exPorId.get(i.exerciseId)?.isExplosive,
+    );
     // Día de partido con `avoidExplosive` y la parte de arriba entera: el
     // levantamiento de pierna puede quedar con menos series, pero no solo con
     // la pausa corta de adentro del par.
