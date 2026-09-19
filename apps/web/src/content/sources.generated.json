@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-19",
-  "resolved": 154,
+  "resolved": 156,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -1160,10 +1160,12 @@
       "journal": "The American Journal of Sports Medicine",
       "type": "journal-article",
       "temas": [
-        "Dolor y lesiones"
+        "Dolor y lesiones",
+        "Tendinopatía y puerta de lesiones"
       ],
       "documentos": [
-        "09-dolor-y-lesiones.md"
+        "09-dolor-y-lesiones.md",
+        "55-tendinopatia-y-puerta-de-lesiones.md"
       ]
     },
     {
@@ -2911,6 +2913,44 @@
       ],
       "documentos": [
         "43-salud-con-puerta.md"
+      ]
+    },
+    {
+      "doi": "10.1111/j.1600-0838.2009.00949.x",
+      "title": "Corticosteroid injections, eccentric decline squat training and heavy slow resistance training in patellar tendinopathy",
+      "authors": [
+        "Kongsgaard",
+        "Kovanen",
+        "Aagaard"
+      ],
+      "moreAuthors": 6,
+      "year": 2009,
+      "journal": "Scandinavian Journal of Medicine & Science in Sports",
+      "type": "journal-article",
+      "temas": [
+        "Tendinopatía y puerta de lesiones"
+      ],
+      "documentos": [
+        "55-tendinopatia-y-puerta-de-lesiones.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2022-105754",
+      "title": "Effect of resistance exercise dose components for tendinopathy management: a systematic review with meta-analysis",
+      "authors": [
+        "Pavlova",
+        "Shim",
+        "Moss"
+      ],
+      "moreAuthors": 10,
+      "year": 2023,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Tendinopatía y puerta de lesiones"
+      ],
+      "documentos": [
+        "55-tendinopatia-y-puerta-de-lesiones.md"
       ]
     },
     {

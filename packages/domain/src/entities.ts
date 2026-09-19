@@ -118,7 +118,13 @@ export interface UserGoal {
 }
 
 export interface UserConstraint {
-  readonly type: 'injury' | 'pain' | 'avoid_exercise' | 'avoid_equipment';
+  /**
+   * `pain` es un dolor que viene arrastrando; `injury`, una lesión reciente, que
+   * el motor trata del lado prudente; `tendinopathy`, un tendón diagnosticado,
+   * que se trata como dolor crónico porque la carga es su tratamiento
+   * (`docs/research/55`).
+   */
+  readonly type: 'injury' | 'pain' | 'tendinopathy' | 'avoid_exercise' | 'avoid_equipment';
   readonly bodyRegion: BodyRegion | null;
   readonly exerciseId: Id | null;
   readonly equipmentId: Id | null;

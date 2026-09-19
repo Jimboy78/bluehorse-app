@@ -14,6 +14,7 @@ import {
   Mail,
   MapPin,
   Pencil,
+  Plus,
   Ruler,
   Scale,
   Shield,
@@ -30,6 +31,7 @@ import { Link, useNavigate } from 'react-router';
 import { AppShell } from '../components/AppShell.tsx';
 import { BodyMetricsForm } from '../components/BodyMetricsForm.tsx';
 import { CondicionesDeSalud } from '../components/CondicionesDeSalud.tsx';
+import { LesionesDeclaradas } from '../components/LesionesDeclaradas.tsx';
 import { ProfileForm } from '../components/ProfileForm.tsx';
 import {
   Button,
@@ -752,6 +754,7 @@ function ConstraintsSection() {
   const constraints = useConstraints();
   const clear = useClearConstraint();
   const [asking, setAsking] = useState<ConstraintDetail | null>(null);
+  const [agregando, setAgregando] = useState(false);
 
   async function handleClear() {
     if (!asking) return;
@@ -804,6 +807,21 @@ function ConstraintsSection() {
         </motion.ul>
       )}
 
+      {agregando ? (
+        <Card tone="nested" className="px-4 py-3.5">
+          <LesionesDeclaradas
+            conPuerta={false}
+            textoBoton="Guardar"
+            onGuardado={() => setAgregando(false)}
+          />
+        </Card>
+      ) : (
+        <Button variant="ghost" onClick={() => setAgregando(true)}>
+          <Plus className="size-4" aria-hidden="true" />
+          Agregar una lesión, dolor o tendinitis
+        </Button>
+      )}
+
       <ConfirmDialog
         open={asking !== null}
         icon={<Trash2 size={18} aria-hidden="true" />}
@@ -830,7 +848,10 @@ function ConstraintRow({
   readonly busy: boolean;
   readonly onClear: () => void;
 }) {
-  const isPain = constraint.type === 'injury' || constraint.type === 'pain';
+  const isPain =
+    constraint.type === 'injury' ||
+    constraint.type === 'pain' ||
+    constraint.type === 'tendinopathy';
 
   return (
     <Card tone="warn" className="flex items-start gap-3 p-3.5">

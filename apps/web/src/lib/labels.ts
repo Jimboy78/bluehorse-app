@@ -1,4 +1,11 @@
-import type { BodyRegion, ExperienceLevel, Goal, MuscleGroup, Sex } from '@bh/domain';
+import type {
+  BodyRegion,
+  ExperienceLevel,
+  Goal,
+  MuscleGroup,
+  Sex,
+  UserConstraint,
+} from '@bh/domain';
 import { activeRuleset } from './engine.ts';
 
 /**
@@ -48,12 +55,10 @@ export const BODY_REGION_LABELS: Record<BodyRegion, string> = {
   other: 'Otra',
 };
 
-export const CONSTRAINT_TYPE_LABELS: Record<
-  'injury' | 'pain' | 'avoid_exercise' | 'avoid_equipment',
-  string
-> = {
+export const CONSTRAINT_TYPE_LABELS: Record<UserConstraint['type'], string> = {
   injury: 'Lesión',
   pain: 'Molestia',
+  tendinopathy: 'Tendón',
   avoid_exercise: 'Ejercicio descartado',
   avoid_equipment: 'Máquina descartada',
 };

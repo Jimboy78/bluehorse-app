@@ -608,6 +608,36 @@ describe('resolverContexto', () => {
     expect(lumbar.avisos.some((a) => a.texto.includes('entre las piernas'))).toBe(true);
   });
 
+  it('tendón: va por el camino del dolor crónico, no el de lesión, y trae su aviso', () => {
+    // `docs/research/55`: la carga es el tratamiento (Kongsgaard 2009, Pavlova
+    // 2023), y seguir con el dolor controlado no empeora (Silbernagel 2007).
+    const zancada = ex('zancada', { pattern: 'lunge' });
+    const salto = ex('salto', { isExplosive: true });
+    const rodilla = (type: UserConstraint['type'], severity: number) =>
+      resolverContexto(
+        input({
+          constraints: [
+            { type, bodyRegion: 'knee', exerciseId: null, equipmentId: null, severity },
+          ],
+        }),
+      );
+    // Con 3, una lesión saca la zancada; un tendón, igual que un dolor, no.
+    expect(excluido(rodilla('injury', 3), zancada)).toBe(true);
+    expect(excluido(rodilla('tendinopathy', 3), zancada)).toBe(false);
+    expect(excluido(rodilla('pain', 3), zancada)).toBe(false);
+    // Desde 4, la regla de la zona aplica igual que a un dolor.
+    expect(excluido(rodilla('tendinopathy', 4), zancada)).toBe(true);
+    // Cuenta como molestia: sin saltos.
+    expect(excluido(rodilla('tendinopathy', 2), salto)).toBe(true);
+
+    const nota = V1_RESEARCH.safety?.tendinopathy?.note.replace('{region}', 'la rodilla');
+    const tendon = rodilla('tendinopathy', 3).avisos.map((a) => a.texto);
+    expect(tendon).toContain(nota);
+    // No recibe la nota de lesión aguda, que le diría que no cargue.
+    expect(tendon).not.toContain(V1_RESEARCH.safety?.acuteInjury.note);
+    expect(rodilla('pain', 3).avisos.map((a) => a.texto)).not.toContain(nota);
+  });
+
   it('asma: el plan no cambia, sale el aviso del broncodilatador', () => {
     const sano = resolverContexto(input({}));
     const asma = resolverContexto(input({ conditions: ['asthma'] }));

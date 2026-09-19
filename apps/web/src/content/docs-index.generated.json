@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-19T04:23:16.977Z",
+ "generatedAt": "2026-09-19T04:48:55.630Z",
  "docs": [
   {
    "id": "metodo",
@@ -440,6 +440,14 @@
    "resumen": "Las dos son la misma entrada: la opción pasa a llamarse \"Hernia de disco u otro problema de columna\". No hace falta un valor nuevo en la base.",
    "archivo": "54-hernia-de-disco-y-columna.md",
    "bloques": 14
+  },
+  {
+   "id": "55-tendinopatia-y-puerta-de-lesiones",
+   "orden": 55,
+   "titulo": "Tendinopatía y la puerta de lesiones",
+   "resumen": "Fecha: 19/09/2026. Tanda: T3g del plan de variables. Empezó como \"tendinopatía\" (pedir en el checklist) y terminó siendo la puerta de lesiones entera, por lo que se encontró al buscar dónde se declaraba.",
+   "archivo": "55-tendinopatia-y-puerta-de-lesiones.md",
+   "bloques": 18
   },
   {
    "id": "auditoria",

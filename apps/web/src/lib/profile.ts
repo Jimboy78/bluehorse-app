@@ -1,4 +1,4 @@
-import type { ExperienceLevel, Goal, Id, Sex, UserConstraint } from '@bh/domain';
+import type { BodyRegion, ExperienceLevel, Goal, Id, Sex, UserConstraint } from '@bh/domain';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './auth/AuthProvider.tsx';
 import { requireSupabase } from './supabase.ts';
@@ -140,7 +140,7 @@ export function yearsSince(isoDate: string | null): number | null {
 
 export interface ConstraintDetail {
   readonly id: Id;
-  readonly type: 'injury' | 'pain' | 'avoid_exercise' | 'avoid_equipment';
+  readonly type: UserConstraint['type'];
   readonly bodyRegion: string | null;
   readonly severity: number;
   readonly note: string | null;
@@ -255,6 +255,46 @@ export function useClearConstraint() {
         .update({ active_to: new Date().toISOString() })
         .eq('id', constraintId)
         .eq('user_id', user.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['constraints', user?.id] });
+    },
+  });
+}
+
+/** Una lesión, un dolor o un tendón que el socio declara fuera de la sesión. */
+export interface MolestiaDeclarada {
+  readonly region: BodyRegion;
+  readonly type: 'pain' | 'injury' | 'tendinopathy';
+  readonly severity: number;
+}
+
+/**
+ * Anotar lo que el socio declara en la puerta de lesiones (registro o Perfil).
+ *
+ * Hasta acá la app solo creaba restricciones desde el reporte de dolor de la
+ * sesión, siempre como `pain`: nadie podía declarar una lesión reciente ni un
+ * tendón, y toda la lógica del motor para esos casos solo la alcanzaba quien
+ * cargara filas a mano (`docs/research/55`).
+ */
+export function useDeclareConstraints() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, readonly MolestiaDeclarada[]>({
+    mutationFn: async (molestias) => {
+      if (!user) throw new Error('No hay sesión activa.');
+      if (molestias.length === 0) return;
+      const client = requireSupabase();
+      const { error } = await client.from('user_constraints').insert(
+        molestias.map((m) => ({
+          user_id: user.id,
+          type: m.type,
+          body_region: m.region,
+          severity: m.severity,
+        })),
+      );
       if (error) throw error;
     },
     onSuccess: () => {

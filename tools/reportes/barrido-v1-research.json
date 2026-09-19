@@ -24,8 +24,8 @@
   "ejerciciosMasUsados": [
     "Caminata de costado: 5 % de los ítems",
     "Caminata en puntas de pie: 5 % de los ítems",
-    "Caminata talón-punta: 5 % de los ítems",
     "Caminata en talones: 5 % de los ítems",
+    "Caminata talón-punta: 5 % de los ítems",
     "Caminata hacia atrás: 5 % de los ítems",
     "Pararse y sentarse: 5 % de los ítems",
     "Remo sentado: 4 % de los ítems",
@@ -41,21 +41,21 @@
     "Cross Over funcional doble (Dual Cable Cross): 4 % de los ítems"
   ],
   "avisosPorPlan": {
-    "media": 8.9,
+    "media": 9,
     "max": 18
   },
-  "sesionesQuePasanLosMinutosDeclarados": "23 %",
+  "sesionesQuePasanLosMinutosDeclarados": "22 %",
   "cambiaElPlanAlCambiarSolo": {
     "goal": "96 %",
     "nivel": "100 %",
-    "edad": "65 %",
+    "edad": "64 %",
     "sexo": "7 %",
     "sesiones": "38 %",
     "minutos": "0 %",
     "deporte": "48 %",
     "fase": "52 %",
-    "molestia": "67 %",
+    "molestia": "58 %",
     "ausencia": "0 %",
-    "salud": "39 %"
+    "salud": "37 %"
   }
 }

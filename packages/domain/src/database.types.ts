@@ -1300,7 +1300,12 @@ export type Database = {
         | "knee"
         | "ankle"
         | "other"
-      constraint_type: "injury" | "pain" | "avoid_exercise" | "avoid_equipment"
+      constraint_type:
+        | "injury"
+        | "pain"
+        | "avoid_exercise"
+        | "avoid_equipment"
+        | "tendinopathy"
       equipment_category:
         | "selectorized"
         | "plate_loaded"
@@ -1536,7 +1541,13 @@ export const Constants = {
         "ankle",
         "other",
       ],
-      constraint_type: ["injury", "pain", "avoid_exercise", "avoid_equipment"],
+      constraint_type: [
+        "injury",
+        "pain",
+        "avoid_exercise",
+        "avoid_equipment",
+        "tendinopathy",
+      ],
       equipment_category: [
         "selectorized",
         "plate_loaded",

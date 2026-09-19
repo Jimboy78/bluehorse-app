@@ -420,6 +420,18 @@ const safetySchema = z.object({
     note: z.string().min(1),
     confidence: z.enum(CONFIDENCE_LEVELS),
   }),
+  /**
+   * Qué decirle a quien declaró un **tendón** (tendinitis, tendinopatía). Va
+   * por el camino del dolor crónico, no por el de lesión: el tendón mejora
+   * cargándolo con peso, y seguir la actividad con el dolor controlado no lo
+   * empeora (`docs/research/55`). Usa `{region}`.
+   */
+  tendinopathy: z
+    .object({
+      note: z.string().min(1).includes('{region}'),
+      confidence: z.enum(CONFIDENCE_LEVELS),
+    })
+    .optional(),
   /** Situaciones que requieren autorización médica antes de entrenar. */
   specialPopulations: z
     .array(

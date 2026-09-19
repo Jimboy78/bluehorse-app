@@ -183,7 +183,7 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
   // *prefiere* no explosivos, y con osteoporosis (sin abdominales que flexionen)
   // más una molestia que sacaba la plancha, el único core que quedaba era el
   // lanzamiento rotacional. Medido en el barrido.
-  const conMolestia = user.constraints.some((c) => c.type === 'pain' || c.type === 'injury');
+  const conMolestia = user.constraints.some(esMolestia);
   const sinSaltosPorMolestia =
     conMolestia && ruleset.safety?.painSubstitution?.avoidExplosive === true;
 
@@ -650,7 +650,7 @@ export function activePainRules(
   return rules.filter((rule) => {
     const floor = level === 'avoid' ? rule.avoidFrom : rule.monitorFrom;
     return constraints.some((c) => {
-      if (c.type !== 'pain' && c.type !== 'injury') return false;
+      if (!esMolestia(c)) return false;
       if (c.bodyRegion !== rule.bodyRegion) return false;
       // Una lesión no accede al tramo permisivo. Los dos umbrales salen de
       // evidencia de dolor crónico —tejido ya cicatrizado, donde seguir
@@ -694,6 +694,7 @@ function safetyWarnings(
   // igual que el de alguien sano, y el silencio se lee como "miramos y no hay
   // nada que ajustar".
   out.push(...avisosDeZonaSinRegla(ruleset, constraints));
+  out.push(...avisosDeTendon(ruleset, constraints));
 
   // Con una lesión declarada, la regla de monitoreo de dolor NO se emite: su
   // texto autoriza a cargar hasta 5 sobre 10, y esa autorización sale de
@@ -741,12 +742,35 @@ function avisosDeZonaSinRegla(ruleset: Ruleset, constraints: readonly UserConstr
   const conRegla = new Set((ruleset.safety?.painRules ?? []).map((r) => r.bodyRegion));
   const sinRegla = new Set<BodyRegion>();
   for (const c of constraints) {
-    if (c.type !== 'pain' && c.type !== 'injury') continue;
+    if (!esMolestia(c)) continue;
     if (c.bodyRegion === null || conRegla.has(c.bodyRegion)) continue;
     sinRegla.add(c.bodyRegion);
   }
 
   return [...sinRegla].map((region) => texto.replace('{region}', regionLabel(region)));
+}
+
+/**
+ * Lo que declara algo que duele en una zona: un dolor, una lesión o un tendón.
+ * Las otras restricciones (un ejercicio o una máquina descartados) no.
+ */
+function esMolestia(c: UserConstraint): boolean {
+  return c.type === 'pain' || c.type === 'injury' || c.type === 'tendinopathy';
+}
+
+/**
+ * El aviso del tendón, uno por zona declarada como tendinopatía. Va aparte del
+ * `keepDoing` de la zona: ese habla de qué hacer con el dolor; este, de que el
+ * tendón necesita carga.
+ */
+function avisosDeTendon(ruleset: Ruleset, constraints: readonly UserConstraint[]): string[] {
+  const nota = ruleset.safety?.tendinopathy?.note;
+  if (!nota) return [];
+  const zonas = new Set<BodyRegion>();
+  for (const c of constraints) {
+    if (c.type === 'tendinopathy' && c.bodyRegion !== null) zonas.add(c.bodyRegion);
+  }
+  return [...zonas].map((region) => nota.replace('{region}', regionLabel(region)));
 }
 
 /** Si la zona de esta regla es una lesión declarada y no un dolor de arrastre. */

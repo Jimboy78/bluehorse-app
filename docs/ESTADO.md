@@ -1,6 +1,14 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T3f: hernia de disco y columna)
+## Última actualización: 19 de septiembre de 2026 (T3g: tendinopatía y puerta de lesiones)
+
+`docs/research/55`. La app nunca creaba restricciones de tipo lesión: la vía de lesión del motor era
+inalcanzable. Ahora hay puerta de lesiones en `/salud` (después de condiciones) y "agregar" en
+Perfil: zona, qué es (dolor, lesión reciente, tendinitis) y cuánto. `constraint_type` suma
+`tendinopathy`, que va por el camino del dolor crónico con un aviso propio (la carga es el
+tratamiento). Falta: operación y hace cuánto (T3h).
+
+## 19 de septiembre de 2026 (T3f: hernia de disco y columna)
 
 `docs/research/54`. "Un problema de columna" pasa a "Hernia de disco u otro problema de columna".
 No saca nada (mantenerse activo rinde igual que el ejercicio; 62-66 % de las hernias se reabsorben);

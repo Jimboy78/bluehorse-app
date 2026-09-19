@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { CondicionesDeSalud } from '../components/CondicionesDeSalud.tsx';
+import { LesionesDeclaradas } from '../components/LesionesDeclaradas.tsx';
 import { BrandMark, Button, Card, Notice, SectionLabel, Wordmark } from '../components/ui/index.ts';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
 import { activeRuleset } from '../lib/engine.ts';
@@ -25,8 +26,9 @@ export function Salud() {
   const state = useScreeningState();
   const submit = useSubmitScreening();
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
-  // Con el cribado aprobado, la puerta de las condiciones antes del onboarding.
-  const [paso, setPaso] = useState<'cribado' | 'condiciones'>('cribado');
+  // Con el cribado aprobado, las puertas de condiciones y de lesiones antes del
+  // onboarding: el plan se arma al final de ese, y tiene que saber las dos.
+  const [paso, setPaso] = useState<'cribado' | 'condiciones' | 'lesiones'>('cribado');
 
   const safety = activeRuleset.safety;
 
@@ -87,6 +89,19 @@ export function Salud() {
         <CondicionesDeSalud
           inicial={[]}
           sex={null}
+          textoBoton="Seguir"
+          onGuardado={() => setPaso('lesiones')}
+        />
+      </Shell>
+    );
+  }
+
+  if (paso === 'lesiones') {
+    return (
+      <Shell>
+        <SectionLabel>La última</SectionLabel>
+        <LesionesDeclaradas
+          conPuerta
           textoBoton="Seguir"
           onGuardado={() => void navigate('/onboarding')}
         />
