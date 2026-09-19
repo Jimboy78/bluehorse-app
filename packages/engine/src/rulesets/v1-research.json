@@ -1554,6 +1554,18 @@
         "confidence": "low"
       },
       {
+        "bodyRegion": "ankle",
+        "monitorFrom": 3,
+        "avoidFrom": 4,
+        "avoidPatterns": [
+          "lunge"
+        ],
+        "avoidMuscles": [],
+        "keepDoing": "Seguí con gemelos lentos (subir y bajar en puntas de pie) y con ejercicios de equilibrio, mientras no pasen de 5 sobre 10: fortalecer y trabajar el equilibrio es lo que evita que vuelva. Saltos y trote quedan afuera hasta que no duela. Si caminar en la cinta molesta, usá la bici o el elíptico.",
+        "referIf": "Después de doblarte el tobillo no podés dar cuatro pasos apoyando, o sentiste un golpe o un chasquido atrás del talón y ya no podés ponerte en puntas de pie.",
+        "confidence": "low"
+      },
+      {
         "bodyRegion": "shoulder",
         "monitorFrom": 3,
         "avoidFrom": 4,

@@ -468,6 +468,35 @@ describe('resolverContexto', () => {
     expect(fuerte.avisos.map((a) => a.texto)).not.toContain(sinRegla);
   });
 
+  it('tobillo: sin saltos con cualquier molestia, sin zancadas desde 4; gemelos y equilibrio siguen', () => {
+    // `docs/research/50`: lo que se para es correr y saltar; la pantorrilla y el
+    // equilibrio son el tratamiento.
+    const zancada = ex('zancada', { pattern: 'lunge' });
+    const gemelos = ex('gemelos', { pattern: 'isolation', primaryMuscles: ['calves'] });
+    const talones = ex('talones', { pattern: 'balance', primaryMuscles: ['calves'] });
+    const salto = ex('salto', { isExplosive: true });
+    const tobillo = (severity: number, type: UserConstraint['type'] = 'pain') =>
+      resolverContexto({
+        ...input({
+          edad: 70,
+          constraints: [
+            { type, bodyRegion: 'ankle', exerciseId: null, equipmentId: null, severity },
+          ],
+        }),
+      });
+    const leve = tobillo(3);
+    expect(excluido(leve, salto)).toBe(true);
+    expect(excluido(leve, zancada)).toBe(false);
+    const fuerte = tobillo(4);
+    expect(excluido(fuerte, zancada)).toBe(true);
+    expect(excluido(fuerte, gemelos)).toBe(false);
+    expect(excluido(fuerte, talones)).toBe(false);
+    expect(fuerte.bloques.map((b) => b.modulo)).toContain('equilibrio');
+    expect(excluido(tobillo(3, 'injury'), zancada)).toBe(true);
+    const sinRegla = V1_RESEARCH.safety?.noRuleForRegion?.text.replace('{region}', 'el tobillo');
+    expect(fuerte.avisos.map((a) => a.texto)).not.toContain(sinRegla);
+  });
+
   it('asma: el plan no cambia, sale el aviso del broncodilatador', () => {
     const sano = resolverContexto(input({}));
     const asma = resolverContexto(input({ conditions: ['asthma'] }));

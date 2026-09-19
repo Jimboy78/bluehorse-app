@@ -178,6 +178,9 @@ const DIM = {
       ['hip', 3, 'pain'],
       ['hip', 4, 'pain'],
       ['hip', 3, 'injury'],
+      ['ankle', 3, 'pain'],
+      ['ankle', 4, 'pain'],
+      ['ankle', 3, 'injury'],
     ] as ([BodyRegion, number, UserConstraint['type']] | null)[],
     (b, v) => {
       if (!v) return;

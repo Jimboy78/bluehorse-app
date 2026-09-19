@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-19T02:46:00.428Z",
+ "generatedAt": "2026-09-19T03:03:40.271Z",
  "docs": [
   {
    "id": "metodo",
@@ -400,6 +400,14 @@
    "resumen": "Fecha: 19/09/2026. Tanda: T3a del plan de variables, la primera de lesiones. 27 dejó cinco zonas sin regla (codo, espalda alta, cadera, tobillo y \"otra\") y dejó como decisión del dueño si investigarlas. En el checklist, el dueño marcó \"z…",
    "archivo": "49-dolor-de-cadera.md",
    "bloques": 23
+  },
+  {
+   "id": "50-dolor-de-tobillo",
+   "orden": 50,
+   "titulo": "Dolor de tobillo: la regla que faltaba",
+   "resumen": "Fecha: 19/09/2026. Tanda: T3b del plan de variables. Es la segunda zona que 27 había dejado sin regla, después de la cadera (49). En un gimnasio, el tobillo que duele es casi siempre un esguince (agudo o que se repite) o una tendinopatía…",
+   "archivo": "50-dolor-de-tobillo.md",
+   "bloques": 21
   },
   {
    "id": "auditoria",

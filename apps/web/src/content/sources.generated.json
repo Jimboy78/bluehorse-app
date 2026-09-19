@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-19",
-  "resolved": 142,
+  "resolved": 145,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -914,6 +914,84 @@
       ]
     },
     {
+      "doi": "10.3389/fmed.2022.868474",
+      "title": "Acute Ankle Sprain Management: An Umbrella Review of Systematic Reviews",
+      "authors": [
+        "Gaddi",
+        "Mosca",
+        "Piatti"
+      ],
+      "moreAuthors": 9,
+      "year": 2022,
+      "journal": "Frontiers in Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Dolor de tobillo",
+        "Lesión aguda"
+      ],
+      "documentos": [
+        "17-lesion-aguda.md",
+        "50-dolor-de-tobillo.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2020-103867",
+      "title": "Dutch multidisciplinary guideline on Achilles tendinopathy",
+      "authors": [
+        "de Vos",
+        "van der Vlist",
+        "Zwerver"
+      ],
+      "moreAuthors": 10,
+      "year": 2021,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Dolor de tobillo"
+      ],
+      "documentos": [
+        "50-dolor-de-tobillo.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bmj.326.7386.417",
+      "title": "Accuracy of Ottawa ankle rules to exclude fractures of the ankle and mid-foot: systematic review",
+      "authors": [
+        "Bachmann",
+        "Kolb",
+        "Koller"
+      ],
+      "moreAuthors": 2,
+      "year": 2003,
+      "journal": "BMJ",
+      "type": "journal-article",
+      "temas": [
+        "Dolor de tobillo"
+      ],
+      "documentos": [
+        "50-dolor-de-tobillo.md"
+      ]
+    },
+    {
+      "doi": "10.1186/1758-2555-1-14",
+      "title": "Understanding acute ankle ligamentous sprain injury in sports",
+      "authors": [
+        "Fong",
+        "Chan",
+        "Mok"
+      ],
+      "moreAuthors": 2,
+      "year": 2009,
+      "journal": "BMC Sports Science, Medicine and Rehabilitation",
+      "type": "journal-article",
+      "temas": [
+        "Dolor de tobillo"
+      ],
+      "documentos": [
+        "50-dolor-de-tobillo.md"
+      ]
+    },
+    {
       "doi": "10.1136/bjsports-2016-097383",
       "title": "Should exercises be painful in the management of chronic musculoskeletal pain? A systematic review and meta-analysis",
       "authors": [
@@ -1727,25 +1805,6 @@
       "moreAuthors": 0,
       "year": 2019,
       "journal": "British Journal of Sports Medicine",
-      "type": "journal-article",
-      "temas": [
-        "Lesión aguda"
-      ],
-      "documentos": [
-        "17-lesion-aguda.md"
-      ]
-    },
-    {
-      "doi": "10.3389/fmed.2022.868474",
-      "title": "Acute Ankle Sprain Management: An Umbrella Review of Systematic Reviews",
-      "authors": [
-        "Gaddi",
-        "Mosca",
-        "Piatti"
-      ],
-      "moreAuthors": 9,
-      "year": 2022,
-      "journal": "Frontiers in Medicine",
       "type": "journal-article",
       "temas": [
         "Lesión aguda"

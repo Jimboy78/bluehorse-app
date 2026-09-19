@@ -1,6 +1,12 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T3a: dolor de cadera)
+## Última actualización: 19 de septiembre de 2026 (T3b: dolor de tobillo)
+
+`docs/research/50`. El tobillo tiene regla: los saltos y el impacto ya salían con cualquier molestia
+(es lo que pide la guía de Aquiles); desde 7 de 10 salen también las zancadas. Gemelos y equilibrio
+siguen, porque son el tratamiento. Quedan sin regla codo, espalda alta y "otra".
+
+## 19 de septiembre de 2026 (T3a: dolor de cadera)
 
 `docs/research/49`. La cadera tiene regla de dolor: con 7 de 10 o más salen zancadas y sentadillas,
 las bisagras y el glúteo siguen (la fuerza es el tratamiento: LEAP 2018, EULAR 2023). El barrido
