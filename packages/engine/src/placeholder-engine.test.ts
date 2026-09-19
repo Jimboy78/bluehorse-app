@@ -53,6 +53,7 @@ function exercise(id: string, name: string, over: Partial<Exercise> = {}): Exerc
     headBelowHeart: false,
     requiresMovements: [],
     prevents: [],
+    jumpDirection: null,
     skillLevel: 'beginner',
     cues: null,
     equipmentIds: [],
@@ -1551,6 +1552,7 @@ describe('sustitución por molestia', () => {
           headBelowHeart: false,
           requiresMovements: [],
           prevents: [],
+          jumpDirection: null,
           equipmentIds: ['eq-mancuernas'],
         }),
       ],
@@ -1858,6 +1860,7 @@ describe('un reemplazo tiene que hacerse como el original', () => {
     headBelowHeart: false,
     requiresMovements: [],
     prevents: [],
+    jumpDirection: null,
     equipmentIds: [],
   });
 
@@ -1973,6 +1976,7 @@ describe('lo explosivo en un plan regulado por RIR', () => {
     headBelowHeart: false,
     requiresMovements: [],
     prevents: [],
+    jumpDirection: null,
     equipmentIds: ['eq-prensa'],
   });
 
@@ -2008,13 +2012,27 @@ describe('lo explosivo en un plan regulado por RIR', () => {
     }
   });
 
-  it('pero cubre el patrón si es lo único que hay: prefiere, no filtra', () => {
+  it('ni aunque sea lo único del patrón: el slot queda vacío y lo dice (`docs/research/67`)', () => {
+    // Antes era `prefer`: el salto cubría la sentadilla con la dosis de la
+    // sentadilla. Con el salto horizontal, que no pide estación, eso tapaba el
+    // aviso de las estaciones fuera de servicio.
     const base = buildGym();
     const soloSalto: GymSnapshot = {
       ...base,
       exercises: [...base.exercises.filter((e) => e.pattern !== 'squat'), SALTO_CARGADO],
     };
-    expect(nombresDelPlan(soloSalto, buildUser(), V0_PLACEHOLDER, 1)).toContain('ex-salto-hex');
+    const plan = engine.generatePlan({
+      context: { ...context, seed: 1 },
+      user: buildUser(),
+      gym: soloSalto,
+      ruleset: V0_PLACEHOLDER,
+    });
+    expect(plan.sessions.flatMap((s) => s.items.map((i) => i.exerciseId))).not.toContain(
+      'ex-salto-hex',
+    );
+    const aviso = plan.warnings.find((w) => w.includes('sentadilla'));
+    expect(aviso, 'no avisó').toBeDefined();
+    expect(aviso).toContain('el catálogo del gimnasio no tiene ninguno');
   });
 
   it('en potencia, donde el principal no se regula por RIR, sí puede entrar', () => {
@@ -2353,5 +2371,96 @@ describe('la prevención de rodilla (`docs/research/63`)', () => {
     // El gimnasio de prueba no tiene otro explosivo: el plan no trae par.
     expect(potencia.sessions.flatMap(deRodilla).length).toBeGreaterThan(0);
     expect(potencia.warnings.some((w) => w.includes('no trae saltos ni lanzamientos'))).toBe(true);
+  });
+});
+
+describe('la dirección del salto en el par (`docs/research/67`)', () => {
+  const salto = (id: string, name: string, over: Partial<Exercise>) =>
+    exercise(id, name, {
+      pattern: 'squat',
+      primaryMuscles: ['quads', 'glutes'],
+      isExplosive: true,
+      modality: 'reps_bodyweight',
+      requiresMovements: ['jumping'],
+      ...over,
+    });
+  const vertical = salto('ex-vertical', 'Salto al cajón', {
+    jumpDirection: 'vertical',
+    equipmentIds: ['eq-prensa'],
+  });
+  const horizontal = salto('ex-horizontal', 'Salto horizontal a pies juntos', {
+    jumpDirection: 'horizontal',
+    equipmentIds: [],
+  });
+  // Ordena primero por nombre: si el filtro de bloque faltara, saldría él.
+  const aterrizaje = salto('ex-aterrizaje', 'Aterrizaje desde cajón', {
+    jumpDirection: 'vertical',
+    prevents: ['knee'],
+    equipmentIds: ['eq-prensa'],
+  });
+  const SEMILLAS = Array.from({ length: 20 }, (_, i) => i + 1);
+
+  function saltosDelPar(
+    extra: readonly Exercise[],
+    seed: number,
+    ruleset: Ruleset = V1_RESEARCH,
+    sport: string | null = null,
+  ) {
+    const gym = buildGym();
+    const base = buildUser().goals[0];
+    if (!base) throw new Error('sin objetivo');
+    const goal: UserGoal = { ...base, goal: 'power', sessionMinutesTarget: 180, sport };
+    const saltos = new Set(extra.map((e) => e.id));
+    return engine
+      .generatePlan({
+        context: { ...context, seed },
+        user: buildUser({ goals: [goal] }),
+        gym: { ...gym, exercises: [...gym.exercises, ...extra] },
+        ruleset,
+      })
+      .sessions.flatMap((s) => s.items)
+      .filter((i) => saltos.has(i.exerciseId) && i.supersetGroup !== null)
+      .map((i) => i.exerciseId);
+  }
+
+  it('el ruleset pide el horizontal', () => {
+    expect(V1_RESEARCH.explosive?.preferJumpDirection).toBe('horizontal');
+  });
+
+  it('con los dos en el gimnasio, cada par de sentadilla lleva el horizontal', () => {
+    let pares = 0;
+    for (const seed of SEMILLAS) {
+      const par = saltosDelPar([vertical, horizontal, aterrizaje], seed);
+      pares += par.length;
+      expect(par, `semilla ${seed}`).toEqual(par.map(() => 'ex-horizontal'));
+    }
+    expect(pares).toBeGreaterThan(SEMILLAS.length);
+  });
+
+  it('sin horizontal, el vertical ocupa su lugar', () => {
+    const alguna = SEMILLAS.some((seed) => saltosDelPar([vertical], seed).includes('ex-vertical'));
+    expect(alguna).toBe(true);
+  });
+
+  it('el control: sin la preferencia en el ruleset, el vertical también sale', () => {
+    const explosive = V1_RESEARCH.explosive;
+    if (!explosive) throw new Error('sin bloque explosivo');
+    const { preferJumpDirection: _, ...sinPreferencia } = explosive;
+    const ruleset: Ruleset = { ...V1_RESEARCH, explosive: sinPreferencia };
+    const alguna = SEMILLAS.some((seed) =>
+      saltosDelPar([vertical, horizontal], seed, ruleset).includes('ex-vertical'),
+    );
+    expect(alguna).toBe(true);
+  });
+
+  it('un ejercicio de prevención nunca va en el par, aunque sea el único salto', () => {
+    // Con vóley la prevención de rodilla está activa y el aterrizaje entra al
+    // pool; sin deporte ni siquiera llega, y el test no probaría nada.
+    expect(V1_RESEARCH.sports?.prevention?.programs.find((p) => p.id === 'knee')?.sports).toContain(
+      'voley',
+    );
+    for (const seed of SEMILLAS) {
+      expect(saltosDelPar([aterrizaje], seed, V1_RESEARCH, 'voley'), `semilla ${seed}`).toEqual([]);
+    }
   });
 });

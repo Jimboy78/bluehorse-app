@@ -186,6 +186,14 @@ export type MovementLimit = (typeof MOVEMENT_LIMITS)[number];
 export const PREVENTION_PROGRAMS = ['hamstring', 'knee'] as const;
 export type PreventionProgram = (typeof PREVENTION_PROGRAMS)[number];
 
+/**
+ * Hacia dónde se salta. Solo los saltos lo tienen: un lanzamiento o un swing
+ * es explosivo y queda en `null`. El par explosivo prefiere el horizontal
+ * (`docs/research/67`, Moran 2021).
+ */
+export const JUMP_DIRECTIONS = ['vertical', 'horizontal', 'lateral'] as const;
+export type JumpDirection = (typeof JUMP_DIRECTIONS)[number];
+
 export const SESSION_STATUSES = ['pending', 'in_progress', 'completed', 'skipped'] as const;
 export type SessionStatus = (typeof SESSION_STATUSES)[number];
 

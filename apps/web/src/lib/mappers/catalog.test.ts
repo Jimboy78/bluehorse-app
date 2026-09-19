@@ -103,6 +103,7 @@ describe('exerciseRowSchema + toDomainExercise', () => {
       head_below_heart: false,
       requires_movements: [],
       prevents: [],
+      jump_direction: null,
       is_unilateral: false,
       skill_level: 'intermediate',
       cues: 'Bajá controlado.',
@@ -130,6 +131,7 @@ describe('exerciseRowSchema + toDomainExercise', () => {
       head_below_heart: false,
       requires_movements: ['overhead', 'hanging'],
       prevents: [],
+      jump_direction: null,
       is_unilateral: false,
       skill_level: 'advanced',
       cues: null,
@@ -138,5 +140,30 @@ describe('exerciseRowSchema + toDomainExercise', () => {
     const exercise = toDomainExercise(exerciseRowSchema.parse(fila), []);
     expect(exercise.requiresMovements).toEqual(['overhead', 'hanging']);
     expect(() => exerciseRowSchema.parse({ ...fila, requires_movements: ['crawling'] })).toThrow();
+  });
+
+  it('trae hacia dónde se salta, y rechaza una dirección que no existe (`docs/research/67`)', () => {
+    const fila = {
+      id: '22222222-2222-4222-8222-222222222222',
+      gym_id: null,
+      name: 'Salto horizontal a pies juntos',
+      pattern: 'squat',
+      primary_muscles: ['quads', 'glutes'],
+      secondary_muscles: [],
+      modality: 'reps_bodyweight',
+      is_compound: true,
+      is_explosive: true,
+      loads_spinal_flexion: false,
+      head_below_heart: false,
+      requires_movements: ['jumping'],
+      prevents: [],
+      jump_direction: 'horizontal',
+      is_unilateral: false,
+      skill_level: 'novice',
+      cues: null,
+      is_active: true,
+    };
+    expect(toDomainExercise(exerciseRowSchema.parse(fila), []).jumpDirection).toBe('horizontal');
+    expect(() => exerciseRowSchema.parse({ ...fila, jump_direction: 'diagonal' })).toThrow();
   });
 });

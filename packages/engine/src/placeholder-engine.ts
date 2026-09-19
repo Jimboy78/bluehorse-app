@@ -4,6 +4,7 @@ import type {
   Exercise,
   ExperienceLevel,
   Id,
+  JumpDirection,
   LoadReading,
   MatchDayState,
   MovementLimit,
@@ -476,13 +477,14 @@ function addExplosivePairs(input: {
     const lift = input.exerciseById.get(item.exerciseId);
     if (pairs >= cfg.pairsPerSession || !lift || !puedeLlevarPar(item, lift, cfg)) continue;
 
-    const explosive = chooseExplosive(
-      lift.pattern,
-      input.pool,
+    const explosive = chooseExplosive({
+      pattern: lift.pattern,
+      prefer: cfg.preferJumpDirection ?? null,
+      pool: input.pool,
       usedHere,
-      input.usedInPlan,
-      input.rng,
-    );
+      usedInPlan: input.usedInPlan,
+      rng: input.rng,
+    });
     if (!explosive) continue;
 
     pairs += 1;
@@ -521,19 +523,28 @@ function puedeLlevarPar(item: SessionItemBlueprint, lift: Exercise, cfg: Explosi
   );
 }
 
-/** Un explosivo del patrón, si el socio puede hacerlo; entre iguales, uno que no esté ya en el plan. */
-function chooseExplosive(
-  pattern: MovementPattern,
-  pool: readonly Exercise[],
-  usedHere: ReadonlySet<Id>,
-  usedInPlan: ReadonlySet<Id>,
-  rng: () => number,
-): Exercise | undefined {
-  const candidates = pool
-    .filter((e) => e.isExplosive && e.pattern === pattern && !usedHere.has(e.id))
+/**
+ * Un explosivo del patrón, si el socio puede hacerlo.
+ *
+ * Primero la dirección de salto que pide el ruleset (`docs/research/67`), y
+ * dentro de ella uno que no esté ya en el plan. Los de un bloque no llegan
+ * acá: `usableExercises` ya los saca.
+ */
+function chooseExplosive(input: {
+  readonly pattern: MovementPattern;
+  readonly prefer: JumpDirection | null;
+  readonly pool: readonly Exercise[];
+  readonly usedHere: ReadonlySet<Id>;
+  readonly usedInPlan: ReadonlySet<Id>;
+  readonly rng: () => number;
+}): Exercise | undefined {
+  const all = input.pool
+    .filter((e) => e.isExplosive && e.pattern === input.pattern && !input.usedHere.has(e.id))
     .sort((a, b) => a.name.localeCompare(b.name, 'es'));
-  const fresh = candidates.filter((e) => !usedInPlan.has(e.id));
-  return pickDeterministic(fresh.length > 0 ? fresh : candidates, rng);
+  const preferred = all.filter((e) => e.jumpDirection === input.prefer);
+  const candidates = preferred.length > 0 ? preferred : all;
+  const fresh = candidates.filter((e) => !input.usedInPlan.has(e.id));
+  return pickDeterministic(fresh.length > 0 ? fresh : candidates, input.rng);
 }
 
 /**
@@ -1728,8 +1739,9 @@ function resolverSlotVacio(input: {
 
 function chooseExercise(input: ChooseExerciseInput): Exercise | undefined {
   const { pattern, role, used, usedInPlan, rotateAway, setsByMuscle, selection, rng } = input;
+  // Lo explosivo nunca ocupa un slot: ver el punto 2b.
   const candidates = input.pool
-    .filter((e) => e.pattern === pattern && !used.has(e.id))
+    .filter((e) => e.pattern === pattern && !used.has(e.id) && !e.isExplosive)
     .sort((a, b) => a.name.localeCompare(b.name, 'es'));
   if (candidates.length === 0) return undefined;
 
@@ -1775,7 +1787,7 @@ function chooseExercise(input: ChooseExerciseInput): Exercise | undefined {
     eligible = prefer(eligible, (e) => e.modality !== 'time');
   }
 
-  // 2b. Donde la dosis se regula por RIR, uno que no sea explosivo.
+  // 2b. Ningún explosivo (el filtro está arriba, en `candidates`).
   //
   //     Un salto no se hace "dejando dos en reserva": se corta cuando cae la
   //     velocidad, no cuando se acerca el fallo. El propio ruleset lo dice al
@@ -1788,14 +1800,17 @@ function chooseExercise(input: ChooseExerciseInput): Exercise | undefined {
   //     cajón 3×8-15, RIR 2, 90 s" en dos perfiles. Quince saltos al cajón con
   //     dos en reserva no es una prescripción de nada.
   //
-  //     Es `prefer` y no un filtro: si el patrón solo tuviera explosivos, se
-  //     cubre igual antes que dejar el slot vacío.
-  //
   //     Y vale también donde no hay RIR (potencia): lo explosivo entra por un
   //     solo camino, pegado al levantamiento de su patrón (`addExplosivePairs`),
   //     con su propia dosis. En un slot común recibiría la del slot —"wall ball
   //     3×1-3 al 30-60 % 1RM"—, que no es la de un lanzamiento.
-  eligible = prefer(eligible, (e) => !e.isExplosive);
+  //
+  //     Es un filtro, no una preferencia. Antes era `prefer`, "para no dejar el
+  //     slot vacío", y no se notaba porque todo salto de sentadilla pedía una
+  //     estación. El salto horizontal no pide ninguna (`docs/research/67`):
+  //     con las estaciones de sentadilla fuera de servicio, el slot se llenaba
+  //     con saltos a 4×1-5 RIR 3 y el aviso al staff desaparecía. Un slot vacío
+  //     con su causa dice la verdad; un salto con la dosis de otro, no.
 
   // 3. En el ejercicio principal, uno al que se le pueda subir la carga. Toda la
   //    progresión se mide en kilos: si el ejercicio más importante de la sesión
@@ -2037,7 +2052,9 @@ type CausaDeVacio = 'sin_catalogo' | 'bloqueado' | 'nivel' | 'sin_estacion';
 
 function causaDeVacio(input: VacioInput): CausaDeVacio {
   const { pattern, gym, constraints, avoidRules, level } = input;
-  const delPatron = gym.exercises.filter((e) => e.pattern === pattern);
+  // Solo lo que puede ocupar un slot: un salto del patrón no lo cubre
+  // (`chooseExercise`), así que no cuenta como "hay y está bloqueado".
+  const delPatron = gym.exercises.filter((e) => e.pattern === pattern && !e.isExplosive);
   if (delPatron.length === 0) return 'sin_catalogo';
 
   const sinBloquear = delPatron.filter(

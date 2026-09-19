@@ -2,13 +2,17 @@
   "ruleset": "v1-research",
   "socios": 3000,
   "ejerciciosQueNuncaEntran": [
+    "Salto al cajón",
     "Face pull en polea",
     "Plancha",
     "Aperturas en máquina",
     "Cruce de poleas",
     "Caminata del granjero",
+    "Salto con vallas",
     "Pogo jumps",
+    "Salto en profundidad",
     "Zancada con salto",
+    "Salto con barra hexagonal",
     "Movilidad de cadera y tobillo",
     "Lanzamiento rotacional con wall ball"
   ],
@@ -16,6 +20,7 @@
     "Pec Deck / Fly / Mariposa",
     "Conos de agilidad",
     "Foam roller",
+    "Mini-vallas de agilidad",
     "Pelotas suizas",
     "Rack de discos olímpicos (árbol)",
     "Sandbags"
@@ -29,8 +34,8 @@
     "Hip thrust en máquina: 3 % de los ítems",
     "Press de pecho en máquina: 3 % de los ítems",
     "Subida al cajón: 3 % de los ítems",
-    "Caminata en puntas de pie: 3 % de los ítems",
-    "Caminata en talones: 3 % de los ítems"
+    "Caminata en talones: 3 % de los ítems",
+    "Caminata en puntas de pie: 3 % de los ítems"
   ],
   "estacionesMasUsadas": [
     "Mancuernas sueltas (set): 8 % de los ítems",
@@ -47,6 +52,7 @@
     "media": 1.2,
     "max": 2
   },
+  "saltosDelParEnLaDireccionPreferida": "100 %",
   "sesionesQuePasanLosMinutosDeclarados": "12 %",
   "noEntranPorMinutosYObjetivo": {
     "15 min · cardio": "38 %",

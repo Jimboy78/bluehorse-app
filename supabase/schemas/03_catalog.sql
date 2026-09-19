@@ -77,7 +77,11 @@ create table exercises (
   -- Los programas de prevención de los que forma parte. Un ejercicio marcado
   -- entra solo por ese bloque, nunca por un slot de la plantilla. Se marca a
   -- mano. Ver docs/research/62.
-  prevents prevention_program[] not null default '{}'
+  prevents prevention_program[] not null default '{}',
+  -- Hacia dónde se salta, solo en los saltos. Un lanzamiento o un swing es
+  -- explosivo y no tiene dirección de salto: queda nulo. Ver docs/research/67.
+  jump_direction jump_direction,
+  constraint exercises_jump_direction_explosive check (jump_direction is null or is_explosive)
 );
 
 create index exercises_pattern_idx on exercises (pattern) where is_active;

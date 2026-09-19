@@ -5,6 +5,7 @@ import {
   EXPERIENCE_LEVELS,
   GOALS,
   HEALTH_CONDITIONS,
+  JUMP_DIRECTIONS,
   MATCH_DAY_STATES,
   MOVEMENT_LIMITS,
   MOVEMENT_PATTERNS,
@@ -941,6 +942,12 @@ export const rulesetSchema = z.object({
       intraPairRestSeconds: z.number().int().min(0).max(600),
       /** Hasta qué edad llega la evidencia; más arriba no se agrega. */
       maxAge: z.number().int().min(1).max(120),
+      /**
+       * Entre los saltos del patrón, cuál va primero. El horizontal rinde lo
+       * mismo que el vertical en el salto vertical y más en lo horizontal
+       * (Moran 2021, `docs/research/67`). Si el patrón no tiene uno, sale otro.
+       */
+      preferJumpDirection: z.enum(JUMP_DIRECTIONS).optional(),
       rationale: z.string().min(1),
       confidence: z.enum(CONFIDENCE_LEVELS),
       confidenceNote: z.string().min(1).optional(),

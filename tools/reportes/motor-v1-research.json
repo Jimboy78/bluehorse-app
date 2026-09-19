@@ -3,7 +3,7 @@
   "ruleset": "v1-research",
   "catalogo": {
     "estaciones": 62,
-    "ejercicios": 87
+    "ejercicios": 88
   },
   "perfiles": {
     "fuerza · intermedio": {
@@ -2488,7 +2488,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 3,
               "reps": "5-10",
               "rir": null,
@@ -2561,7 +2561,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 3,
               "reps": "5-10",
               "rir": null,
@@ -2634,7 +2634,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 3,
               "reps": "5-10",
               "rir": null,
@@ -2707,7 +2707,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 3,
               "reps": "5-10",
               "rir": null,
@@ -2780,7 +2780,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 3,
               "reps": "5-10",
               "rir": null,
@@ -2853,7 +2853,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 3,
               "reps": "5-10",
               "rir": null,
@@ -2926,7 +2926,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 3,
               "reps": "5-10",
               "rir": null,
@@ -2999,7 +2999,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 3,
               "reps": "5-10",
               "rir": null,
@@ -7481,7 +7481,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 4,
               "reps": "5-10",
               "rir": null,
@@ -7576,7 +7576,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 4,
               "reps": "5-10",
               "rir": null,
@@ -7642,7 +7642,7 @@
               "par": null
             },
             {
-              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
               "reps": "5-8",
               "rir": null,
@@ -7653,7 +7653,7 @@
               "par": null
             },
             {
-              "ejercicio": "Aterrizaje desde cajón",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
               "series": 2,
               "reps": "5-8",
               "rir": null,
@@ -7682,7 +7682,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 4,
               "reps": "5-10",
               "rir": null,
@@ -7777,7 +7777,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 4,
               "reps": "5-10",
               "rir": null,
@@ -7843,7 +7843,7 @@
               "par": null
             },
             {
-              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
               "reps": "5-8",
               "rir": null,
@@ -7854,7 +7854,7 @@
               "par": null
             },
             {
-              "ejercicio": "Aterrizaje desde cajón",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
               "series": 2,
               "reps": "5-8",
               "rir": null,
@@ -7883,7 +7883,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 4,
               "reps": "5-10",
               "rir": null,
@@ -7978,7 +7978,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 4,
               "reps": "5-10",
               "rir": null,
@@ -8044,7 +8044,7 @@
               "par": null
             },
             {
-              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
               "reps": "5-8",
               "rir": null,
@@ -8055,7 +8055,7 @@
               "par": null
             },
             {
-              "ejercicio": "Aterrizaje desde cajón",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
               "series": 2,
               "reps": "5-8",
               "rir": null,
@@ -8084,7 +8084,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 4,
               "reps": "5-10",
               "rir": null,
@@ -8179,7 +8179,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 4,
               "reps": "5-10",
               "rir": null,
@@ -8245,7 +8245,7 @@
               "par": null
             },
             {
-              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
               "reps": "5-8",
               "rir": null,
@@ -8256,7 +8256,7 @@
               "par": null
             },
             {
-              "ejercicio": "Aterrizaje desde cajón",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
               "series": 2,
               "reps": "5-8",
               "rir": null,
@@ -8297,7 +8297,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 2,
               "reps": "5-10",
               "rir": null,
@@ -8403,7 +8403,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 2,
               "reps": "5-10",
               "rir": null,
@@ -8458,7 +8458,7 @@
               "par": null
             },
             {
-              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
               "reps": "5-8",
               "rir": null,
@@ -8469,7 +8469,7 @@
               "par": null
             },
             {
-              "ejercicio": "Aterrizaje desde cajón",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
               "series": 2,
               "reps": "5-8",
               "rir": null,
@@ -8498,7 +8498,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 2,
               "reps": "5-10",
               "rir": null,
@@ -8604,7 +8604,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 2,
               "reps": "5-10",
               "rir": null,
@@ -8659,7 +8659,7 @@
               "par": null
             },
             {
-              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
               "reps": "5-8",
               "rir": null,
@@ -8670,7 +8670,7 @@
               "par": null
             },
             {
-              "ejercicio": "Aterrizaje desde cajón",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
               "series": 2,
               "reps": "5-8",
               "rir": null,
@@ -8699,7 +8699,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 2,
               "reps": "5-10",
               "rir": null,
@@ -8805,7 +8805,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 2,
               "reps": "5-10",
               "rir": null,
@@ -8860,7 +8860,7 @@
               "par": null
             },
             {
-              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
               "reps": "5-8",
               "rir": null,
@@ -8871,7 +8871,7 @@
               "par": null
             },
             {
-              "ejercicio": "Aterrizaje desde cajón",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
               "series": 2,
               "reps": "5-8",
               "rir": null,
@@ -8900,7 +8900,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 2,
               "reps": "5-10",
               "rir": null,
@@ -9006,7 +9006,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 2,
               "reps": "5-10",
               "rir": null,
@@ -9061,7 +9061,7 @@
               "par": null
             },
             {
-              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
               "reps": "5-8",
               "rir": null,
@@ -9072,7 +9072,7 @@
               "par": null
             },
             {
-              "ejercicio": "Aterrizaje desde cajón",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
               "series": 2,
               "reps": "5-8",
               "rir": null,
@@ -9114,7 +9114,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 2,
               "reps": "5-10",
               "rir": null,
@@ -9187,7 +9187,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 2,
               "reps": "5-10",
               "rir": null,
@@ -9260,7 +9260,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 2,
               "reps": "5-10",
               "rir": null,
@@ -9333,7 +9333,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 2,
               "reps": "5-10",
               "rir": null,
@@ -9406,7 +9406,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 2,
               "reps": "5-10",
               "rir": null,
@@ -9479,7 +9479,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 2,
               "reps": "5-10",
               "rir": null,
@@ -9552,7 +9552,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 2,
               "reps": "5-10",
               "rir": null,
@@ -9625,7 +9625,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 2,
               "reps": "5-10",
               "rir": null,
@@ -10287,7 +10287,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto al cajón",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 4,
               "reps": "5-10",
               "rir": null,
@@ -10433,7 +10433,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Swing con kettlebell",
+              "ejercicio": "Slam ball",
               "series": 4,
               "reps": "5-10",
               "rir": null,
@@ -10477,7 +10477,7 @@
               "par": null
             },
             {
-              "ejercicio": "Aterrizaje desde cajón",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
               "series": 2,
               "reps": "5-8",
               "rir": null,
@@ -10488,7 +10488,7 @@
               "par": null
             },
             {
-              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
               "reps": "5-8",
               "rir": null,
@@ -10590,7 +10590,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto al cajón",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 4,
               "reps": "5-10",
               "rir": null,
@@ -10736,7 +10736,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Swing con kettlebell",
+              "ejercicio": "Slam ball",
               "series": 4,
               "reps": "5-10",
               "rir": null,
@@ -10780,7 +10780,7 @@
               "par": null
             },
             {
-              "ejercicio": "Aterrizaje desde cajón",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
               "series": 2,
               "reps": "5-8",
               "rir": null,
@@ -10791,7 +10791,7 @@
               "par": null
             },
             {
-              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
               "reps": "5-8",
               "rir": null,
@@ -23753,7 +23753,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 4,
               "reps": "5-10",
               "rir": null,
@@ -23830,6 +23830,17 @@
               "par": null
             },
             {
+              "ejercicio": "Flexión de rodilla en un pie sobre disco",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
               "ejercicio": "Balanceo de pierna en un pie",
               "series": 2,
               "reps": "10-10",
@@ -23842,17 +23853,6 @@
             },
             {
               "ejercicio": "Flexión de rodilla en un pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Elevación de talón en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -23881,7 +23881,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 4,
               "reps": "5-10",
               "rir": null,
@@ -23936,17 +23936,6 @@
               "par": null
             },
             {
-              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
-              "series": 2,
-              "reps": "5-8",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
               "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
               "reps": "5-8",
@@ -23958,7 +23947,18 @@
               "par": null
             },
             {
-              "ejercicio": "Flexión de rodilla en un pie sobre disco",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -23980,7 +23980,7 @@
               "par": null
             },
             {
-              "ejercicio": "Elevación de talón en un pie",
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -24009,7 +24009,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 4,
               "reps": "5-10",
               "rir": null,
@@ -24086,6 +24086,17 @@
               "par": null
             },
             {
+              "ejercicio": "Flexión de rodilla en un pie sobre disco",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
               "ejercicio": "Balanceo de pierna en un pie",
               "series": 2,
               "reps": "10-10",
@@ -24098,17 +24109,6 @@
             },
             {
               "ejercicio": "Flexión de rodilla en un pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Elevación de talón en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -24137,7 +24137,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 4,
               "reps": "5-10",
               "rir": null,
@@ -24192,17 +24192,6 @@
               "par": null
             },
             {
-              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
-              "series": 2,
-              "reps": "5-8",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
               "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
               "reps": "5-8",
@@ -24214,7 +24203,18 @@
               "par": null
             },
             {
-              "ejercicio": "Flexión de rodilla en un pie sobre disco",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -24236,7 +24236,7 @@
               "par": null
             },
             {
-              "ejercicio": "Elevación de talón en un pie",
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -24265,7 +24265,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 4,
               "reps": "5-10",
               "rir": null,
@@ -24342,6 +24342,17 @@
               "par": null
             },
             {
+              "ejercicio": "Flexión de rodilla en un pie sobre disco",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
               "ejercicio": "Balanceo de pierna en un pie",
               "series": 2,
               "reps": "10-10",
@@ -24354,17 +24365,6 @@
             },
             {
               "ejercicio": "Flexión de rodilla en un pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Elevación de talón en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -24393,7 +24393,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 4,
               "reps": "5-10",
               "rir": null,
@@ -24448,17 +24448,6 @@
               "par": null
             },
             {
-              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
-              "series": 2,
-              "reps": "5-8",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
               "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
               "reps": "5-8",
@@ -24470,7 +24459,18 @@
               "par": null
             },
             {
-              "ejercicio": "Flexión de rodilla en un pie sobre disco",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -24492,7 +24492,7 @@
               "par": null
             },
             {
-              "ejercicio": "Elevación de talón en un pie",
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -24521,7 +24521,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 4,
               "reps": "5-10",
               "rir": null,
@@ -24598,6 +24598,17 @@
               "par": null
             },
             {
+              "ejercicio": "Flexión de rodilla en un pie sobre disco",
+              "series": 2,
+              "reps": "10-10",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
               "ejercicio": "Balanceo de pierna en un pie",
               "series": 2,
               "reps": "10-10",
@@ -24610,17 +24621,6 @@
             },
             {
               "ejercicio": "Flexión de rodilla en un pie",
-              "series": 2,
-              "reps": "10-10",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
-              "ejercicio": "Elevación de talón en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -24649,7 +24649,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 4,
               "reps": "5-10",
               "rir": null,
@@ -24704,17 +24704,6 @@
               "par": null
             },
             {
-              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
-              "series": 2,
-              "reps": "5-8",
-              "rir": null,
-              "descanso": 60,
-              "carga": null,
-              "duracionSeg": null,
-              "zona": null,
-              "par": null
-            },
-            {
               "ejercicio": "Aterrizaje desde cajón",
               "series": 2,
               "reps": "5-8",
@@ -24726,7 +24715,18 @@
               "par": null
             },
             {
-              "ejercicio": "Flexión de rodilla en un pie sobre disco",
+              "ejercicio": "Salto lateral a un pie con aterrizaje clavado",
+              "series": 2,
+              "reps": "5-8",
+              "rir": null,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elevación de talón en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -24748,7 +24748,7 @@
               "par": null
             },
             {
-              "ejercicio": "Elevación de talón en un pie",
+              "ejercicio": "Flexión de rodilla en un pie",
               "series": 2,
               "reps": "10-10",
               "rir": null,
@@ -26198,7 +26198,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 3,
               "reps": "5-10",
               "rir": null,
@@ -26260,7 +26260,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 3,
               "reps": "5-10",
               "rir": null,
@@ -26333,7 +26333,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 3,
               "reps": "5-10",
               "rir": null,
@@ -26395,7 +26395,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 3,
               "reps": "5-10",
               "rir": null,
@@ -26468,7 +26468,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 3,
               "reps": "5-10",
               "rir": null,
@@ -26530,7 +26530,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 3,
               "reps": "5-10",
               "rir": null,
@@ -26603,7 +26603,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Salto en profundidad",
+              "ejercicio": "Salto horizontal a pies juntos",
               "series": 3,
               "reps": "5-10",
               "rir": null,
@@ -26665,7 +26665,7 @@
               "par": 1
             },
             {
-              "ejercicio": "Slam ball",
+              "ejercicio": "Swing con kettlebell",
               "series": 3,
               "reps": "5-10",
               "rir": null,

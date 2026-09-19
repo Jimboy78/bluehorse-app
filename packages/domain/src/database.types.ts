@@ -300,6 +300,7 @@ export type Database = {
           is_compound: boolean
           is_explosive: boolean
           is_unilateral: boolean
+          jump_direction: Database["public"]["Enums"]["jump_direction"] | null
           loads_spinal_flexion: boolean
           media_url: string | null
           modality: Database["public"]["Enums"]["exercise_modality"]
@@ -321,6 +322,7 @@ export type Database = {
           is_compound?: boolean
           is_explosive?: boolean
           is_unilateral?: boolean
+          jump_direction?: Database["public"]["Enums"]["jump_direction"] | null
           loads_spinal_flexion?: boolean
           media_url?: string | null
           modality?: Database["public"]["Enums"]["exercise_modality"]
@@ -342,6 +344,7 @@ export type Database = {
           is_compound?: boolean
           is_explosive?: boolean
           is_unilateral?: boolean
+          jump_direction?: Database["public"]["Enums"]["jump_direction"] | null
           loads_spinal_flexion?: boolean
           media_url?: string | null
           modality?: Database["public"]["Enums"]["exercise_modality"]
@@ -1404,6 +1407,7 @@ export type Database = {
         | "pregnancy"
         | "postpartum"
         | "joint_replacement"
+      jump_direction: "vertical" | "horizontal" | "lateral"
       load_unit:
         | "kg"
         | "lb"
@@ -1659,6 +1663,7 @@ export const Constants = {
         "postpartum",
         "joint_replacement",
       ],
+      jump_direction: ["vertical", "horizontal", "lateral"],
       load_unit: [
         "kg",
         "lb",

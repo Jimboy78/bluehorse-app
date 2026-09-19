@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-19T21:02:02.631Z",
+ "generatedAt": "2026-09-19T21:22:23.236Z",
  "docs": [
   {
    "id": "metodo",
@@ -536,6 +536,14 @@
    "resumen": "Fecha: 19/09/2026. Tanda: T5e y T5f del plan de variables. Las dos preguntas eran si hay que pedirle al socio un dato más de su deporte. La respuesta, con la evidencia leída, es que no: el motor no lo usaría, y una variable con sensibili…",
    "archivo": "66-lo-que-el-deporte-no-cambia.md",
    "bloques": 20
+  },
+  {
+   "id": "67-el-salto-del-par",
+   "orden": 67,
+   "titulo": "El salto del par: horizontal primero, sin preguntar puesto ni qué mejorar",
+   "resumen": "Fecha: 19/09/2026. Tanda: T5g del plan de variables. En el checklist: \"posición y qué quiere mejorar, que eligen el par explosivo y el énfasis\".",
+   "archivo": "67-el-salto-del-par.md",
+   "bloques": 14
   },
   {
    "id": "auditoria",

@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-19",
-  "resolved": 195,
+  "resolved": 199,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -1288,6 +1288,82 @@
       ],
       "documentos": [
         "08-edad.md"
+      ]
+    },
+    {
+      "doi": "10.3390/jfmk10040398",
+      "title": "Neuromuscular Performance of High-Level Football Goalkeepers by Age Category and Sex: A Systematic Review",
+      "authors": [
+        "González-Jarrín",
+        "Fernández-Fernández",
+        "García-Tormo"
+      ],
+      "moreAuthors": 1,
+      "year": 2025,
+      "journal": "Journal of Functional Morphology and Kinesiology",
+      "type": "journal-article",
+      "temas": [
+        "El salto del par"
+      ],
+      "documentos": [
+        "67-el-salto-del-par.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s40279-020-01340-6",
+      "title": "Effects of Vertically and Horizontally Orientated Plyometric Training on Physical Performance: A Meta-analytical Comparison",
+      "authors": [
+        "Moran",
+        "Ramirez-Campillo",
+        "Liew"
+      ],
+      "moreAuthors": 5,
+      "year": 2020,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "El salto del par"
+      ],
+      "documentos": [
+        "67-el-salto-del-par.md"
+      ]
+    },
+    {
+      "doi": "10.1186/s13102-025-01113-6",
+      "title": "Effect of unilateral and bilateral plyometric training on jumping, sprinting, and change of direction abilities: a meta-analysis",
+      "authors": [
+        "Zhang",
+        "Qu",
+        "Peng"
+      ],
+      "moreAuthors": 5,
+      "year": 2025,
+      "journal": "BMC Sports Science, Medicine and Rehabilitation",
+      "type": "journal-article",
+      "temas": [
+        "El salto del par"
+      ],
+      "documentos": [
+        "67-el-salto-del-par.md"
+      ]
+    },
+    {
+      "doi": "10.1186/s40798-023-00631-2",
+      "title": "Effects of Upper-Body Plyometric Training on Physical Fitness in Healthy Youth and Young Adult Participants: A Systematic Review with Meta-Analysis",
+      "authors": [
+        "Garcia-Carrillo",
+        "Ramirez-Campillo",
+        "Thapa"
+      ],
+      "moreAuthors": 3,
+      "year": 2023,
+      "journal": "Sports Medicine - Open",
+      "type": "journal-article",
+      "temas": [
+        "El salto del par"
+      ],
+      "documentos": [
+        "67-el-salto-del-par.md"
       ]
     },
     {

@@ -4,6 +4,7 @@ import type {
   EquipmentCategory,
   ExperienceLevel,
   Goal,
+  JumpDirection,
   LoadUnit,
   Modality,
   MovementLimit,
@@ -84,6 +85,11 @@ export interface Exercise {
    * entra solo por ese bloque, nunca por un slot — ver `docs/research/62`.
    */
   readonly prevents: readonly PreventionProgram[];
+  /**
+   * Hacia dónde se salta; `null` si no es un salto. El par explosivo prefiere
+   * el horizontal — ver `docs/research/67`.
+   */
+  readonly jumpDirection: JumpDirection | null;
   readonly skillLevel: ExperienceLevel;
   /** Indicaciones de ejecución, en castellano. */
   readonly cues: string | null;

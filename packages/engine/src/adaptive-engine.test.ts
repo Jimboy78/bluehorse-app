@@ -62,6 +62,7 @@ function exercise(id: string, name: string, over: Partial<Exercise> = {}): Exerc
     headBelowHeart: false,
     requiresMovements: [],
     prevents: [],
+    jumpDirection: null,
     skillLevel: 'beginner',
     cues: null,
     equipmentIds: [],

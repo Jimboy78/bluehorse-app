@@ -9,6 +9,7 @@ import type {
   ExperienceLevel,
   Goal,
   HealthCondition,
+  JumpDirection,
   LoadUnit,
   MovementLimit,
   MovementPattern,
@@ -126,6 +127,7 @@ function gimnasio(): GymSnapshot {
     headBelowHeart: 'headBelowHeart' in x ? Boolean(x.headBelowHeart) : false,
     requiresMovements: 'requiresMovements' in x ? (x.requiresMovements as MovementLimit[]) : [],
     prevents: 'prevents' in x ? (x.prevents as PreventionProgram[]) : [],
+    jumpDirection: 'jumpDirection' in x ? (x.jumpDirection as JumpDirection) : null,
     skillLevel: x.skillLevel as ExperienceLevel,
     cues: x.cues ?? null,
     equipmentIds: (x.equipment ?? [])
@@ -355,6 +357,8 @@ const PIDE: Readonly<Record<MovementLimit, readonly string[]>> = {
     'Saltitos en el lugar',
     'Aterrizaje desde cajón',
     'Salto lateral a un pie con aterrizaje clavado',
+    // El horizontal del par explosivo (`docs/research/67`).
+    'Salto horizontal a pies juntos',
   ],
 };
 type Perfil = { [K in Clave]: (typeof DIM)[K]['valores'][number] };
@@ -501,6 +505,8 @@ describe('barrido de socios generados', () => {
   let cardioCorto = 0;
   let conParPorTiempo = 0;
   let conPrevencion = 0;
+  /** Pares explosivos mirados, y cuántos con el salto que pide el ruleset. */
+  const direccion = { pares: 0, preferidos: 0 };
   /** En temporada: cuántas veces por semana sale la prevención, por plan. */
   const prevencionEnTemporada: number[] = [];
 
@@ -672,7 +678,7 @@ describe('barrido de socios generados', () => {
     if (it.targetSets < 1 || it.targetRepsMin > it.targetRepsMax || it.restSeconds < 0) {
       violaciones.push(`dosis imposible en ${ex.name}: ${id}`);
     }
-    if (esDelPar(ex)) chequearExplosivo(p, it, previo, ex.name);
+    chequearExplosivo(p, it, previo, ex);
     if (ex.loadsSpinalFlexion && p.salud.includes('osteoporosis')) {
       violaciones.push(`${ex.name} con osteoporosis: ${id}`);
     }
@@ -706,13 +712,22 @@ describe('barrido de socios generados', () => {
     }
   }
 
+  /** Un ejercicio de bloque nunca lleva la dosis del par (`docs/research/67`). */
+  function chequearBloqueFueraDelPar(p: Perfil, it: SessionItemBlueprint, ex: Exercise) {
+    if (explosivo && it.rationale === explosivo.rationale) {
+      violaciones.push(`${ex.name} de un bloque, en el par explosivo: ${JSON.stringify(p)}`);
+    }
+  }
+
   function chequearExplosivo(
     p: Perfil,
     it: SessionItemBlueprint,
     previo: SessionItemBlueprint | undefined,
-    nombre: string,
+    ex: Exercise,
   ) {
+    if (!esDelPar(ex)) return chequearBloqueFueraDelPar(p, it, ex);
     const id = JSON.stringify(p);
+    const nombre = ex.name;
     if (it.supersetGroup === null || previo?.supersetGroup !== it.supersetGroup) {
       violaciones.push(`${nombre} suelto, sin su levantamiento: ${id}`);
     }
@@ -720,6 +735,43 @@ describe('barrido de socios generados', () => {
     const sinSaltos = p.salud.filter((c) => SIN_SALTOS.includes(c));
     if (sinSaltos.length > 0) violaciones.push(`${nombre} con ${sinSaltos.join(', ')}: ${id}`);
     if (explosivo && p.edad > explosivo.maxAge) violaciones.push(`${nombre} a los ${p.edad}`);
+  }
+
+  /**
+   * El salto del par es el de la dirección que pide el ruleset, salvo que este
+   * socio no tuviera ninguno de su patrón (`docs/research/67`).
+   */
+  function chequearDireccion(
+    p: Perfil,
+    inp: GeneratePlanInput,
+    items: readonly SessionItemBlueprint[],
+  ) {
+    const quiere = explosivo?.preferJumpDirection;
+    if (!quiere) return;
+    const ctx = resolverContexto(inp);
+    const nivel = EXPERIENCE_LEVELS.indexOf(p.nivel);
+    for (const it of items) {
+      const ex = exPorId.get(it.exerciseId);
+      // Solo saltos: un swing o un lanzamiento no tienen dirección de salto.
+      if (!ex || !esDelPar(ex) || it.supersetGroup === null || ex.jumpDirection === null) continue;
+      direccion.pares += 1;
+      if (ex.jumpDirection === quiere) {
+        direccion.preferidos += 1;
+        continue;
+      }
+      const habia = gym.exercises.some(
+        (e) =>
+          e.pattern === ex.pattern &&
+          esDelPar(e) &&
+          e.jumpDirection === quiere &&
+          !excluido(ctx, e) &&
+          EXPERIENCE_LEVELS.indexOf(e.skillLevel) <= nivel,
+      );
+      if (habia)
+        violaciones.push(
+          `${ex.name} en el par con un salto ${quiere} a mano: ${JSON.stringify(p)}`,
+        );
+    }
   }
 
   /**
@@ -1029,6 +1081,7 @@ describe('barrido de socios generados', () => {
       chequearEquilibrio(p, s.items, achicoBloques);
       chequearImpacto(p, s.items);
       chequearPisoDeRir(p, s.items);
+      chequearDireccion(p, inp, s.items);
     }
     // Una dimensión distinta, misma semilla: ¿cambia el plan?
     const k = elegir(claves);
@@ -1060,6 +1113,7 @@ describe('barrido de socios generados', () => {
     expect(cardioCorto).toBeGreaterThan(0);
     expect(cardioCorto).toBeLessThan(conCardio);
     expect(conPrevencion).toBeGreaterThan(N / 10);
+    expect(direccion.preferidos).toBeGreaterThan(N / 10);
     expect(prevencionEnTemporada.length).toBeGreaterThan(N / 50);
   });
 
@@ -1128,6 +1182,9 @@ describe('barrido de socios generados', () => {
           ) / 10,
         max: Math.max(0, ...prevencionEnTemporada),
       },
+      // De los pares con un salto. El resto es de quien no tiene el horizontal
+      // de ese patrón a mano, por nivel (`docs/research/67`).
+      saltosDelParEnLaDireccionPreferida: `${pct(direccion.preferidos, direccion.pares)} %`,
       sesionesQuePasanLosMinutosDeclarados: `${pct(minutos.sobre, minutos.total)} %`,
       // Solo las combinaciones donde alguna no entra: lo que el ajuste no pudo
       // achicar sin romper un piso, y que el plan avisa.

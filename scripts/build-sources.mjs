@@ -95,6 +95,7 @@ const TEMAS = {
   64: 'Hombro en deportes de brazo arriba',
   65: 'Temporada y día de partido',
   66: 'Lo que el deporte no cambia',
+  67: 'El salto del par',
 };
 
 // El `]` y el `(` cierran un enlace de markdown: sin ellos, un DOI escrito como

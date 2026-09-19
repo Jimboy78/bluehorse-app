@@ -509,6 +509,7 @@
       "isExplosive": true,
       "modality": "reps_bodyweight",
       "requiresMovements": ["jumping"],
+      "jumpDirection": "vertical",
       "skillLevel": "intermediate",
       "cues": "Subís saltando y bajás caminando, nunca saltando: la bajada es donde se lastiman las rodillas.",
       "equipment": ["Cajones pliométricos"]
@@ -1005,6 +1006,7 @@
       "modality": "reps_bodyweight",
       "requiresMovements": ["jumping"],
       "prevents": ["knee"],
+      "jumpDirection": "vertical",
       "skillLevel": "beginner",
       "cues": "Parado arriba de un cajón bajo, dejate caer adelante (no saltes para arriba) y aterrizá en los dos pies a la vez, en puntas primero. Doblá rodillas y cadera para frenar sin ruido, con las rodillas apuntando a los dedos, nunca hacia adentro, y quedate quieto dos segundos.",
       "equipment": ["Cajones pliométricos"]
@@ -1020,6 +1022,7 @@
       "modality": "reps_bodyweight",
       "requiresMovements": ["jumping"],
       "prevents": ["knee"],
+      "jumpDirection": "lateral",
       "skillLevel": "novice",
       "cues": "Parado en un pie, saltá de costado hacia el otro pie, una distancia corta. Aterrizá suave, con la rodilla doblada y apuntando a los dedos, sin que se vaya hacia adentro, y quedate quieto dos segundos antes de volver. Cada lado cuenta como uno.",
       "equipment": []
@@ -1267,6 +1270,7 @@
       "isExplosive": true,
       "modality": "reps_bodyweight",
       "requiresMovements": ["jumping"],
+      "jumpDirection": "vertical",
       "skillLevel": "novice",
       "cues": "Caés suave y rebotás enseguida: el suelo se toca poco. Si aterrizás pesado, frená.",
       "equipment": ["Mini-vallas de agilidad"]
@@ -1281,6 +1285,7 @@
       "isExplosive": true,
       "modality": "reps_bodyweight",
       "requiresMovements": ["jumping"],
+      "jumpDirection": "vertical",
       "skillLevel": "beginner",
       "cues": "Rodillas casi rectas, rebote de tobillo. El talón no llega a apoyar.",
       "equipment": []
@@ -1295,6 +1300,7 @@
       "isExplosive": true,
       "modality": "reps_bodyweight",
       "requiresMovements": ["jumping"],
+      "jumpDirection": "vertical",
       "skillLevel": "intermediate",
       "cues": "Te dejás caer del cajón, no saltás de él, y salís hacia arriba apenas tocás el piso.",
       "equipment": ["Cajones pliométricos"]
@@ -1309,6 +1315,7 @@
       "isExplosive": true,
       "modality": "reps_bodyweight",
       "requiresMovements": ["jumping"],
+      "jumpDirection": "vertical",
       "skillLevel": "intermediate",
       "cues": "Cambiás de pierna en el aire y caés con la rodilla de adelante sobre el pie.",
       "equipment": []
@@ -1323,9 +1330,25 @@
       "isExplosive": true,
       "modality": "reps_weight",
       "requiresMovements": ["jumping"],
+      "jumpDirection": "vertical",
       "skillLevel": "intermediate",
       "cues": "Carga liviana y cada salto a máxima velocidad. Si la altura cae, terminó la serie.",
       "equipment": ["Porta-barras (Z, hexagonal/trap, recta)"]
+    },
+    {
+      "name": "Salto horizontal a pies juntos",
+      "pattern": "squat",
+      "primaryMuscles": ["quads", "glutes"],
+      "secondaryMuscles": ["hamstrings", "calves"],
+      "isCompound": true,
+      "isUnilateral": false,
+      "isExplosive": true,
+      "modality": "reps_bodyweight",
+      "requiresMovements": ["jumping"],
+      "jumpDirection": "horizontal",
+      "skillLevel": "novice",
+      "cues": "Con los pies juntos, bajá un poco, llevá los brazos atrás y saltá lo más lejos que puedas hacia adelante. Aterrizá suave con los dos pies, las rodillas dobladas y apuntando a los dedos, y quedate quieto antes de volver caminando.",
+      "equipment": []
     },
     {
       "name": "Remo con barra (Pendlay)",

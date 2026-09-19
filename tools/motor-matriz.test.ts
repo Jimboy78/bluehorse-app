@@ -9,6 +9,7 @@ import type {
   ExperienceLevel,
   Goal,
   HealthCondition,
+  JumpDirection,
   LoadReading,
   LoadUnit,
   MatchDayState,
@@ -129,6 +130,7 @@ function construirGimnasio(): GymSnapshot {
     headBelowHeart: 'headBelowHeart' in x ? Boolean(x.headBelowHeart) : false,
     requiresMovements: 'requiresMovements' in x ? (x.requiresMovements as MovementLimit[]) : [],
     prevents: 'prevents' in x ? (x.prevents as PreventionProgram[]) : [],
+    jumpDirection: 'jumpDirection' in x ? (x.jumpDirection as JumpDirection) : null,
     skillLevel: x.skillLevel as ExperienceLevel,
     cues: x.cues ?? null,
     equipmentIds: (x.equipment ?? [])

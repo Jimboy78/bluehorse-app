@@ -1,6 +1,21 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T5e y T5f: lo que el deporte no cambia)
+## Última actualización: 19 de septiembre de 2026 (T5g: el salto del par)
+
+`docs/research/67`. No se pregunta el puesto ni qué quiere mejorar: no hay intervención por puesto,
+y la única respuesta sostenida es la misma para todos. El salto horizontal rinde igual en el salto
+vertical y más en el sprint (Moran 2021). Lo que cambió:
+
+- **El par explosivo prefiere el salto horizontal:**
+  - `exercises.jump_direction` (migración `20260919210921`);
+  - `explosive.preferJumpDirection` en el ruleset;
+  - "Salto horizontal a pies juntos" en el catálogo, que queda en 88 ejercicios.
+- **Lo explosivo nunca ocupa un slot común.** Antes podía, si era lo único del patrón, y con las
+  estaciones de sentadilla fuera de servicio tapaba el aviso al staff.
+
+Con esto T5 queda completa. Sigue T6 (objetivos).
+
+## 19 de septiembre de 2026 (T5e y T5f: lo que el deporte no cambia)
 
 `docs/research/66`. Dos variables del deporte que **no se preguntan**, con la evidencia abierta:
 

@@ -74,6 +74,11 @@ create type movement_limit as enum ('overhead', 'floor', 'hanging', 'jumping');
 -- de PREVENTION_PROGRAMS en packages/domain/src/enums.ts.
 create type prevention_program as enum ('hamstring', 'knee');
 
+-- Hacia dónde se salta. El par explosivo prefiere el horizontal: rinde igual en
+-- el salto vertical y más en el horizontal (Moran 2021). Espejo de
+-- JUMP_DIRECTIONS en packages/domain/src/enums.ts. Ver docs/research/67.
+create type jump_direction as enum ('vertical', 'horizontal', 'lateral');
+
 -- Espejo de HEALTH_CONDITIONS en packages/domain/src/enums.ts.
 create type health_condition as enum (
   'hypertension', 'heart_disease', 'beta_blockers', 'anticoagulants', 'diabetes', 'asthma',

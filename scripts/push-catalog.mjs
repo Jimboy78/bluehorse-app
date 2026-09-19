@@ -137,6 +137,7 @@ for (const item of catalog.exercises) {
     head_below_heart: item.headBelowHeart ?? false,
     requires_movements: item.requiresMovements ?? [],
     prevents: item.prevents ?? [],
+    jump_direction: item.jumpDirection ?? null,
     is_unilateral: item.isUnilateral,
     skill_level: item.skillLevel,
     cues: item.cues ?? null,
