@@ -1328,6 +1328,7 @@ export type Database = {
         | "epilepsy_vertigo"
         | "pregnancy"
         | "postpartum"
+        | "joint_replacement"
       load_unit:
         | "kg"
         | "lb"
@@ -1564,6 +1565,7 @@ export const Constants = {
         "epilepsy_vertigo",
         "pregnancy",
         "postpartum",
+        "joint_replacement",
       ],
       load_unit: [
         "kg",

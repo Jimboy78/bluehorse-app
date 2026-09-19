@@ -1,6 +1,13 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T3d: dolor de espalda alta)
+## Última actualización: 19 de septiembre de 2026 (T3e: artrosis y prótesis)
+
+`docs/research/53`. La artrosis suma un aviso (el ejercicio es el tratamiento; anotar la articulación
+que duele como molestia). La prótesis es una condición nueva (`joint_replacement`, migración
+`ADD VALUE`): fuerza normal, sin saltos ni impacto por consenso de cirujanos. Migración aplicada en
+prod.
+
+## 19 de septiembre de 2026 (T3d: dolor de espalda alta)
 
 `docs/research/52`. Con la espalda alta, todas las zonas del cuerpo tienen regla; solo "otra" sigue
 con el aviso genérico. El dolor dorsal no saca nada hasta "no puedo" (mecánico, mantenerse activo);

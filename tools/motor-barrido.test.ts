@@ -63,7 +63,12 @@ const AHORA = '2026-09-10T12:00:00.000Z';
  * a mano y no leído del ruleset: si alguien le borra el flag a una entrada, el
  * barrido tiene que darse cuenta (`docs/research/46` y `48`).
  */
-const SIN_SALTOS: readonly HealthCondition[] = ['pelvic_floor', 'pregnancy', 'postpartum'];
+const SIN_SALTOS: readonly HealthCondition[] = [
+  'pelvic_floor',
+  'pregnancy',
+  'postpartum',
+  'joint_replacement',
+];
 
 function idDe(prefijo: string, nombre: string): string {
   const limpio = nombre
@@ -230,6 +235,9 @@ const DIM = {
       ['postpartum'],
       ['postpartum', 'pelvic_floor'],
       ['osteoporosis', 'postpartum'],
+      ['osteoarthritis'],
+      ['joint_replacement'],
+      ['osteoarthritis', 'joint_replacement', 'osteoporosis'],
     ] as HealthCondition[][],
     (b, v) => {
       b.conditions = [...v];

@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-19",
-  "resolved": 149,
+  "resolved": 151,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -216,6 +216,65 @@
       ],
       "documentos": [
         "20-arranque-sin-test.md"
+      ]
+    },
+    {
+      "doi": "10.1136/ard-2023-225041",
+      "title": "EULAR recommendations for the non-pharmacological core management of hip and knee osteoarthritis: 2023 update",
+      "authors": [
+        "Moseng",
+        "Vliet Vlieland",
+        "Battista"
+      ],
+      "moreAuthors": 22,
+      "year": 2024,
+      "journal": "Annals of the Rheumatic Diseases",
+      "type": "journal-article",
+      "temas": [
+        "Artrosis y prótesis",
+        "Dolor de cadera"
+      ],
+      "documentos": [
+        "49-dolor-de-cadera.md",
+        "53-artrosis-y-protesis.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s40279-018-0924-2",
+      "title": "The Effect of Total Hip Arthroplasty on Sports and Work Participation: A Systematic Review and Meta-Analysis",
+      "authors": [
+        "Hoorntje",
+        "Janssen",
+        "Bolder"
+      ],
+      "moreAuthors": 5,
+      "year": 2018,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Artrosis y prótesis"
+      ],
+      "documentos": [
+        "53-artrosis-y-protesis.md"
+      ]
+    },
+    {
+      "doi": "10.1177/2151458515584640",
+      "title": "Are Hip Precautions Necessary Post Total Hip Arthroplasty? A Systematic Review",
+      "authors": [
+        "Barnsley",
+        "Barnsley",
+        "Page"
+      ],
+      "moreAuthors": 0,
+      "year": 2015,
+      "journal": "Geriatric Orthopaedic Surgery & Rehabilitation",
+      "type": "journal-article",
+      "temas": [
+        "Artrosis y prótesis"
+      ],
+      "documentos": [
+        "53-artrosis-y-protesis.md"
       ]
     },
     {
@@ -867,25 +926,6 @@
       "moreAuthors": 1,
       "year": 2021,
       "journal": "SAGE Open Medicine",
-      "type": "journal-article",
-      "temas": [
-        "Dolor de cadera"
-      ],
-      "documentos": [
-        "49-dolor-de-cadera.md"
-      ]
-    },
-    {
-      "doi": "10.1136/ard-2023-225041",
-      "title": "EULAR recommendations for the non-pharmacological core management of hip and knee osteoarthritis: 2023 update",
-      "authors": [
-        "Moseng",
-        "Vliet Vlieland",
-        "Battista"
-      ],
-      "moreAuthors": 22,
-      "year": 2024,
-      "journal": "Annals of the Rheumatic Diseases",
       "type": "journal-article",
       "temas": [
         "Dolor de cadera"

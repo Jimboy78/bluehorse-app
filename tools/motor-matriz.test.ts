@@ -582,6 +582,18 @@ const PERFILES: readonly Perfil[] = [
     minutos: 45,
     condiciones: ['postpartum'],
   },
+  // Artrosis y prótesis (`docs/research/53`): la artrosis no cambia nada más que
+  // el aviso; la prótesis saca saltos e impacto, que a esta edad y sexo entraría.
+  {
+    nombre: 'prótesis de cadera y artrosis, 64 · fuerza principiante',
+    goal: 'strength',
+    nivel: 'beginner',
+    nacimiento: '1962-03-01',
+    sexo: 'female',
+    sesiones: 3,
+    minutos: 60,
+    condiciones: ['osteoarthritis', 'joint_replacement'],
+  },
   // Adolescentes (`docs/research/41`): el que recién empieza recibe la dosis de
   // inicio; el que ya entrena, la del adulto.
   {
@@ -1098,8 +1110,8 @@ describe('los números del plan salen del ruleset', () => {
     const porEdad =
       im.sexes.includes(p.sexo ?? 'undisclosed') && edadDe(p.nacimiento) >= im.fromAge;
     if (!porEdad && !condiciones.includes('osteoporosis')) return null;
-    if (condiciones.some((c) => c === 'pelvic_floor' || c === 'pregnancy' || c === 'postpartum'))
-      return null;
+    const sinImpacto = ['pelvic_floor', 'pregnancy', 'postpartum', 'joint_replacement'];
+    if (condiciones.some((c) => sinImpacto.includes(c))) return null;
     if ((p.limitaciones ?? []).some((c) => c.type === 'pain' || c.type === 'injury')) return null;
     return `${im.sets}×${im.repsMin}-${im.repsMax} RIR null d${im.restSeconds}s`;
   }

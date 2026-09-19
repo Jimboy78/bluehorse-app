@@ -556,6 +556,32 @@ describe('resolverContexto', () => {
     );
   });
 
+  it('artrosis: solo el aviso; prótesis: la dosis de siempre, sin saltos ni impacto', () => {
+    const mujer = (conditions: UserSnapshot['conditions']) => {
+      const i = input({ edad: 60, sport: 'futbol', conditions });
+      const profile = { ...i.user.profile, sex: 'female' as const };
+      return resolverContexto({ ...i, user: { ...i.user, profile } });
+    };
+    const salto = ex('salto', { isExplosive: true });
+    const sana = mujer([]);
+    expect(sana.bloques.map((b) => b.modulo)).toContain('impacto');
+    expect(sana.explosivos).not.toBeNull();
+
+    const artrosis = mujer(['osteoarthritis']);
+    expect(artrosis.params).toEqual(sana.params);
+    expect(artrosis.bloques).toEqual(sana.bloques);
+    expect(artrosis.avisos.filter((a) => a.modulo === 'salud')).toHaveLength(1);
+
+    const protesis = mujer(['joint_replacement']);
+    expect(protesis.params).toEqual(sana.params);
+    expect(protesis.bloques.map((b) => b.modulo)).not.toContain('impacto');
+    expect(protesis.explosivos).toBeNull();
+    expect(excluido(protesis, salto)).toBe(true);
+    // Con osteoporosis también: sacar gana sobre sumar.
+    const ambas = mujer(['osteoporosis', 'joint_replacement']);
+    expect(ambas.bloques.map((b) => b.modulo)).not.toContain('impacto');
+  });
+
   it('asma: el plan no cambia, sale el aviso del broncodilatador', () => {
     const sano = resolverContexto(input({}));
     const asma = resolverContexto(input({ conditions: ['asthma'] }));

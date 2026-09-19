@@ -66,7 +66,7 @@ create type constraint_type as enum ('injury', 'pain', 'avoid_exercise', 'avoid_
 create type health_condition as enum (
   'hypertension', 'heart_disease', 'beta_blockers', 'anticoagulants', 'diabetes', 'asthma',
   'copd', 'osteoarthritis', 'osteoporosis', 'back_problem', 'abdominal_hernia', 'pelvic_floor',
-  'glaucoma_retina', 'epilepsy_vertigo', 'pregnancy', 'postpartum'
+  'glaucoma_retina', 'epilepsy_vertigo', 'pregnancy', 'postpartum', 'joint_replacement'
 );
 
 create type session_feel as enum ('easy', 'right', 'hard');

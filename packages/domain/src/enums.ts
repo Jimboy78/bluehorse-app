@@ -214,6 +214,7 @@ export const HEALTH_CONDITIONS = [
   'epilepsy_vertigo',
   'pregnancy',
   'postpartum',
+  'joint_replacement',
 ] as const;
 export type HealthCondition = (typeof HEALTH_CONDITIONS)[number];
 

@@ -1258,6 +1258,28 @@
       ],
       "confidence": "medium",
       "confidenceNote": "Volver de a poco y con el visto bueno después de una cesárea es la OMS 2020. El entrenamiento del suelo pélvico después del parto baja la incontinencia (OR 0,63) y el prolapso (Beamish 2025), y se puede empezar enseguida (consenso Asia-Pacífico 2021). Los tres meses sin impacto son del consenso Asia-Pacífico, que cita una guía de expertos para volver a correr: es el dato más flojo de la entrada. docs/research/48."
+    },
+    {
+      "id": "osteoarthritis",
+      "minRir": null,
+      "hidesHeartRate": false,
+      "notes": [
+        "Con artrosis, el ejercicio es parte del tratamiento: la fuerza y el aeróbico mejoran el dolor y la movilidad. Si una articulación en particular te duele al entrenar, anotala como molestia y el plan se ajusta a esa zona."
+      ],
+      "confidence": "high",
+      "confidenceNote": "EULAR 2023: a toda persona con artrosis de cadera o rodilla hay que ofrecerle ejercicio con dosis adecuada y progresión, junto con educación; ninguna modalidad le gana a otra. La condición no dice qué articulación es, así que no saca nada: el ajuste por zona lo hacen las reglas de dolor. docs/research/53."
+    },
+    {
+      "id": "joint_replacement",
+      "minRir": null,
+      "hidesHeartRate": false,
+      "excludesExplosive": true,
+      "impactBlock": "remove",
+      "notes": [
+        "Con una prótesis podés entrenar la fuerza como cualquiera. Los saltos y el impacto quedan afuera: los traumatólogos, por consenso, no los recomiendan. Si te operaste hace menos de seis meses, seguí primero lo que te indicaron el cirujano o el kinesiólogo."
+      ],
+      "confidence": "low",
+      "confidenceNote": "Después de una prótesis de cadera, 8 de cada 10 vuelven a su deporte, en 16 a 28 semanas (Hoorntje 2018, 37 estudios). Que el alto impacto no se haga es consenso de 549 cirujanos (Klein 2007, citado ahí), opinión de expertos sin estudios clínicos: es lo más flojo. Las precauciones de cadera no previenen luxaciones con abordaje anterolateral (Barnsley 2015), así que no se saca la flexión profunda. docs/research/53."
     }
   ],
   "cardio": {
