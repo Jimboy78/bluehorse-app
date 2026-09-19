@@ -1152,6 +1152,23 @@
       ],
       "confidence": "medium",
       "confidenceNote": "Los betabloqueantes bajan la frecuencia cardíaca y el VO2max alcanzable, así que una zona en % de la frecuencia máxima deja de valer; el esfuerzo percibido sirve para regular (Eston 1996; Zanettini 2012). docs/research/44."
+    },
+    {
+      "id": "diabetes",
+      "minRir": null,
+      "hidesHeartRate": false,
+      "notes": [
+        "Si usás insulina o pastillas que bajan el azúcar (como glibenclamida o glimepirida), llevá algo dulce al gimnasio y medite antes de entrenar: el ejercicio la baja, a veces horas después.",
+        "Si antes de entrenar tenés más de 250 y cetonas, ese día no entrenes. Con más de 300 sin cetonas, entrená solo si te sentís bien, y tomá agua."
+      ],
+      "withOther": [
+        {
+          "id": "beta_blockers",
+          "note": "Con betabloqueantes, los síntomas de una baja de azúcar pueden no aparecer: medite en vez de esperar a sentirla."
+        }
+      ],
+      "confidence": "high",
+      "confidenceNote": "La fuerza de intensidad alta mejora más la glucosa que la liviana, así que la dosis no se toca. El riesgo de hipoglucemia está en insulina y secretagogos; los umbrales de 250 con cetonas y 300 sin cetonas, y que los betabloqueantes tapan los síntomas, son de ACSM 2022. docs/research/45."
     }
   ],
   "cardio": {

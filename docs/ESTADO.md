@@ -1,6 +1,12 @@
 # Estado del trabajo
 
-## Última actualización: 18 de septiembre de 2026 (T2b: presión y corazón, motor)
+## Última actualización: 18 de septiembre de 2026 (T2c: diabetes y anticoagulantes)
+
+`docs/research/45`. Diabetes suma dos avisos (hipoglucemia; glucosa alta con cetonas) y, junto con
+betabloqueantes, un tercero mediante `withOther` (avisos que salen solo por combinación). La dosis no
+cambia. Los anticoagulantes no cambian el plan: la evidencia muestra menos sangrado en los activos.
+
+## 18 de septiembre de 2026 (T2b: presión y corazón, motor)
 
 `docs/research/44`. El motor recibe `UserSnapshot.conditions`, que viene de la tabla
 `user_health_conditions`. El módulo `salud` pone un piso de RIR 2 con presión alta o corazón. La

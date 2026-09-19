@@ -302,7 +302,10 @@ function applyHealthConditions(
   warnings: string[],
 ): GoalParams {
   const activas = condicionesActivas(ruleset, conditions);
-  for (const nota of new Set(activas.flatMap((c) => c.notes))) warnings.push(nota);
+  const juntas = activas.flatMap((c) =>
+    c.withOther.filter((o) => conditions.includes(o.id)).map((o) => o.note),
+  );
+  for (const nota of new Set([...activas.flatMap((c) => c.notes), ...juntas])) warnings.push(nota);
 
   const pisos = activas.flatMap((c) => (c.minRir === null ? [] : [c.minRir]));
   if (pisos.length === 0) return params;

@@ -511,6 +511,18 @@ const PERFILES: readonly Perfil[] = [
     minutos: 60,
     condiciones: ['hypertension', 'beta_blockers'],
   },
+  // Diabetes (`docs/research/45`): la dosis no cambia; salen los avisos de la
+  // baja de azúcar, y con betabloqueantes el de los síntomas tapados.
+  {
+    nombre: 'diabetes de 50 con betabloqueantes · fuerza',
+    goal: 'strength',
+    nivel: 'novice',
+    nacimiento: '1976-03-01',
+    sexo: 'female',
+    sesiones: 3,
+    minutos: 60,
+    condiciones: ['diabetes', 'beta_blockers'],
+  },
   // Adolescentes (`docs/research/41`): el que recién empieza recibe la dosis de
   // inicio; el que ya entrena, la del adulto.
   {

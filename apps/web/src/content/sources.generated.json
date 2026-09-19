@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-09-18",
-  "resolved": 114,
+  "generatedAt": "2026-09-19",
+  "resolved": 118,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -621,6 +621,103 @@
       ],
       "documentos": [
         "19-desentrenamiento-aerobico.md"
+      ]
+    },
+    {
+      "doi": "10.1161/CIR.0000000000001189",
+      "title": "Resistance Exercise Training in Individuals With and Without Cardiovascular Disease: 2023 Update: A Scientific Statement From the American Heart Association",
+      "authors": [
+        "Paluch",
+        "Boyer",
+        "Franklin"
+      ],
+      "moreAuthors": 7,
+      "year": 2024,
+      "journal": "Circulation",
+      "type": "journal-article",
+      "temas": [
+        "Diabetes y anticoagulantes",
+        "Presión alta, corazón y betabloqueantes"
+      ],
+      "documentos": [
+        "44-presion-y-corazon.md",
+        "45-diabetes-y-anticoagulantes.md"
+      ]
+    },
+    {
+      "doi": "10.1249/MSS.0000000000002800",
+      "title": "Exercise/Physical Activity in Individuals with Type 2 Diabetes: A Consensus Statement from the American College of Sports Medicine",
+      "authors": [
+        "Kanaley",
+        "Colberg",
+        "Corcoran"
+      ],
+      "moreAuthors": 5,
+      "year": 2022,
+      "journal": "Medicine & Science in Sports & Exercise",
+      "type": "journal-article",
+      "temas": [
+        "Diabetes y anticoagulantes"
+      ],
+      "documentos": [
+        "45-diabetes-y-anticoagulantes.md"
+      ]
+    },
+    {
+      "doi": "10.2337/dc11-1844",
+      "title": "Effects of Performing Resistance Exercise Before Versus After Aerobic Exercise on Glycemia in Type 1 Diabetes",
+      "authors": [
+        "Yardley",
+        "Kenny",
+        "Perkins"
+      ],
+      "moreAuthors": 5,
+      "year": 2012,
+      "journal": "Diabetes Care",
+      "type": "journal-article",
+      "temas": [
+        "Diabetes y anticoagulantes"
+      ],
+      "documentos": [
+        "45-diabetes-y-anticoagulantes.md"
+      ]
+    },
+    {
+      "doi": "10.1111/jth.12793",
+      "title": "Physical activity and risk of bleeding in elderly patients taking anticoagulants",
+      "authors": [
+        "Frey",
+        "Méan",
+        "Limacher"
+      ],
+      "moreAuthors": 14,
+      "year": 2015,
+      "journal": "Journal of Thrombosis and Haemostasis",
+      "type": "journal-article",
+      "temas": [
+        "Diabetes y anticoagulantes"
+      ],
+      "documentos": [
+        "45-diabetes-y-anticoagulantes.md"
+      ]
+    },
+    {
+      "doi": "10.1002/phar.1401",
+      "title": "Influence of Regular Physical Activity on Warfarin Dose and Risk of Hemorrhagic Complications",
+      "authors": [
+        "Shendre",
+        "Beasley",
+        "Brown"
+      ],
+      "moreAuthors": 3,
+      "year": 2014,
+      "journal": "Pharmacotherapy: The Journal of Human Pharmacology and Drug Therapy",
+      "type": "journal-article",
+      "temas": [
+        "Diabetes y anticoagulantes"
+      ],
+      "documentos": [
+        "45-diabetes-y-anticoagulantes.md"
       ]
     },
     {
@@ -1539,25 +1636,6 @@
       ],
       "documentos": [
         "10-nivel-de-experiencia.md"
-      ]
-    },
-    {
-      "doi": "10.1161/CIR.0000000000001189",
-      "title": "Resistance Exercise Training in Individuals With and Without Cardiovascular Disease: 2023 Update: A Scientific Statement From the American Heart Association",
-      "authors": [
-        "Paluch",
-        "Boyer",
-        "Franklin"
-      ],
-      "moreAuthors": 7,
-      "year": 2024,
-      "journal": "Circulation",
-      "type": "journal-article",
-      "temas": [
-        "Presión alta, corazón y betabloqueantes"
-      ],
-      "documentos": [
-        "44-presion-y-corazon.md"
       ]
     },
     {

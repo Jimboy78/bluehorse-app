@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-18T22:18:44.650Z",
+ "generatedAt": "2026-09-19T01:22:55.202Z",
  "docs": [
   {
    "id": "metodo",
@@ -360,6 +360,14 @@
    "resumen": "Fecha: 18/09/2026. Tanda: T2b del plan de variables. En el checklist, presión, corazón y betabloqueantes son pedir: el motor los usa sí o sí. Quién necesita autorización antes de entrenar es la puerta (43). Esto es lo que cambia en el pl…",
    "archivo": "44-presion-y-corazon.md",
    "bloques": 22
+  },
+  {
+   "id": "45-diabetes-y-anticoagulantes",
+   "orden": 45,
+   "titulo": "Diabetes y anticoagulantes: qué cambia en el plan",
+   "resumen": "Fecha: 18/09/2026. Tanda: T2c del plan de variables. Las dos se marcan en la lista de salud (43). Esto es lo que cada una cambia en el plan de quien la marca.",
+   "archivo": "45-diabetes-y-anticoagulantes.md",
+   "bloques": 18
   },
   {
    "id": "auditoria",

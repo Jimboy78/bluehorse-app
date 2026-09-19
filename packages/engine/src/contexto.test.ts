@@ -293,6 +293,38 @@ describe('resolverContexto', () => {
     expect(ocultaElPulso(V1_RESEARCH, [])).toBe(false);
   });
 
+  it('diabetes y anticoagulantes no tocan la dosis; diabetes con betabloqueantes suma su aviso', () => {
+    // Avanzado: hipertrofia queda por debajo del piso de la presión, así que un
+    // piso puesto por error en otra condición se notaría.
+    const ctx = (conditions: UserSnapshot['conditions']) => {
+      const i = input({ goal: 'hypertrophy', conditions });
+      const profile = { ...i.user.profile, experienceLevel: 'advanced' as const };
+      return resolverContexto({ ...i, user: { ...i.user, profile } });
+    };
+    const sano = ctx([]);
+    const pisoPresion = V1_RESEARCH.conditions?.find((c) => c.id === 'hypertension')?.minRir ?? 0;
+    expect(sano.params.primary.rirTarget).toBeLessThan(pisoPresion);
+    // La fuerza intensa es la que más ayuda a la glucosa (`docs/research/45`), y
+    // entrenar no sube el sangrado: ninguna de las dos baja nada.
+    for (const c of ['diabetes', 'anticoagulants'] as const) {
+      expect(ctx([c]).params).toEqual(sano.params);
+    }
+    const salud = (conditions: UserSnapshot['conditions']) =>
+      ctx(conditions)
+        .avisos.filter((a) => a.modulo === 'salud')
+        .map((a) => a.texto);
+    expect(salud(['diabetes']).length).toBeGreaterThan(0);
+    expect(salud(['anticoagulants'])).toEqual([]);
+
+    const combinado = V1_RESEARCH.conditions
+      ?.find((c) => c.id === 'diabetes')
+      ?.withOther.find((o) => o.id === 'beta_blockers')?.note;
+    if (!combinado) throw new Error('sin el aviso de diabetes con betabloqueantes');
+    expect(salud(['diabetes', 'beta_blockers'])).toContain(combinado);
+    expect(salud(['diabetes'])).not.toContain(combinado);
+    expect(salud(['beta_blockers'])).not.toContain(combinado);
+  });
+
   it('con una molestia declarada no hay bloque explosivo, aunque el deporte lo pida', () => {
     const leve: UserConstraint = { ...lesionRodilla, type: 'pain', severity: 1 };
     expect(resolverContexto(input({ sport: 'futbol', edad: 25 })).explosivos).not.toBeNull();

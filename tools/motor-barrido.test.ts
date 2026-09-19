@@ -188,6 +188,9 @@ const DIM = {
       ['heart_disease'],
       ['beta_blockers'],
       ['hypertension', 'beta_blockers'],
+      ['diabetes'],
+      ['diabetes', 'beta_blockers'],
+      ['anticoagulants'],
     ] as HealthCondition[][],
     (b, v) => {
       b.conditions = [...v];

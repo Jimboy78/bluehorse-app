@@ -912,6 +912,14 @@ export const rulesetSchema = z.object({
         hidesHeartRate: z.boolean(),
         /** Lo que el socio tiene que hacer distinto. Van como avisos del plan. */
         notes: z.array(z.string().min(1)),
+        /**
+         * Avisos que salen solo si además marcó otra condición: la combinación
+         * pide algo que ninguna de las dos pide sola (diabetes y betabloqueantes:
+         * los síntomas de la baja de azúcar pueden no aparecer).
+         */
+        withOther: z
+          .array(z.object({ id: z.enum(HEALTH_CONDITIONS), note: z.string().min(1) }))
+          .default([]),
         confidence: z.enum(CONFIDENCE_LEVELS),
         confidenceNote: z.string().min(1).optional(),
       }),
