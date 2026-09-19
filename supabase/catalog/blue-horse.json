@@ -887,6 +887,7 @@
       "isUnilateral": false,
       "modality": "reps_bodyweight",
       "loadsSpinalFlexion": true,
+      "headBelowHeart": true,
       "skillLevel": "novice",
       "cues": "Subís despacio y bajás más despacio todavía. Sin tirones de cuello.",
       "equipment": ["Banco abdominal declinado (con rodillos)"]

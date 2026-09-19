@@ -361,6 +361,7 @@ function efectosDeSalud(ruleset: Ruleset, conditions: readonly HealthCondition[]
   const activas = condicionesActivas(ruleset, conditions);
   const sinFlexion = activas.some((c) => c.excludesSpinalFlexion);
   const sinExplosivos = activas.some((c) => c.excludesExplosive);
+  const sinCabezaAbajo = activas.some((c) => c.excludesHeadDown);
   const impacto: 'add' | 'remove' | null = activas.some((c) => c.impactBlock === 'remove')
     ? 'remove'
     : activas.some((c) => c.impactBlock === 'add')
@@ -370,7 +371,9 @@ function efectosDeSalud(ruleset: Ruleset, conditions: readonly HealthCondition[]
     sinExplosivos,
     impacto,
     excluye: (ex: Exercise) =>
-      (sinFlexion && ex.loadsSpinalFlexion) || (sinExplosivos && ex.isExplosive),
+      (sinFlexion && ex.loadsSpinalFlexion) ||
+      (sinExplosivos && ex.isExplosive) ||
+      (sinCabezaAbajo && ex.headBelowHeart),
   };
 }
 

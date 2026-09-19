@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-19T01:51:24.606Z",
+ "generatedAt": "2026-09-19T02:05:44.170Z",
  "docs": [
   {
    "id": "metodo",
@@ -376,6 +376,14 @@
    "resumen": "Fecha: 18/09/2026. Tanda: T2d del plan de variables. Las tres se marcan en la lista de salud (43). Es la primera tanda de condiciones que cruza con un bloque de T1: el impacto para el hueso (42).",
    "archivo": "46-osteoporosis-suelo-pelvico-hernia.md",
    "bloques": 22
+  },
+  {
+   "id": "47-ojos-epilepsia-respiracion",
+   "orden": 47,
+   "titulo": "Glaucoma y retina, epilepsia y vértigo, asma y EPOC",
+   "resumen": "Fecha: 19/09/2026. Tanda: T2e del plan de variables. Son los grupos \"vista y equilibrio\" y \"respiración\" de la lista de salud (43).",
+   "archivo": "47-ojos-epilepsia-respiracion.md",
+   "bloques": 20
   },
   {
    "id": "auditoria",

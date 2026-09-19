@@ -67,6 +67,11 @@ export interface Exercise {
    * osteoporosis se evita — ver `docs/research/46`.
    */
   readonly loadsSpinalFlexion: boolean;
+  /**
+   * La cabeza queda por debajo del corazón (banco declinado). Con glaucoma o
+   * retinopatía se evita — ver `docs/research/47`.
+   */
+  readonly headBelowHeart: boolean;
   readonly skillLevel: ExperienceLevel;
   /** Indicaciones de ejecución, en castellano. */
   readonly cues: string | null;

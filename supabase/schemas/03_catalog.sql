@@ -65,7 +65,11 @@ create table exercises (
   -- El movimiento es flexionar el tronco (abdominales, crunch, enrollar la
   -- pelvis). Con osteoporosis se evita: hubo fracturas vertebrales con flexión
   -- cargada, repetida o al final del rango. Ver docs/research/46.
-  loads_spinal_flexion boolean not null default false
+  loads_spinal_flexion boolean not null default false,
+  -- La cabeza queda por debajo del corazón (banco declinado). Con glaucoma o
+  -- retinopatía se evita: la presión del ojo sube al bajar la cabeza. Ver
+  -- docs/research/47.
+  head_below_heart boolean not null default false
 );
 
 create index exercises_pattern_idx on exercises (pattern) where is_active;

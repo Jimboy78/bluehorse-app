@@ -94,7 +94,7 @@ export async function fetchExercises(
   const { data: exerciseRows, error: exerciseError } = await client
     .from('exercises')
     .select(
-      'id, gym_id, name, pattern, primary_muscles, secondary_muscles, modality, is_compound, is_unilateral, is_explosive, loads_spinal_flexion, skill_level, cues, is_active',
+      'id, gym_id, name, pattern, primary_muscles, secondary_muscles, modality, is_compound, is_unilateral, is_explosive, loads_spinal_flexion, head_below_heart, skill_level, cues, is_active',
     )
     .or(`gym_id.is.null,gym_id.eq.${gymId}`)
     .eq('is_active', true);

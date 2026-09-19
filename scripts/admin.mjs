@@ -1110,7 +1110,7 @@ async function snapshotDe(id) {
       ),
       pick(
         'exercises',
-        'id, gym_id, name, pattern, primary_muscles, secondary_muscles, modality, is_compound, is_unilateral, is_explosive, loads_spinal_flexion, skill_level, cues, is_active',
+        'id, gym_id, name, pattern, primary_muscles, secondary_muscles, modality, is_compound, is_unilateral, is_explosive, loads_spinal_flexion, head_below_heart, skill_level, cues, is_active',
         { is_active: true },
       ),
       pick('exercise_equipment', 'exercise_id, equipment_id'),
@@ -1199,6 +1199,7 @@ async function snapshotDe(id) {
         isCompound: e.is_compound,
         isExplosive: e.is_explosive,
         loadsSpinalFlexion: e.loads_spinal_flexion,
+        headBelowHeart: e.head_below_heart,
         isUnilateral: e.is_unilateral,
         skillLevel: e.skill_level,
         cues: e.cues,

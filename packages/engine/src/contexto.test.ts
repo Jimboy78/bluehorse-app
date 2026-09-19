@@ -1,4 +1,5 @@
 import type { Exercise, UserConstraint } from '@bh/domain';
+import { HEALTH_CONDITIONS } from '@bh/domain';
 import { describe, expect, it } from 'vitest';
 import { excluido, ocultaElPulso, ordenarAvisos, resolverContexto } from './contexto.ts';
 import type { GeneratePlanInput, GymSnapshot, UserSnapshot } from './contract.ts';
@@ -20,6 +21,7 @@ function ex(id: string, over: Partial<Exercise> = {}): Exercise {
     isUnilateral: false,
     isExplosive: false,
     loadsSpinalFlexion: false,
+    headBelowHeart: false,
     skillLevel: 'beginner',
     cues: null,
     equipmentIds: [],
@@ -287,7 +289,11 @@ describe('resolverContexto', () => {
     expect(juntas.length).toBeGreaterThan(avisos(['hypertension']).length);
     expect(avisos([])).toEqual([]);
     // Una condición sin entrada en el ruleset no cambia nada.
-    expect(avisos(['asthma'])).toEqual([]);
+    const sinEntrada = HEALTH_CONDITIONS.find(
+      (c) => !(V1_RESEARCH.conditions ?? []).some((x) => x.id === c),
+    );
+    if (!sinEntrada) throw new Error('todas las condiciones tienen entrada');
+    expect(avisos([sinEntrada])).toEqual([]);
 
     expect(ocultaElPulso(V1_RESEARCH, ['beta_blockers'])).toBe(true);
     expect(ocultaElPulso(V1_RESEARCH, ['hypertension', 'heart_disease'])).toBe(false);
@@ -375,6 +381,35 @@ describe('resolverContexto', () => {
       ?.find((c) => c.id === 'osteoporosis')
       ?.withOther.find((o) => o.id === 'pelvic_floor')?.note;
     expect(ambas.avisos.map((a) => a.texto)).toContain(combinado);
+  });
+
+  it('glaucoma o retina: piso de RIR, sin cabeza abajo, y el aviso de respirar una sola vez con la presión', () => {
+    const declinado = ex('declinado', { pattern: 'core', headBelowHeart: true });
+    const avanzado = (conditions: UserSnapshot['conditions']) => {
+      const i = input({ goal: 'hypertrophy', conditions });
+      const profile = { ...i.user.profile, experienceLevel: 'advanced' as const };
+      return resolverContexto({ ...i, user: { ...i.user, profile } });
+    };
+    const piso = V1_RESEARCH.conditions?.find((c) => c.id === 'glaucoma_retina')?.minRir ?? 0;
+    const ojo = avanzado(['glaucoma_retina']);
+    expect(avanzado([]).params.primary.rirTarget).toBeLessThan(piso);
+    expect(ojo.params.primary.rirTarget).toBeGreaterThanOrEqual(piso);
+    expect(excluido(ojo, declinado)).toBe(true);
+    expect(excluido(avanzado([]), declinado)).toBe(false);
+
+    const salud = (c: UserSnapshot['conditions']) =>
+      avanzado(c)
+        .avisos.filter((a) => a.modulo === 'salud')
+        .map((a) => a.texto);
+    const juntas = salud(['glaucoma_retina', 'hypertension']);
+    expect(new Set(juntas).size).toBe(juntas.length);
+  });
+
+  it('asma: el plan no cambia, sale el aviso del broncodilatador', () => {
+    const sano = resolverContexto(input({}));
+    const asma = resolverContexto(input({ conditions: ['asthma'] }));
+    expect(asma.params).toEqual(sano.params);
+    expect(asma.avisos.filter((a) => a.modulo === 'salud')).toHaveLength(1);
   });
 
   it('hernia abdominal: el plan no cambia, sale el aviso de urgencia', () => {

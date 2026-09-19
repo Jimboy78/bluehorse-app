@@ -1,6 +1,12 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T2d: osteoporosis, suelo pélvico y hernia)
+## Última actualización: 19 de septiembre de 2026 (T2e: ojos, epilepsia, respiración)
+
+`docs/research/47`. Glaucoma y asma entran al motor; EPOC queda sin cambios porque la evidencia no
+pide ninguno. Epilepsia y vértigo quedan pendientes: la tabla de ILAE 2016 está detrás de un
+control anti-bots. Hace falta el PDF (lo puede bajar el dueño) o una fuente abierta equivalente.
+
+## 19 de septiembre de 2026 (T2d: osteoporosis, suelo pélvico y hernia)
 
 `docs/research/46`. El esquema de condiciones suma `excludesSpinalFlexion`, `excludesExplosive` e
 `impactBlock` (`add`/`remove`, gana `remove`). En el catálogo hay un atributo nuevo,

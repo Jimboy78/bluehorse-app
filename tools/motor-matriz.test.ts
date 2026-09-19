@@ -124,6 +124,7 @@ function construirGimnasio(): GymSnapshot {
     isUnilateral: x.isUnilateral,
     isExplosive: 'isExplosive' in x ? Boolean(x.isExplosive) : false,
     loadsSpinalFlexion: 'loadsSpinalFlexion' in x ? Boolean(x.loadsSpinalFlexion) : false,
+    headBelowHeart: 'headBelowHeart' in x ? Boolean(x.headBelowHeart) : false,
     skillLevel: x.skillLevel as ExperienceLevel,
     cues: x.cues ?? null,
     equipmentIds: (x.equipment ?? [])
@@ -546,6 +547,18 @@ const PERFILES: readonly Perfil[] = [
     sesiones: 3,
     minutos: 60,
     condiciones: ['pelvic_floor'],
+  },
+  // Glaucoma (`docs/research/47`): el piso de RIR de la presión, sin banco
+  // declinado.
+  {
+    nombre: 'glaucoma de 62 · hipertrofia avanzado',
+    goal: 'hypertrophy',
+    nivel: 'advanced',
+    nacimiento: '1964-03-01',
+    sexo: 'male',
+    sesiones: 4,
+    minutos: 60,
+    condiciones: ['glaucoma_retina'],
   },
   // Adolescentes (`docs/research/41`): el que recién empieza recibe la dosis de
   // inicio; el que ya entrena, la del adulto.

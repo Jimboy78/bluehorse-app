@@ -100,6 +100,7 @@ describe('exerciseRowSchema + toDomainExercise', () => {
       is_compound: true,
       is_explosive: false,
       loads_spinal_flexion: false,
+      head_below_heart: false,
       is_unilateral: false,
       skill_level: 'intermediate',
       cues: 'Bajá controlado.',

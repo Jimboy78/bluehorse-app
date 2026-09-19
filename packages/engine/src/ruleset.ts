@@ -914,6 +914,8 @@ export const rulesetSchema = z.object({
         excludesSpinalFlexion: z.boolean().default(false),
         /** Saca los saltos y lanzamientos, también el par explosivo. */
         excludesExplosive: z.boolean().default(false),
+        /** Saca los ejercicios con la cabeza por debajo del corazón (`headBelowHeart`). */
+        excludesHeadDown: z.boolean().default(false),
         /**
          * Qué hace con el bloque de impacto: `add` lo suma aunque el sexo o la
          * edad no lo pidan; `remove` lo saca. Con las dos, gana `remove`: lo

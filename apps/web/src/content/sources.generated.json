@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-19",
-  "resolved": 124,
+  "resolved": 131,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -1638,6 +1638,139 @@
       ],
       "documentos": [
         "10-nivel-de-experiencia.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s00417-020-04736-2",
+      "title": "Intraocular pressure increases during dynamic resistance training exercises according to the exercise phase in healthy young adults",
+      "authors": [
+        "Vera",
+        "Redondo",
+        "Perez-Castilla"
+      ],
+      "moreAuthors": 2,
+      "year": 2020,
+      "journal": "Graefe's Archive for Clinical and Experimental Ophthalmology",
+      "type": "journal-article",
+      "temas": [
+        "Ojos, epilepsia y respiración"
+      ],
+      "documentos": [
+        "47-ojos-epilepsia-respiracion.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bmjophth-2021-000723",
+      "title": "Intraocular pressure fluctuation during resistance exercise",
+      "authors": [
+        "Vaghefi",
+        "Shon",
+        "Reading"
+      ],
+      "moreAuthors": 5,
+      "year": 2021,
+      "journal": "BMJ Open Ophthalmology",
+      "type": "journal-article",
+      "temas": [
+        "Ojos, epilepsia y respiración"
+      ],
+      "documentos": [
+        "47-ojos-epilepsia-respiracion.md"
+      ]
+    },
+    {
+      "doi": "10.1016/j.ophtha.2006.02.063",
+      "title": "Intraocular Pressure Changes and Ocular Biometry during Sirsasana (Headstand Posture) in Yoga Practitioners",
+      "authors": [
+        "Baskaran",
+        "Raman",
+        "Ramani"
+      ],
+      "moreAuthors": 3,
+      "year": 2006,
+      "journal": "Ophthalmology",
+      "type": "journal-article",
+      "temas": [
+        "Ojos, epilepsia y respiración"
+      ],
+      "documentos": [
+        "47-ojos-epilepsia-respiracion.md"
+      ]
+    },
+    {
+      "doi": "10.1097/IJG.0000000000002411",
+      "title": "The Effect of Exercise on Intraocular Pressure and Glaucoma",
+      "authors": [
+        "Gildea",
+        "Doyle",
+        "O’Connor"
+      ],
+      "moreAuthors": 0,
+      "year": 2024,
+      "journal": "Journal of Glaucoma",
+      "type": "journal-article",
+      "temas": [
+        "Ojos, epilepsia y respiración"
+      ],
+      "documentos": [
+        "47-ojos-epilepsia-respiracion.md"
+      ]
+    },
+    {
+      "doi": "10.1111/epi.13261",
+      "title": "Epilepsy, seizures, physical exercise, and sports: A report from the ILAE Task Force on Sports and Epilepsy",
+      "authors": [
+        "Capovilla",
+        "Kaufman",
+        "Perucca"
+      ],
+      "moreAuthors": 2,
+      "year": 2015,
+      "journal": "Epilepsia",
+      "type": "journal-article",
+      "temas": [
+        "Ojos, epilepsia y respiración"
+      ],
+      "documentos": [
+        "47-ojos-epilepsia-respiracion.md"
+      ]
+    },
+    {
+      "doi": "10.1164/rccm.201303-0437ST",
+      "title": "An Official American Thoracic Society Clinical Practice Guideline: Exercise-induced Bronchoconstriction",
+      "authors": [
+        "Parsons",
+        "Hallstrand",
+        "Mastronarde"
+      ],
+      "moreAuthors": 8,
+      "year": 2013,
+      "journal": "American Journal of Respiratory and Critical Care Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Ojos, epilepsia y respiración"
+      ],
+      "documentos": [
+        "47-ojos-epilepsia-respiracion.md"
+      ]
+    },
+    {
+      "doi": "10.4187/respcare.03598",
+      "title": "Impact of Resistance Training in Subjects With COPD: A Systematic Review and Meta-Analysis",
+      "authors": [
+        "Liao",
+        "Chen",
+        "Chen"
+      ],
+      "moreAuthors": 4,
+      "year": 2015,
+      "journal": "Respiratory Care",
+      "type": "journal-article",
+      "temas": [
+        "Ojos, epilepsia y respiración"
+      ],
+      "documentos": [
+        "47-ojos-epilepsia-respiracion.md"
       ]
     },
     {

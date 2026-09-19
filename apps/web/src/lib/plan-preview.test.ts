@@ -39,6 +39,7 @@ const exerciseBase: Omit<Exercise, 'id' | 'name'> = {
   isUnilateral: false,
   isExplosive: false,
   loadsSpinalFlexion: false,
+  headBelowHeart: false,
   skillLevel: 'beginner',
   cues: null,
   equipmentIds: ['eq-1'],

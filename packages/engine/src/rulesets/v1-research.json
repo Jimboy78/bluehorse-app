@@ -1209,6 +1209,28 @@
       ],
       "confidence": "medium",
       "confidenceNote": "La espera vigilada es segura en hernias inguinales con pocos síntomas (Fitzgibbons 2006: encarcelación 1,8 cada 1.000 pacientes-año), y después de operarla se vuelve a la actividad normal sin restricciones (HerniaSurge 2018). No hay evidencia para sacar ejercicios. docs/research/46."
+    },
+    {
+      "id": "glaucoma_retina",
+      "minRir": 2,
+      "hidesHeartRate": false,
+      "excludesHeadDown": true,
+      "notes": [
+        "No aguantes el aire cuando hacés fuerza: soltalo al empujar o al tirar, y cortá cada serie con las repeticiones en reserva que marca el plan, sin llegar al fallo.",
+        "Si tenés retinopatía activa o te operaron o te hicieron láser en el ojo hace poco, preguntale a tu oftalmólogo antes de hacer fuerza."
+      ],
+      "confidence": "medium",
+      "confidenceNote": "La presión del ojo sube con el esfuerzo acumulado hacia el fallo (Vera 2020, r = 0,97) y de golpe con cargas máximas (Vaghefi 2021, hasta 40 mmHg), y se duplica con la cabeza abajo (Baskaran 2006). Con retinopatía, ACSM 2022 pide no aguantar el aire ni bajar la cabeza, y contraindica el ejercicio tras una cirugía o láser reciente. El piso de RIR 2 es el mismo criterio que la presión arterial. docs/research/47."
+    },
+    {
+      "id": "asthma",
+      "minRir": null,
+      "hidesHeartRate": false,
+      "notes": [
+        "Si el ejercicio te cierra el pecho, usá el broncodilatador de rescate antes de entrenar, como te lo indicó tu médico, y tenelo a mano en la sesión."
+      ],
+      "confidence": "high",
+      "confidenceNote": "El broncodilatador de acción corta antes del ejercicio es la recomendación fuerte de la guía de la ATS para la broncoconstricción inducida por ejercicio (Parsons 2013). La fuerza y el cardio no cambian. docs/research/47."
     }
   ],
   "cardio": {

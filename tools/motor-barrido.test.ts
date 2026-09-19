@@ -95,6 +95,7 @@ function gimnasio(): GymSnapshot {
     isUnilateral: x.isUnilateral,
     isExplosive: 'isExplosive' in x ? Boolean(x.isExplosive) : false,
     loadsSpinalFlexion: 'loadsSpinalFlexion' in x ? Boolean(x.loadsSpinalFlexion) : false,
+    headBelowHeart: 'headBelowHeart' in x ? Boolean(x.headBelowHeart) : false,
     skillLevel: x.skillLevel as ExperienceLevel,
     cues: x.cues ?? null,
     equipmentIds: (x.equipment ?? [])
@@ -196,6 +197,10 @@ const DIM = {
       ['pelvic_floor'],
       ['osteoporosis', 'pelvic_floor'],
       ['abdominal_hernia'],
+      ['glaucoma_retina'],
+      ['asthma'],
+      ['copd'],
+      ['epilepsy_vertigo'],
     ] as HealthCondition[][],
     (b, v) => {
       b.conditions = [...v];
@@ -406,6 +411,9 @@ describe('barrido de socios generados', () => {
     if (ex.isExplosive) chequearExplosivo(p, it, previo, ex.name);
     if (ex.loadsSpinalFlexion && p.salud.includes('osteoporosis')) {
       violaciones.push(`${ex.name} con osteoporosis: ${id}`);
+    }
+    if (ex.headBelowHeart && p.salud.includes('glaucoma_retina')) {
+      violaciones.push(`${ex.name} con glaucoma: ${id}`);
     }
     chequearAdolescente(p, it, ex);
   }

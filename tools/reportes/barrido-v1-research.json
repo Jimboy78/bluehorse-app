@@ -25,13 +25,13 @@
     "Caminata de costado: 5 % de los ítems",
     "Caminata en puntas de pie: 5 % de los ítems",
     "Caminata en talones: 5 % de los ítems",
-    "Caminata hacia atrás: 5 % de los ítems",
     "Caminata talón-punta: 5 % de los ítems",
+    "Caminata hacia atrás: 5 % de los ítems",
     "Pararse y sentarse: 4 % de los ítems",
     "Remo sentado: 4 % de los ítems",
     "Remo invertido en TRX: 3 % de los ítems",
     "Dead bug: 3 % de los ítems",
-    "Dorsalera al pecho: 3 % de los ítems"
+    "Dorsalera con agarre neutro: 3 % de los ítems"
   ],
   "estacionesMasUsadas": [
     "Mancuernas sueltas (set): 6 % de los ítems",
@@ -41,21 +41,21 @@
     "Cajones pliométricos: 4 % de los ítems"
   ],
   "avisosPorPlan": {
-    "media": 8.6,
+    "media": 8.3,
     "max": 18
   },
-  "sesionesQuePasanLosMinutosDeclarados": "22 %",
+  "sesionesQuePasanLosMinutosDeclarados": "23 %",
   "cambiaElPlanAlCambiarSolo": {
     "goal": "96 %",
-    "nivel": "99 %",
+    "nivel": "100 %",
     "edad": "64 %",
-    "sexo": "8 %",
+    "sexo": "7 %",
     "sesiones": "38 %",
     "minutos": "0 %",
     "deporte": "47 %",
     "fase": "52 %",
-    "molestia": "62 %",
+    "molestia": "64 %",
     "ausencia": "0 %",
-    "salud": "31 %"
+    "salud": "30 %"
   }
 }

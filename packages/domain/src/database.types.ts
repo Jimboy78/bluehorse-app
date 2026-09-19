@@ -294,6 +294,7 @@ export type Database = {
           created_at: string
           cues: string | null
           gym_id: string | null
+          head_below_heart: boolean
           id: string
           is_active: boolean
           is_compound: boolean
@@ -312,6 +313,7 @@ export type Database = {
           created_at?: string
           cues?: string | null
           gym_id?: string | null
+          head_below_heart?: boolean
           id?: string
           is_active?: boolean
           is_compound?: boolean
@@ -330,6 +332,7 @@ export type Database = {
           created_at?: string
           cues?: string | null
           gym_id?: string | null
+          head_below_heart?: boolean
           id?: string
           is_active?: boolean
           is_compound?: boolean
