@@ -1231,6 +1231,33 @@
       ],
       "confidence": "high",
       "confidenceNote": "El broncodilatador de acción corta antes del ejercicio es la recomendación fuerte de la guía de la ATS para la broncoconstricción inducida por ejercicio (Parsons 2013). La fuerza y el cardio no cambian. docs/research/47."
+    },
+    {
+      "id": "pregnancy",
+      "minRir": null,
+      "hidesHeartRate": false,
+      "excludesExplosive": true,
+      "impactBlock": "remove",
+      "notes": [
+        "Se sacaron los saltos y los lanzamientos, para no arriesgar una caída. Desde el cuarto mes, además, no hagas ejercicios acostada boca arriba: hacelos sentada, inclinada o de costado.",
+        "Pará y consultá enseguida si aparece sangrado, pérdida de líquido, contracciones dolorosas, dolor en el pecho, dolor o hinchazón en una pantorrilla, o falta de aire o un mareo que no se van al descansar. Si tu obstetra te indicó no entrenar, vale lo que te dijo.",
+        "Tomá agua antes, durante y después, y no entrenes con mucho calor."
+      ],
+      "confidence": "medium",
+      "confidenceNote": "La fuerza no se baja: la OMS 2020 recomienda fuerza y aeróbico en el embarazo sin pedir autorización para la actividad leve a moderada, la fuerza reduce la hipertensión y la diabetes gestacional (Prevett 2025), y hasta la de alta intensidad fue bien tolerada, sin bradicardia fetal (Moolyk 2025, n = 20). Los saltos salen por riesgo de caída, los avisos de boca arriba, calor y señales de alarma son las consideraciones de seguridad de la OMS 2020 y el consenso Asia-Pacífico 2021; que boca arriba sea dañino no está probado (Mottola 2019, evidencia muy baja). docs/research/48."
+    },
+    {
+      "id": "postpartum",
+      "minRir": null,
+      "hidesHeartRate": false,
+      "excludesExplosive": true,
+      "impactBlock": "remove",
+      "notes": [
+        "Volvé de a poco. Si fue cesárea o hubo alguna complicación, esperá el visto bueno de tu médico. Los primeros tres meses el plan no tiene saltos ni impacto; pasados, si no tenés pérdidas de orina, desmarcalo en tu perfil.",
+        "Los ejercicios de suelo pélvico se pueden empezar desde los primeros días y bajan las pérdidas de orina. Si ya las tenés, marcalo también: la kinesiología de piso pélvico las trata."
+      ],
+      "confidence": "medium",
+      "confidenceNote": "Volver de a poco y con el visto bueno después de una cesárea es la OMS 2020. El entrenamiento del suelo pélvico después del parto baja la incontinencia (OR 0,63) y el prolapso (Beamish 2025), y se puede empezar enseguida (consenso Asia-Pacífico 2021). Los tres meses sin impacto son del consenso Asia-Pacífico, que cita una guía de expertos para volver a correr: es el dato más flojo de la entrada. docs/research/48."
     }
   ],
   "cardio": {

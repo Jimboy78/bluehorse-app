@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-19T02:05:44.170Z",
+ "generatedAt": "2026-09-19T02:28:34.345Z",
  "docs": [
   {
    "id": "metodo",
@@ -384,6 +384,14 @@
    "resumen": "Fecha: 19/09/2026. Tanda: T2e del plan de variables. Son los grupos \"vista y equilibrio\" y \"respiración\" de la lista de salud (43).",
    "archivo": "47-ojos-epilepsia-respiracion.md",
    "bloques": 20
+  },
+  {
+   "id": "48-embarazo-y-posparto",
+   "orden": 48,
+   "titulo": "Embarazo y posparto: qué cambia en el plan",
+   "resumen": "Fecha: 19/09/2026. Tanda: T2f del plan de variables. Las dos entradas del grupo \"solo mujeres\" de la lista de salud (43). No se le muestran a quien declaró sexo masculino.",
+   "archivo": "48-embarazo-y-posparto.md",
+   "bloques": 24
   },
   {
    "id": "auditoria",

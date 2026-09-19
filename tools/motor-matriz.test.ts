@@ -560,6 +560,28 @@ const PERFILES: readonly Perfil[] = [
     minutos: 60,
     condiciones: ['glaucoma_retina'],
   },
+  // Embarazo y posparto (`docs/research/48`): la dosis de siempre, sin saltos ni
+  // lanzamientos. Potencia es el objetivo que más los usa.
+  {
+    nombre: 'embarazada de 30 · potencia intermedio',
+    goal: 'power',
+    nivel: 'intermediate',
+    nacimiento: '1996-03-01',
+    sexo: 'female',
+    sesiones: 3,
+    minutos: 60,
+    condiciones: ['pregnancy'],
+  },
+  {
+    nombre: 'posparto de 33 · recomposición principiante',
+    goal: 'recomposition',
+    nivel: 'beginner',
+    nacimiento: '1993-03-01',
+    sexo: 'female',
+    sesiones: 3,
+    minutos: 45,
+    condiciones: ['postpartum'],
+  },
   // Adolescentes (`docs/research/41`): el que recién empieza recibe la dosis de
   // inicio; el que ya entrena, la del adulto.
   {
@@ -1076,7 +1098,8 @@ describe('los números del plan salen del ruleset', () => {
     const porEdad =
       im.sexes.includes(p.sexo ?? 'undisclosed') && edadDe(p.nacimiento) >= im.fromAge;
     if (!porEdad && !condiciones.includes('osteoporosis')) return null;
-    if (condiciones.includes('pelvic_floor')) return null;
+    if (condiciones.some((c) => c === 'pelvic_floor' || c === 'pregnancy' || c === 'postpartum'))
+      return null;
     if ((p.limitaciones ?? []).some((c) => c.type === 'pain' || c.type === 'injury')) return null;
     return `${im.sets}×${im.repsMin}-${im.repsMax} RIR null d${im.restSeconds}s`;
   }
@@ -1178,10 +1201,30 @@ describe('el aviso de potencia sin explosivos', () => {
       const conExplosivo = reporteDe(perfil).sesiones.some((s) =>
         s.items.some((i) => explosivosDelGimnasio.includes(i.ejercicio)),
       );
-      // Avisa solo el que no recibió ninguno (molestia, edad, nivel).
-      expect(avisaDeExplosivos(perfil)).toBe(!conExplosivo);
+      // Avisa solo el que no recibió ninguno (molestia, edad, nivel). Si los
+      // sacó una condición de salud, el aviso es el de la condición.
+      expect(avisaDeExplosivos(perfil)).toBe(!conExplosivo && !sinSaltosPorSalud(perfil));
     }
   });
+
+  it('con una condición que saca los saltos, explica la condición y no la molestia', () => {
+    const conCondicion = PERFILES.filter((p) => p.goal === 'power' && sinSaltosPorSalud(p));
+    expect(conCondicion.length).toBeGreaterThan(0);
+    for (const perfil of conCondicion) {
+      const avisos = planDe(perfil, V1_RESEARCH).warnings;
+      const notas = (V1_RESEARCH.conditions ?? [])
+        .filter((c) => c.excludesExplosive && (perfil.condiciones ?? []).includes(c.id))
+        .flatMap((c) => c.notes);
+      expect(avisaDeExplosivos(perfil)).toBe(false);
+      for (const nota of notas) expect(avisos).toContain(nota);
+    }
+  });
+
+  function sinSaltosPorSalud(p: Perfil): boolean {
+    return (V1_RESEARCH.conditions ?? []).some(
+      (c) => c.excludesExplosive && (p.condiciones ?? []).includes(c.id),
+    );
+  }
 
   it('no avisa en objetivos que no son potencia', () => {
     for (const perfil of PERFILES.filter((p) => p.goal !== 'power')) {

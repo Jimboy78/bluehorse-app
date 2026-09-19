@@ -405,6 +405,43 @@ describe('resolverContexto', () => {
     expect(new Set(juntas).size).toBe(juntas.length);
   });
 
+  it('embarazo y posparto: la dosis de siempre, sin saltos ni impacto, con sus avisos', () => {
+    // La edad es la que hace entrar impacto y par explosivo en la mujer sana:
+    // sin eso no habría nada que sacar. El motor no mira la edad para esto.
+    const mujer = (conditions: UserSnapshot['conditions']) => {
+      const i = input({ edad: 55, sport: 'futbol', goal: 'hypertrophy', conditions });
+      const profile = {
+        ...i.user.profile,
+        sex: 'female' as const,
+        experienceLevel: 'advanced' as const,
+      };
+      return resolverContexto({ ...i, user: { ...i.user, profile } });
+    };
+    const salto = ex('salto', { isExplosive: true });
+    const sana = mujer([]);
+    expect(sana.bloques.map((b) => b.modulo)).toContain('impacto');
+    expect(sana.explosivos).not.toBeNull();
+
+    for (const c of ['pregnancy', 'postpartum'] as const) {
+      const ctx = mujer([c]);
+      // La fuerza intensa fue bien tolerada en el embarazo (`docs/research/48`):
+      // ni piso de RIR ni menos series.
+      expect(ctx.params).toEqual(sana.params);
+      expect(ctx.bloques.map((b) => b.modulo)).not.toContain('impacto');
+      expect(ctx.explosivos).toBeNull();
+      expect(ctx.sinExplosivosPorSalud).toBe(true);
+      expect(excluido(ctx, salto)).toBe(true);
+      const notas = V1_RESEARCH.conditions?.find((x) => x.id === c)?.notes ?? [];
+      expect(notas.length).toBeGreaterThan(0);
+      for (const n of notas) expect(ctx.avisos.map((a) => a.texto)).toContain(n);
+    }
+    // Con osteoporosis también: sacar gana sobre sumar.
+    expect(mujer(['osteoporosis', 'postpartum']).bloques.map((b) => b.modulo)).not.toContain(
+      'impacto',
+    );
+    expect(sana.sinExplosivosPorSalud).toBe(false);
+  });
+
   it('asma: el plan no cambia, sale el aviso del broncodilatador', () => {
     const sano = resolverContexto(input({}));
     const asma = resolverContexto(input({ conditions: ['asthma'] }));

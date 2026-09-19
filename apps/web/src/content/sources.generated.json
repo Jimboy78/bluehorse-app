@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-19",
-  "resolved": 131,
+  "resolved": 138,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -290,12 +290,14 @@
       "temas": [
         "Cardio y resistencia",
         "Cobertura muscular",
-        "Cómo procesa el motor"
+        "Cómo procesa el motor",
+        "Embarazo y posparto"
       ],
       "documentos": [
         "02-cardio-resistencia-recomposicion.md",
         "24-cobertura-muscular.md",
-        "38-como-procesa-el-motor.md"
+        "38-como-procesa-el-motor.md",
+        "48-embarazo-y-posparto.md"
       ]
     },
     {
@@ -968,6 +970,139 @@
       ],
       "documentos": [
         "08-edad.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2024-109123",
+      "title": "Resistance training in pregnancy: systematic review and meta-analysis of pregnancy, delivery, fetal and pelvic floor outcomes and call to action",
+      "authors": [
+        "Prevett",
+        "Gingerich",
+        "Sivak"
+      ],
+      "moreAuthors": 1,
+      "year": 2025,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Embarazo y posparto"
+      ],
+      "documentos": [
+        "48-embarazo-y-posparto.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2024-108804",
+      "title": "Maternal and fetal responses to acute high-intensity resistance exercise during pregnancy",
+      "authors": [
+        "Moolyk",
+        "Wilson",
+        "Matenchuk"
+      ],
+      "moreAuthors": 4,
+      "year": 2024,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Embarazo y posparto"
+      ],
+      "documentos": [
+        "48-embarazo-y-posparto.md"
+      ]
+    },
+    {
+      "doi": "10.1249/MSS.0000000000002577",
+      "title": "Cardiac Responses to Prenatal Resistance Exercise with and without the Valsalva Maneuver",
+      "authors": [
+        "Meah",
+        "Strynadka",
+        "Steinback"
+      ],
+      "moreAuthors": 1,
+      "year": 2020,
+      "journal": "Medicine & Science in Sports & Exercise",
+      "type": "journal-article",
+      "temas": [
+        "Embarazo y posparto"
+      ],
+      "documentos": [
+        "48-embarazo-y-posparto.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bmjsem-2020-000967",
+      "title": "Asia-Pacific consensus on physical activity and exercise in pregnancy and the postpartum period",
+      "authors": [
+        "Lee",
+        "Thain",
+        "Tan"
+      ],
+      "moreAuthors": 2,
+      "year": 2021,
+      "journal": "BMJ Open Sport & Exercise Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Embarazo y posparto"
+      ],
+      "documentos": [
+        "48-embarazo-y-posparto.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2018-099919",
+      "title": "Is supine exercise associated with adverse maternal and fetal outcomes? A systematic review",
+      "authors": [
+        "Mottola",
+        "Nagpal",
+        "Bgeginski"
+      ],
+      "moreAuthors": 9,
+      "year": 2018,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Embarazo y posparto"
+      ],
+      "documentos": [
+        "48-embarazo-y-posparto.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2018-100056",
+      "title": "2019 Canadian guideline for physical activity throughout pregnancy",
+      "authors": [
+        "Mottola",
+        "Davenport",
+        "Ruchat"
+      ],
+      "moreAuthors": 16,
+      "year": 2018,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Embarazo y posparto"
+      ],
+      "documentos": [
+        "48-embarazo-y-posparto.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bjsports-2024-108619",
+      "title": "Impact of postpartum exercise on pelvic floor disorders and diastasis recti abdominis: a systematic review and meta-analysis",
+      "authors": [
+        "Beamish",
+        "Davenport",
+        "Ali"
+      ],
+      "moreAuthors": 6,
+      "year": 2024,
+      "journal": "British Journal of Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Embarazo y posparto"
+      ],
+      "documentos": [
+        "48-embarazo-y-posparto.md"
       ]
     },
     {

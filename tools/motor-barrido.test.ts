@@ -57,6 +57,13 @@ const N = Number(process.env.BARRIDO_N ?? 3000);
 const GYM_ID = 'gym';
 const AHORA = '2026-09-10T12:00:00.000Z';
 
+/**
+ * Las condiciones que sacan saltos, lanzamientos y el bloque de impacto. Escrito
+ * a mano y no leído del ruleset: si alguien le borra el flag a una entrada, el
+ * barrido tiene que darse cuenta (`docs/research/46` y `48`).
+ */
+const SIN_SALTOS: readonly HealthCondition[] = ['pelvic_floor', 'pregnancy', 'postpartum'];
+
 function idDe(prefijo: string, nombre: string): string {
   const limpio = nombre
     .toLowerCase()
@@ -201,6 +208,11 @@ const DIM = {
       ['asthma'],
       ['copd'],
       ['epilepsy_vertigo'],
+      ['pregnancy'],
+      ['pregnancy', 'hypertension'],
+      ['postpartum'],
+      ['postpartum', 'pelvic_floor'],
+      ['osteoporosis', 'postpartum'],
     ] as HealthCondition[][],
     (b, v) => {
       b.conditions = [...v];
@@ -321,14 +333,14 @@ describe('barrido de socios generados', () => {
     const cfg = V1_RESEARCH.impact;
     const id = JSON.stringify(p);
     const cuantos = items.filter((i) => exPorId.get(i.exerciseId)?.pattern === 'impact').length;
-    // Por sexo y edad, o por osteoporosis; nunca con molestia ni con pérdidas
-    // de orina (`docs/research/46`).
+    // Por sexo y edad, o por osteoporosis; nunca con molestia, con pérdidas de
+    // orina, en el embarazo ni después del parto (`docs/research/46` y `48`).
     const porEdad = !!cfg && cfg.sexes.includes(p.sexo) && p.edad >= cfg.fromAge;
     const corresponde =
       !!cfg &&
       (porEdad || p.salud.includes('osteoporosis')) &&
       p.molestia === null &&
-      !p.salud.includes('pelvic_floor');
+      !p.salud.some((c) => SIN_SALTOS.includes(c));
     if (!corresponde && cuantos > 0) violaciones.push(`impacto sin corresponder: ${id}`);
     if (corresponde) {
       conImpacto += 1;
@@ -447,8 +459,8 @@ describe('barrido de socios generados', () => {
       violaciones.push(`${nombre} suelto, sin su levantamiento: ${id}`);
     }
     if (p.molestia) violaciones.push(`${nombre} con una molestia declarada: ${id}`);
-    if (p.salud.includes('pelvic_floor'))
-      violaciones.push(`${nombre} con pérdidas de orina: ${id}`);
+    const sinSaltos = p.salud.filter((c) => SIN_SALTOS.includes(c));
+    if (sinSaltos.length > 0) violaciones.push(`${nombre} con ${sinSaltos.join(', ')}: ${id}`);
     if (explosivo && p.edad > explosivo.maxAge) violaciones.push(`${nombre} a los ${p.edad}`);
   }
 

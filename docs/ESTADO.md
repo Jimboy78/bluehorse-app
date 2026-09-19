@@ -1,6 +1,14 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T2e: ojos, epilepsia, respiración)
+## Última actualización: 19 de septiembre de 2026 (T2f: embarazo y posparto)
+
+`docs/research/48`. Las dos sacan saltos, lanzamientos e impacto, y no tocan la dosis: la fuerza
+intensa fue bien tolerada en el embarazo (Moolyk 2025) y la OMS no pide autorización para la
+actividad leve a moderada. Boca arriba es un aviso y no una exclusión, porque la app no sabe de
+cuántas semanas está. De paso: el aviso de potencia ya no le da una razón inventada ("una molestia")
+a quien se quedó sin explosivos por una condición de salud.
+
+## 19 de septiembre de 2026 (T2e: ojos, epilepsia, respiración)
 
 `docs/research/47`. Glaucoma y asma entran al motor; EPOC queda sin cambios porque la evidencia no
 pide ninguno. Epilepsia y vértigo quedan pendientes: la tabla de ILAE 2016 está detrás de un

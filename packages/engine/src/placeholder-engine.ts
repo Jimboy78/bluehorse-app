@@ -250,7 +250,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
   decir('autorregulacion', autoregulationWarnings(params, ruleset, goal));
   decir('volumen', weeklyVolumeWarnings(sessions, template, gym, params, goal));
   decir('interferencia', interferenceWarnings(sessions, gym, ruleset));
-  decir('potencia', powerWarnings(sessions, gym, goal, ruleset));
+  decir('potencia', powerWarnings(sessions, gym, goal, ruleset, ctx.sinExplosivosPorSalud));
   decir(
     'deporte',
     emphasisWarnings({
@@ -786,8 +786,11 @@ function powerWarnings(
   gym: GymSnapshot,
   goal: UserGoal,
   ruleset: Ruleset,
+  porSalud: boolean,
 ): string[] {
-  if (goal.goal !== 'power') return [];
+  // Si los sacó una condición de salud, su aviso ya lo explica; este daría
+  // razones que no son (una molestia, la edad).
+  if (goal.goal !== 'power' || porSalud) return [];
 
   const exerciseById = new Map(gym.exercises.map((e) => [e.id, e]));
   const hayExplosivo = sessions

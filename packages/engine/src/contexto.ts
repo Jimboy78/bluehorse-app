@@ -104,6 +104,11 @@ export interface ContextoDelSocio {
   readonly avoidRules: readonly PainRule[];
   /** El bloque explosivo si este socio lo recibe. */
   readonly explosivos: ExplosiveConfig | null;
+  /**
+   * Una condición de salud saca lo explosivo (embarazo, pérdidas de orina). Su
+   * aviso ya dice por qué, así que el de potencia no tiene que inventar otro.
+   */
+  readonly sinExplosivosPorSalud: boolean;
   /** El bloque de equilibrio si este socio lo recibe. */
   readonly equilibrio: BalanceConfig | null;
   /** Los bloques que se suman al final de cada sesión, en orden. */
@@ -229,6 +234,7 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
     painRules,
     avoidRules,
     explosivos,
+    sinExplosivosPorSalud: salud.sinExplosivos,
     equilibrio,
     bloques,
     exclusiones,
