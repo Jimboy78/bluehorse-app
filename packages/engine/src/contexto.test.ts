@@ -526,6 +526,36 @@ describe('resolverContexto', () => {
     expect(codo(4).avisos.map((a) => a.texto)).not.toContain(sinRegla);
   });
 
+  it('espalda alta: con dolor no sale nada hasta "no puedo"; con lesión sale la carga axial', () => {
+    // `docs/research/52`: el dolor dorsal suele ser mecánico e inespecífico;
+    // lo que importa son las señales (golpe, corticoides, cáncer, pecho).
+    const muerto = ex('muerto', {
+      pattern: 'hinge',
+      primaryMuscles: ['hamstrings', 'glutes', 'lower_back'],
+    });
+    const encogimientos = ex('encogimientos', { pattern: 'isolation', primaryMuscles: ['traps'] });
+    const remo = ex('remo', { pattern: 'horizontal_pull', primaryMuscles: ['back', 'lats'] });
+    const hipThrust = ex('hip-thrust', { pattern: 'hinge', primaryMuscles: ['glutes'] });
+    const dorsal = (severity: number, type: UserConstraint['type'] = 'pain') =>
+      resolverContexto(
+        input({
+          constraints: [
+            { type, bodyRegion: 'upper_back', exerciseId: null, equipmentId: null, severity },
+          ],
+        }),
+      );
+    expect(excluido(dorsal(4), muerto)).toBe(false);
+    expect(excluido(dorsal(5), muerto)).toBe(true);
+    expect(excluido(dorsal(5), encogimientos)).toBe(true);
+    expect(excluido(dorsal(5), remo)).toBe(false);
+    expect(excluido(dorsal(5), hipThrust)).toBe(false);
+    expect(excluido(dorsal(3, 'injury'), muerto)).toBe(true);
+    const regla = V1_RESEARCH.safety?.painRules.find((r) => r.bodyRegion === 'upper_back');
+    expect(dorsal(3).avisos.map((a) => a.texto)).toContain(
+      `Consultá si ${(regla?.referIf ?? '').charAt(0).toLowerCase()}${(regla?.referIf ?? '').slice(1)}`,
+    );
+  });
+
   it('asma: el plan no cambia, sale el aviso del broncodilatador', () => {
     const sano = resolverContexto(input({}));
     const asma = resolverContexto(input({ conditions: ['asthma'] }));

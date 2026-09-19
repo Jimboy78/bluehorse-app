@@ -1,6 +1,13 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T3c: dolor de codo)
+## Última actualización: 19 de septiembre de 2026 (T3d: dolor de espalda alta)
+
+`docs/research/52`. Con la espalda alta, todas las zonas del cuerpo tienen regla; solo "otra" sigue
+con el aviso genérico. El dolor dorsal no saca nada hasta "no puedo" (mecánico, mantenerse activo);
+con eso o una lesión sale la carga axial. Las señales de consulta salen de Downie 2013 (golpe,
+corticoides, cáncer) más el dolor que va al pecho.
+
+## 19 de septiembre de 2026 (T3c: dolor de codo)
 
 `docs/research/51`. El codo tiene regla: desde 7 de 10 sale el agarre puro (caminata del granjero);
 con "no puedo", también el curl. Remos y dorsalera siguen, con correas o agarre neutro. Falta en el

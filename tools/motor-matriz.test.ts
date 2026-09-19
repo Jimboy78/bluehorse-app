@@ -2779,21 +2779,27 @@ describe('las zonas sin regla de dolor', () => {
     }
   });
 
-  it('con dos zonas sin regla avisa por las dos, una vez cada una', () => {
+  it('"otra" es la única zona sin regla: avisa una vez, y la zona con regla no suma el aviso', () => {
+    // Desde `52` todas las zonas del cuerpo tienen regla; "otra" no puede
+    // tenerla porque no dice dónde es.
+    expect([...CON_REGLA].sort()).toEqual([...BODY_REGIONS].filter((z) => z !== 'other').sort());
     const base = PERFILES.find((p) => p.nombre === 'rodilla lesionada');
     if (!base) return;
     const plan = planDe(
       {
         ...base,
         nombre: 'espalda alta y otra',
-        limitaciones: [molestia('upper_back', 5, 'injury'), molestia('other', 3)],
+        limitaciones: [
+          molestia('upper_back', 5, 'injury'),
+          molestia('other', 3),
+          molestia('other', 4),
+        ],
       },
       V1_RESEARCH,
     );
     const avisos = plan.warnings.filter((a) => a.includes(MARCA_SIN_REGLA));
-    expect(avisos).toHaveLength(2);
-    expect(avisos.join('\n')).toContain('la espalda alta');
-    expect(avisos.join('\n')).toContain('la zona que marcaste');
+    expect(avisos).toHaveLength(1);
+    expect(avisos[0]).toContain('la zona que marcaste');
   });
 });
 

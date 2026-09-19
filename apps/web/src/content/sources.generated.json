@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-19",
-  "resolved": 147,
+  "resolved": 149,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -949,6 +949,44 @@
       ],
       "documentos": [
         "51-dolor-de-codo.md"
+      ]
+    },
+    {
+      "doi": "10.1186/1471-2474-10-77",
+      "title": "Thoracic spine pain in the general population: Prevalence, incidence and associated factors in children, adolescents and adults. A systematic review",
+      "authors": [
+        "Briggs",
+        "Smith",
+        "Straker"
+      ],
+      "moreAuthors": 1,
+      "year": 2009,
+      "journal": "BMC Musculoskeletal Disorders",
+      "type": "journal-article",
+      "temas": [
+        "Dolor de espalda alta"
+      ],
+      "documentos": [
+        "52-dolor-de-espalda-alta.md"
+      ]
+    },
+    {
+      "doi": "10.1136/bmj.f7095",
+      "title": "Red flags to screen for malignancy and fracture in patients with low back pain: systematic review",
+      "authors": [
+        "Downie",
+        "Williams",
+        "Henschke"
+      ],
+      "moreAuthors": 8,
+      "year": 2013,
+      "journal": "BMJ",
+      "type": "journal-article",
+      "temas": [
+        "Dolor de espalda alta"
+      ],
+      "documentos": [
+        "52-dolor-de-espalda-alta.md"
       ]
     },
     {

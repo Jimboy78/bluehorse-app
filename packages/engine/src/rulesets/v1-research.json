@@ -1595,6 +1595,21 @@
         "confidence": "low"
       },
       {
+        "bodyRegion": "upper_back",
+        "monitorFrom": 3,
+        "avoidFrom": 5,
+        "avoidPatterns": [
+          "carry"
+        ],
+        "avoidMuscles": [
+          "lower_back",
+          "traps"
+        ],
+        "keepDoing": "Seguí moviéndote: el dolor de espalda alta suele ser mecánico y quedarse quieto no lo mejora. Remos y dorsalera con peso que no duela, y la espalda recta al levantar. Si algo pasa de 5 sobre 10, cambialo.",
+        "referIf": "El dolor vino después de un golpe o una caída fuerte, tomás corticoides hace tiempo, tuviste un cáncer, te duele también quieto y de noche, o viene con falta de aire, sudor o dolor que va al pecho o al brazo: eso último es una urgencia.",
+        "confidence": "low"
+      },
+      {
         "bodyRegion": "shoulder",
         "monitorFrom": 3,
         "avoidFrom": 4,
