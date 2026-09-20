@@ -861,6 +861,29 @@ function socioDe(p: Perfil): UserSnapshot {
 const engine = createPlaceholderEngine();
 const gym = construirGimnasio();
 
+/**
+ * Un socio sin nada declarado, para los tests que miden el filtro que le
+ * agregan. Avanzado a propósito: el nivel también saca ejercicios, y arrancar
+ * de un principiante haría que un test sobre lesiones midiera dos cosas.
+ */
+function socioCon(
+  over: Partial<Pick<UserSnapshot, 'profile' | 'constraints' | 'conditions'>> = {},
+): Pick<UserSnapshot, 'profile' | 'constraints' | 'conditions'> {
+  return {
+    profile: {
+      id: 'user-neutro',
+      gymId: GYM_ID,
+      displayName: 'Neutro',
+      birthDate: '1990-01-01',
+      sex: 'undisclosed',
+      experienceLevel: 'advanced',
+    },
+    constraints: [],
+    conditions: [],
+    ...over,
+  };
+}
+
 function planDe(p: Perfil, ruleset: Ruleset): PlanBlueprint {
   return engine.generatePlan({
     context: { now: AHORA, seed: 42 },
@@ -2229,7 +2252,7 @@ describe('el aviso de énfasis que el plan no cubre', () => {
         context: CONTEXTO,
         item,
         gym,
-        constraints: socioDe(perfil).constraints,
+        user: socioDe(perfil),
         unavailableEquipmentIds: [],
         ruleset: V1_RESEARCH,
       });
@@ -2353,7 +2376,7 @@ describe('el aviso de énfasis que el plan no cubre', () => {
         context: CONTEXTO,
         item: { exerciseId: item.id, equipmentId: null },
         gym,
-        constraints: [],
+        user: socioCon(),
         unavailableEquipmentIds: [],
         ruleset: V1_RESEARCH,
       });
@@ -2393,7 +2416,7 @@ describe('los ejercicios equivalentes', () => {
         context: CONTEXTO,
         item: { exerciseId, equipmentId },
         gym,
-        constraints: [],
+        user: socioCon(),
         unavailableEquipmentIds: [],
         ruleset: V1_RESEARCH,
       })
@@ -2432,7 +2455,7 @@ describe('los ejercicios equivalentes', () => {
           context: CONTEXTO,
           item,
           gym,
-          constraints: socioDe(perfil).constraints,
+          user: socioDe(perfil),
           unavailableEquipmentIds: [],
           ruleset: V1_RESEARCH,
         })) {
@@ -3271,7 +3294,7 @@ describe('los bloqueos de equipamiento y ejercicio', () => {
         context: CONTEXTO,
         item,
         gym,
-        constraints: [bloqueo],
+        user: socioCon({ constraints: [bloqueo] }),
         unavailableEquipmentIds: [],
         ruleset: V1_RESEARCH,
       });
@@ -3301,7 +3324,7 @@ describe('los bloqueos de equipamiento y ejercicio', () => {
         context: CONTEXTO,
         item: { exerciseId: original.id, equipmentId: null } as never,
         gym,
-        constraints: [],
+        user: socioCon(),
         unavailableEquipmentIds: [],
         ruleset: V1_RESEARCH,
       });
@@ -3319,6 +3342,93 @@ describe('los bloqueos de equipamiento y ejercicio', () => {
 
     // Si ningún ejercicio tuviera equivalentes, el bucle de arriba no mira nada.
     expect(medidos, 'ningún ejercicio del catálogo tiene equivalentes').toBeGreaterThan(20);
+  });
+
+  /**
+   * EL BOTÓN FILTRA POR TODO LO QUE FILTRA EL PLAN
+   *
+   * No solo por las lesiones. `generatePlan` saca ejercicios por cuatro
+   * módulos —restricciones, reglas de dolor, nivel y condiciones de salud— y
+   * hasta el 20/09/2026 `findSubstitutes` miraba los dos primeros. Medido acá,
+   * contra el catálogo real, con el filtro viejo:
+   *
+   * - embarazo, postparto, piso pélvico o prótesis: 6 explosivos ofrecidos,
+   *   entre ellos salto en profundidad y salto al cajón;
+   * - osteoporosis: 4 con flexión lumbar cargada (crunch en polea, abdominales
+   *   en máquina, abdominales en camilla, slam ball);
+   * - glaucoma o desprendimiento de retina: abdominales en camilla;
+   * - principiante: 13 por encima de su nivel, entre ellos peso muerto y
+   *   sentadilla con barra.
+   *
+   * Ninguno salía nunca en un plan. El plan protegía y el botón desprotegía.
+   */
+  describe('los equivalentes respetan el contexto entero', () => {
+    /** Todo lo que el botón le ofrece a este socio, sobre todo el catálogo. */
+    function ofrecidosA(
+      socio: Partial<Pick<UserSnapshot, 'profile' | 'constraints' | 'conditions'>>,
+    ): readonly Exercise[] {
+      return gym.exercises.flatMap((original) =>
+        engine
+          .findSubstitutes({
+            context: CONTEXTO,
+            item: { exerciseId: original.id, equipmentId: null } as never,
+            gym,
+            user: socioCon(socio),
+            unavailableEquipmentIds: [],
+            ruleset: V1_RESEARCH,
+          })
+          .flatMap((o) => gym.exercises.filter((e) => e.id === o.exerciseId)),
+      );
+    }
+
+    const casos: readonly {
+      readonly que: string;
+      readonly socio: Partial<Pick<UserSnapshot, 'profile' | 'constraints' | 'conditions'>>;
+      readonly prohibido: (e: Exercise) => boolean;
+    }[] = [
+      {
+        que: 'con osteoporosis, nada que cargue la flexión lumbar',
+        socio: { conditions: ['osteoporosis'] },
+        prohibido: (e) => e.loadsSpinalFlexion,
+      },
+      {
+        que: 'embarazada, nada explosivo',
+        socio: { conditions: ['pregnancy'] },
+        prohibido: (e) => e.isExplosive,
+      },
+      {
+        que: 'con glaucoma, nada con la cabeza abajo',
+        socio: { conditions: ['glaucoma_retina'] },
+        prohibido: (e) => e.headBelowHeart,
+      },
+      {
+        que: 'principiante, nada por encima de su nivel',
+        socio: { profile: { ...socioCon().profile, experienceLevel: 'beginner' } },
+        prohibido: (e) => e.skillLevel !== 'beginner',
+      },
+    ];
+
+    for (const caso of casos) {
+      it(caso.que, () => {
+        const ofrecidos = ofrecidosA(caso.socio);
+        const colados = [...new Set(ofrecidos.filter(caso.prohibido).map((e) => e.name))];
+        expect(colados.join(', ')).toBe('');
+        // Un motor que no ofreciera nada pasaría en verde sin filtrar nada.
+        expect(ofrecidos.length, 'no se ofreció ni un equivalente').toBeGreaterThan(10);
+      });
+    }
+
+    /**
+     * Y el catálogo tiene de qué filtrar: si mañana alguien saca el último
+     * ejercicio explosivo o el último que flexiona la columna, los tests de
+     * arriba quedan en verde sin ejercitar nada.
+     */
+    it('el catálogo tiene ejercicios de cada clase prohibida', () => {
+      expect(gym.exercises.filter((e) => e.loadsSpinalFlexion).length).toBeGreaterThan(2);
+      expect(gym.exercises.filter((e) => e.isExplosive).length).toBeGreaterThan(2);
+      expect(gym.exercises.filter((e) => e.headBelowHeart).length).toBeGreaterThan(0);
+      expect(gym.exercises.filter((e) => e.skillLevel !== 'beginner').length).toBeGreaterThan(5);
+    });
   });
 
   /**
@@ -3353,7 +3463,7 @@ describe('los bloqueos de equipamiento y ejercicio', () => {
           context: CONTEXTO,
           item: { exerciseId: original.id, equipmentId: null } as never,
           gym,
-          constraints: [lesion],
+          user: socioCon({ constraints: [lesion] }),
           unavailableEquipmentIds: [],
           ruleset: V1_RESEARCH,
         })

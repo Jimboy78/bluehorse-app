@@ -200,7 +200,14 @@ export interface FindSubstitutesInput {
   readonly context: EngineContext;
   readonly item: Pick<PlanSessionItem, 'exerciseId' | 'equipmentId'>;
   readonly gym: GymSnapshot;
-  readonly constraints: readonly UserConstraint[];
+  /**
+   * El socio entero, no solo sus molestias: el nivel y lo que marcó detrás de
+   * la puerta de salud sacan ejercicios igual que una lesión, y hasta acá este
+   * camino no los veía. Es un `Pick` y no la instantánea completa porque
+   * buscar un reemplazo no mira objetivos ni cargas de partida, y pedir de
+   * menos deja claro qué se usa.
+   */
+  readonly user: Pick<UserSnapshot, 'profile' | 'constraints' | 'conditions'>;
   /** Estaciones ocupadas o fuera de servicio en este momento. */
   readonly unavailableEquipmentIds: readonly Id[];
   readonly ruleset: Ruleset;

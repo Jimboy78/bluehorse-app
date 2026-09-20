@@ -13,7 +13,7 @@ import type {
   UserGoal,
 } from '@bh/domain';
 import { EXPERIENCE_LEVELS, PREVENTION_PROGRAMS } from '@bh/domain';
-import type { GeneratePlanInput } from './contract.ts';
+import type { GeneratePlanInput, UserSnapshot } from './contract.ts';
 import { goalLabel, regionLabel, sesiones } from './etiquetas.ts';
 import type { GoalParams, PainRule, Ruleset } from './ruleset.ts';
 import { detrainingMultiplier, levelChangesDose, resolveParams } from './ruleset.ts';
@@ -230,21 +230,10 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
   // lanzamiento rotacional. Medido en el barrido.
   const conMolestia =
     comoMolestias(ruleset, user.constraints).some(esMolestia) || operacion.sinSaltos;
-  const sinSaltosPorMolestia =
-    conMolestia && ruleset.safety?.painSubstitution?.avoidExplosive === true;
-
   const salud = efectosDeSalud(ruleset, user.conditions);
   const movimientos = movimientosQueNoPuede(user.constraints);
   decir('movimiento', avisosDeMovimiento(ruleset, movimientos));
-  const exclusiones: Exclusion[] = [
-    { modulo: 'restriccion', excluye: (ex) => isBlocked(ex, user.constraints) },
-    {
-      modulo: 'molestia',
-      excluye: (ex) => isBlockedByPain(ex, avoidRules) || (sinSaltosPorMolestia && ex.isExplosive),
-    },
-    { modulo: 'nivel', excluye: (ex) => !isWithinSkillLevel(ex, level) },
-    { modulo: 'salud', excluye: salud.excluye },
-  ];
+  const exclusiones = exclusionesDelSocio({ ruleset, user, now: context.now });
   const explosivos = salud.sinExplosivos
     ? null
     : explosivePairing({
@@ -312,6 +301,61 @@ export function ordenarAvisos(avisos: readonly Aviso[]): string[] {
     .map((a, i) => ({ a, i }))
     .sort((x, y) => rango(x.a.modulo) - rango(y.a.modulo) || x.i - y.i)
     .map(({ a }) => a.texto);
+}
+
+/**
+ * Qué ejercicios del catálogo NO puede hacer este socio, y por qué módulo.
+ *
+ * Vive afuera de `resolverContexto` porque hay dos caminos que le proponen
+ * ejercicios a la misma persona: el plan y el botón "cambiar ejercicio". Si
+ * cada uno arma su propia lista de filtros, se separan — y se habían separado.
+ * Medido sobre el catálogo real, con el filtro que tenía `findSubstitutes`:
+ *
+ * - una embarazada (o alguien con prótesis, piso pélvico o postparto) recibía
+ *   un plan sin nada explosivo y el botón le ofrecía salto en profundidad,
+ *   salto al cajón, salto con vallas, salto con barra hexagonal, slam ball y
+ *   swing con kettlebell;
+ * - con osteoporosis, crunch en polea, abdominales en máquina, abdominales en
+ *   camilla y slam ball, que es exactamente la flexión lumbar cargada que la
+ *   condición saca;
+ * - con glaucoma, abdominales en camilla, con la cabeza abajo;
+ * - a un principiante, 13 ejercicios por encima de su nivel, entre ellos peso
+ *   muerto y sentadilla con barra.
+ *
+ * Nada de eso salía nunca en un plan. El plan protegía y el botón desprotegía,
+ * igual que pasaba con las reglas de dolor antes de taparlo.
+ *
+ * `now` entra porque una operación reciente saca los saltos mientras dura la
+ * ventana del ruleset, y "reciente" se mide contra una fecha.
+ */
+export function exclusionesDelSocio(input: {
+  readonly ruleset: Ruleset;
+  readonly user: Pick<UserSnapshot, 'profile' | 'constraints' | 'conditions'>;
+  readonly now: string;
+}): readonly Exclusion[] {
+  const { ruleset, user, now } = input;
+  const avoidRules = activePainRules(ruleset, user.constraints, 'avoid');
+  const salud = efectosDeSalud(ruleset, user.conditions);
+  // Cualquier molestia declarada, o una operación dentro de la ventana: sumar
+  // impacto no es lo que se ajusta, es lo que se evita.
+  const conMolestia =
+    comoMolestias(ruleset, user.constraints).some(esMolestia) ||
+    efectosDeOperaciones(ruleset, user.constraints, now).sinSaltos;
+  const sinSaltosPorMolestia =
+    conMolestia && ruleset.safety?.painSubstitution?.avoidExplosive === true;
+
+  return [
+    { modulo: 'restriccion', excluye: (ex) => isBlocked(ex, user.constraints) },
+    {
+      modulo: 'molestia',
+      excluye: (ex) => isBlockedByPain(ex, avoidRules) || (sinSaltosPorMolestia && ex.isExplosive),
+    },
+    {
+      modulo: 'nivel',
+      excluye: (ex) => !isWithinSkillLevel(ex, user.profile.experienceLevel),
+    },
+    { modulo: 'salud', excluye: salud.excluye },
+  ];
 }
 
 /** Si algún módulo saca este ejercicio. Las exclusiones se suman. */
@@ -830,7 +874,7 @@ function applySportVolume(
  * saca ejercicios del plan. La diferencia entre las dos es lo que evita tratar
  * "me molesta" y "no puedo" como la misma decisión.
  */
-export function activePainRules(
+function activePainRules(
   ruleset: Ruleset,
   constraints: readonly UserConstraint[],
   level: 'monitor' | 'avoid',

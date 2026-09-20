@@ -27,9 +27,9 @@ import type {
   ResolvedSport,
 } from './contexto.ts';
 import {
-  activePainRules,
   esDeBloque,
   excluido,
+  exclusionesDelSocio,
   isBlocked,
   isBlockedByPain,
   isWithinSkillLevel,
@@ -51,6 +51,7 @@ import type {
   SessionBlueprint,
   SessionItemBlueprint,
   SubstituteOption,
+  UserSnapshot,
 } from './contract.ts';
 import {
   goalLabel,
@@ -318,7 +319,7 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
       gym,
       sport,
       sessions,
-      constraints: user.constraints,
+      user,
     }),
   );
 
@@ -1253,7 +1254,7 @@ function porTiempo(exercise: Exercise): boolean {
 }
 
 function findSubstitutes(input: FindSubstitutesInput): readonly SubstituteOption[] {
-  const { item, gym, constraints, unavailableEquipmentIds, ruleset } = input;
+  const { item, gym, user, unavailableEquipmentIds, ruleset } = input;
   const cfg = ruleset.substitution;
 
   const original = gym.exercises.find((e) => e.id === item.exerciseId);
@@ -1273,18 +1274,17 @@ function findSubstitutes(input: FindSubstitutesInput): readonly SubstituteOption
     gym.substitutions.filter((s) => s.exerciseId === original.id).map((s) => [s.substituteId, s]),
   );
 
-  // Las mismas reglas de dolor que armaron el plan.
+  // Los mismos filtros que armaron el plan, de una sola fuente
+  // (`exclusionesDelSocio`): restricciones, reglas de dolor, nivel y salud.
   //
-  // Hasta acá este camino no las miraba, y era un agujero: medido sobre el
-  // catálogo real, alguien con la rodilla lesionada en severidad 5 recibía un
-  // plan sin una sola sentadilla —la regla saca el patrón entero y el cuádriceps
-  // — y después, tocando "cambiar ejercicio", se le ofrecían sentadilla hack,
-  // sentadilla con cinturón y sentadilla en Smith. El plan protegía la rodilla
-  // y el botón la desprotegía en dos toques.
+  // Tener dos listas era el agujero. Medido sobre el catálogo real, este camino
+  // ofrecía sentadilla hack a alguien con la rodilla lesionada, saltos en
+  // profundidad a una embarazada, crunch en polea con osteoporosis y peso
+  // muerto con barra a un principiante — todo lo que el plan le había sacado.
   //
   // Vale también para las equivalencias cargadas a mano: el staff carga una
   // equivalencia mirando el ejercicio, no la lesión de cada socio.
-  const avoidRules = activePainRules(ruleset, constraints, 'avoid');
+  const exclusiones = exclusionesDelSocio({ ruleset, user, now: input.context.now });
 
   /**
    * Lo que descalifica a un candidato antes de mirar cuánto se parece.
@@ -1300,8 +1300,7 @@ function findSubstitutes(input: FindSubstitutesInput): readonly SubstituteOption
     // Un ejercicio de bloque se cambia por otro del mismo bloque, nunca por
     // uno de slot, ni al revés (`docs/research/62`).
     esDeBloque(candidate) !== esDeBloque(original) ||
-    isBlocked(candidate, constraints) ||
-    isBlockedByPain(candidate, avoidRules) ||
+    excluido({ exclusiones }, candidate) ||
     !hasUsableEquipment(candidate, gym, [...blocked]) ||
     // El mismo trabajo de otra forma, no otro trabajo.
     (!curatedEdge && cfg.requireSamePattern && candidate.pattern !== original.pattern) ||
@@ -2108,7 +2107,7 @@ function musclesReachable(input: EmphasisWarningInput): {
   enElPlan: Set<MuscleGroup>;
   cambiando: Set<MuscleGroup>;
 } {
-  const { context, ruleset, gym, sessions, constraints } = input;
+  const { context, ruleset, gym, sessions, user } = input;
   const exerciseById = new Map(gym.exercises.map((e) => [e.id, e]));
   const enElPlan = new Set<MuscleGroup>();
   const cambiando = new Set<MuscleGroup>();
@@ -2123,7 +2122,7 @@ function musclesReachable(input: EmphasisWarningInput): {
       context,
       item,
       gym,
-      constraints,
+      user,
       unavailableEquipmentIds: [],
       ruleset,
     });
@@ -2191,7 +2190,7 @@ interface EmphasisWarningInput {
   readonly gym: GymSnapshot;
   readonly sport: ResolvedSport | null;
   readonly sessions: readonly SessionBlueprint[];
-  readonly constraints: readonly UserConstraint[];
+  readonly user: Pick<UserSnapshot, 'profile' | 'constraints' | 'conditions'>;
 }
 
 /**

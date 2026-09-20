@@ -2,6 +2,7 @@ import type {
   BodyRegion,
   ExperienceLevel,
   Goal,
+  HealthCondition,
   Id,
   MovementLimit,
   SeasonPhase,
@@ -9,8 +10,10 @@ import type {
   Sex,
   UserConstraint,
 } from '@bh/domain';
+import type { UserSnapshot } from '@bh/engine';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './auth/AuthProvider.tsx';
+import { toDomainConstraint } from './mappers/constraint.ts';
 import { limpiarSecundarios } from './objetivos.ts';
 import { temporadaYDia } from './partido.ts';
 import { requireSupabase } from './supabase.ts';
@@ -321,6 +324,65 @@ export function useConstraints() {
           movement: row.movement,
         };
       });
+    },
+  });
+}
+
+/**
+ * EL SOCIO COMO LO MIRA EL MOTOR
+ *
+ * Buscar un reemplazo filtra por todo lo que filtra el plan: restricciones,
+ * reglas de dolor, nivel de experiencia y lo que marcó detrás de la puerta de
+ * salud. Las pantallas pasaban solo las restricciones, así que "cambiar
+ * ejercicio" ofrecía lo que el plan había sacado — medido sobre el catálogo
+ * real: saltos en profundidad a una embarazada, crunch en polea con
+ * osteoporosis, peso muerto con barra a un principiante.
+ *
+ * Es una consulta propia y no `fetchUserSnapshot`: esa pide además objetivos y
+ * cargas de partida, y **explota** si el socio todavía no tiene objetivo. Para
+ * mirar el catálogo en "Explorar" eso no hace falta ni corresponde.
+ */
+export function useSocioDelMotor() {
+  const { user, status } = useAuth();
+
+  return useQuery<Pick<UserSnapshot, 'profile' | 'constraints' | 'conditions'>>({
+    queryKey: ['socio-motor', user?.id],
+    enabled: status === 'signed-in' && !!user,
+    queryFn: async () => {
+      const client = requireSupabase();
+      const userId = user?.id as string;
+
+      const [perfil, restricciones, condiciones] = await Promise.all([
+        client
+          .from('profiles')
+          .select('id, gym_id, display_name, birth_date, sex, experience_level')
+          .eq('id', userId)
+          .single(),
+        client
+          .from('user_constraints')
+          .select(
+            'type, body_region, exercise_id, equipment_id, severity, occurred_on, rehab_done, movement',
+          )
+          .eq('user_id', userId)
+          .is('active_to', null),
+        client.from('user_health_conditions').select('condition').eq('user_id', userId),
+      ]);
+      if (perfil.error) throw perfil.error;
+      if (restricciones.error) throw restricciones.error;
+      if (condiciones.error) throw condiciones.error;
+
+      return {
+        profile: {
+          id: perfil.data.id,
+          gymId: perfil.data.gym_id,
+          displayName: perfil.data.display_name,
+          birthDate: perfil.data.birth_date,
+          sex: perfil.data.sex as Sex,
+          experienceLevel: perfil.data.experience_level as ExperienceLevel,
+        },
+        constraints: (restricciones.data ?? []).map(toDomainConstraint),
+        conditions: (condiciones.data ?? []).map((c) => c.condition as HealthCondition),
+      };
     },
   });
 }

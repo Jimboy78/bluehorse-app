@@ -1015,7 +1015,7 @@ describe('resolverContexto', () => {
               context: { now: '2026-09-10T12:00:00.000Z', seed: 1 },
               item: { exerciseId: dorsalera.id, equipmentId: null },
               gym: conHombro,
-              constraints,
+              user: input({ constraints }).user,
               unavailableEquipmentIds: [],
               ruleset: V1_RESEARCH,
             })

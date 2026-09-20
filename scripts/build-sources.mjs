@@ -97,6 +97,7 @@ const TEMAS = {
   66: 'Lo que el deporte no cambia',
   67: 'El salto del par',
   68: 'Objetivos secundarios y cardio',
+  69: 'Cambiar ejercicio filtra igual que el plan',
 };
 
 // El `]` y el `(` cierran un enlace de markdown: sin ellos, un DOI escrito como

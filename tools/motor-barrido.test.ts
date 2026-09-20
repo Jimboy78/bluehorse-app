@@ -520,6 +520,8 @@ describe('barrido de socios generados', () => {
   const aerobico = { conMeta: 0, llegan: 0 };
   /** En temporada: cuántas veces por semana sale la prevención, por plan. */
   const prevencionEnTemporada: number[] = [];
+  /** "Cambiar ejercicio": socios mirados y cuántos reciben alguna alternativa. */
+  const equivalentes = { mirados: 0, conOpciones: 0, opciones: 0 };
 
   /**
    * El impacto para el hueso: mujeres desde la edad del ruleset y sin molestias
@@ -618,6 +620,41 @@ describe('barrido de socios generados', () => {
    * primero: la pantalla muestra los primeros y guarda el resto, y "cuándo
    * consultar" no puede quedar detrás de "ver más".
    */
+  /**
+   * LO QUE EL CONTEXTO SACA NO VUELVE POR "CAMBIAR EJERCICIO"
+   *
+   * El plan y el botón comparten `exclusionesDelSocio`, así que lo que el
+   * contexto de este socio excluye no puede aparecer como equivalente. Es la
+   * misma invariante que la matriz mide por condición; acá la mide la
+   * combinación de las nueve dimensiones a la vez, que es donde aparecen los
+   * cruces que ningún perfil escrito a mano junta.
+   *
+   * Se mira el primer ítem del plan y no todos: son 3.000 socios, y el filtro
+   * es el mismo para cualquier ítem.
+   */
+  function chequearEquivalentes(p: Perfil, inp: GeneratePlanInput, b: PlanBlueprint) {
+    const it = b.sessions[0]?.items[0];
+    if (!it) return;
+    equivalentes.mirados += 1;
+    const ctx = resolverContexto(inp);
+    const opciones = engine.findSubstitutes({
+      context: inp.context,
+      item: it,
+      gym,
+      user: inp.user,
+      unavailableEquipmentIds: [],
+      ruleset: V1_RESEARCH,
+    });
+    if (opciones.length > 0) equivalentes.conOpciones += 1;
+    equivalentes.opciones += opciones.length;
+    for (const o of opciones) {
+      const ex = exPorId.get(o.exerciseId);
+      if (ex && excluido(ctx, ex)) {
+        violaciones.push(`ofreció "${ex.name}", que su contexto excluye: ${JSON.stringify(p)}`);
+      }
+    }
+  }
+
   function chequearAvisos(p: Perfil, inp: GeneratePlanInput, b: PlanBlueprint) {
     const avisos = resolverContexto(inp).avisos;
     const id = JSON.stringify(p);
@@ -1179,6 +1216,7 @@ describe('barrido de socios generados', () => {
     const b = engine.generatePlan(inp);
     avisosPorPlan.push(b.warnings.length);
     chequearAvisos(p, inp, b);
+    chequearEquivalentes(p, inp, b);
     const evitar = resolverContexto(inp).avoidRules;
     if (evitar.length > 0) conZonaEvitada += 1;
     chequearRehabilitacion(p, evitar);
@@ -1242,6 +1280,9 @@ describe('barrido de socios generados', () => {
     expect(aerobico.llegan).toBeGreaterThan(N / 10);
     expect(direccion.preferidos).toBeGreaterThan(N / 10);
     expect(prevencionEnTemporada.length).toBeGreaterThan(N / 50);
+    // Si el botón no ofreciera nada, `chequearEquivalentes` pasaría en verde
+    // sin haber filtrado nunca.
+    expect(equivalentes.conOpciones).toBeGreaterThan(N / 2);
   });
 
   it('el catálogo marca justo lo que la lista a mano dice que pide cada movimiento', () => {
@@ -1315,6 +1356,10 @@ describe('barrido de socios generados', () => {
       // Con meta semanal de cardio (`docs/research/68`): el resto no tiene el
       // tiempo y el plan se lo dice.
       llegaALaMetaDeCardio: `${pct(aerobico.llegan, aerobico.conMeta)} %`,
+      // "Cambiar ejercicio" sobre el primer ítem del plan: a cuántos socios les
+      // ofrece algo, y cuántas opciones en promedio.
+      recibeAlgunaAlternativa: `${pct(equivalentes.conOpciones, equivalentes.mirados)} %`,
+      alternativasPorSocio: (equivalentes.opciones / Math.max(equivalentes.mirados, 1)).toFixed(2),
       sesionesQuePasanLosMinutosDeclarados: `${pct(minutos.sobre, minutos.total)} %`,
       // Solo las combinaciones donde alguna no entra: lo que el ajuste no pudo
       // achicar sin romper un piso, y que el plan avisa.

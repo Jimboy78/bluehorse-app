@@ -1,4 +1,4 @@
-import type { Equipment, Exercise, UserConstraint } from '@bh/domain';
+import type { Equipment, Exercise, HealthCondition, UserConstraint } from '@bh/domain';
 import type {
   GymSnapshot,
   PlanBlueprint,
@@ -8,6 +8,23 @@ import type {
 import { describe, expect, it } from 'vitest';
 import type { PlanPreview, PreviewItem } from './plan-preview.ts';
 import { itemKey, previewSubstitutes, swapPreviewItem, toPreview } from './plan-preview.ts';
+
+/**
+ * El socio como lo mira el motor. Avanzado y sin nada declarado: cada test que
+ * quiere filtrar algo lo cambia, y así lo que filtra se lee en el test.
+ */
+const SOCIO = {
+  profile: {
+    id: 'user-1',
+    gymId: 'gym-1',
+    displayName: 'Socio',
+    birthDate: '1990-01-01',
+    sex: 'male' as const,
+    experienceLevel: 'advanced' as const,
+  },
+  constraints: [] as readonly UserConstraint[],
+  conditions: [] as readonly HealthCondition[],
+};
 
 /**
  * La previa es lo único entre "contesté el cuestionario" y "estoy entrenando",
@@ -128,7 +145,7 @@ const prensa: SubstituteOption = {
 
 describe('toPreview', () => {
   it('resuelve nombres, patrón y músculos desde el catálogo', () => {
-    const preview = toPreview(blueprint, gym, 0);
+    const preview = toPreview(blueprint, gym, 0, SOCIO);
     const primero = fila(preview, 0, 0);
     expect(primero.name).toBe('Sentadilla');
     expect(primero.pattern).toBe('squat');
@@ -136,7 +153,7 @@ describe('toPreview', () => {
   });
 
   it('deja el sector en null cuando la estación no lo tiene cargado', () => {
-    const preview = toPreview(blueprint, gym, 0);
+    const preview = toPreview(blueprint, gym, 0, SOCIO);
     // La regla es no inventar: "sin ubicación" repetido en cada fila ocupa el
     // lugar de un dato sin serlo.
     expect(fila(preview, 0, 0).sector).toBeNull();
@@ -144,17 +161,17 @@ describe('toPreview', () => {
 
   it('cuenta todas las series de la cola, no las de una sesión', () => {
     // 2 sesiones × (4 + 3) series.
-    expect(toPreview(blueprint, gym, 0).totalSets).toBe(14);
+    expect(toPreview(blueprint, gym, 0, SOCIO).totalSets).toBe(14);
   });
 
   it('pasa los avisos del motor tal cual', () => {
-    expect(toPreview(blueprint, gym, 0).warnings).toEqual(['Un aviso cualquiera.']);
+    expect(toPreview(blueprint, gym, 0, SOCIO).warnings).toEqual(['Un aviso cualquiera.']);
   });
 });
 
 describe('swapPreviewItem', () => {
   it('cambia el ejercicio en TODA la cola, no solo en la sesión que se tocó', () => {
-    const preview = toPreview(blueprint, gym, 0);
+    const preview = toPreview(blueprint, gym, 0, SOCIO);
     const next = swapPreviewItem(preview, itemKey(0, 0), prensa);
 
     // El motor repite la sesión A: cambiarlo en la primera y dejarlo en la
@@ -164,7 +181,7 @@ describe('swapPreviewItem', () => {
   });
 
   it('no toca ningún número de la prescripción', () => {
-    const preview = toPreview(blueprint, gym, 0);
+    const preview = toPreview(blueprint, gym, 0, SOCIO);
     const antes = fila(preview, 0, 0);
     const despues = fila(swapPreviewItem(preview, itemKey(0, 0), prensa), 0, 0);
 
@@ -175,14 +192,14 @@ describe('swapPreviewItem', () => {
   });
 
   it('deja intactos los ejercicios que no son el que se cambió', () => {
-    const preview = toPreview(blueprint, gym, 0);
+    const preview = toPreview(blueprint, gym, 0, SOCIO);
     const next = swapPreviewItem(preview, itemKey(0, 0), prensa);
     expect(fila(next, 0, 1).name).toBe('Remo');
     expect(fila(next, 1, 1).name).toBe('Remo');
   });
 
   it('marca como cambiadas todas las filas afectadas', () => {
-    const preview = toPreview(blueprint, gym, 0);
+    const preview = toPreview(blueprint, gym, 0, SOCIO);
     const next = swapPreviewItem(preview, itemKey(0, 0), prensa);
     expect(fila(next, 0, 0).swapped).toBe(true);
     expect(fila(next, 1, 0).swapped).toBe(true);
@@ -190,20 +207,20 @@ describe('swapPreviewItem', () => {
   });
 
   it('reescribe el motivo para que no explique un ejercicio que ya no está', () => {
-    const preview = toPreview(blueprint, gym, 0);
+    const preview = toPreview(blueprint, gym, 0, SOCIO);
     const next = swapPreviewItem(preview, itemKey(0, 0), prensa);
     expect(fila(next, 0, 0).rationale).toContain('Sentadilla');
     expect(fila(next, 0, 0).rationale).not.toBe('La sentadilla va primero.');
   });
 
   it('toma la ubicación de la estación nueva', () => {
-    const preview = toPreview(blueprint, gym, 0);
+    const preview = toPreview(blueprint, gym, 0, SOCIO);
     const next = swapPreviewItem(preview, itemKey(0, 0), prensa);
     expect(fila(next, 0, 0).sector).toBe('Fondo, pared derecha');
   });
 
   it('acumula cambios: el segundo no deshace el primero', () => {
-    const preview = toPreview(blueprint, gym, 0);
+    const preview = toPreview(blueprint, gym, 0, SOCIO);
     const uno = swapPreviewItem(preview, itemKey(0, 0), prensa);
     const dos = swapPreviewItem(uno, itemKey(0, 1), {
       exerciseId: 'ex-prensa',
@@ -217,37 +234,36 @@ describe('swapPreviewItem', () => {
   });
 
   it('devuelve la previa sin tocar si la fila no existe', () => {
-    const preview = toPreview(blueprint, gym, 0);
+    const preview = toPreview(blueprint, gym, 0, SOCIO);
     expect(swapPreviewItem(preview, 's9-i9', prensa)).toBe(preview);
   });
 
   it('no muta la previa original', () => {
-    const preview = toPreview(blueprint, gym, 0);
+    const preview = toPreview(blueprint, gym, 0, SOCIO);
     swapPreviewItem(preview, itemKey(0, 0), prensa);
     expect(fila(preview, 0, 0).name).toBe('Sentadilla');
   });
 });
 
 /**
- * LAS MOLESTIAS TIENEN QUE VIAJAR CON LA PREVIA
+ * EL SOCIO ENTERO TIENE QUE VIAJAR CON LA PREVIA
  *
- * `generatePlan` recibe las restricciones del socio y saca del plan lo que
- * irrita una zona que duele. `findSubstitutes` tiene el mismo filtro adentro —
- * se le agregó en `80ca67e` — pero las tres pantallas que lo llaman lo hacían
- * con `constraints: []`, así que nunca corría.
+ * `generatePlan` filtra el catálogo por cuatro cosas —restricciones, reglas de
+ * dolor, nivel de experiencia y condiciones de salud— y `findSubstitutes`
+ * comparte ese filtro desde que `exclusionesDelSocio` es una sola función. Lo
+ * que se fija acá es que la previa le pase de qué filtrar.
  *
- * Medido contra el catálogo real: a un socio con la rodilla lesionada, **20 de
- * los 58 ejercicios** le ofrecían como equivalente algo que su lesión prohíbe,
- * incluido el salto al cajón. En "Hoy" no se notaba, porque ahí el original ya
- * salió de un plan filtrado y el reemplazo comparte patrón con él; en "Explorar"
- * se arranca de cualquier ejercicio y ese blindaje no existe.
+ * Primero fue con las molestias: las tres pantallas llamaban con
+ * `constraints: []` y, medido contra el catálogo real, a alguien con la rodilla
+ * lesionada **20 de los 58 ejercicios** le ofrecían como equivalente algo que su
+ * lesión prohíbe. Después apareció el resto: el nivel y la salud ni siquiera
+ * llegaban al motor por este camino.
  *
- * `toPreview` deja `constraints` en `[]` por defecto para no obligar a los
- * fixtures a declararlas, así que lo que se fija acá es que cuando están,
- * llegan: si alguien vuelve a poner `constraints: []` en `previewSubstitutes`,
- * este test lo agarra.
+ * En "Hoy" cuesta verlo, porque ahí el original ya salió de un plan filtrado y
+ * el reemplazo comparte patrón con él; en "Explorar" se arranca de cualquier
+ * ejercicio y ese blindaje no existe.
  */
-describe('previewSubstitutes con una lesión declarada', () => {
+describe('previewSubstitutes con el socio declarado', () => {
   const rodilla: UserConstraint = {
     type: 'injury',
     bodyRegion: 'knee',
@@ -256,23 +272,53 @@ describe('previewSubstitutes con una lesión declarada', () => {
     severity: 5,
   };
 
-  function opciones(constraints: readonly UserConstraint[]) {
-    const preview = toPreview(blueprint, gym, 0, constraints);
+  function opciones(socio: Partial<typeof SOCIO>) {
+    const preview = toPreview(blueprint, gym, 0, { ...SOCIO, ...socio });
     const fila0 = fila(preview, 0, 0);
     return previewSubstitutes(preview, fila0, 'user-1').map((o) => o.exerciseId);
   }
 
-  it('sin lesión ofrece el equivalente del mismo patrón', () => {
-    // Control: si acá no hubiera ninguna opción, el test de abajo pasaría solo
-    // porque no hay nada que filtrar.
-    expect(opciones([]), 'sin lesión tampoco hay opciones').toContain('ex-prensa');
+  it('sin nada declarado ofrece el equivalente del mismo patrón', () => {
+    // Control: si acá no hubiera ninguna opción, los tests de abajo pasarían
+    // solo porque no hay nada que filtrar.
+    expect(opciones({}), 'sin nada declarado tampoco hay opciones').toContain('ex-prensa');
   });
 
   it('con la rodilla lesionada no ofrece un ejercicio de cuádriceps', () => {
-    const conLesion = opciones([rodilla]);
+    const conLesion = opciones({ constraints: [rodilla] });
     const cuadriceps = gym.exercises
       .filter((e) => e.primaryMuscles.includes('quads'))
       .map((e) => e.id);
     expect(conLesion.filter((id) => cuadriceps.includes(id))).toEqual([]);
+  });
+
+  it('no ofrece un ejercicio por encima del nivel del socio', () => {
+    const prensa = gym.exercises.find((e) => e.id === 'ex-prensa');
+    expect(prensa, 'el fixture dejó de tener la prensa').toBeDefined();
+    if (!prensa) return;
+    // La prensa es lo que el control de arriba sí ofrece: subiéndole la técnica
+    // por encima del socio, tiene que desaparecer.
+    const exigente = gym.exercises.map((e) =>
+      e.id === 'ex-prensa' ? { ...e, skillLevel: 'advanced' as const } : e,
+    );
+    const preview = toPreview(blueprint, { ...gym, exercises: exigente }, 0, {
+      ...SOCIO,
+      profile: { ...SOCIO.profile, experienceLevel: 'beginner' },
+    });
+    const ids = previewSubstitutes(preview, fila(preview, 0, 0), 'user-1').map((o) => o.exerciseId);
+    expect(ids).not.toContain('ex-prensa');
+  });
+
+  it('con una condición de salud no ofrece lo que la condición saca', () => {
+    // Osteoporosis saca la flexión lumbar cargada (`docs/research/46`).
+    const conFlexion = gym.exercises.map((e) =>
+      e.id === 'ex-prensa' ? { ...e, loadsSpinalFlexion: true } : e,
+    );
+    const preview = toPreview(blueprint, { ...gym, exercises: conFlexion }, 0, {
+      ...SOCIO,
+      conditions: ['osteoporosis'],
+    });
+    const ids = previewSubstitutes(preview, fila(preview, 0, 0), 'user-1').map((o) => o.exerciseId);
+    expect(ids).not.toContain('ex-prensa');
   });
 });

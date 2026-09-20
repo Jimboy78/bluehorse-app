@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-19T21:51:11.571Z",
+ "generatedAt": "2026-09-20T18:40:38.486Z",
  "docs": [
   {
    "id": "metodo",
@@ -552,6 +552,14 @@
    "resumen": "Fecha: 19/09/2026. Tanda: T6a del plan de variables. En el checklist: \"varios objetivos con prioridad (priority ya existe y no se usa), bajar grasa, subir peso, salud, movilidad, volver de una lesión\". Esta tanda cubre los dos primeros q…",
    "archivo": "68-objetivos-secundarios-y-cardio.md",
    "bloques": 13
+  },
+  {
+   "id": "69-cambiar-ejercicio-filtra-igual",
+   "orden": 69,
+   "titulo": "\"Cambiar ejercicio\" filtra por lo mismo que el plan",
+   "resumen": "Fecha: 20/09/2026. Tanda: propia, fuera del plan de variables. Salió del typecheck de tools/: al ponerlo, aparecieron cuatro llamadas a findSubstitutes sin el campo context, y mirando por qué nadie las había notado se vio que context no…",
+   "archivo": "69-cambiar-ejercicio-filtra-igual.md",
+   "bloques": 18
   },
   {
    "id": "auditoria",

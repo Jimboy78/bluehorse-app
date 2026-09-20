@@ -1,4 +1,4 @@
-import type { Id, MovementPattern, MuscleGroup, UserConstraint } from '@bh/domain';
+import type { Id, MovementPattern, MuscleGroup } from '@bh/domain';
 import { formatLoad } from '@bh/domain';
 import type {
   GymSnapshot,
@@ -6,6 +6,7 @@ import type {
   SessionBlueprint,
   SessionItemBlueprint,
   SubstituteOption,
+  UserSnapshot,
 } from '@bh/engine';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './auth/AuthProvider.tsx';
@@ -75,11 +76,12 @@ export interface PlanPreview {
   /** Qué combinación es esta. Sube de a uno con "probá otra". */
   readonly variant: number;
   /**
-   * Molestias y lesiones vigentes. Viajan con la previa porque buscar
-   * equivalentes las necesita: sin esto `previewSubstitutes` corría con
-   * `constraints: []` y podía ofrecer justo lo que la lesión prohíbe.
+   * El socio como lo mira el motor. Viaja con la previa porque buscar
+   * equivalentes lo necesita entero: con solo las molestias, "cambiar
+   * ejercicio" ofrecía lo que el nivel o una condición de salud habían sacado
+   * del plan que se está mirando.
    */
-  readonly constraints: readonly UserConstraint[];
+  readonly user: Pick<UserSnapshot, 'profile' | 'constraints' | 'conditions'>;
   readonly totalSets: number;
 }
 
@@ -159,7 +161,9 @@ export function toPreview(
   blueprint: PlanBlueprint,
   gym: GymSnapshot,
   variant: number,
-  constraints: readonly UserConstraint[] = [],
+  // Sin valor por omisión a propósito: el `= []` que tenía antes dejaba pasar
+  // una previa sin filtros sin que nada lo avisara.
+  user: Pick<UserSnapshot, 'profile' | 'constraints' | 'conditions'>,
   swapped: ReadonlySet<string> = new Set(),
 ): PlanPreview {
   return {
@@ -168,7 +172,7 @@ export function toPreview(
     warnings: blueprint.warnings,
     gym,
     variant,
-    constraints,
+    user,
     totalSets: countSets(blueprint),
   };
 }
@@ -196,7 +200,7 @@ export function useBuildPlanPreview() {
         ruleset: activeRuleset,
       });
 
-      return toPreview(blueprint, gym, variant, userSnapshot.constraints);
+      return toPreview(blueprint, gym, variant, userSnapshot);
     },
   });
 }
@@ -248,7 +252,7 @@ export function swapPreviewItem(
   }));
 
   const blueprint: PlanBlueprint = { ...preview.blueprint, sessions };
-  return toPreview(blueprint, preview.gym, preview.variant, preview.constraints, swapped);
+  return toPreview(blueprint, preview.gym, preview.variant, preview.user, swapped);
 }
 
 /** Alternativas para un ítem de la previa, calculadas por el motor. */
@@ -261,7 +265,7 @@ export function previewSubstitutes(
     context: engineContext(userId, new Date(), preview.variant),
     item: { exerciseId: item.exerciseId, equipmentId: item.equipmentId },
     gym: preview.gym,
-    constraints: preview.constraints,
+    user: preview.user,
     // Sin la estación actual en la lista de no disponibles, el motor puede
     // devolver el mismo ejercicio que ya está puesto.
     unavailableEquipmentIds: item.equipmentId ? [item.equipmentId] : [],

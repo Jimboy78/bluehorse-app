@@ -20,10 +20,30 @@ objetivos principales cardio y recomposición, que quedaban abajo (hallazgo de `
 ellos fixtures con `severity: null`, un `SetLog` sin `setIndex` y cuatro llamadas a
 `findSubstitutes` sin `context`. Corregidos, los reportes no cambiaron ni una línea.
 
-**Lo que destapó, pendiente:** `findSubstitutes` **no aplica todas las exclusiones del contexto**.
-Filtra molestias, equipamiento, patrón y medida, pero no recibe las condiciones de salud ni usa la
-fecha, así que ignora `context`. El plan protege y el botón "cambiar ejercicio" puede desproteger,
-igual que pasaba con el dolor antes de taparlo. Va como tanda propia antes de T6b.
+## 20 de septiembre de 2026 ("cambiar ejercicio" filtra igual que el plan)
+
+`docs/research/69`. Lo destapó el typecheck de `tools/`. El plan saca del catálogo lo que el socio
+no puede hacer por cuatro módulos —restricción, molestia, nivel y salud— y `findSubstitutes` tenía
+su propia lista con los dos primeros. Medido sobre el catálogo real, el botón ofrecía:
+
+- **salto en profundidad y salto al cajón a una embarazada** (y a postparto, piso pélvico o
+  prótesis): 6 explosivos que el plan nunca le da;
+- crunch en polea y abdominales en máquina con **osteoporosis** (4 con flexión lumbar cargada);
+- abdominales en camilla con **glaucoma**;
+- **peso muerto y sentadilla con barra a un principiante** (13 por encima de su nivel).
+
+Encima, las tres pantallas que lo llaman le pasaban solo las molestias: el nivel y la salud ni
+siquiera llegaban al motor por ese camino.
+
+Ahora hay **una sola función**, `exclusionesDelSocio`, que usan el plan y el botón. El contrato
+pide `user` (perfil, restricciones, condiciones) en vez de `constraints`, a propósito
+incompatible: el typecheck señaló las diez llamadas a revisar. `toPreview` perdió el
+`constraints = []` por omisión — un valor por omisión que apaga un filtro de seguridad no avisa
+cuando se olvida. La app suma `useSocioDelMotor()`.
+
+No cambia ningún plan: los reportes de la matriz no se movieron. El barrido suma
+`recibeAlgunaAlternativa: 98 %` y `alternativasPorSocio: 2,30` — el filtro nuevo no vació la
+pantalla. Siete falsificaciones, las siete en rojo.
 
 Sigue T6b (subir peso, movilidad).
 

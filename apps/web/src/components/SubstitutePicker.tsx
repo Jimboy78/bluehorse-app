@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 import { useGymCatalog } from '../lib/catalog.ts';
 import { activeRuleset, engine, engineContext } from '../lib/engine.ts';
 import { tappable } from '../lib/motion.ts';
-import { paraElMotor, useConstraints } from '../lib/profile.ts';
+import { useSocioDelMotor } from '../lib/profile.ts';
 import { Button, Card, Skeleton } from './ui/index.ts';
 
 /**
@@ -38,19 +38,21 @@ export function SubstitutePicker({
   onCancel: () => void;
 }) {
   const catalog = useGymCatalog(gymId);
-  const constraints = useConstraints();
+  const socio = useSocioDelMotor();
 
   const options = useMemo<readonly SubstituteOption[]>(() => {
-    if (!catalog.data) return [];
+    // Sin el socio no se filtra: mejor no ofrecer nada que ofrecer lo que su
+    // lesión, su nivel o su condición de salud sacaron del plan.
+    if (!catalog.data || !socio.data) return [];
     return engine.findSubstitutes({
       context: engineContext(userId ?? 'sin-sesion'),
       item: { exerciseId, equipmentId },
       gym: catalog.data.gym,
-      constraints: paraElMotor(constraints.data),
+      user: socio.data,
       unavailableEquipmentIds: equipmentId ? [equipmentId] : [],
       ruleset: activeRuleset,
     });
-  }, [catalog.data, constraints.data, userId, exerciseId, equipmentId]);
+  }, [catalog.data, socio.data, userId, exerciseId, equipmentId]);
 
   const exerciseById = new Map((catalog.data?.gym.exercises ?? []).map((e) => [e.id, e]));
   const equipmentById = new Map((catalog.data?.gym.equipment ?? []).map((e) => [e.id, e]));

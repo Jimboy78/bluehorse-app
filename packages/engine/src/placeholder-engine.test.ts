@@ -1060,7 +1060,7 @@ describe('findSubstitutes', () => {
       context,
       item: { exerciseId: 'ex-press', equipmentId: 'eq-press' },
       gym: buildGym(),
-      constraints: [],
+      user: buildUser(),
       unavailableEquipmentIds: ['eq-press'],
       ruleset: V0_PLACEHOLDER,
     });
@@ -1074,7 +1074,7 @@ describe('findSubstitutes', () => {
       context,
       item: { exerciseId: 'ex-press', equipmentId: 'eq-press' },
       gym: buildGym(),
-      constraints: [],
+      user: buildUser(),
       unavailableEquipmentIds: ['eq-press', 'eq-hombro'],
       ruleset: V0_PLACEHOLDER,
     });
@@ -1087,15 +1087,17 @@ describe('findSubstitutes', () => {
       context,
       item: { exerciseId: 'ex-press', equipmentId: 'eq-press' },
       gym: buildGym(),
-      constraints: [
-        {
-          type: 'avoid_exercise',
-          bodyRegion: 'shoulder',
-          exerciseId: 'ex-press-maquina',
-          equipmentId: null,
-          severity: 3,
-        },
-      ],
+      user: buildUser({
+        constraints: [
+          {
+            type: 'avoid_exercise',
+            bodyRegion: 'shoulder',
+            exerciseId: 'ex-press-maquina',
+            equipmentId: null,
+            severity: 3,
+          },
+        ],
+      }),
       unavailableEquipmentIds: ['eq-press'],
       ruleset: V0_PLACEHOLDER,
     });
@@ -1116,7 +1118,7 @@ describe('findSubstitutes', () => {
       context,
       item: { exerciseId: 'ex-press', equipmentId: 'eq-press' },
       gym: gymConSustitucion,
-      constraints: [],
+      user: buildUser(),
       unavailableEquipmentIds: ['eq-press'],
       ruleset: V0_PLACEHOLDER,
     });
@@ -1144,7 +1146,7 @@ describe('findSubstitutes', () => {
       context,
       item: { exerciseId: 'ex-press', equipmentId: 'eq-press' },
       gym: gymConEquivalenciaBaja,
-      constraints: [],
+      user: buildUser(),
       unavailableEquipmentIds: ['eq-press'],
       ruleset: V0_PLACEHOLDER,
     });
@@ -1172,7 +1174,7 @@ describe('findSubstitutes', () => {
       context,
       item: { exerciseId: 'ex-press', equipmentId: 'eq-press' },
       gym: gymConNota,
-      constraints: [],
+      user: buildUser(),
       unavailableEquipmentIds: ['eq-press'],
       ruleset: V0_PLACEHOLDER,
     });
@@ -1194,7 +1196,7 @@ describe('findSubstitutes', () => {
       context,
       item: { exerciseId: 'ex-press', equipmentId: 'eq-press' },
       gym: gymSinNota,
-      constraints: [],
+      user: buildUser(),
       unavailableEquipmentIds: ['eq-press'],
       ruleset: V0_PLACEHOLDER,
     });
@@ -1878,7 +1880,7 @@ describe('un reemplazo tiene que hacerse como el original', () => {
         context,
         item: { exerciseId, equipmentId: null },
         gym,
-        constraints: [],
+        user: buildUser(),
         unavailableEquipmentIds: [],
         ruleset,
       })
@@ -2234,7 +2236,7 @@ describe('la prevención del deporte (`docs/research/62`)', () => {
       context,
       item: { exerciseId: 'ex-nordico', equipmentId: 'eq-camilla' },
       gym,
-      constraints: [],
+      user: buildUser(),
       unavailableEquipmentIds: ['eq-camilla'],
       ruleset: V1_RESEARCH,
     });
@@ -2246,7 +2248,7 @@ describe('la prevención del deporte (`docs/research/62`)', () => {
       context,
       item: { exerciseId: 'ex-curl-femoral', equipmentId: 'eq-prensa' },
       gym,
-      constraints: [],
+      user: buildUser(),
       unavailableEquipmentIds: ['eq-prensa'],
       ruleset: V1_RESEARCH,
     });
