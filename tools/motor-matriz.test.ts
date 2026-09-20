@@ -72,6 +72,8 @@ import catalogo from '../supabase/catalog/blue-horse.json' with { type: 'json' }
 const AQUI = dirname(fileURLToPath(import.meta.url));
 const GYM_ID = 'gym-blue-horse';
 const AHORA = '2026-09-10T12:00:00.000Z';
+/** El mismo contexto que usa `planDe`: el motor puro recibe la fecha y el azar. */
+const CONTEXTO = { now: AHORA, seed: 42 } as const;
 
 // ---------------------------------------------------------------- el gimnasio
 
@@ -1013,8 +1015,10 @@ describe('matriz del motor', () => {
    * podría ser el azar del motor en vez del cambio que se hizo.
    */
   it('es determinista', () => {
-    const uno = planDe(PERFILES[0], V1_RESEARCH);
-    const dos = planDe(PERFILES[0], V1_RESEARCH);
+    const primero = PERFILES[0];
+    if (!primero) throw new Error('la matriz se quedó sin perfiles');
+    const uno = planDe(primero, V1_RESEARCH);
+    const dos = planDe(primero, V1_RESEARCH);
     expect(JSON.stringify(uno)).toBe(JSON.stringify(dos));
   });
 
@@ -1209,36 +1213,10 @@ describe('los avisos del motor', () => {
  * - `7-9` repeticiones pasados los 60 — `olderAdults.repsWindow`.
  */
 describe('los números del plan salen del ruleset', () => {
-  const reglas = V1_RESEARCH as unknown as {
-    prescription: Record<string, { default?: Ranura; byLevel?: Record<string, Ranura> }>;
-    modifiers?: {
-      olderAdults?: { fromAge: number; repsWindow: [number, number]; appliesToGoals: string[] };
-      youth?: {
-        fromAge: number;
-        toAge: number;
-        levels: string[];
-        repsWindow: [number, number];
-        maxSets: number;
-      };
-    };
-    sports?: { seasonPhases?: Record<string, { volumeMultiplier: number }> };
-    balance?: {
-      fromAge: number;
-      sets: number;
-      repsMin: number;
-      repsMax: number;
-      restSeconds: number;
-    };
-    conditions?: { id: string; minRir: number | null }[];
-    impact?: {
-      sexes: string[];
-      fromAge: number;
-      sets: number;
-      repsMin: number;
-      repsMax: number;
-      restSeconds: number;
-    };
-  };
+  // El ruleset con su tipo real, no una copia a mano de su forma: la copia
+  // anterior se había quedado sin `prevention`, `sprain`, `explosive` ni
+  // `sessionTime`, y como `tools/` no pasaba por `tsc` nadie se enteraba.
+  const reglas = V1_RESEARCH;
 
   type Slot = {
     sets: number;
@@ -1559,10 +1537,11 @@ describe('la plantilla que se elige cuando ninguna cubre la frecuencia', () => {
     const base = PERFILES.find((p) => p.limitaciones === undefined);
     expect(base, 'la matriz se quedó sin perfiles sin limitaciones').toBeDefined();
     if (!base) throw new Error('sin perfil');
-    const plan = planDe(
-      { ...base, goal, sesiones, deporte: undefined, fase: undefined },
-      V1_RESEARCH,
-    );
+    // Se sacan las claves, no se pasan en `undefined`: con
+    // `exactOptionalPropertyTypes` no es lo mismo, y el fixture tiene que
+    // copiar la forma que produce la app.
+    const { deporte: _deporte, fase: _fase, ...sinDeporte } = base;
+    const plan = planDe({ ...sinDeporte, goal, sesiones }, V1_RESEARCH);
     // `templateId` y no `sessions.length`: el motor replica las sesiones de la
     // plantilla en una cola, así que "Full body AB" —2 sesiones— sale con 8.
     return { templateId: plan.templateId, avisos: plan.warnings };
@@ -1637,7 +1616,9 @@ describe('el deporte tiene que cambiar algún ejercicio', () => {
   // ajuste al tiempo (`59`) saca un aislado que sin deporte entraba. Eso es
   // dosis, no desempate, y tiene sus propios tests.
   function ejerciciosDe(p: Perfil, deporte: Perfil['deporte']): string[] {
-    return planDe({ ...p, deporte, minutos: 600 }, V1_RESEARCH).sessions.flatMap((s) =>
+    const { deporte: _sin, ...base } = p;
+    const conDeporte = deporte === undefined ? base : { ...base, deporte };
+    return planDe({ ...conDeporte, minutos: 600 }, V1_RESEARCH).sessions.flatMap((s) =>
       s.items.map((i) => i.exerciseId).filter((id) => !fueraDelDesempate.has(id)),
     );
   }
@@ -1886,7 +1867,9 @@ describe('el ajuste por día de partido', () => {
     expect(explosivo).toBeDefined();
     if (!explosivo) return;
 
-    const item = { ...SESIONES[0].items[0], exerciseId: explosivo.id };
+    const base = SESIONES[0]?.items[0];
+    if (!base) throw new Error('la sesión de prueba se quedó sin ítems');
+    const item = { ...base, exerciseId: explosivo.id };
 
     for (const state of ESTADOS) {
       const regla = V1_RESEARCH.sports?.matchDay?.[state];
@@ -2213,6 +2196,7 @@ describe('las mediciones de cobertura muscular', () => {
     }
     const orden = [...cuenta.entries()].sort((a, b) => b[1] - a[1]);
     const [primero, segundo] = orden;
+    if (!primero || !segundo) throw new Error('el catálogo se quedó sin músculos que contar');
 
     // 23 de 58 contra 15 del segundo. Es la causa de que el techo semanal lo
     // rompa siempre el mismo músculo. Si esto deja de valer, el catálogo se
@@ -2242,6 +2226,7 @@ describe('el aviso de énfasis que el plan no cubre', () => {
     for (const item of plan.sessions.flatMap((s) => s.items)) {
       for (const m of musculosDe(item.exerciseId)) enPlan.add(m);
       const opciones = engine.findSubstitutes({
+        context: CONTEXTO,
         item,
         gym,
         constraints: socioDe(perfil).constraints,
@@ -2365,6 +2350,7 @@ describe('el aviso de énfasis que el plan no cubre', () => {
 
     for (const item of porReps) {
       const opciones = engine.findSubstitutes({
+        context: CONTEXTO,
         item: { exerciseId: item.id, equipmentId: null },
         gym,
         constraints: [],
@@ -2404,6 +2390,7 @@ describe('los ejercicios equivalentes', () => {
   function opcionesDe(exerciseId: string, equipmentId: string | null) {
     return engine
       .findSubstitutes({
+        context: CONTEXTO,
         item: { exerciseId, equipmentId },
         gym,
         constraints: [],
@@ -2422,6 +2409,7 @@ describe('los ejercicios equivalentes', () => {
     // combinada. El plan asigna justamente esa, así que si el socio la declara
     // ocupada, el ejercicio más parecido que existe no se le puede ofrecer.
     const combinada = abductores.equipmentIds[0];
+    if (!combinada) throw new Error('el abductor se quedó sin estación');
     expect(aductores.equipmentIds, 'ya no comparten estación').toContain(combinada);
 
     expect(
@@ -2441,6 +2429,7 @@ describe('los ejercicios equivalentes', () => {
       for (const item of planDe(perfil, V1_RESEARCH).sessions.flatMap((s) => s.items)) {
         enPlanes.add(item.exerciseId);
         for (const o of engine.findSubstitutes({
+          context: CONTEXTO,
           item,
           gym,
           constraints: socioDe(perfil).constraints,
@@ -3031,7 +3020,7 @@ describe('el aviso de volumen semanal', () => {
  * Ver `27-zonas-sin-regla.md`.
  */
 describe('las zonas sin regla de dolor', () => {
-  const CON_REGLA = new Set((V1_RESEARCH.safety.painRules ?? []).map((r) => r.bodyRegion));
+  const CON_REGLA = new Set((V1_RESEARCH.safety?.painRules ?? []).map((r) => r.bodyRegion));
 
   /**
    * El tramo del aviso anterior a la zona interpolada, sacado del ruleset.
@@ -3041,7 +3030,7 @@ describe('las zonas sin regla de dolor', () => {
    * nada del comportamiento se hubiera roto.
    */
   const MARCA_SIN_REGLA =
-    (V1_RESEARCH.safety.noRuleForRegion?.text ?? '').split('{region}')[0] ?? '';
+    (V1_RESEARCH.safety?.noRuleForRegion?.text ?? '').split('{region}')[0] ?? '';
 
   /** Un perfil cualquiera al que se le cambia la zona declarada. */
   function planConLesionEn(zona: BodyRegion, severidad = 5) {
@@ -3055,7 +3044,7 @@ describe('las zonas sin regla de dolor', () => {
 
   it('el texto sale del ruleset y nombra la zona', () => {
     // Regla dura 3 llevada al texto de seguridad.
-    const nota = V1_RESEARCH.safety.noRuleForRegion;
+    const nota = V1_RESEARCH.safety?.noRuleForRegion;
     expect(nota?.text).toBeTruthy();
     expect(nota?.text).toContain('{region}');
   });
@@ -3093,7 +3082,7 @@ describe('las zonas sin regla de dolor', () => {
       // frase que buscaba estaba en el molde del propio aviso y no en la parte
       // interpolada, así que el label podía estar mal y el test seguía verde.
       if (avisa) {
-        const esperado = (V1_RESEARCH.safety.noRuleForRegion?.text ?? '').replace(
+        const esperado = (V1_RESEARCH.safety?.noRuleForRegion?.text ?? '').replace(
           '{region}',
           BODY_REGION_LABELS_MATRIZ[zona],
         );
@@ -3179,7 +3168,7 @@ describe('el consejo de seguridad cuando hay dos tramos', () => {
 
     // Los dos tramos salen del ruleset, no escritos acá: si alguien agrega un
     // tercero o cambia los umbrales, este test lo sigue.
-    const deRodilla = (V1_RESEARCH.safety.painRules ?? [])
+    const deRodilla = (V1_RESEARCH.safety?.painRules ?? [])
       .filter((r) => r.bodyRegion === 'knee')
       .sort((a, b) => a.monitorFrom - b.monitorFrom);
     expect(deRodilla.length, 'la rodilla dejó de tener dos tramos: revisar `27`').toBe(2);
@@ -3199,7 +3188,7 @@ describe('el consejo de seguridad cuando hay dos tramos', () => {
     // ser el que acompaña a un plan sin exclusiones.
     const base = PERFILES.find((p) => p.nombre === 'rodilla lesionada');
     if (!base) return;
-    const deRodilla = (V1_RESEARCH.safety.painRules ?? [])
+    const deRodilla = (V1_RESEARCH.safety?.painRules ?? [])
       .filter((r) => r.bodyRegion === 'knee')
       .sort((a, b) => a.monitorFrom - b.monitorFrom);
     const permisivo = deRodilla[0];
@@ -3238,7 +3227,7 @@ describe('los bloqueos de equipamiento y ejercicio', () => {
     bodyRegion: null,
     exerciseId: null,
     equipmentId,
-    severity: null,
+    severity: 1,
   });
 
   it('ninguna estación bloqueada entra al plan, por muchas que se bloqueen', () => {
@@ -3269,7 +3258,7 @@ describe('los bloqueos de equipamiento y ejercicio', () => {
       bodyRegion: null,
       exerciseId: primero.exerciseId,
       equipmentId: null,
-      severity: null,
+      severity: 1,
     };
     const plan = bloqueando([bloqueo], 'sin un ejercicio');
     const ids = plan.sessions.flatMap((s) => s.items.map((i) => i.exerciseId));
@@ -3279,6 +3268,7 @@ describe('los bloqueos de equipamiento y ejercicio', () => {
     // el filtro, que es la única razón por la que compartirlo vale la pena.
     for (const item of plan.sessions.flatMap((s) => s.items)) {
       const opciones = engine.findSubstitutes({
+        context: CONTEXTO,
         item,
         gym,
         constraints: [bloqueo],
@@ -3308,6 +3298,7 @@ describe('los bloqueos de equipamiento y ejercicio', () => {
 
     for (const original of gym.exercises) {
       const opciones = engine.findSubstitutes({
+        context: CONTEXTO,
         item: { exerciseId: original.id, equipmentId: null } as never,
         gym,
         constraints: [],
@@ -3359,6 +3350,7 @@ describe('los bloqueos de equipamiento y ejercicio', () => {
     const ofrecidos = gym.exercises.flatMap((original) =>
       engine
         .findSubstitutes({
+          context: CONTEXTO,
           item: { exerciseId: original.id, equipmentId: null } as never,
           gym,
           constraints: [lesion],
@@ -3405,7 +3397,7 @@ describe('los bloqueos de equipamiento y ejercicio', () => {
         bodyRegion: null,
         exerciseId: e.id,
         equipmentId: null,
-        severity: null,
+        severity: 1,
       })),
       'sin sentadillas',
     );
@@ -3424,7 +3416,7 @@ describe('los bloqueos de equipamiento y ejercicio', () => {
     }
 
     // El aviso lo cuenta, con la marca sacada del ruleset y no copiada acá.
-    const marca = (V1_RESEARCH.safety.painSubstitution?.textSinZona ?? '').split('{pattern}')[1];
+    const marca = (V1_RESEARCH.safety?.painSubstitution?.textSinZona ?? '').split('{pattern}')[1];
     expect(marca, 'el ruleset dejó de traer el texto de sustitución').toBeTruthy();
     expect(porRestriccion.warnings.some((w) => w.includes(marca ?? ''))).toBe(true);
 
@@ -3509,6 +3501,8 @@ describe('el orden del historial', () => {
     return [0, 1, 2, 3, 4, 5].map((i) => ({
       id: `s${i}`,
       workoutLogId: `l${i}`,
+      // Una serie por registro: cada una es la primera de su sesión.
+      setIndex: 0,
       planSessionItemId: null,
       exerciseId: item.exerciseId,
       equipmentId: item.equipmentId,

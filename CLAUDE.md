@@ -248,6 +248,15 @@ Los procedimientos largos están en skills, no acá: `cambiar-esquema`, `activar
   tiene forma de saberlo. Después de cualquier tanda de falsificación, **correr la matriz una vez más
   y mirar `git diff tools/reportes/`** antes de commitear.
 
+- **`tools/` no entraba en el typecheck.** `tsconfig.json` incluía `packages/*/src` y `apps/web/src`,
+  y nada más: la matriz y el barrido —las dos pruebas más grandes, 33 perfiles y 3.000 socios— no
+  pasaban por `tsc`. Escondían **38 errores**, y no eran ruido: un `severity: null` donde el dominio
+  pide `number`, un `SetLog` sin `setIndex`, cuatro llamadas a `findSubstitutes` **sin `context`**, y
+  una copia a mano de la forma del `Ruleset` que se había quedado sin `prevention`, `sprain`,
+  `explosive` ni `sessionTime`. Un fixture que no typechequea describe un gimnasio o un socio que no
+  existen, y entonces la prueba mide otra cosa. Ahora van en `tsconfig.tools.json` y `npm run
+  typecheck` corre los dos.
+
 - **"La más reciente" implementada como "la primera".** Aparecio dos veces en el mismo dia, en los dos
   lados de la frontera: `reviewProgress` tomaba `history[0]` como la ultima serie del socio, y
   `dedupeByExercise` tomaba la primera fila de cada ejercicio como su baseline vigente. Las dos se

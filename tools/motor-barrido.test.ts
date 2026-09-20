@@ -975,7 +975,7 @@ describe('barrido de socios generados', () => {
     const conMultiarticular = new Set(
       deFuerza.filter(({ e }) => e.isCompound).flatMap(({ e }) => e.primaryMuscles),
     );
-    const out = new Map<string, number>();
+    const out = new Map<MuscleGroup, number>();
     for (const { i, e } of deFuerza) {
       for (const m of e.primaryMuscles) out.set(m, (out.get(m) ?? 0) + i.targetSets * peso);
     }
@@ -1171,7 +1171,9 @@ describe('barrido de socios generados', () => {
   }
 
   for (let n = 0; n < N; n++) {
-    const p = Object.fromEntries(claves.map((k) => [k, elegir(DIM[k].valores)])) as Perfil;
+    const p = Object.fromEntries(
+      claves.map((k) => [k, elegir(DIM[k].valores as readonly unknown[])]),
+    ) as Perfil;
     const seed = Math.floor(r() * 1e9);
     const inp = entrada(p, seed);
     const b = engine.generatePlan(inp);

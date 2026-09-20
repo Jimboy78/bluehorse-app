@@ -16,7 +16,16 @@ objetivos principales cardio y recomposición, que quedaban abajo (hallazgo de `
 - **Dos cosas que destapó:** el cardio se contaba como series de fuerza en el aviso de volumen, y
   se sumaban tramos de dos minutos donde ya había uno continuo. Las dos corregidas.
 
-Sigue T6b (subir peso, movilidad). Antes conviene la tanda de `tools/` fuera del typecheck.
+**`tools/` ya entra en el typecheck** (`tsconfig.tools.json`): tenía 38 errores escondidos, entre
+ellos fixtures con `severity: null`, un `SetLog` sin `setIndex` y cuatro llamadas a
+`findSubstitutes` sin `context`. Corregidos, los reportes no cambiaron ni una línea.
+
+**Lo que destapó, pendiente:** `findSubstitutes` **no aplica todas las exclusiones del contexto**.
+Filtra molestias, equipamiento, patrón y medida, pero no recibe las condiciones de salud ni usa la
+fecha, así que ignora `context`. El plan protege y el botón "cambiar ejercicio" puede desproteger,
+igual que pasaba con el dolor antes de taparlo. Va como tanda propia antes de T6b.
+
+Sigue T6b (subir peso, movilidad).
 
 ## 19 de septiembre de 2026 (T5g: el salto del par)
 
