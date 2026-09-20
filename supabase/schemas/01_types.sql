@@ -14,6 +14,10 @@ create type sex as enum ('female', 'male', 'other', 'undisclosed');
 -- Momento de la temporada. Espejo de SEASON_PHASES en packages/domain.
 create type season_phase as enum ('preseason', 'in_season', 'off_season', 'none');
 
+-- Lo que el socio quiere además del objetivo principal. Espejo de
+-- SECONDARY_GOALS en packages/domain. Ver docs/research/68.
+create type secondary_goal as enum ('fat_loss', 'health');
+
 -- Momento del partido del día (`docs/research/07`, `65`). Espejo de
 -- MATCH_DAY_STATES en packages/domain/src/enums.ts.
 create type match_day_state as enum ('normal', 'day_after', 'two_days_after', 'day_before', 'match_day');

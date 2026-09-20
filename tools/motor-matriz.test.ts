@@ -20,6 +20,7 @@ import type {
   PreventionProgram,
   Profile,
   SeasonPhase,
+  SecondaryGoal,
   SetLog,
   UserBaseline,
   UserConstraint,
@@ -164,6 +165,8 @@ interface Perfil {
   readonly diasSinEntrenar?: number | null;
   /** Cargas conocidas, para que el motor pueda proponer un `targetLoad`. */
   readonly cargas?: readonly UserBaseline[];
+  /** Lo que quiere además del principal (`docs/research/68`). */
+  readonly secundarios?: readonly SecondaryGoal[];
 }
 
 /**
@@ -804,6 +807,26 @@ const PERFILES: readonly Perfil[] = [
     sesiones: 3,
     minutos: 15,
   },
+  {
+    // Un secundario con poco tiempo: el cardio que sobra no llega (`68`).
+    nombre: 'hipertrofia · bajar grasa',
+    goal: 'hypertrophy',
+    nivel: 'intermediate',
+    nacimiento: '1990-08-21',
+    sesiones: 3,
+    minutos: 60,
+    secundarios: ['fat_loss'],
+  },
+  {
+    // Un secundario con tiempo de sobra: llega a la meta (`68`).
+    nombre: 'fuerza · salud · cinco días',
+    goal: 'strength',
+    nivel: 'novice',
+    nacimiento: '1979-01-15',
+    sesiones: 5,
+    minutos: 90,
+    secundarios: ['health'],
+  },
 ];
 
 function socioDe(p: Perfil): UserSnapshot {
@@ -820,6 +843,7 @@ function socioDe(p: Perfil): UserSnapshot {
     sport: p.deporte ?? null,
     seasonPhase: p.fase ?? 'none',
     priority: 1,
+    secondaryGoals: p.secundarios ?? [],
     sessionsPerWeekTarget: p.sesiones,
     sessionMinutesTarget: p.minutos,
   };
@@ -1050,10 +1074,13 @@ describe('matriz del motor', () => {
     const w = cardio?.weeklyMinimum;
     const intervalo = cardio?.sessions.find((s) => s.type === 'interval')?.interval;
     if (!cardio || !w || !intervalo) throw new Error('el ruleset no trae el cardio completo');
+    // Sin la meta semanal (`68`): con ella el objetivo cardio completa la semana
+    // y este aviso lo reemplaza el de la meta. Acá se mide el peso de las zonas.
+    const { weeklyTarget: _, ...sinMeta } = cardio;
     const variante: Ruleset = {
       ...V1_RESEARCH,
       cardio: {
-        ...cardio,
+        ...sinMeta,
         sessions: cardio.sessions.map((s) =>
           s.type === 'steady' ? { ...s, intensityZone: 1 } : s,
         ),
@@ -2845,6 +2872,16 @@ describe('lo que ACSM sostiene del ruleset', () => {
  * código sería escribir contenido fuera del ruleset (regla dura 3).
  */
 describe('el aviso de volumen semanal', () => {
+  /**
+   * Una serie de fuerza cerca del fallo, que es lo que midieron los rangos
+   * semanales: ni los saltos del par, ni el equilibrio o el impacto, ni el
+   * cardio, que es tiempo (`docs/research/68`).
+   */
+  function cuentaComoSerie(ex: Exercise, item: SessionItemBlueprint): boolean {
+    if (ex.isExplosive || ex.pattern === 'balance' || ex.pattern === 'impact') return false;
+    return item.targetDurationSeconds === null;
+  }
+
   /** La misma cuenta que hace el motor: la semana que el socio dijo que va a hacer. */
   function volumenDe(perfil: Perfil) {
     const plan = planDe(perfil, V1_RESEARCH);
@@ -2858,9 +2895,7 @@ describe('el aviso de volumen semanal', () => {
 
     for (const item of plan.sessions.slice(0, porSemana).flatMap((s) => s.items)) {
       const ex = gym.exercises.find((e) => e.id === item.exerciseId);
-      // Los saltos del par y el equilibrio no son series de fuerza cerca del
-      // fallo: no cuentan.
-      if (!ex || ex.isExplosive || ex.pattern === 'balance' || ex.pattern === 'impact') continue;
+      if (!ex || !cuentaComoSerie(ex, item)) continue;
       for (const m of ex.primaryMuscles) {
         series.set(m, (series.get(m) ?? 0) + item.targetSets);
         // El piso se mide solo donde hay un compuesto: dos series de curl no son
@@ -3970,5 +4005,99 @@ describe('la prevención de rodilla (`docs/research/63`)', () => {
       expect(items.filter(deRodilla), p.nombre).toEqual([]);
     }
     expect(mirados).toBeGreaterThan(1);
+  });
+});
+
+describe('la meta semanal de cardio (`docs/research/68`)', () => {
+  const exercisesById = new Map(gym.exercises.map((e) => [e.id, e]));
+  const meta = V1_RESEARCH.cardio?.weeklyTarget;
+  const piso = V1_RESEARCH.cardio?.weeklyMinimum;
+  const perfil = (nombre: string) => {
+    const p = PERFILES.find((x) => x.nombre === nombre);
+    if (!p) throw new Error(`no está el perfil ${nombre}`);
+    return p;
+  };
+  const conGrasa = perfil('hipertrofia · bajar grasa');
+  const conSalud = perfil('fuerza · salud · cinco días');
+  const marcaCorto = meta?.shortNote.split('{meta}')[0] ?? '';
+  const marcaGrasa = meta?.fatLossNote.split('{meta}')[0] ?? '';
+
+  /** Minutos moderados de la semana, contados acá: la rotación por sus veces, la zona por su peso. */
+  function semanal(b: PlanBlueprint, p: Perfil): number {
+    const tpl = V1_RESEARCH.templates.find((t) => t.id === b.templateId);
+    if (!tpl || !piso) return 0;
+    const n = tpl.sessions.length;
+    const dias = Math.min(p.sesiones, tpl.sessionsPerWeek[1]);
+    const peso = (zona: number | null) => {
+      const z = V1_RESEARCH.cardio?.zones.find((x) => x.zone === zona)?.whoIntensity;
+      return z === 'vigorous' ? piso.vigorousWeight : z === 'moderate' ? 1 : 0;
+    };
+    return b.sessions.slice(0, n).reduce((total, s, k) => {
+      const veces = dias < n ? dias / n : Math.floor(dias / n) + (k < dias % n ? 1 : 0);
+      const trabajo = s.items.reduce(
+        (t, i) =>
+          t + (i.targetSets * (i.targetDurationSeconds ?? 0) * peso(i.targetIntensityZone)) / 60,
+        0,
+      );
+      return total + veces * trabajo;
+    }, 0);
+  }
+
+  it('la meta es el piso de la OMS, y la piden cardio, recomposición, bajar grasa y salud', () => {
+    expect(meta?.goals).toEqual(['cardio', 'recomposition']);
+    expect(meta?.secondaryGoals).toEqual(['fat_loss', 'health']);
+    expect(piso?.moderateMinutes).toBe(150);
+  });
+
+  it('el secundario no le saca nada al principal: suma un tramo continuo antes de los bloques', () => {
+    let tramos = 0;
+    for (const p of [conGrasa, conSalud]) {
+      const con = planDe(p, V1_RESEARCH);
+      const sin = planDe({ ...p, secundarios: [] }, V1_RESEARCH);
+      con.sessions.forEach((s, k) => {
+        const base = (sin.sessions[k]?.items ?? []).map((i) => ({ ...i, orderIndex: 0 }));
+        const suma = s.items.filter((i) => {
+          const ex = exercisesById.get(i.exerciseId);
+          return ex?.pattern === 'cardio' && i.targetIntervalRestSeconds === null;
+        });
+        const resto = s.items
+          .filter((i) => !suma.includes(i))
+          .map((i) => ({ ...i, orderIndex: 0 }));
+        expect(resto, `${p.nombre} ${s.label}`).toEqual(base);
+        expect(suma.length, `${p.nombre} ${s.label}`).toBeLessThanOrEqual(1);
+        tramos += suma.length;
+        expect(s.estimatedMinutes, `${p.nombre} ${s.label}`).toBeLessThanOrEqual(p.minutos);
+      });
+    }
+    expect(tramos).toBeGreaterThan(4);
+  });
+
+  it('con tiempo de sobra llega a la meta y no avisa', () => {
+    const b = planDe(conSalud, V1_RESEARCH);
+    expect(semanal(b, conSalud)).toBeGreaterThanOrEqual(piso?.moderateMinutes ?? Infinity);
+    expect(b.warnings.some((w) => w.startsWith(marcaCorto))).toBe(false);
+  });
+
+  it('con poco tiempo no llega, y dice cuánto suma la semana', () => {
+    const b = planDe(conGrasa, V1_RESEARCH);
+    const minutos = semanal(b, conGrasa);
+    expect(minutos).toBeLessThan(piso?.moderateMinutes ?? 0);
+    const aviso = b.warnings.find((w) => w.startsWith(marcaCorto));
+    expect(aviso).toContain(`unos ${Math.round(minutos)}`);
+  });
+
+  it('a quien quiere bajar grasa se le dice dónde consultar la alimentación; a quien quiere salud, no', () => {
+    expect(planDe(conGrasa, V1_RESEARCH).warnings.some((w) => w.startsWith(marcaGrasa))).toBe(true);
+    expect(planDe(conSalud, V1_RESEARCH).warnings.some((w) => w.startsWith(marcaGrasa))).toBe(
+      false,
+    );
+  });
+
+  it('sin nada que lo pida, el plan no suma cardio', () => {
+    const b = planDe(perfil('fuerza · intermedio'), V1_RESEARCH);
+    const cardio = b.sessions
+      .flatMap((s) => s.items)
+      .filter((i) => exercisesById.get(i.exerciseId)?.pattern === 'cardio');
+    expect(cardio).toEqual([]);
   });
 });

@@ -47,6 +47,14 @@ export const SEASON_PHASES = ['preseason', 'in_season', 'off_season', 'none'] as
 export type SeasonPhase = (typeof SEASON_PHASES)[number];
 
 /**
+ * Lo que el socio quiere además del objetivo principal, en orden de prioridad.
+ * Cada uno entra acá recién cuando el motor sabe qué hacer con él
+ * (`docs/research/68`): un objetivo que no mueve el plan no se pregunta.
+ */
+export const SECONDARY_GOALS = ['fat_loss', 'health'] as const;
+export type SecondaryGoal = (typeof SECONDARY_GOALS)[number];
+
+/**
  * Dónde cae el día de hoy respecto del partido. Lo declara el socio al entrar,
  * no se deduce de un calendario: el plan es una cola sin fechas.
  *

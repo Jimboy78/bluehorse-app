@@ -14,6 +14,7 @@ import type {
   ProposalStatus,
   ProposalType,
   SeasonPhase,
+  SecondaryGoal,
   SessionStatus,
   Sex,
 } from './enums.ts';
@@ -131,6 +132,12 @@ export interface UserGoal {
    */
   readonly seasonPhase: SeasonPhase;
   readonly priority: number;
+  /**
+   * Lo que quiere además del objetivo principal, en orden de prioridad. Se
+   * suma con el tiempo que sobra y nunca le saca nada al principal
+   * (`docs/research/68`).
+   */
+  readonly secondaryGoals: readonly SecondaryGoal[];
   readonly sessionsPerWeekTarget: number;
   readonly sessionMinutesTarget: number;
 }

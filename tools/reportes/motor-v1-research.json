@@ -3060,12 +3060,15 @@
     "recomposición · novato": {
       "rulesetVersion": "v1-research",
       "source": "research",
-      "warnings": [],
+      "warnings": [
+        "Se recomiendan al menos 150 minutos de cardio por semana, y con tus 60 minutos por sesión el plan llega a unos 90. Lo que falta lo podés sumar fuera del gimnasio: caminar o pedalear también cuenta, en tramos de cualquier largo.",
+        "Si hacés cardio el mismo día que pierna, no te preocupes de más: el efecto medido es chico y a nivel de músculo entero no aparece. Da igual el orden y da igual si lo hacés el mismo día o en días separados. Lo único que sí cambia algo es la máquina: correr en cinta castiga más la pierna que la bici o el elíptico, porque frenar en cada paso es lo que deja el músculo golpeado. Si ese día entrenás pierna fuerte, elegí bici."
+      ],
       "sesiones": [
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 30,
+          "minutos": 60,
           "items": [
             {
               "ejercicio": "Sentadilla goblet con kettlebell",
@@ -3121,13 +3124,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1800,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "minutos": 30,
+          "minutos": 60,
           "items": [
             {
               "ejercicio": "Hip thrust en máquina",
@@ -3182,6 +3196,17 @@
               "carga": null,
               "duracionSeg": null,
               "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Escaladora",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1800,
+              "zona": 2,
               "par": null
             }
           ]
@@ -3189,7 +3214,7 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 30,
+          "minutos": 60,
           "items": [
             {
               "ejercicio": "Sentadilla goblet con kettlebell",
@@ -3245,13 +3270,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1800,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "minutos": 30,
+          "minutos": 60,
           "items": [
             {
               "ejercicio": "Hip thrust en máquina",
@@ -3306,6 +3342,17 @@
               "carga": null,
               "duracionSeg": null,
               "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Escaladora",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1800,
+              "zona": 2,
               "par": null
             }
           ]
@@ -3313,7 +3360,7 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 30,
+          "minutos": 60,
           "items": [
             {
               "ejercicio": "Sentadilla goblet con kettlebell",
@@ -3369,13 +3416,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1800,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "minutos": 30,
+          "minutos": 60,
           "items": [
             {
               "ejercicio": "Hip thrust en máquina",
@@ -3430,6 +3488,17 @@
               "carga": null,
               "duracionSeg": null,
               "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Escaladora",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1800,
+              "zona": 2,
               "par": null
             }
           ]
@@ -3437,7 +3506,7 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 30,
+          "minutos": 60,
           "items": [
             {
               "ejercicio": "Sentadilla goblet con kettlebell",
@@ -3493,13 +3562,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1800,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "minutos": 30,
+          "minutos": 60,
           "items": [
             {
               "ejercicio": "Hip thrust en máquina",
@@ -3554,6 +3634,17 @@
               "carga": null,
               "duracionSeg": null,
               "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Escaladora",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1800,
+              "zona": 2,
               "par": null
             }
           ]
@@ -3564,13 +3655,15 @@
       "rulesetVersion": "v1-research",
       "source": "research",
       "warnings": [
-        "Con 4 sesiones por semana, estos músculos pasan las 24 series semanales que la evidencia marca como techo útil: glúteos (27). Más volumen ahí no rinde más."
+        "Se recomiendan al menos 150 minutos de cardio por semana, y con tus 75 minutos por sesión el plan llega a unos 119. Lo que falta lo podés sumar fuera del gimnasio: caminar o pedalear también cuenta, en tramos de cualquier largo.",
+        "Con 4 sesiones por semana, estos músculos pasan las 24 series semanales que la evidencia marca como techo útil: glúteos (27). Más volumen ahí no rinde más.",
+        "Si hacés cardio el mismo día que pierna, no te preocupes de más: el efecto medido es chico y a nivel de músculo entero no aparece. Da igual el orden y da igual si lo hacés el mismo día o en días separados. Lo único que sí cambia algo es la máquina: correr en cinta castiga más la pierna que la bici o el elíptico, porque frenar en cada paso es lo que deja el músculo golpeado. Si ese día entrenás pierna fuerte, elegí bici."
       ],
       "sesiones": [
         {
           "label": "Torso A",
           "focus": "Torso · empuje",
-          "minutos": 54,
+          "minutos": 75,
           "items": [
             {
               "ejercicio": "Press inclinado con barra",
@@ -3626,13 +3719,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1260,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Pierna A",
           "focus": "Tren inferior",
-          "minutos": 44,
+          "minutos": 75,
           "items": [
             {
               "ejercicio": "Sentadilla hack",
@@ -3677,13 +3781,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Elíptico",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1860,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Torso B",
           "focus": "Torso · tracción",
-          "minutos": 44,
+          "minutos": 75,
           "items": [
             {
               "ejercicio": "Remo con barra (Pendlay)",
@@ -3728,13 +3843,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Caminata en cinta",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1860,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Pierna B",
           "focus": "Tren inferior · cadena posterior",
-          "minutos": 39,
+          "minutos": 75,
           "items": [
             {
               "ejercicio": "Hip thrust en máquina",
@@ -3778,6 +3904,17 @@
               "carga": null,
               "duracionSeg": null,
               "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Escaladora",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 2160,
+              "zona": 2,
               "par": null
             }
           ]
@@ -3785,7 +3922,7 @@
         {
           "label": "Torso A",
           "focus": "Torso · empuje",
-          "minutos": 54,
+          "minutos": 75,
           "items": [
             {
               "ejercicio": "Press inclinado con barra",
@@ -3841,13 +3978,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1260,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Pierna A",
           "focus": "Tren inferior",
-          "minutos": 44,
+          "minutos": 75,
           "items": [
             {
               "ejercicio": "Sentadilla hack",
@@ -3892,13 +4040,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Elíptico",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1860,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Torso B",
           "focus": "Torso · tracción",
-          "minutos": 44,
+          "minutos": 75,
           "items": [
             {
               "ejercicio": "Remo con barra (Pendlay)",
@@ -3943,13 +4102,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Caminata en cinta",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1860,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Pierna B",
           "focus": "Tren inferior · cadena posterior",
-          "minutos": 39,
+          "minutos": 75,
           "items": [
             {
               "ejercicio": "Hip thrust en máquina",
@@ -3993,6 +4163,17 @@
               "carga": null,
               "duracionSeg": null,
               "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Escaladora",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 2160,
+              "zona": 2,
               "par": null
             }
           ]
@@ -4509,6 +4690,7 @@
       "rulesetVersion": "v1-research",
       "source": "research",
       "warnings": [
+        "Se recomiendan al menos 150 minutos de cardio por semana, y con tus 45 minutos por sesión el plan llega a unos 121. Lo que falta lo podés sumar fuera del gimnasio: caminar o pedalear también cuenta, en tramos de cualquier largo.",
         "Si hacés cardio el mismo día que pierna, no te preocupes de más: el efecto medido es chico y a nivel de músculo entero no aparece. Da igual el orden y da igual si lo hacés el mismo día o en días separados. Lo único que sí cambia algo es la máquina: correr en cinta castiga más la pierna que la bici o el elíptico, porque frenar en cada paso es lo que deja el músculo golpeado. Si ese día entrenás pierna fuerte, elegí bici.",
         "Para este objetivo tu nivel decide qué ejercicios entran al plan por la técnica que piden, pero no cambia las series ni las repeticiones."
       ],
@@ -4516,7 +4698,7 @@
         {
           "label": "Continuo",
           "focus": "Aeróbico continuo",
-          "minutos": 43,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Caminata en cinta",
@@ -4525,7 +4707,7 @@
               "rir": null,
               "descanso": 0,
               "carga": null,
-              "duracionSeg": 2400,
+              "duracionSeg": 2520,
               "zona": 2,
               "par": null
             },
@@ -4545,7 +4727,7 @@
         {
           "label": "Intervalos",
           "focus": "Intervalos",
-          "minutos": 31,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Elíptico",
@@ -4568,13 +4750,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 840,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Fuerza de sostén",
           "focus": "Fuerza general",
-          "minutos": 12,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Sentadilla goblet con kettlebell",
@@ -4619,13 +4812,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Elíptico",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1980,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Continuo",
           "focus": "Aeróbico continuo",
-          "minutos": 43,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Caminata en cinta",
@@ -4634,7 +4838,7 @@
               "rir": null,
               "descanso": 0,
               "carga": null,
-              "duracionSeg": 2400,
+              "duracionSeg": 2520,
               "zona": 2,
               "par": null
             },
@@ -4654,7 +4858,7 @@
         {
           "label": "Intervalos",
           "focus": "Intervalos",
-          "minutos": 31,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Elíptico",
@@ -4677,13 +4881,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 840,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Fuerza de sostén",
           "focus": "Fuerza general",
-          "minutos": 12,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Sentadilla goblet con kettlebell",
@@ -4728,13 +4943,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Elíptico",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1980,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Continuo",
           "focus": "Aeróbico continuo",
-          "minutos": 43,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Caminata en cinta",
@@ -4743,7 +4969,7 @@
               "rir": null,
               "descanso": 0,
               "carga": null,
-              "duracionSeg": 2400,
+              "duracionSeg": 2520,
               "zona": 2,
               "par": null
             },
@@ -4763,7 +4989,7 @@
         {
           "label": "Intervalos",
           "focus": "Intervalos",
-          "minutos": 31,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Elíptico",
@@ -4785,6 +5011,17 @@
               "carga": null,
               "duracionSeg": null,
               "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 840,
+              "zona": 2,
               "par": null
             }
           ]
@@ -9687,14 +9924,16 @@
       "rulesetVersion": "v1-research",
       "source": "research",
       "warnings": [
+        "Se recomiendan al menos 150 minutos de cardio por semana, y con tus 45 minutos por sesión el plan llega a unos 42. Lo que falta lo podés sumar fuera del gimnasio: caminar o pedalear también cuenta, en tramos de cualquier largo.",
         "Con 2 sesiones por semana, estos músculos quedan abajo de las 6 series semanales mínimas: cuádriceps (5), pecho (3), espalda (4), hombro anterior (2). Sumar una sesión más por semana los cubre.",
-        "Tu deporte trabaja sobre todo oblicuos, hombro posterior, antebrazos, y este plan no lo cubre: no aparece en ninguna sesion ni entre los equivalentes que podes elegir en su lugar. El gimnasio no tiene hoy con que entrenarlo dentro de un plan. Consultalo con el staff si te importa esa parte."
+        "Tu deporte trabaja sobre todo oblicuos, hombro posterior, antebrazos, y este plan no lo cubre: no aparece en ninguna sesion ni entre los equivalentes que podes elegir en su lugar. El gimnasio no tiene hoy con que entrenarlo dentro de un plan. Consultalo con el staff si te importa esa parte.",
+        "Si hacés cardio el mismo día que pierna, no te preocupes de más: el efecto medido es chico y a nivel de músculo entero no aparece. Da igual el orden y da igual si lo hacés el mismo día o en días separados. Lo único que sí cambia algo es la máquina: correr en cinta castiga más la pierna que la bici o el elíptico, porque frenar en cada paso es lo que deja el músculo golpeado. Si ese día entrenás pierna fuerte, elegí bici."
       ],
       "sesiones": [
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 24,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Sentadilla goblet con kettlebell",
@@ -9750,13 +9989,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Caminata en cinta",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1260,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "minutos": 24,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Hip thrust en máquina",
@@ -9811,6 +10061,17 @@
               "carga": null,
               "duracionSeg": null,
               "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1260,
+              "zona": 2,
               "par": null
             }
           ]
@@ -9818,7 +10079,7 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 24,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Sentadilla goblet con kettlebell",
@@ -9874,13 +10135,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Caminata en cinta",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1260,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "minutos": 24,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Hip thrust en máquina",
@@ -9935,6 +10207,17 @@
               "carga": null,
               "duracionSeg": null,
               "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1260,
+              "zona": 2,
               "par": null
             }
           ]
@@ -9942,7 +10225,7 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 24,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Sentadilla goblet con kettlebell",
@@ -9998,13 +10281,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Caminata en cinta",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1260,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "minutos": 24,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Hip thrust en máquina",
@@ -10059,6 +10353,17 @@
               "carga": null,
               "duracionSeg": null,
               "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1260,
+              "zona": 2,
               "par": null
             }
           ]
@@ -10066,7 +10371,7 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 24,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Sentadilla goblet con kettlebell",
@@ -10122,13 +10427,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Caminata en cinta",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1260,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "minutos": 24,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Hip thrust en máquina",
@@ -10183,6 +10499,17 @@
               "carga": null,
               "duracionSeg": null,
               "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1260,
+              "zona": 2,
               "par": null
             }
           ]
@@ -21260,13 +21587,15 @@
       "warnings": [
         "Volvé de a poco. Si fue cesárea o hubo alguna complicación, esperá el visto bueno de tu médico. Los primeros tres meses el plan no tiene saltos ni impacto; pasados, si no tenés pérdidas de orina, desmarcalo en tu perfil.",
         "Los ejercicios de suelo pélvico se pueden empezar desde los primeros días y bajan las pérdidas de orina. Si ya las tenés, marcalo también: la kinesiología de piso pélvico las trata.",
-        "Con 3 sesiones por semana, estos músculos quedan abajo de las 6 series semanales mínimas: hombro anterior (4). Sumar una sesión más por semana los cubre."
+        "Se recomiendan al menos 150 minutos de cardio por semana, y con tus 45 minutos por sesión el plan llega a unos 63. Lo que falta lo podés sumar fuera del gimnasio: caminar o pedalear también cuenta, en tramos de cualquier largo.",
+        "Con 3 sesiones por semana, estos músculos quedan abajo de las 6 series semanales mínimas: hombro anterior (4). Sumar una sesión más por semana los cubre.",
+        "Si hacés cardio el mismo día que pierna, no te preocupes de más: el efecto medido es chico y a nivel de músculo entero no aparece. Da igual el orden y da igual si lo hacés el mismo día o en días separados. Lo único que sí cambia algo es la máquina: correr en cinta castiga más la pierna que la bici o el elíptico, porque frenar en cada paso es lo que deja el músculo golpeado. Si ese día entrenás pierna fuerte, elegí bici."
       ],
       "sesiones": [
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 24,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Sentadilla goblet con kettlebell",
@@ -21322,13 +21651,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Caminata en cinta",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1260,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "minutos": 24,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Hip thrust en máquina",
@@ -21383,6 +21723,17 @@
               "carga": null,
               "duracionSeg": null,
               "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1260,
+              "zona": 2,
               "par": null
             }
           ]
@@ -21390,7 +21741,7 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 24,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Sentadilla goblet con kettlebell",
@@ -21446,13 +21797,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Caminata en cinta",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1260,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "minutos": 24,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Hip thrust en máquina",
@@ -21507,6 +21869,17 @@
               "carga": null,
               "duracionSeg": null,
               "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1260,
+              "zona": 2,
               "par": null
             }
           ]
@@ -21514,7 +21887,7 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 24,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Sentadilla goblet con kettlebell",
@@ -21570,13 +21943,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Caminata en cinta",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1260,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "minutos": 24,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Hip thrust en máquina",
@@ -21631,6 +22015,17 @@
               "carga": null,
               "duracionSeg": null,
               "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1260,
+              "zona": 2,
               "par": null
             }
           ]
@@ -21638,7 +22033,7 @@
         {
           "label": "Sesión A",
           "focus": "Cuerpo completo · empuje",
-          "minutos": 24,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Sentadilla goblet con kettlebell",
@@ -21694,13 +22089,24 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Caminata en cinta",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1260,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Sesión B",
           "focus": "Cuerpo completo · tracción",
-          "minutos": 24,
+          "minutos": 45,
           "items": [
             {
               "ejercicio": "Hip thrust en máquina",
@@ -21755,6 +22161,17 @@
               "carga": null,
               "duracionSeg": null,
               "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1260,
+              "zona": 2,
               "par": null
             }
           ]
@@ -31063,7 +31480,7 @@
       "source": "research",
       "warnings": [
         "Para que cada sesión entre en tus 30 minutos: menos ejercicios de un solo músculo y un cardio continuo más corto. Lo que se mantiene es lo que más rinde: los ejercicios de varias articulaciones y un mínimo de series por músculo.",
-        "Con el cardio acortado para que entre en tus 30 minutos, la semana suma unos 62 minutos de cardio (los intensos cuentan doble). Para la salud se recomiendan 150 por semana, y cualquier tramo suma: caminar o pedalear fuera del gimnasio también cuenta.",
+        "Se recomiendan al menos 150 minutos de cardio por semana, y con tus 30 minutos por sesión el plan llega a unos 82. Lo que falta lo podés sumar fuera del gimnasio: caminar o pedalear también cuenta, en tramos de cualquier largo.",
         "Si hacés cardio el mismo día que pierna, no te preocupes de más: el efecto medido es chico y a nivel de músculo entero no aparece. Da igual el orden y da igual si lo hacés el mismo día o en días separados. Lo único que sí cambia algo es la máquina: correr en cinta castiga más la pierna que la bici o el elíptico, porque frenar en cada paso es lo que deja el músculo golpeado. Si ese día entrenás pierna fuerte, elegí bici.",
         "Para este objetivo tu nivel decide qué ejercicios entran al plan por la técnica que piden, pero no cambia las series ni las repeticiones."
       ],
@@ -31089,7 +31506,7 @@
         {
           "label": "Intervalos",
           "focus": "Intervalos",
-          "minutos": 28,
+          "minutos": 30,
           "items": [
             {
               "ejercicio": "Elíptico",
@@ -31101,13 +31518,24 @@
               "duracionSeg": 240,
               "zona": 4,
               "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 120,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Fuerza de sostén",
           "focus": "Fuerza general",
-          "minutos": 12,
+          "minutos": 30,
           "items": [
             {
               "ejercicio": "Sentadilla goblet con kettlebell",
@@ -31152,6 +31580,17 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Elíptico",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1080,
+              "zona": 2,
+              "par": null
             }
           ]
         },
@@ -31176,7 +31615,7 @@
         {
           "label": "Intervalos",
           "focus": "Intervalos",
-          "minutos": 28,
+          "minutos": 30,
           "items": [
             {
               "ejercicio": "Elíptico",
@@ -31188,13 +31627,24 @@
               "duracionSeg": 240,
               "zona": 4,
               "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 120,
+              "zona": 2,
+              "par": null
             }
           ]
         },
         {
           "label": "Fuerza de sostén",
           "focus": "Fuerza general",
-          "minutos": 12,
+          "minutos": 30,
           "items": [
             {
               "ejercicio": "Sentadilla goblet con kettlebell",
@@ -31239,6 +31689,17 @@
               "duracionSeg": null,
               "zona": null,
               "par": null
+            },
+            {
+              "ejercicio": "Elíptico",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1080,
+              "zona": 2,
+              "par": null
             }
           ]
         },
@@ -31263,7 +31724,7 @@
         {
           "label": "Intervalos",
           "focus": "Intervalos",
-          "minutos": 28,
+          "minutos": 30,
           "items": [
             {
               "ejercicio": "Elíptico",
@@ -31274,6 +31735,17 @@
               "carga": null,
               "duracionSeg": 240,
               "zona": 4,
+              "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 120,
+              "zona": 2,
               "par": null
             }
           ]
@@ -31824,6 +32296,1130 @@
               "carga": null,
               "duracionSeg": null,
               "zona": null,
+              "par": null
+            }
+          ]
+        }
+      ]
+    },
+    "hipertrofia · bajar grasa": {
+      "rulesetVersion": "v1-research",
+      "source": "research",
+      "warnings": [
+        "Para bajar grasa, lo que más pesa es la alimentación, y esta app no la maneja: si querés un plan para eso, consultalo con un nutricionista. El cardio que suma el plan ayuda, sobre todo desde los 150 minutos por semana.",
+        "Se recomiendan al menos 150 minutos de cardio por semana, y con tus 60 minutos por sesión el plan llega a unos 75. Lo que falta lo podés sumar fuera del gimnasio: caminar o pedalear también cuenta, en tramos de cualquier largo.",
+        "Con 3 sesiones por semana, estos músculos quedan abajo de las 6 series semanales mínimas: isquiotibiales (4), lumbares (4). Sumar una sesión más por semana los cubre.",
+        "Si hacés cardio el mismo día que pierna, no te preocupes de más: el efecto medido es chico y a nivel de músculo entero no aparece. Da igual el orden y da igual si lo hacés el mismo día o en días separados. Lo único que sí cambia algo es la máquina: correr en cinta castiga más la pierna que la bici o el elíptico, porque frenar en cada paso es lo que deja el músculo golpeado. Si ese día entrenás pierna fuerte, elegí bici."
+      ],
+      "sesiones": [
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 60,
+          "items": [
+            {
+              "ejercicio": "Sentadilla en Smith",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press inclinado con mancuernas",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de hombro con mancuernas",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elíptico",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1500,
+              "zona": 2,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 60,
+          "items": [
+            {
+              "ejercicio": "Peso muerto",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Dorsalera al pecho",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Zancadas",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo con barra (Pendlay)",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Extensión de tríceps con mancuerna",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1500,
+              "zona": 2,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 60,
+          "items": [
+            {
+              "ejercicio": "Sentadilla en Smith",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press inclinado con mancuernas",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de hombro con mancuernas",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elíptico",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1500,
+              "zona": 2,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 60,
+          "items": [
+            {
+              "ejercicio": "Peso muerto",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Dorsalera al pecho",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Zancadas",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo con barra (Pendlay)",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Extensión de tríceps con mancuerna",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1500,
+              "zona": 2,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 60,
+          "items": [
+            {
+              "ejercicio": "Sentadilla en Smith",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press inclinado con mancuernas",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de hombro con mancuernas",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elíptico",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1500,
+              "zona": 2,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 60,
+          "items": [
+            {
+              "ejercicio": "Peso muerto",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Dorsalera al pecho",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Zancadas",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo con barra (Pendlay)",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Extensión de tríceps con mancuerna",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1500,
+              "zona": 2,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión A",
+          "focus": "Cuerpo completo · empuje",
+          "minutos": 60,
+          "items": [
+            {
+              "ejercicio": "Sentadilla en Smith",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press inclinado con mancuernas",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo invertido en TRX",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de hombro con mancuernas",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elíptico",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1500,
+              "zona": 2,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Sesión B",
+          "focus": "Cuerpo completo · tracción",
+          "minutos": 60,
+          "items": [
+            {
+              "ejercicio": "Peso muerto",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Dorsalera al pecho",
+              "series": 4,
+              "reps": "6-12",
+              "rir": 1,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Zancadas",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo con barra (Pendlay)",
+              "series": 3,
+              "reps": "8-15",
+              "rir": 2,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Extensión de tríceps con mancuerna",
+              "series": 2,
+              "reps": "10-15",
+              "rir": 2,
+              "descanso": 60,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1500,
+              "zona": 2,
+              "par": null
+            }
+          ]
+        }
+      ]
+    },
+    "fuerza · salud · cinco días": {
+      "rulesetVersion": "v1-research",
+      "source": "research",
+      "warnings": [
+        "Con 5 sesiones por semana, estos músculos pasan las 15 series semanales que la evidencia marca como techo útil: dorsales (21), espalda (18), glúteos (21). Más volumen ahí no rinde más.",
+        "Si hacés cardio el mismo día que pierna, no te preocupes de más: el efecto medido es chico y a nivel de músculo entero no aparece. Da igual el orden y da igual si lo hacés el mismo día o en días separados. Lo único que sí cambia algo es la máquina: correr en cinta castiga más la pierna que la bici o el elíptico, porque frenar en cada paso es lo que deja el músculo golpeado. Si ese día entrenás pierna fuerte, elegí bici."
+      ],
+      "sesiones": [
+        {
+          "label": "Torso A",
+          "focus": "Torso · empuje",
+          "minutos": 77,
+          "items": [
+            {
+              "ejercicio": "Press de pecho en máquina",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Dorsalera al pecho",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de hombro en máquina",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo con mancuerna a una mano",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Curl de bíceps",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1800,
+              "zona": 2,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Pierna A",
+          "focus": "Tren inferior",
+          "minutos": 70,
+          "items": [
+            {
+              "ejercicio": "Sentadilla hack",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Hip thrust con barra",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Zancadas",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en cinta",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1800,
+              "zona": 2,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Torso B",
+          "focus": "Torso · tracción",
+          "minutos": 70,
+          "items": [
+            {
+              "ejercicio": "Remo sentado",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press inclinado con mancuernas",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Dorsalera con agarre neutro",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Extensión de tríceps en polea",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elíptico",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1800,
+              "zona": 2,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Pierna B",
+          "focus": "Tren inferior · cadena posterior",
+          "minutos": 63,
+          "items": [
+            {
+              "ejercicio": "Hip thrust en máquina",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Sentadilla goblet con kettlebell",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Subida al cajón",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Crunch en polea",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Escaladora",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1800,
+              "zona": 2,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Torso A",
+          "focus": "Torso · empuje",
+          "minutos": 77,
+          "items": [
+            {
+              "ejercicio": "Press de pecho en máquina",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Dorsalera al pecho",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press de hombro en máquina",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Remo con mancuerna a una mano",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Curl de bíceps",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Bicicleta fija",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1800,
+              "zona": 2,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Pierna A",
+          "focus": "Tren inferior",
+          "minutos": 70,
+          "items": [
+            {
+              "ejercicio": "Sentadilla hack",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Hip thrust con barra",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Zancadas",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Abdominales en máquina",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Caminata en cinta",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1800,
+              "zona": 2,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Torso B",
+          "focus": "Torso · tracción",
+          "minutos": 70,
+          "items": [
+            {
+              "ejercicio": "Remo sentado",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Press inclinado con mancuernas",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Dorsalera con agarre neutro",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Extensión de tríceps en polea",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Elíptico",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1800,
+              "zona": 2,
+              "par": null
+            }
+          ]
+        },
+        {
+          "label": "Pierna B",
+          "focus": "Tren inferior · cadena posterior",
+          "minutos": 63,
+          "items": [
+            {
+              "ejercicio": "Hip thrust en máquina",
+              "series": 4,
+              "reps": "4-6",
+              "rir": 3,
+              "descanso": 180,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Sentadilla goblet con kettlebell",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Subida al cajón",
+              "series": 3,
+              "reps": "3-8",
+              "rir": 3,
+              "descanso": 120,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Crunch en polea",
+              "series": 2,
+              "reps": "6-10",
+              "rir": 3,
+              "descanso": 90,
+              "carga": null,
+              "duracionSeg": null,
+              "zona": null,
+              "par": null
+            },
+            {
+              "ejercicio": "Escaladora",
+              "series": 1,
+              "reps": "1-1",
+              "rir": null,
+              "descanso": 0,
+              "carga": null,
+              "duracionSeg": 1800,
+              "zona": 2,
               "par": null
             }
           ]

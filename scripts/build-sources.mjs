@@ -96,6 +96,7 @@ const TEMAS = {
   65: 'Temporada y día de partido',
   66: 'Lo que el deporte no cambia',
   67: 'El salto del par',
+  68: 'Objetivos secundarios y cardio',
 };
 
 // El `]` y el `(` cierran un enlace de markdown: sin ellos, un DOI escrito como

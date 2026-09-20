@@ -73,6 +73,7 @@ function input(over: {
           sport: over.sport ?? null,
           seasonPhase: 'none',
           priority: 1,
+          secondaryGoals: [],
           sessionsPerWeekTarget: 3,
           sessionMinutesTarget: 60,
         },

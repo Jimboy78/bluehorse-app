@@ -1482,6 +1482,14 @@
       "vigorousWeight": 2,
       "note": "Con el cardio acortado para que entre en tus {tiempo} minutos, la semana suma unos {minutos} minutos de cardio (los intensos cuentan doble). Para la salud se recomiendan 150 por semana, y cualquier tramo suma: caminar o pedalear fuera del gimnasio también cuenta.",
       "confidence": "high"
+    },
+    "weeklyTarget": {
+      "goals": ["cardio", "recomposition"],
+      "secondaryGoals": ["fat_loss", "health"],
+      "sessionId": "continuo_z2",
+      "shortNote": "Se recomiendan al menos {meta} minutos de cardio por semana, y con tus {tiempo} minutos por sesión el plan llega a unos {minutos}. Lo que falta lo podés sumar fuera del gimnasio: caminar o pedalear también cuenta, en tramos de cualquier largo.",
+      "fatLossNote": "Para bajar grasa, lo que más pesa es la alimentación, y esta app no la maneja: si querés un plan para eso, consultalo con un nutricionista. El cardio que suma el plan ayuda, sobre todo desde los {meta} minutos por semana.",
+      "confidence": "high"
     }
   },
   "modifiers": {

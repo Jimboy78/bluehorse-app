@@ -1,5 +1,6 @@
-import type { ExperienceLevel, Goal, SeasonPhase, Sex } from '@bh/domain';
+import type { ExperienceLevel, Goal, SeasonPhase, SecondaryGoal, Sex, UserGoal } from '@bh/domain';
 import type { OnboardingInput } from '../../routes/onboarding/schemas.ts';
+import { limpiarSecundarios } from '../objetivos.ts';
 import { temporadaYDia } from '../partido.ts';
 
 /**
@@ -34,6 +35,7 @@ export interface UserGoalInsertRow {
   readonly season_phase: SeasonPhase;
   readonly match_weekday: number | null;
   readonly priority: number;
+  readonly secondary_goals: SecondaryGoal[];
   readonly sessions_per_week_target: number;
   readonly session_minutes_target: number;
 }
@@ -74,7 +76,36 @@ export function toUserGoalInsert(userId: string, input: OnboardingInput): UserGo
     season_phase: seasonPhase,
     match_weekday: matchWeekday,
     priority: 1,
+    secondary_goals: limpiarSecundarios(input.secondaryGoals),
     sessions_per_week_target: input.sessionsPerWeekTarget,
     session_minutes_target: input.sessionMinutesTarget,
+  };
+}
+
+/** La fila de `user_goals` que lee el motor. */
+interface UserGoalRow {
+  readonly goal: Goal;
+  readonly sport: string | null;
+  readonly season_phase: SeasonPhase;
+  readonly priority: number;
+  readonly secondary_goals: SecondaryGoal[];
+  readonly sessions_per_week_target: number;
+  readonly session_minutes_target: number;
+}
+
+/**
+ * De la fila al objetivo del motor. Todo lo que el socio contesta tiene que
+ * llegar acá: un campo que se guarda y no se copia es una pregunta que no
+ * cambia nada (pasó con `sessionMinutesTarget`).
+ */
+export function toDomainGoal(row: UserGoalRow): UserGoal {
+  return {
+    goal: row.goal,
+    sport: row.sport,
+    seasonPhase: row.season_phase,
+    priority: row.priority,
+    secondaryGoals: row.secondary_goals,
+    sessionsPerWeekTarget: row.sessions_per_week_target,
+    sessionMinutesTarget: row.session_minutes_target,
   };
 }

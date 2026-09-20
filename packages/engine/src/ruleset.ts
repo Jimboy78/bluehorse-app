@@ -13,6 +13,7 @@ import {
   PREVENTION_PROGRAMS,
   RULESET_SOURCES,
   SEASON_PHASES,
+  SECONDARY_GOALS,
   SEXES,
   SPORT_CATEGORIES,
 } from '@bh/domain';
@@ -166,77 +167,109 @@ const templateSchema = z.object({
  * intensidad e intervalos. Forzarlo al formato de sala era la deuda que dejaba el
  * ruleset provisorio.
  */
-const cardioSchema = z.object({
-  zones: z
-    .array(
-      z.object({
-        zone: z.number().int().min(1).max(5),
-        label: z.string().min(1),
-        hrPercentMax: percentRange,
-        /** Cómo se siente, para quien no usa pulsómetro. */
-        feels: z.string().min(1),
-        /**
-         * Cómo cuenta para los minutos semanales de la OMS: moderado 64-76 %
-         * de la FC máxima, vigoroso 77-93 % (la tabla de ACSM, en MacIntosh
-         * 2021). Una zona que cruza el límite cuenta como la más baja.
-         */
-        whoIntensity: z.enum(['light', 'moderate', 'vigorous']),
-      }),
-    )
-    .min(1),
-  sessions: z
-    .array(
-      z.object({
-        id: z.string().min(1),
-        label: z.string().min(1),
-        type: z.enum(['steady', 'interval']),
-        intensityZone: z.number().int().min(1).max(5),
-        /** Duración total del bloque continuo. `null` en intervalos. */
-        durationMinutes: z.number().int().min(1).max(240).nullable(),
-        /** Solo en intervalos. */
-        interval: z
-          .object({
-            workMinutes: z.number().min(0.25).max(60),
-            restMinutes: z.number().min(0.25).max(60),
-            reps: z.number().int().min(1).max(30),
-          })
-          .nullable(),
-        confidence: z.enum(CONFIDENCE_LEVELS),
-      }),
-    )
-    .min(1),
-  /**
-   * Qué decirle a quien mezcla cardio con trabajo de pierna.
-   *
-   * Antes esto eran dos reglas — no meter intervalos el mismo día que tren
-   * inferior, y separar las sesiones 6 horas — que además de no aplicarse nunca,
-   * prescribían justo lo que el metaanálisis **no** encontró: ni el orden dentro
-   * de la sesión ni entrenar el mismo día contra días separados mostraron
-   * diferencia. Lo único que discriminó fue la modalidad: correr interfiere
-   * (SMD −0,81 en fibras tipo I), pedalear no. Ver `docs/research/13`.
-   */
-  interference: z.object({
-    note: z.string().min(1),
-    confidence: z.enum(CONFIDENCE_LEVELS),
-  }),
-  /**
-   * El piso del cardio es semanal, no por sesión: para la salud cuentan los
-   * minutos de la semana (OMS 2020: 150 moderados o 75 vigorosos) y cualquier
-   * tramo suma, por corto que sea (Jakicic 2019). Se avisa cuando los minutos
-   * declarados acortaron el cardio y la semana queda abajo. Ver
-   * `docs/research/61`.
-   */
-  weeklyMinimum: z
-    .object({
-      moderateMinutes: z.number().int().positive(),
-      /** Cuánto vale un minuto vigoroso en minutos moderados (OMS: 2). */
-      vigorousWeight: z.number().positive(),
-      /** `{tiempo}` (los minutos por sesión declarados) y `{minutos}` (los de la semana). */
-      note: z.string().min(1).includes('{tiempo}').includes('{minutos}'),
+const cardioSchema = z
+  .object({
+    zones: z
+      .array(
+        z.object({
+          zone: z.number().int().min(1).max(5),
+          label: z.string().min(1),
+          hrPercentMax: percentRange,
+          /** Cómo se siente, para quien no usa pulsómetro. */
+          feels: z.string().min(1),
+          /**
+           * Cómo cuenta para los minutos semanales de la OMS: moderado 64-76 %
+           * de la FC máxima, vigoroso 77-93 % (la tabla de ACSM, en MacIntosh
+           * 2021). Una zona que cruza el límite cuenta como la más baja.
+           */
+          whoIntensity: z.enum(['light', 'moderate', 'vigorous']),
+        }),
+      )
+      .min(1),
+    sessions: z
+      .array(
+        z.object({
+          id: z.string().min(1),
+          label: z.string().min(1),
+          type: z.enum(['steady', 'interval']),
+          intensityZone: z.number().int().min(1).max(5),
+          /** Duración total del bloque continuo. `null` en intervalos. */
+          durationMinutes: z.number().int().min(1).max(240).nullable(),
+          /** Solo en intervalos. */
+          interval: z
+            .object({
+              workMinutes: z.number().min(0.25).max(60),
+              restMinutes: z.number().min(0.25).max(60),
+              reps: z.number().int().min(1).max(30),
+            })
+            .nullable(),
+          confidence: z.enum(CONFIDENCE_LEVELS),
+        }),
+      )
+      .min(1),
+    /**
+     * Qué decirle a quien mezcla cardio con trabajo de pierna.
+     *
+     * Antes esto eran dos reglas — no meter intervalos el mismo día que tren
+     * inferior, y separar las sesiones 6 horas — que además de no aplicarse nunca,
+     * prescribían justo lo que el metaanálisis **no** encontró: ni el orden dentro
+     * de la sesión ni entrenar el mismo día contra días separados mostraron
+     * diferencia. Lo único que discriminó fue la modalidad: correr interfiere
+     * (SMD −0,81 en fibras tipo I), pedalear no. Ver `docs/research/13`.
+     */
+    interference: z.object({
+      note: z.string().min(1),
       confidence: z.enum(CONFIDENCE_LEVELS),
-    })
-    .optional(),
-});
+    }),
+    /**
+     * El piso del cardio es semanal, no por sesión: para la salud cuentan los
+     * minutos de la semana (OMS 2020: 150 moderados o 75 vigorosos) y cualquier
+     * tramo suma, por corto que sea (Jakicic 2019). Se avisa cuando los minutos
+     * declarados acortaron el cardio y la semana queda abajo. Ver
+     * `docs/research/61`.
+     */
+    weeklyMinimum: z
+      .object({
+        moderateMinutes: z.number().int().positive(),
+        /** Cuánto vale un minuto vigoroso en minutos moderados (OMS: 2). */
+        vigorousWeight: z.number().positive(),
+        /** `{tiempo}` (los minutos por sesión declarados) y `{minutos}` (los de la semana). */
+        note: z.string().min(1).includes('{tiempo}').includes('{minutos}'),
+        confidence: z.enum(CONFIDENCE_LEVELS),
+      })
+      .optional(),
+    /**
+     * Los objetivos que piden llegar al piso semanal de `weeklyMinimum`: la OMS
+     * para la salud, y el umbral donde bajar grasa se vuelve clínicamente
+     * importante (Jayedi 2024). Lo que falta se suma como tramo continuo al final
+     * de cada sesión, con el tiempo que sobra: nunca le saca nada al objetivo
+     * principal. Ver `docs/research/68`.
+     */
+    weeklyTarget: z
+      .object({
+        /** Objetivos principales que lo piden. */
+        goals: z.array(z.enum(GOALS)),
+        /** Objetivos secundarios que lo piden. */
+        secondaryGoals: z.array(z.enum(SECONDARY_GOALS)),
+        /** La sesión continua (`sessions[].id`) que da la zona del tramo que se suma. */
+        sessionId: z.string().min(1),
+        /** Si con el tiempo declarado no llega: `{meta}`, `{tiempo}` y `{minutos}`. */
+        shortNote: z.string().min(1).includes('{meta}').includes('{tiempo}').includes('{minutos}'),
+        /** A quien quiere bajar grasa: lo que más pesa y dónde consultarlo. `{meta}`. */
+        fatLossNote: z.string().min(1).includes('{meta}'),
+        confidence: z.enum(CONFIDENCE_LEVELS),
+      })
+      .optional(),
+  })
+  .refine((c) => !c.weeklyTarget || c.weeklyMinimum !== undefined, {
+    message: 'weeklyTarget necesita weeklyMinimum: de ahí sale la meta',
+  })
+  .refine(
+    (c) =>
+      !c.weeklyTarget ||
+      c.sessions.some((s) => s.id === c.weeklyTarget?.sessionId && s.type === 'steady'),
+    { message: 'weeklyTarget.sessionId tiene que ser una sesión continua de cardio.sessions' },
+  );
 
 /**
  * Reglas de seguridad. **Opcional a propósito**: un ruleset provisorio no debe

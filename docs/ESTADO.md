@@ -1,6 +1,24 @@
 # Estado del trabajo
 
-## Última actualización: 19 de septiembre de 2026 (T5g: el salto del par)
+## Última actualización: 20 de septiembre de 2026 (T6a: objetivos secundarios y cardio)
+
+`docs/research/68`. El socio puede pedir **bajar grasa** o **cuidar la salud** además de su
+objetivo principal. Los dos piden lo mismo del gimnasio: llegar a 150 minutos moderados de cardio
+por semana (piso de la OMS y umbral clínico de Jayedi 2024, 116 ensayos). También lo piden los
+objetivos principales cardio y recomposición, que quedaban abajo (hallazgo de `61`).
+
+- **El secundario nunca le saca nada al principal:** el plan se arma y se ajusta a los minutos
+  primero; el cardio se suma después, con lo que sobra, y antes de los bloques del contexto. Si la
+  sesión ya trae un tramo continuo de esa zona, se alarga en vez de sumar otro.
+- Si el tiempo no alcanza, el plan dice cuánto suma la semana y que caminar o pedalear afuera
+  cuenta igual. Medido en el barrido: solo el **20 %** llega a 150 dentro del gimnasio.
+- A quien marca bajar grasa se le dice que lo que más pesa es la alimentación, y dónde consultarla.
+- **Dos cosas que destapó:** el cardio se contaba como series de fuerza en el aviso de volumen, y
+  se sumaban tramos de dos minutos donde ya había uno continuo. Las dos corregidas.
+
+Sigue T6b (subir peso, movilidad). Antes conviene la tanda de `tools/` fuera del typecheck.
+
+## 19 de septiembre de 2026 (T5g: el salto del par)
 
 `docs/research/67`. No se pregunta el puesto ni qué quiere mejorar: no hay intervención por puesto,
 y la única respuesta sostenida es la misma para todos. El salto horizontal rinde igual en el salto

@@ -16,11 +16,13 @@ import type {
   UserGoal,
 } from '@bh/domain';
 import { EXPERIENCE_LEVELS, nextLoad, snapToEquipment } from '@bh/domain';
+import { minutosDeLaSemana, pesoDeZona, repartirAerobico } from './aerobico.ts';
 import type {
   Aviso,
   BloqueDeContexto,
   ContextoDelSocio,
   ExplosiveConfig,
+  MetaAerobica,
   Modulo,
   ResolvedSport,
 } from './contexto.ts';
@@ -260,6 +262,32 @@ function generatePlan(input: GeneratePlanInput): PlanBlueprint {
       level: user.profile.experienceLevel,
       gym,
       equipmentById,
+      conMetaAerobica: ctx.aerobico !== null,
+    }),
+  );
+
+  // Después del ajuste, con el tiempo que sobra: lo que pide un objetivo
+  // secundario nunca le saca nada al principal (`docs/research/68`). Elige al
+  // final, así que no mueve ninguna elección anterior.
+  decir(
+    'objetivo',
+    completarAerobico({
+      resolved: resolvedTemplateSessions,
+      meta: ctx.aerobico,
+      ruleset,
+      goal,
+      template,
+      params,
+      pool: usableExercises,
+      usedInPlan,
+      rotateAway,
+      setsByMuscle,
+      level: user.profile.experienceLevel,
+      gym,
+      equipmentById,
+      placeholder,
+      warnings: avisosDelRuleset,
+      rng,
     }),
   );
 
@@ -697,7 +725,10 @@ function weeklyVolumeWarnings(
     // fuerza llevadas cerca del fallo (`docs/research/35`), y cinco saltos que
     // se cortan cuando baja la altura no son eso. Contarlos avisaba "glúteos
     // 27, pasás el techo" a un futbolista por los saltos del par.
-    if (!exercise || fueraDeLaDosis(exercise)) continue;
+    // Tampoco el cardio: es tiempo, no series. Con el tramo que suma un objetivo
+    // secundario (`docs/research/68`) aparecía "cuerpo completo (2), abajo de
+    // las 6 series" en un plan de fuerza, por una bici.
+    if (!exercise || fueraDeLaDosis(exercise) || item.targetDurationSeconds !== null) continue;
     for (const muscle of exercise.primaryMuscles) {
       setsByMuscle.set(muscle, (setsByMuscle.get(muscle) ?? 0) + item.targetSets);
       if (exercise.isCompound) targeted.add(muscle);
@@ -1362,15 +1393,13 @@ function ajustarSesionesAlTiempo(input: {
   readonly level: ExperienceLevel;
   readonly gym: GymSnapshot;
   readonly equipmentById: ReadonlyMap<Id, Equipment>;
+  /** Con meta semanal de cardio, el aviso de la semana lo da `completarAerobico`. */
+  readonly conMetaAerobica: boolean;
 }): string[] {
   const cfg = input.ruleset.sessionTime;
   const { resolved, goal } = input;
   if (!cfg || goal.sessionMinutesTarget <= 0 || resolved.length === 0) return [];
-  const porSemana = Math.min(goal.sessionsPerWeekTarget, input.template.sessionsPerWeek[1]);
-  const n = resolved.length;
-  const vecesPorSemana = resolved.map((_, k) =>
-    porSemana < n ? porSemana / n : Math.floor(porSemana / n) + (k < porSemana % n ? 1 : 0),
-  );
+  const vecesPorSemana = vecesPorSemanaDe(goal, input.template, resolved.length);
   const ajuste = ajustarAlTiempo({
     sesiones: resolved.map((r) => ({ label: r.tplSession.label, items: r.items, roles: r.roles })),
     cfg,
@@ -1400,9 +1429,15 @@ function ajustarSesionesAlTiempo(input: {
         .replace('{cambios}', enumerar(ajuste.cambios.map((c) => cfg.changes[c]))),
     );
   }
-  const cardio = ajuste.cambios.includes('cardio')
-    ? avisoDeCardioCorto(ajuste.sesiones, vecesPorSemana, input.ruleset, goal.sessionMinutesTarget)
-    : null;
+  const cardio =
+    ajuste.cambios.includes('cardio') && !input.conMetaAerobica
+      ? avisoDeCardioCorto(
+          ajuste.sesiones,
+          vecesPorSemana,
+          input.ruleset,
+          goal.sessionMinutesTarget,
+        )
+      : null;
   if (cardio) avisos.push(cardio);
   if (ajuste.excedidas.length > 0) {
     const lista = ajuste.excedidas.map((s) =>
@@ -1432,26 +1467,170 @@ function avisoDeCardioCorto(
 ): string | null {
   const w = ruleset.cardio?.weeklyMinimum;
   if (!w) return null;
-  const vale = { light: 0, moderate: 1, vigorous: w.vigorousWeight };
-  const peso = (zona: number | null) => {
-    const z = ruleset.cardio?.zones.find((x) => x.zone === zona);
-    return z ? vale[z.whoIntensity] : 0;
-  };
-  const minutos = sesiones.reduce(
-    (total, items, k) =>
-      total +
-      (vecesPorSemana[k] ?? 0) *
-        items.reduce(
-          (t, i) =>
-            t + (i.targetSets * (i.targetDurationSeconds ?? 0) * peso(i.targetIntensityZone)) / 60,
-          0,
-        ),
-    0,
-  );
+  const peso = pesoDeZona(ruleset.cardio?.zones ?? [], w.vigorousWeight);
+  const minutos = minutosDeLaSemana(sesiones, vecesPorSemana, peso);
   if (minutos >= w.moderateMinutes) return null;
   return w.note
     .replace('{tiempo}', String(minutosDeclarados))
     .replace('{minutos}', String(Math.round(minutos)));
+}
+
+/**
+ * Cuántas veces sale cada sesión de la plantilla en la semana: las primeras de
+ * la cola, tantas como días declaró. Con menos días que sesiones, el promedio
+ * de la rotación (una vez por semana y dos sesiones, 0,5).
+ */
+function vecesPorSemanaDe(
+  goal: UserGoal,
+  template: Ruleset['templates'][number],
+  n: number,
+): number[] {
+  const porSemana = Math.min(goal.sessionsPerWeekTarget, template.sessionsPerWeek[1]);
+  return Array.from({ length: n }, (_, k) =>
+    porSemana < n ? porSemana / n : Math.floor(porSemana / n) + (k < porSemana % n ? 1 : 0),
+  );
+}
+
+interface CompletarAerobicoInput {
+  readonly resolved: { items: SessionItemBlueprint[] }[];
+  readonly meta: MetaAerobica | null;
+  readonly ruleset: Ruleset;
+  readonly goal: UserGoal;
+  readonly template: Ruleset['templates'][number];
+  readonly params: GoalParams;
+  readonly pool: readonly Exercise[];
+  readonly usedInPlan: Set<Id>;
+  readonly rotateAway: ReadonlySet<Id>;
+  readonly setsByMuscle: Map<MuscleGroup, number>;
+  readonly level: ExperienceLevel;
+  readonly gym: GymSnapshot;
+  readonly equipmentById: ReadonlyMap<Id, Equipment>;
+  readonly placeholder: boolean;
+  readonly warnings: string[];
+  readonly rng: () => number;
+}
+
+type ConMeta = CompletarAerobicoInput & { readonly meta: MetaAerobica };
+
+/**
+ * Lo que falta para la meta semanal de cardio, como un tramo continuo al final
+ * de cada sesión, con el tiempo que sobra (`docs/research/68`). Al final
+ * porque la fuerza primero rinde más en la fuerza de pierna y el orden no
+ * cambia nada del cardio (Eddens 2018). Si el tiempo no alcanza, se dice
+ * cuánto suma la semana y que lo de afuera también cuenta.
+ */
+function completarAerobico(input: CompletarAerobicoInput): string[] {
+  const { meta, ruleset, goal, resolved } = input;
+  if (!meta) return [];
+  const sesion = ruleset.cardio?.sessions.find((s) => s.id === meta.cfg.sessionId);
+  const peso = pesoDeZona(ruleset.cardio?.zones ?? [], meta.vigorousWeight);
+  const valor = peso(sesion?.intensityZone ?? null);
+  if (!sesion || valor <= 0 || resolved.length === 0) return [];
+
+  const veces = vecesPorSemanaDe(goal, input.template, resolved.length);
+  const antes = minutosDeLaSemana(
+    resolved.map((r) => r.items),
+    veces,
+    peso,
+  );
+  if (antes >= meta.meta) return [];
+
+  const cfg = ruleset.sessionTime;
+  const limite =
+    cfg && goal.sessionMinutesTarget > 0
+      ? goal.sessionMinutesTarget * 60
+      : Number.POSITIVE_INFINITY;
+  const reparto = repartirAerobico({
+    faltan: Math.ceil((meta.meta - antes) / valor),
+    libres: resolved.map((r) => Math.max(0, (limite - segundosDeSesion(r.items, cfg)) / 60)),
+    vecesPorSemana: veces,
+  });
+  reparto.forEach((minutos, k) => {
+    const r = resolved[k];
+    if (!r || minutos < 1) return;
+    // Si la sesión ya trae un tramo continuo en esa zona, se alarga: dos
+    // minutos de bici después de cuarenta de cinta no son otro ejercicio.
+    const k2 = r.items.findIndex(
+      (i) => esContinuo(i) && i.targetIntensityZone === sesion.intensityZone,
+    );
+    const existente = r.items[k2];
+    if (existente) {
+      const largo = (existente.targetDurationSeconds ?? 0) + minutos * 60;
+      r.items = r.items.map((it, j) =>
+        j === k2 ? conTextoAlDia({ ...it, targetDurationSeconds: largo }, input.gym, ruleset) : it,
+      );
+      return;
+    }
+    const item = tramoAerobico({ ...input, meta }, r.items, minutos);
+    if (!item) return;
+    // Después de la fuerza y antes de los bloques del contexto, que siguen
+    // cerrando la sesión (Otago: el equilibrio al final).
+    const exPorId = new Map(input.gym.exercises.map((e) => [e.id, e]));
+    let donde = r.items.length;
+    while (donde > 0 && esDeBloqueDelItem(r.items[donde - 1], exPorId)) donde -= 1;
+    r.items = [...r.items.slice(0, donde), item, ...r.items.slice(donde)].map((it, i) =>
+      it.orderIndex === i ? it : { ...it, orderIndex: i },
+    );
+  });
+
+  const despues = minutosDeLaSemana(
+    resolved.map((r) => r.items),
+    veces,
+    peso,
+  );
+  if (despues >= meta.meta) return [];
+  return [
+    meta.cfg.shortNote
+      .replace('{meta}', String(meta.meta))
+      .replace('{tiempo}', String(goal.sessionMinutesTarget))
+      .replace('{minutos}', String(Math.round(despues))),
+  ];
+}
+
+function esDeBloqueDelItem(
+  item: SessionItemBlueprint | undefined,
+  exPorId: ReadonlyMap<Id, Exercise>,
+): boolean {
+  const ex = item ? exPorId.get(item.exerciseId) : undefined;
+  return ex !== undefined && esDeBloque(ex);
+}
+
+/** El tramo continuo que se suma a una sesión, con sus minutos en el texto. */
+function tramoAerobico(
+  input: ConMeta,
+  items: readonly SessionItemBlueprint[],
+  minutos: number,
+): SessionItemBlueprint | null {
+  const exercise = chooseExercise({
+    pattern: 'cardio',
+    role: 'primary',
+    pool: input.pool,
+    used: new Set(items.map((i) => i.exerciseId)),
+    usedInPlan: input.usedInPlan,
+    rotateAway: input.rotateAway,
+    setsByMuscle: input.setsByMuscle,
+    level: input.level,
+    selection: input.ruleset.selection,
+    emphasis: [],
+    regulatedByRir: false,
+    rng: input.rng,
+  });
+  if (!exercise) return null;
+  input.usedInPlan.add(exercise.id);
+  const item = buildItem({
+    exercise,
+    role: 'primary',
+    cardioSessionId: input.meta.cfg.sessionId,
+    orderIndex: items.length,
+    equipment: pickEquipment(exercise, input.equipmentById, input.rng),
+    roleParams: input.params.primary,
+    baselineLoad: null,
+    comeback: 1,
+    ruleset: input.ruleset,
+    placeholder: input.placeholder,
+    warnings: input.warnings,
+  });
+  return conTextoAlDia({ ...item, targetDurationSeconds: minutos * 60 }, input.gym, input.ruleset);
 }
 
 /** Si el ajuste acortó un tramo continuo, el texto dice los minutos nuevos. */

@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-19T21:22:23.236Z",
+ "generatedAt": "2026-09-19T21:51:11.571Z",
  "docs": [
   {
    "id": "metodo",
@@ -544,6 +544,14 @@
    "resumen": "Fecha: 19/09/2026. Tanda: T5g del plan de variables. En el checklist: \"posición y qué quiere mejorar, que eligen el par explosivo y el énfasis\".",
    "archivo": "67-el-salto-del-par.md",
    "bloques": 14
+  },
+  {
+   "id": "68-objetivos-secundarios-y-cardio",
+   "orden": 68,
+   "titulo": "Objetivos secundarios: bajar grasa y cuidar la salud",
+   "resumen": "Fecha: 19/09/2026. Tanda: T6a del plan de variables. En el checklist: \"varios objetivos con prioridad (priority ya existe y no se usa), bajar grasa, subir peso, salud, movilidad, volver de una lesión\". Esta tanda cubre los dos primeros q…",
+   "archivo": "68-objetivos-secundarios-y-cardio.md",
+   "bloques": 13
   },
   {
    "id": "auditoria",

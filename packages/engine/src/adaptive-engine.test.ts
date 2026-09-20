@@ -172,6 +172,7 @@ function goalOf(goal: UserGoal['goal'], sessionsPerWeekTarget = 3): UserGoal {
     sport: null,
     seasonPhase: 'none' as const,
     priority: 1,
+    secondaryGoals: [],
     sessionsPerWeekTarget,
     sessionMinutesTarget: 60,
   };

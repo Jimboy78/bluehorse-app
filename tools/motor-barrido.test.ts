@@ -16,6 +16,7 @@ import type {
   MuscleGroup,
   PreventionProgram,
   SeasonPhase,
+  SecondaryGoal,
   Sex,
   UserConstraint,
   UserGoal,
@@ -187,6 +188,13 @@ const DIM = {
     [null, 'futbol', 'tenis', 'running', 'rugby', 'golf', 'voley'] as (string | null)[],
     (b, v) => {
       b.goal.sport = v;
+    },
+  ),
+  // Lo que quiere además del principal (`docs/research/68`).
+  secundarios: dim(
+    [[], ['fat_loss'], ['health'], ['health', 'fat_loss']] as SecondaryGoal[][],
+    (b, v) => {
+      b.goal.secondaryGoals = v;
     },
   ),
   fase: dim(['none', 'preseason', 'in_season'] as SeasonPhase[], (b, v) => {
@@ -400,6 +408,7 @@ function borrador(p: Perfil): Borrador {
       sport: null,
       seasonPhase: 'none',
       priority: 1,
+      secondaryGoals: [],
       sessionsPerWeekTarget: 3,
       sessionMinutesTarget: 60,
     },
@@ -507,6 +516,8 @@ describe('barrido de socios generados', () => {
   let conPrevencion = 0;
   /** Pares explosivos mirados, y cuántos con el salto que pide el ruleset. */
   const direccion = { pares: 0, preferidos: 0 };
+  /** Con meta semanal de cardio: cuántos planes, y cuántos llegan (`68`). */
+  const aerobico = { conMeta: 0, llegan: 0 };
   /** En temporada: cuántas veces por semana sale la prevención, por plan. */
   const prevencionEnTemporada: number[] = [];
 
@@ -775,6 +786,115 @@ describe('barrido de socios generados', () => {
   }
 
   /**
+   * Una sesión con objetivo secundario es la del principal más, como mucho, un
+   * tramo continuo de cardio antes de los bloques. `null` si es así.
+   */
+  function quejaDelTramo(
+    con: readonly SessionItemBlueprint[],
+    sin: readonly SessionItemBlueprint[],
+  ): string | null {
+    const igual = (a: readonly SessionItemBlueprint[]) =>
+      JSON.stringify(a.map((i) => ({ ...i, orderIndex: 0 }))) ===
+      JSON.stringify(sin.map((i) => ({ ...i, orderIndex: 0 })));
+    if (con.length === sin.length) return igual(con) ? null : quejaDelAlargue(con, sin);
+    if (con.length !== sin.length + 1) return 'el secundario sumó más de un tramo';
+    const d = con.findIndex((_, x) => igual(con.filter((__, y) => y !== x)));
+    const tramo = con[d];
+    if (!tramo) return 'el secundario cambió el principal';
+    const continuo =
+      tramo.targetDurationSeconds !== null && tramo.targetIntervalRestSeconds === null;
+    if (exPorId.get(tramo.exerciseId)?.pattern !== 'cardio' || !continuo) {
+      return 'el secundario sumó algo que no es un tramo continuo';
+    }
+    const despues = con.slice(d + 1).map((i) => exPorId.get(i.exerciseId));
+    if (
+      despues.some(
+        (e) => !e || !(e.pattern === 'balance' || e.pattern === 'impact' || e.prevents.length > 0),
+      )
+    ) {
+      return 'el tramo no quedó antes de los bloques';
+    }
+    return null;
+  }
+
+  /** Si el objetivo principal o algún secundario pide la meta semanal de cardio (`68`). */
+  function pideMeta(p: Perfil): boolean {
+    const meta = V1_RESEARCH.cardio?.weeklyTarget;
+    if (!meta) return false;
+    return (
+      meta.goals.includes(p.goal) || p.secundarios.some((g) => meta.secondaryGoals.includes(g))
+    );
+  }
+
+  /**
+   * Misma sesión, pero con un tramo continuo más largo: la única diferencia
+   * que vale es la duración (y su texto) de un tramo de cardio que ya estaba.
+   */
+  function quejaDelAlargue(
+    con: readonly SessionItemBlueprint[],
+    sin: readonly SessionItemBlueprint[],
+  ): string | null {
+    const distintos = con.flatMap((c, k) => {
+      const s = sin[k];
+      return s && JSON.stringify(c) !== JSON.stringify(s) ? [[c, s] as const] : [];
+    });
+    if (distintos.length !== 1) return 'el secundario cambió el principal';
+    const [c, s] = distintos[0] ?? [];
+    if (!c || !s) return 'el secundario cambió el principal';
+    const soloElLargo =
+      JSON.stringify({ ...c, targetDurationSeconds: 0, rationale: '' }) ===
+      JSON.stringify({ ...s, targetDurationSeconds: 0, rationale: '' });
+    const alargo = (c.targetDurationSeconds ?? 0) > (s.targetDurationSeconds ?? 0);
+    const continuo = c.targetIntervalRestSeconds === null;
+    return soloElLargo && alargo && continuo ? null : 'el secundario cambió el principal';
+  }
+
+  /**
+   * La meta semanal de cardio (`docs/research/68`): quien la tiene llega, o el
+   * plan dice cuánto suma; quien no la tiene no recibe ese aviso.
+   */
+  function chequearMetaAerobica(p: Perfil, b: PlanBlueprint) {
+    const meta = V1_RESEARCH.cardio?.weeklyTarget;
+    const piso = V1_RESEARCH.cardio?.weeklyMinimum;
+    if (!meta || !piso) return;
+    const id = JSON.stringify(p);
+    const marca = meta.shortNote.split('{meta}')[0] ?? '';
+    const corto = b.warnings.some((w) => w.startsWith(marca));
+    const llega = cardioSemanal(b, p) >= piso.moderateMinutes;
+    const pide = pideMeta(p);
+    if (pide) {
+      aerobico.conMeta += 1;
+      aerobico.llegan += llega ? 1 : 0;
+    }
+    // Avisa justo cuando la pide y no llega.
+    if (corto !== (pide && !llega)) {
+      violaciones.push(`aviso de cardio corto ${corto ? 'sin motivo' : 'que falta'}: ${id}`);
+    }
+  }
+
+  /**
+   * Un objetivo secundario no le saca nada al principal: el plan es el mismo
+   * que sin él, con a lo sumo un tramo continuo por sesión (`docs/research/68`).
+   */
+  function chequearSecundarioSinCosto(p: Perfil, b: PlanBlueprint, seed: number) {
+    const porPrincipal = V1_RESEARCH.cardio?.weeklyTarget?.goals.includes(p.goal) ?? false;
+    if (porPrincipal || p.secundarios.length === 0) return;
+    const sin = plan({ ...p, secundarios: [] }, seed);
+    b.sessions.forEach((s, k) => {
+      const q = quejaDelTramo(s.items, sin.sessions[k]?.items ?? []);
+      if (q) violaciones.push(`${q} en ${s.label}: ${JSON.stringify(p)}`);
+    });
+    // Suma lo que falta y no más: a lo sumo un minuto de redondeo por sesión
+    // de la semana.
+    const meta = V1_RESEARCH.cardio?.weeklyMinimum?.moderateMinutes ?? 0;
+    const antes = cardioSemanal(sin, p);
+    const sumo = cardioSemanal(b, p) - antes;
+    if (sumo > Math.max(0, meta - antes) + p.sesiones) {
+      violaciones.push(`sumó ${Math.round(sumo)} min de cardio de más: ${JSON.stringify(p)}`);
+    }
+  }
+
+  /**
    * El tiempo (`docs/research/59`): cada sesión entra en los minutos
    * declarados, o el plan dice cuál no entra y cuánto dura.
    */
@@ -903,7 +1023,8 @@ describe('barrido de socios generados', () => {
     const id = JSON.stringify(p);
     for (const q of textosDeCardio(items)) violaciones.push(`${q}: ${id}`);
     const acorto = b.warnings.some((x) => x.includes(t.changes.cardio));
-    const corto = acorto && cardioSemanal(b, p) < w.moderateMinutes;
+    // Con meta semanal (`68`) la semana la cuenta `chequearMetaAerobica`.
+    const corto = acorto && !pideMeta(p) && cardioSemanal(b, p) < w.moderateMinutes;
     if (corto) cardioCorto += 1;
     const marca = w.note.split('{')[0] ?? '';
     if (b.warnings.some((x) => x.startsWith(marca)) !== corto) {
@@ -1064,6 +1185,8 @@ describe('barrido de socios generados', () => {
     chequearAjuste(p, b, seed);
     chequearCardio(p, b);
     chequearPrevencion(p, inp, b);
+    chequearMetaAerobica(p, b);
+    chequearSecundarioSinCosto(p, b, seed);
     const achicoBloques = b.warnings.some(
       (w) => !!V1_RESEARCH.sessionTime && w.includes(V1_RESEARCH.sessionTime.changes.blocks),
     );
@@ -1113,6 +1236,8 @@ describe('barrido de socios generados', () => {
     expect(cardioCorto).toBeGreaterThan(0);
     expect(cardioCorto).toBeLessThan(conCardio);
     expect(conPrevencion).toBeGreaterThan(N / 10);
+    expect(aerobico.conMeta).toBeGreaterThan(N / 3);
+    expect(aerobico.llegan).toBeGreaterThan(N / 10);
     expect(direccion.preferidos).toBeGreaterThan(N / 10);
     expect(prevencionEnTemporada.length).toBeGreaterThan(N / 50);
   });
@@ -1185,6 +1310,9 @@ describe('barrido de socios generados', () => {
       // De los pares con un salto. El resto es de quien no tiene el horizontal
       // de ese patrón a mano, por nivel (`docs/research/67`).
       saltosDelParEnLaDireccionPreferida: `${pct(direccion.preferidos, direccion.pares)} %`,
+      // Con meta semanal de cardio (`docs/research/68`): el resto no tiene el
+      // tiempo y el plan se lo dice.
+      llegaALaMetaDeCardio: `${pct(aerobico.llegan, aerobico.conMeta)} %`,
       sesionesQuePasanLosMinutosDeclarados: `${pct(minutos.sobre, minutos.total)} %`,
       // Solo las combinaciones donde alguna no entra: lo que el ajuste no pudo
       // achicar sin romper un piso, y que el plan avisa.

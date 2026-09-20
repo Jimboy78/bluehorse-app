@@ -164,6 +164,7 @@ function buildUser(over: Partial<UserSnapshot> = {}): UserSnapshot {
     sport: null,
     seasonPhase: 'none',
     priority: 1,
+    secondaryGoals: [],
     sessionsPerWeekTarget: 3,
     sessionMinutesTarget: 60,
   };
@@ -928,6 +929,7 @@ describe('un objetivo sin señal de RIR', () => {
           sport: null,
           seasonPhase: 'none',
           priority: 1,
+          secondaryGoals: [],
           sessionsPerWeekTarget: 3,
           sessionMinutesTarget: 60,
         },
@@ -1781,6 +1783,7 @@ describe('volver al cardio después de una pausa', () => {
     sport: null,
     seasonPhase: 'none',
     priority: 1,
+    secondaryGoals: [],
     sessionsPerWeekTarget: 3,
     sessionMinutesTarget: 60,
   };

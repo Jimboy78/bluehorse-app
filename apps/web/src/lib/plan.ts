@@ -18,6 +18,7 @@ import { fetchGymCatalog } from './catalog.ts';
 import { activeRuleset, engine, engineContext } from './engine.ts';
 import { toDomainConstraint } from './mappers/constraint.ts';
 import { toPlanInsert, toPlanSessionInserts, toPlanSessionItemInserts } from './mappers/plan.ts';
+import { toDomainGoal } from './mappers/profile.ts';
 import { type CardioZone, zonaDe } from './objetivo.ts';
 import { requireSupabase } from './supabase.ts';
 
@@ -46,7 +47,9 @@ export async function fetchUserSnapshot(
 
   const { data: goalRows, error: goalError } = await client
     .from('user_goals')
-    .select('goal, sport, season_phase, priority, sessions_per_week_target, session_minutes_target')
+    .select(
+      'goal, sport, season_phase, priority, secondary_goals, sessions_per_week_target, session_minutes_target',
+    )
     .eq('user_id', userId)
     .eq('is_active', true)
     .order('priority');
@@ -93,14 +96,7 @@ export async function fetchUserSnapshot(
       sex: profileRow.sex as Sex,
       experienceLevel: profileRow.experience_level as ExperienceLevel,
     },
-    goals: goalRows.map((g) => ({
-      goal: g.goal,
-      sport: g.sport,
-      seasonPhase: g.season_phase,
-      priority: g.priority,
-      sessionsPerWeekTarget: g.sessions_per_week_target,
-      sessionMinutesTarget: g.session_minutes_target,
-    })),
+    goals: goalRows.map(toDomainGoal),
     constraints: (constraintRows ?? []).map(toDomainConstraint),
     // Una fila por ejercicio: la más reciente. La consulta viene ordenada, así
     // que la primera de cada ejercicio gana.

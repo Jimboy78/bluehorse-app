@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-09-19",
-  "resolved": 199,
+  "resolved": 202,
   "unresolved": [
     "10.1007/s40279-022-01783-0"
   ],
@@ -353,14 +353,16 @@
         "Cardio y resistencia",
         "Cobertura muscular",
         "Cómo procesa el motor",
-        "Embarazo y posparto"
+        "Embarazo y posparto",
+        "Objetivos secundarios y cardio"
       ],
       "documentos": [
         "02-cardio-resistencia-recomposicion.md",
         "24-cobertura-muscular.md",
         "38-como-procesa-el-motor.md",
         "48-embarazo-y-posparto.md",
-        "61-cardio-y-minutos.md"
+        "61-cardio-y-minutos.md",
+        "68-objetivos-secundarios-y-cardio.md"
       ]
     },
     {
@@ -2669,6 +2671,63 @@
       ],
       "documentos": [
         "10-nivel-de-experiencia.md"
+      ]
+    },
+    {
+      "doi": "10.1001/jamanetworkopen.2024.52185",
+      "title": "Aerobic Exercise and Weight Loss in Adults",
+      "authors": [
+        "Jayedi",
+        "Soltani",
+        "Emadi"
+      ],
+      "moreAuthors": 2,
+      "year": 2024,
+      "journal": "JAMA Network Open",
+      "type": "journal-article",
+      "temas": [
+        "Objetivos secundarios y cardio"
+      ],
+      "documentos": [
+        "68-objetivos-secundarios-y-cardio.md"
+      ]
+    },
+    {
+      "doi": "10.1111/obr.13256",
+      "title": "Effect of exercise training on weight loss, body composition changes, and weight maintenance in adults with overweight or obesity: An overview of 12 systematic reviews and 149 studies",
+      "authors": [
+        "Bellicha",
+        "van Baak",
+        "Battista"
+      ],
+      "moreAuthors": 11,
+      "year": 2021,
+      "journal": "Obesity Reviews",
+      "type": "journal-article",
+      "temas": [
+        "Objetivos secundarios y cardio"
+      ],
+      "documentos": [
+        "68-objetivos-secundarios-y-cardio.md"
+      ]
+    },
+    {
+      "doi": "10.1007/s40279-017-0784-1",
+      "title": "The Role of Intra-Session Exercise Sequence in the Interference Effect: A Systematic Review with Meta-Analysis",
+      "authors": [
+        "Eddens",
+        "van Someren",
+        "Howatson"
+      ],
+      "moreAuthors": 0,
+      "year": 2017,
+      "journal": "Sports Medicine",
+      "type": "journal-article",
+      "temas": [
+        "Objetivos secundarios y cardio"
+      ],
+      "documentos": [
+        "68-objetivos-secundarios-y-cardio.md"
       ]
     },
     {

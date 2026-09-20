@@ -5,11 +5,13 @@ import type {
   Id,
   MovementLimit,
   SeasonPhase,
+  SecondaryGoal,
   Sex,
   UserConstraint,
 } from '@bh/domain';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './auth/AuthProvider.tsx';
+import { limpiarSecundarios } from './objetivos.ts';
 import { temporadaYDia } from './partido.ts';
 import { requireSupabase } from './supabase.ts';
 
@@ -48,6 +50,8 @@ export interface ActiveGoalDetail {
   readonly seasonPhase: SeasonPhase;
   /** 1 lunes … 7 domingo; `null` sin día fijo (`docs/research/65`). */
   readonly matchWeekday: number | null;
+  /** En orden de prioridad (`docs/research/68`). */
+  readonly secondaryGoals: readonly SecondaryGoal[];
   readonly sessionsPerWeekTarget: number;
   readonly sessionMinutesTarget: number;
   readonly startedAt: string;
@@ -75,7 +79,7 @@ export function useProfileDetail() {
       const { data: goalRow, error: goalError } = await client
         .from('user_goals')
         .select(
-          'goal, sport, season_phase, match_weekday, sessions_per_week_target, session_minutes_target, started_at',
+          'goal, sport, season_phase, match_weekday, secondary_goals, sessions_per_week_target, session_minutes_target, started_at',
         )
         .eq('user_id', userId)
         .eq('is_active', true)
@@ -109,6 +113,7 @@ export function useProfileDetail() {
               sport: goalRow.sport,
               seasonPhase: goalRow.season_phase,
               matchWeekday: goalRow.match_weekday,
+              secondaryGoals: goalRow.secondary_goals,
               sessionsPerWeekTarget: goalRow.sessions_per_week_target,
               sessionMinutesTarget: goalRow.session_minutes_target,
               startedAt: goalRow.started_at,
@@ -139,6 +144,30 @@ export function useUpdateSeason() {
       const { error } = await requireSupabase()
         .from('user_goals')
         .update({ season_phase: limpio.seasonPhase, match_weekday: limpio.matchWeekday })
+        .eq('user_id', user.id)
+        .eq('is_active', true);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['profile-detail', user?.id] });
+    },
+  });
+}
+
+/**
+ * Cambia lo que el socio quiere además del objetivo principal
+ * (`docs/research/68`). Se aplica en el próximo plan.
+ */
+export function useUpdateSecondaryGoals() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (secondaryGoals: readonly SecondaryGoal[]) => {
+      if (!user) throw new Error('No hay sesión activa.');
+      const { error } = await requireSupabase()
+        .from('user_goals')
+        .update({ secondary_goals: limpiarSecundarios(secondaryGoals) })
         .eq('user_id', user.id)
         .eq('is_active', true);
       if (error) throw error;

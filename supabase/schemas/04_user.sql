@@ -19,7 +19,11 @@ create table user_goals (
   -- Día fijo de partido, ISO (1 lunes … 7 domingo). Nulo: no tiene partido fijo
   -- o no lo declaró. Solo se pregunta en temporada, con un deporte de partidos
   -- (`docs/research/65`). Los cambios de una semana van en `match_exceptions`.
-  match_weekday smallint check (match_weekday between 1 and 7)
+  match_weekday smallint check (match_weekday between 1 and 7),
+  -- Lo que quiere además del objetivo principal, en orden: el primero es el
+  -- que más le importa. No toca el objetivo principal: se suma con el tiempo
+  -- que sobra (`docs/research/68`).
+  secondary_goals secondary_goal[] not null default '{}'
 );
 
 create index user_goals_active_idx on user_goals (user_id) where is_active;

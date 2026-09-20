@@ -1194,6 +1194,7 @@ export type Database = {
           match_weekday: number | null
           priority: number
           season_phase: Database["public"]["Enums"]["season_phase"]
+          secondary_goals: Database["public"]["Enums"]["secondary_goal"][]
           session_minutes_target: number
           sessions_per_week_target: number
           sport: string | null
@@ -1207,6 +1208,7 @@ export type Database = {
           match_weekday?: number | null
           priority?: number
           season_phase?: Database["public"]["Enums"]["season_phase"]
+          secondary_goals?: Database["public"]["Enums"]["secondary_goal"][]
           session_minutes_target?: number
           sessions_per_week_target: number
           sport?: string | null
@@ -1220,6 +1222,7 @@ export type Database = {
           match_weekday?: number | null
           priority?: number
           season_phase?: Database["public"]["Enums"]["season_phase"]
+          secondary_goals?: Database["public"]["Enums"]["secondary_goal"][]
           session_minutes_target?: number
           sessions_per_week_target?: number
           sport?: string | null
@@ -1470,6 +1473,7 @@ export type Database = {
         | "volume_change"
       ruleset_source: "placeholder" | "research"
       season_phase: "preseason" | "in_season" | "off_season" | "none"
+      secondary_goal: "fat_loss" | "health"
       session_feel: "easy" | "right" | "hard"
       session_status: "pending" | "in_progress" | "completed" | "skipped"
       sex: "female" | "male" | "other" | "undisclosed"
@@ -1731,6 +1735,7 @@ export const Constants = {
       ],
       ruleset_source: ["placeholder", "research"],
       season_phase: ["preseason", "in_season", "off_season", "none"],
+      secondary_goal: ["fat_loss", "health"],
       session_feel: ["easy", "right", "hard"],
       session_status: ["pending", "in_progress", "completed", "skipped"],
       sex: ["female", "male", "other", "undisclosed"],

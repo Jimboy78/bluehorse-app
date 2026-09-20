@@ -65,6 +65,8 @@ export const ORDEN_DE_AVISOS = [
   // Lo que cambia por un movimiento que el socio no puede (`docs/research/58`).
   'movimiento',
   'tiempo',
+  // Lo que pide un objetivo secundario: el cardio que falta, bajar grasa.
+  'objetivo',
   'frecuencia',
   'volumen',
   'equilibrio',
@@ -124,9 +126,39 @@ export interface ContextoDelSocio {
   readonly equilibrio: BalanceConfig | null;
   /** Los bloques que se suman al final de cada sesión, en orden. */
   readonly bloques: readonly BloqueDeContexto[];
+  /**
+   * La meta semanal de cardio, si algún objetivo la pide. Se completa con el
+   * tiempo que sobra, después del ajuste (`docs/research/68`).
+   */
+  readonly aerobico: MetaAerobica | null;
   readonly exclusiones: readonly Exclusion[];
   /** Los avisos del contexto, antes de armar las sesiones. */
   readonly avisos: readonly Aviso[];
+}
+
+export interface MetaAerobica {
+  readonly cfg: NonNullable<NonNullable<Ruleset['cardio']>['weeklyTarget']>;
+  /** Minutos moderados por semana (los vigorosos valen `vigorousWeight`). */
+  readonly meta: number;
+  readonly vigorousWeight: number;
+}
+
+/**
+ * Si el objetivo principal o alguno de los secundarios pide llegar al piso
+ * semanal de cardio (`docs/research/68`). A quien quiere bajar grasa, además,
+ * se le dice que lo que más pesa es la alimentación y dónde consultarlo.
+ */
+function metaAerobica(ruleset: Ruleset, goal: UserGoal, out: string[]): MetaAerobica | null {
+  const cfg = ruleset.cardio?.weeklyTarget;
+  const piso = ruleset.cardio?.weeklyMinimum;
+  if (!cfg || !piso) return null;
+  const porPrincipal = cfg.goals.includes(goal.goal);
+  const porSecundario = goal.secondaryGoals.some((g) => cfg.secondaryGoals.includes(g));
+  if (!porPrincipal && !porSecundario) return null;
+  if (goal.secondaryGoals.includes('fat_loss')) {
+    out.push(cfg.fatLossNote.replace('{meta}', String(piso.moderateMinutes)));
+  }
+  return { cfg, meta: piso.moderateMinutes, vigorousWeight: piso.vigorousWeight };
 }
 
 /**
@@ -242,6 +274,7 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
     ...prevencion.bloques,
     ...bloquesDeContexto(impacto, equilibrio, esguince?.cfg ?? null),
   ];
+  const aerobico = junto('objetivo', (out) => metaAerobica(ruleset, goal, out));
 
   return {
     goal,
@@ -262,6 +295,7 @@ export function resolverContexto(input: GeneratePlanInput): ContextoDelSocio {
     }),
     equilibrio,
     bloques,
+    aerobico,
     exclusiones,
     avisos,
   };

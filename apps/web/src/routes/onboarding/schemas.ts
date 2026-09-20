@@ -1,4 +1,4 @@
-import { EXPERIENCE_LEVELS, GOALS, SEASON_PHASES, SEXES } from '@bh/domain';
+import { EXPERIENCE_LEVELS, GOALS, SEASON_PHASES, SECONDARY_GOALS, SEXES } from '@bh/domain';
 import { z } from 'zod';
 import { activeRuleset } from '../../lib/engine.ts';
 
@@ -37,6 +37,8 @@ export const goalStepSchema = z.object({
   seasonPhase: z.enum(SEASON_PHASES).optional(),
   /** 1 lunes … 7 domingo; `null` es "varía". */
   matchWeekday: z.number().int().min(1).max(7).nullable().optional(),
+  /** En orden de prioridad (`docs/research/68`). */
+  secondaryGoals: z.array(z.enum(SECONDARY_GOALS)).optional(),
 });
 
 /**

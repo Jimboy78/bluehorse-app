@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { OnboardingInput } from '../../routes/onboarding/schemas.ts';
-import { toBodyMetricInsert, toProfileUpdate, toUserGoalInsert } from './profile.ts';
+import { toBodyMetricInsert, toDomainGoal, toProfileUpdate, toUserGoalInsert } from './profile.ts';
 
 const input: OnboardingInput = {
   goal: 'hypertrophy',
@@ -55,9 +55,17 @@ describe('toUserGoalInsert', () => {
       season_phase: 'none',
       match_weekday: null,
       priority: 1,
+      secondary_goals: [],
       sessions_per_week_target: 4,
       session_minutes_target: 60,
     });
+  });
+
+  it('guarda los objetivos secundarios en el orden elegido, sin repetidos (`docs/research/68`)', () => {
+    expect(
+      toUserGoalInsert('user-1', { ...input, secondaryGoals: ['health', 'fat_loss', 'health'] })
+        .secondary_goals,
+    ).toEqual(['health', 'fat_loss']);
   });
 
   it('en temporada con un deporte de partidos guarda el día; si no, no (`docs/research/65`)', () => {
@@ -91,5 +99,29 @@ describe('toUserGoalInsert', () => {
   it('guarda null cuando el deporte es solo espacios', () => {
     const soloEspacios = { ...input, sport: '   ' };
     expect(toUserGoalInsert('user-1', soloEspacios).sport).toBeNull();
+  });
+});
+
+describe('toDomainGoal', () => {
+  it('copia todo lo que el socio contestó, también los secundarios (`docs/research/68`)', () => {
+    expect(
+      toDomainGoal({
+        goal: 'strength',
+        sport: 'futbol',
+        season_phase: 'in_season',
+        priority: 1,
+        secondary_goals: ['health', 'fat_loss'],
+        sessions_per_week_target: 3,
+        session_minutes_target: 45,
+      }),
+    ).toEqual({
+      goal: 'strength',
+      sport: 'futbol',
+      seasonPhase: 'in_season',
+      priority: 1,
+      secondaryGoals: ['health', 'fat_loss'],
+      sessionsPerWeekTarget: 3,
+      sessionMinutesTarget: 45,
+    });
   });
 });

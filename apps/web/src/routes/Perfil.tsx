@@ -1,3 +1,4 @@
+import type { SecondaryGoal } from '@bh/domain';
 import { MOVEMENT_LIMITS, type SeasonPhase, type Sex } from '@bh/domain';
 import {
   Activity,
@@ -34,6 +35,7 @@ import { BodyMetricsForm } from '../components/BodyMetricsForm.tsx';
 import { CondicionesDeSalud } from '../components/CondicionesDeSalud.tsx';
 import { LesionesDeclaradas } from '../components/LesionesDeclaradas.tsx';
 import { MovimientosQueNoPuede } from '../components/MovimientosQueNoPuede.tsx';
+import { ObjetivosSecundarios } from '../components/ObjetivosSecundarios.tsx';
 import { ProfileForm } from '../components/ProfileForm.tsx';
 import { TemporadaYDia } from '../components/TemporadaYDia.tsx';
 import {
@@ -72,6 +74,7 @@ import {
   useProfileDetail,
   useUpdateProfile,
   useUpdateSeason,
+  useUpdateSecondaryGoals,
 } from '../lib/profile.ts';
 import { useResetProfile } from '../lib/reset-profile.ts';
 import { isStandaloneDisplay } from '../lib/use-install-prompt.ts';
@@ -440,6 +443,7 @@ function GoalCard({
             <Stat label="Sesiones/semana" value={String(goal.sessionsPerWeekTarget)} />
             <Stat label="Minutos/sesión" value={String(goal.sessionMinutesTarget)} />
           </div>
+          <EditarSecundarios actual={goal.secondaryGoals} />
           {goal.sport && <EditarTemporada goal={goal} sport={goal.sport} />}
         </Card>
       ) : (
@@ -490,6 +494,39 @@ function EditarTemporada({
         <Notice tone="info" role="status">
           Guardado. La temporada se aplica en tu próximo plan; el día de partido, desde tu próxima
           sesión.
+        </Notice>
+      )}
+      {guardar.isError && (
+        <Notice tone="error" role="alert" icon={<AlertCircle size={15} aria-hidden="true" />}>
+          No se pudo guardar. Probá de nuevo.
+        </Notice>
+      )}
+    </form>
+  );
+}
+
+/** Lo que quiere además del objetivo principal (`docs/research/68`). */
+function EditarSecundarios({ actual }: { readonly actual: readonly SecondaryGoal[] }) {
+  const guardar = useUpdateSecondaryGoals();
+  const [secundarios, setSecundarios] = useState<SecondaryGoal[]>([...actual]);
+  const cambio = secundarios.join() !== actual.join();
+
+  return (
+    <form
+      className="flex flex-col gap-3 border-t border-line/60 pt-3"
+      onSubmit={(e) => {
+        e.preventDefault();
+        guardar.mutate(secundarios);
+      }}
+    >
+      <ObjetivosSecundarios value={secundarios} onChange={setSecundarios} />
+      <Button type="submit" variant="secondary" disabled={!cambio || guardar.isPending}>
+        {guardar.isPending && <Loader2 size={15} className="animate-spin" aria-hidden="true" />}
+        Guardar
+      </Button>
+      {guardar.isSuccess && !cambio && (
+        <Notice tone="info" role="status">
+          Guardado. Se aplica en tu próximo plan.
         </Notice>
       )}
       {guardar.isError && (
