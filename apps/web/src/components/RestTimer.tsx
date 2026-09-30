@@ -3,6 +3,7 @@ import { formatLoad } from '@bh/domain';
 import { Minus, Plus } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { finDelDescanso, useCuentaRegresiva } from '../lib/descanso.ts';
 import type { SetActual } from '../lib/mappers/session-log.ts';
 import { duration, ease, haptic, hapticPattern, spring, tappable } from '../lib/motion.ts';
 import { carriesLoad, LoadInput } from './LoadInput.tsx';
@@ -75,14 +76,35 @@ interface RestTimerProps {
    * y el botón dice a dónde se va.
    */
   readonly siguiente?: string | null;
-  /** Repeticiones que pedía el plan. Es el valor por defecto: el caso común. */
+  /** Repeticiones que pedía el plan: la referencia "plan N" al cambiarlas. */
   readonly repsTarget: number;
   /** RIR prescripto por el ruleset para esta serie, si lo hay. */
   readonly targetRir: number | null;
-  /** La carga que proponía el plan. Punto de partida del ajuste a mano. */
+  /** La carga con la que se anotó la serie. Referencia "plan N" al cambiarla. */
   readonly targetLoad: LoadReading | null;
   /** Cómo carga la estación: define el escalón real y si se puede escalonar. */
   readonly loadSpec: EquipmentLoadSpec | null;
+  /**
+   * Cuándo arrancó el descanso. Viene de afuera y no del montaje: el descanso
+   * sigue corriendo con esta pantalla cerrada (`lib/descanso.ts`), y al volver
+   * tiene que mostrar lo que queda, no empezar de nuevo.
+   */
+  readonly startedAt: number;
+  /** Lo que se llevaba anotado de la serie, por si se salió y se volvió. */
+  readonly inicial: SetActual;
+  /** Cada cambio de lo anotado, para que sobreviva a salir de la pantalla. */
+  readonly onCambio: (actual: SetActual) => void;
+  /**
+   * El ejercicio que viene, cuando esta era la última serie del actual. Es el
+   * rato en que uno quiere ir a acomodarse a la máquina siguiente.
+   * En superserie no se muestra: ahí el botón ya dice con qué se sigue.
+   */
+  readonly despues?: {
+    readonly id: string;
+    readonly nombre: string;
+    readonly sector: string | null;
+  } | null;
+  readonly onVerDespues?: (id: string) => void;
   /** Recibe cuánto descansó de verdad y qué pasó en la serie. */
   readonly onFinish: (actualSeconds: number, actual: SetActual) => void;
 }
@@ -95,65 +117,29 @@ export function RestTimer({
   targetRir,
   targetLoad,
   loadSpec,
+  startedAt,
+  inicial,
+  onCambio,
+  despues = null,
+  onVerDespues,
   onFinish,
 }: RestTimerProps) {
-  const [remaining, setRemaining] = useState(prescribedSeconds);
-  const [reps, setReps] = useState(repsTarget);
-  const [rir, setRir] = useState<number | null>(targetRir);
-  const [load, setLoad] = useState<LoadReading | null>(targetLoad);
+  // Contra el reloj, no contra los ticks: ver `useCuentaRegresiva`.
+  const remaining = useCuentaRegresiva(finDelDescanso({ startedAt, prescribedSeconds }));
+  const [reps, setReps] = useState(inicial.reps);
+  const [rir, setRir] = useState<number | null>(inicial.rir);
+  const [load, setLoad] = useState<LoadReading | null>(inicial.load);
   const finishedRef = useRef(false);
 
   // Los valores viven en un ref además del estado: el efecto que dispara al
   // llegar a cero no debe re-armarse cada vez que el socio toca un botón.
-  const actualRef = useRef<SetActual>({
-    reps: repsTarget,
-    rir: targetRir,
-    load: targetLoad,
-    durationSeconds: null,
-  });
+  const actualRef = useRef<SetActual>(inicial);
   actualRef.current = { reps, rir, load, durationSeconds: null };
 
-  /**
-   * Contra el reloj de la máquina, no contra los ticks del intervalo.
-   *
-   * `setInterval(fn, 1000)` no garantiza un tick por segundo real: el
-   * navegador lo frena en una pestaña en segundo plano, y en algunos casos lo
-   * pausa del todo mientras la pantalla está bloqueada. Restar 1 por tick
-   * (como hacía antes) asume que cada tick vale un segundo real — con la
-   * pantalla bloqueada un rato, o cambiando a otra app a mitad del descanso
-   * (algo tan común como mirar un mensaje entre series), el contador se
-   * desincroniza del reloj real: al volver, muestra más tiempo del que
-   * queda de verdad, y el descanso que termina quedando en `set_logs` no es
-   * el que pasó.
-   *
-   * Guardando el instante en que termina el descanso y recalculando `remaining`
-   * contra `Date.now()` en cada tick, el primer tick después de volver de
-   * segundo plano se autocorrige solo — no importa cuántos ticks se perdieron
-   * mientras tanto.
-   */
-  const endAtRef = useRef(Date.now() + prescribedSeconds * 1000);
-
+  // biome-ignore lint/correctness/useExhaustiveDependencies: avisa solo cuando cambia lo anotado.
   useEffect(() => {
-    function tick() {
-      setRemaining(Math.max(0, Math.ceil((endAtRef.current - Date.now()) / 1000)));
-    }
-    tick(); // corrige de inmediato si el efecto tarda en montar
-
-    // Al volver de segundo plano no hace falta esperar hasta 1s al próximo
-    // tick del intervalo: se corrige apenas la pantalla se vuelve a ver, que
-    // es exactamente el momento en que el número mostrado puede estar más
-    // desactualizado.
-    function onVisible() {
-      if (document.visibilityState === 'visible') tick();
-    }
-    document.addEventListener('visibilitychange', onVisible);
-
-    const id = setInterval(tick, 1000);
-    return () => {
-      clearInterval(id);
-      document.removeEventListener('visibilitychange', onVisible);
-    };
-  }, []);
+    onCambio({ reps, rir, load, durationSeconds: null });
+  }, [reps, rir, load]);
 
   // Sin descanso (el primero de una superserie) la cuenta llega a cero apenas
   // arranca, y terminar solo cerraba la pantalla antes de poder anotar
@@ -178,6 +164,24 @@ export function RestTimer({
   return (
     <div className="flex flex-col items-center gap-6">
       {!sinPausa && <RestDial remaining={remaining} progress={progress} phase={phase} />}
+      {/* Arriba, al lado del reloj: es lo que se mira de reojo mientras se
+          descansa la última serie, y más abajo la tapaba la navegación. */}
+      {despues && !siguiente && (
+        <button
+          type="button"
+          onClick={() => onVerDespues?.(despues.id)}
+          className="flex w-full max-w-[22rem] items-center justify-between gap-3 rounded-card border border-brand/35 bg-brand/[0.07] px-4 py-3 text-left transition-colors hover:border-brand/60"
+        >
+          <span className="flex min-w-0 flex-col gap-0.5">
+            <span className="font-display text-[0.6rem] uppercase tracking-[0.16em] text-brand">
+              Después va
+            </span>
+            <span className="truncate font-semibold text-ink">{despues.nombre}</span>
+            {despues.sector && <span className="text-xs text-slate">{despues.sector}</span>}
+          </span>
+          <span className="shrink-0 text-xs font-semibold text-brand">Ver</span>
+        </button>
+      )}
 
       {!cardio && (
         <SetOutcome

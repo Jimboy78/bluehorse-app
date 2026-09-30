@@ -19,6 +19,15 @@ export function zonaDe(
   return zones?.find((z) => z.zone === zone) ?? null;
 }
 
+/**
+ * "6-12", o "6" cuando el rango es un solo número. Antes se escribía siempre
+ * `min-max`, y una prescripción fija se leía "6-6 reps": parecía un rango
+ * roto, no seis repeticiones.
+ */
+export function rango(min: number, max: number): string {
+  return min === max ? `${min}` : `${min}-${max}`;
+}
+
 export interface ObjetivoItem {
   /** "6-12" o, en cardio, "40 min" / "4 × 4 min · 3 min suave". */
   readonly reps: string;

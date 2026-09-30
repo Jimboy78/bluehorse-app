@@ -19,7 +19,7 @@ import { activeRuleset, engine, engineContext } from './engine.ts';
 import { toDomainConstraint } from './mappers/constraint.ts';
 import { toPlanInsert, toPlanSessionInserts, toPlanSessionItemInserts } from './mappers/plan.ts';
 import { toDomainGoal } from './mappers/profile.ts';
-import { type CardioZone, zonaDe } from './objetivo.ts';
+import { type CardioZone, rango, zonaDe } from './objetivo.ts';
 import { requireSupabase } from './supabase.ts';
 
 /**
@@ -1012,7 +1012,7 @@ function toActiveSessionItem(raw: unknown): ActiveSessionItem {
  */
 function describeReps(row: PlanSessionItemRow): string {
   const duration = row.target_duration_seconds;
-  if (duration === null) return `${row.target_reps_min}-${row.target_reps_max}`;
+  if (duration === null) return rango(row.target_reps_min, row.target_reps_max);
 
   const minutes = Math.round(duration / 60);
   if (row.target_interval_rest_seconds !== null) {

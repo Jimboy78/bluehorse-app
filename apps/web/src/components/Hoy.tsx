@@ -1,4 +1,5 @@
 import type { LoadReading } from '@bh/domain';
+import { formatLoad } from '@bh/domain';
 import type { SubstituteOption } from '@bh/engine';
 import {
   AlertCircle,
@@ -16,13 +17,30 @@ import {
   Undo2,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { useAuth } from '../lib/auth/AuthProvider.tsx';
+import {
+  type DescansoEnCurso,
+  finDelDescanso,
+  proximoPendiente,
+  useCuentaRegresiva,
+  useDescansoDeLaSesion,
+} from '../lib/descanso.ts';
 import { muestraElPulso, useHealthConditions } from '../lib/health-conditions.ts';
+import { cargaDeReferencia, useUltimaVez } from '../lib/last-session.ts';
 import type { SetActual } from '../lib/mappers/session-log.ts';
-import { checkPop, fadeUp, listContainer, listItem, screen, tappable } from '../lib/motion.ts';
-import { objetivoDeLaFila, repsDeLaSerie } from '../lib/objetivo.ts';
+import {
+  checkPop,
+  fadeUp,
+  haptic,
+  hapticPattern,
+  listContainer,
+  listItem,
+  screen,
+  tappable,
+} from '../lib/motion.ts';
+import { objetivoDeLaFila, rango, repsDeLaSerie } from '../lib/objetivo.ts';
 import { onboardingUnavailable, useProfileStatus } from '../lib/onboarding.ts';
 import { useAjusteDelPartido } from '../lib/partido.ts';
 import type { ActiveSessionItem } from '../lib/plan.ts';
@@ -105,7 +123,6 @@ export function Hoy() {
   const [cargaPorSerie, setCargaPorSerie] = useState<Record<string, LoadReading | null>>({});
   /** Cardio: los minutos que se hicieron en cada bloque, por `itemId:setIndex`. */
   const [minutosPorSerie, setMinutosPorSerie] = useState<Record<string, number>>({});
-  const [restingIndex, setRestingIndex] = useState<number | null>(null);
   const [closing, setClosing] = useState(false);
   const [showingSubstitutes, setShowingSubstitutes] = useState(false);
   const [reportandoDolor, setReportandoDolor] = useState(false);
@@ -123,12 +140,33 @@ export function Hoy() {
     delPartido.estado,
   );
 
+  // El descanso es de la sesión, no de la pantalla del ejercicio: sigue
+  // corriendo al volver a la lista o al abrir otro (`lib/descanso.ts`).
+  const descansos = useDescansoDeLaSesion(user?.id, async (d, actualSeconds, actual) => {
+    // Lo que se registró manda sobre lo que se había anotado antes. En el
+    // descanso se puede corregir la carga (es el momento en que se sabe con
+    // qué se hizo de verdad), y sin esto la fila seguía mostrando el número
+    // de antes: la base decía 65 y la pantalla 60, y la serie siguiente
+    // heredaba el equivocado.
+    const key = `${d.item.id}:${d.setIndex}`;
+    setCargaPorSerie((mapa) => ({ ...mapa, [key]: actual.load }));
+    await markSetDone(
+      d.item,
+      d.setIndex,
+      actualSeconds,
+      conDuracion(d.item, actual, minutosPorSerie[key]),
+    );
+  });
+  const { descanso } = descansos;
+
   // Reconstruye en pantalla lo que ya está registrado en la base. Se hace una
   // vez por sesión: después manda lo que la persona va tocando, no la query.
   const [restoredFor, setRestoredFor] = useState<string | null>(null);
   if (restored.data && restoredFor !== activePlanSessionId) {
     setRestoredFor(activePlanSessionId);
-    setHechasPorItem(restored.data.doneByItem);
+    // Un descanso que quedó corriendo al salir de "Hoy": su serie todavía no
+    // está en la base, pero está hecha.
+    setHechasPorItem(conSerie(restored.data.doneByItem, descansos.restaurar(activePlanSessionId)));
     // La carga también: sin esto, volver a la sesión reseteaba el número al
     // del plan (nulo en la primera sesión de cualquier estación) y la serie
     // siguiente se registraba sin carga, con el dato sentado en la base.
@@ -182,7 +220,7 @@ export function Hoy() {
 
   const seriesHechas = activeItemId ? (hechasPorItem[activeItemId] ?? []) : [];
 
-  const { superserie, destinoId } = vueltaDeHoy(
+  const { superserie, trasLaSerie } = vueltaDeHoy(
     session.items,
     substitutions,
     activeItemId,
@@ -200,8 +238,12 @@ export function Hoy() {
       setUndoing(indice);
       return;
     }
+    // Arrancar otra serie con un descanso todavía corriendo es haber cortado
+    // ese descanso: se registra con lo que duró de verdad.
+    void descansos.cortar();
     setHechasPorItem((mapa) => ({ ...mapa, [activeItemId]: [...previas, indice] }));
-    setRestingIndex(indice);
+    const carga = cargaDeSerie(cargaPorSerie, cargaPorItem, item, indice);
+    descansos.arrancar(nuevoDescanso(session.planSessionId, item, indice, carga, Date.now()));
   }
 
   function confirmUndo() {
@@ -213,29 +255,31 @@ export function Hoy() {
       [activeItemId]: (mapa[activeItemId] ?? []).filter((i) => i !== indice),
     }));
     void undoSetDone(item, indice);
-    if (restingIndex === indice) setRestingIndex(null);
+    descansos.descartarSiEs(activeItemId, indice);
   }
 
   async function handleRestFinish(actualSeconds: number, actual: SetActual) {
-    if (item && restingIndex !== null) {
-      // Lo que se registró manda sobre lo que se había anotado antes. En el
-      // descanso se puede corregir la carga (es el momento en que se sabe con
-      // qué se hizo de verdad), y sin esto la fila seguía mostrando el número
-      // de antes: la base decía 65 y la pantalla 60, y la serie siguiente
-      // heredaba el equivocado.
-      const key = `${item.id}:${restingIndex}`;
-      setCargaPorSerie((mapa) => ({ ...mapa, [key]: actual.load }));
-      await markSetDone(
-        item,
-        restingIndex,
-        actualSeconds,
-        conDuracion(item, actual, minutosPorSerie[key]),
-      );
-    }
-    setRestingIndex(null);
-    // En una superserie, terminada la serie se pasa solo al otro ejercicio.
-    if (destinoId) setActiveItemId(destinoId);
+    // En una superserie, terminada la serie se pasa solo al otro ejercicio;
+    // si no, se queda en este. Antes de registrar: si se esperara la cola, un
+    // toque en otra pantalla mientras tanto quedaría pisado.
+    setActiveItemId(trasLaSerie);
+    await descansos.terminar(actualSeconds, actual);
   }
+
+  /** Cerrar la sesión con un descanso corriendo lo registra antes. */
+  async function cerrarSesion() {
+    await descansos.cortar();
+    setClosing(true);
+  }
+
+  const { descansoAbierto, enBarra, despuesDelDescanso, terminado, despuesDeEste } = rumbo(
+    session.items,
+    substitutions,
+    hechasPorItem,
+    descanso,
+    activeItemId,
+    superserie !== null,
+  );
 
   async function handlePickSubstitute(
     option: SubstituteOption,
@@ -283,8 +327,23 @@ export function Hoy() {
     return <DiaDeDescanso focus={session.focus} />;
   }
 
+  function abrir(itemId: string | null) {
+    setActiveItemId(itemId);
+    setShowingSubstitutes(false);
+    setReportandoDolor(false);
+    // Saltar de un ejercicio a otro desde el pie de la pantalla dejaba el
+    // scroll abajo: el nombre de la máquina nueva quedaba fuera de la vista.
+    window.scrollTo({ top: 0 });
+  }
+
   return (
     <div className="flex flex-col gap-6">
+      <BarraDeDescanso
+        descanso={enBarra}
+        despues={despuesDelDescanso}
+        onAbrir={abrir}
+        onTermino={(segundos) => void descansos.terminar(segundos)}
+      />
       <AnimatePresence mode="wait">
         {item ? (
           <ExerciseDetail
@@ -295,17 +354,9 @@ export function Hoy() {
             workoutLogId={workoutLogId}
             showingSubstitutes={showingSubstitutes}
             reportandoDolor={reportandoDolor}
-            restingIndex={restingIndex}
             superserie={superserie}
             seriesHechas={seriesHechas}
-            cargaDeSerie={(setIndex) =>
-              cargaDeSerie(
-                cargaPorSerie,
-                cargaPorItem[item.id] ?? item.targetLoad,
-                item.id,
-                setIndex,
-              )
-            }
+            cargaDeSerie={(setIndex) => cargaDeSerie(cargaPorSerie, cargaPorItem, item, setIndex)}
             onCargaSerie={(setIndex, load) =>
               setCargaPorSerie((mapa) => ({ ...mapa, [`${item.id}:${setIndex}`]: load }))
             }
@@ -315,12 +366,16 @@ export function Hoy() {
             onMinutos={(setIndex, minutos) =>
               setMinutosPorSerie((mapa) => ({ ...mapa, [`${item.id}:${setIndex}`]: minutos }))
             }
-            onBack={() => {
-              setActiveItemId(null);
-              setRestingIndex(null);
-              setShowingSubstitutes(false);
-              setReportandoDolor(false);
-            }}
+            descanso={descansoAbierto}
+            onCambioDescanso={descansos.anotar}
+            despuesDelDescanso={despuesDelDescanso}
+            terminado={terminado}
+            despuesDeEste={despuesDeEste}
+            onAbrir={abrir}
+            // Sin otro pendiente: todas las series de la sesión están hechas.
+            onTerminar={() => void cerrarSesion()}
+            // Volver no corta el descanso: sigue como barra arriba de la lista.
+            onBack={() => abrir(null)}
             onShowSubstitutes={() => setShowingSubstitutes(true)}
             onPickSubstitute={handlePickSubstitute}
             onCancelSubstitutes={() => setShowingSubstitutes(false)}
@@ -329,7 +384,7 @@ export function Hoy() {
             onEndSession={() => {
               setReportandoDolor(false);
               setActiveItemId(null);
-              setClosing(true);
+              void cerrarSesion();
             }}
             onRestFinish={handleRestFinish}
             onToggleSet={markDone}
@@ -369,6 +424,7 @@ export function Hoy() {
                       (otro) => (hechasPorItem[otro.id] ?? []).length < otro.sets,
                     ) === i
                   }
+                  workoutLogId={workoutLogId}
                   onOpen={() => setActiveItemId(sessionItem.id)}
                 />
               ))}
@@ -383,7 +439,7 @@ export function Hoy() {
               variant="ghost"
               size="lg"
               onClick={() =>
-                seriesCompletas < seriesTotales ? setEndingEarly(true) : setClosing(true)
+                seriesCompletas < seriesTotales ? setEndingEarly(true) : void cerrarSesion()
               }
             >
               Terminar sesión
@@ -412,7 +468,7 @@ export function Hoy() {
         onCancel={() => setEndingEarly(false)}
         onConfirm={() => {
           setEndingEarly(false);
-          setClosing(true);
+          void cerrarSesion();
         }}
       >
         Llevás {seriesCompletas} de {seriesTotales}. Si terminás ahora, la sesión queda cerrada con
@@ -508,16 +564,21 @@ function SessionItemRow({
   substitution,
   hechas,
   sugerido,
+  workoutLogId,
   onOpen,
 }: {
   item: ActiveSessionItem;
   substitution: Substitution | undefined;
   hechas: number;
+  workoutLogId: string | null;
   sugerido: boolean;
   onOpen: () => void;
 }) {
   const completo = hechas >= item.sets;
   const musculos = muscleSummary(item.primaryMuscles);
+  // Misma consulta (y misma clave) que "La vez pasada" del detalle: abrir el
+  // ejercicio después no vuelve a preguntar.
+  const ultima = useUltimaVez(substitution?.exerciseId ?? item.exerciseId, workoutLogId);
 
   return (
     <motion.li variants={listItem}>
@@ -579,7 +640,9 @@ function SessionItemRow({
           </span>
           <span className="flex items-center gap-2.5">
             <SetDots total={item.sets} done={hechas} />
-            <span className="font-mono text-xs text-slate">{textoDeLaFila(item)}</span>
+            <span className="font-mono text-xs text-slate">
+              {textoDeLaFila(item, cargaDeReferencia(ultima.data))}
+            </span>
           </span>
           {/* Qué músculo se trabaja: sin esto, "Remo sentado" y "Jalón al
               pecho" son dos nombres y no dos cosas distintas para quien
@@ -647,15 +710,15 @@ function SetDots({ total, done }: { total: number; done: number }) {
  */
 function cargaDeSerie(
   porSerie: Record<string, LoadReading | null>,
-  base: LoadReading | null,
-  itemId: string,
+  porItem: Record<string, LoadReading | null>,
+  item: ActiveSessionItem,
   setIndex: number,
 ): LoadReading | null {
   for (let i = setIndex; i >= 0; i -= 1) {
-    const key = `${itemId}:${i}`;
+    const key = `${item.id}:${i}`;
     if (key in porSerie) return porSerie[key] ?? null;
   }
-  return base;
+  return porItem[item.id] ?? item.targetLoad;
 }
 
 /**
@@ -671,7 +734,6 @@ function ExerciseDetail({
   workoutLogId,
   showingSubstitutes,
   reportandoDolor,
-  restingIndex,
   superserie,
   seriesHechas,
   cargaDeSerie: cargaDe,
@@ -685,6 +747,13 @@ function ExerciseDetail({
   onReportPain,
   onCancelPain,
   onEndSession,
+  descanso,
+  onCambioDescanso,
+  despuesDelDescanso,
+  terminado,
+  despuesDeEste,
+  onAbrir,
+  onTerminar,
   onRestFinish,
   onToggleSet,
 }: {
@@ -696,11 +765,9 @@ function ExerciseDetail({
   workoutLogId: string | null;
   showingSubstitutes: boolean;
   reportandoDolor: boolean;
-  restingIndex: number | null;
   /** Si va en superserie: con quién, y qué se hace después de cada serie. */
   superserie: ReturnType<typeof superserieDe>;
   seriesHechas: number[];
-  /** Con cuánto se está trabajando hoy: lo del plan, o lo que la persona anotó. */
   /** Con cuánto va cada serie, resuelto arriba (lo propio, lo heredado o lo del plan). */
   cargaDeSerie: (setIndex: number) => LoadReading | null;
   onCargaSerie: (setIndex: number, load: LoadReading | null) => void;
@@ -713,6 +780,17 @@ function ExerciseDetail({
   onReportPain: () => void;
   onCancelPain: () => void;
   onEndSession: () => void;
+  /** El descanso de este ejercicio, si hay uno corriendo. */
+  descanso: DescansoEnCurso | null;
+  onCambioDescanso: (actual: SetActual) => void;
+  /** Durante el descanso de la última serie: el ejercicio que viene. */
+  despuesDelDescanso: Proximo | null;
+  /** Con todas las series hechas: a cuál seguir. `null` si no queda ninguno. */
+  /** El ejercicio abierto tiene todas sus series (fuera de superserie). */
+  terminado: boolean;
+  despuesDeEste: Proximo | null;
+  onAbrir: (id: string) => void;
+  onTerminar: () => void;
   onRestFinish: (actualSeconds: number, actual: SetActual) => void;
   onToggleSet: (indice: number) => void;
 }) {
@@ -780,7 +858,7 @@ function ExerciseDetail({
           hasta acá la molestia se preguntaba al terminar, o sea cuando las
           series que dolieron ya estaban hechas y lo único que quedaba por hacer
           con el dato era el plan de la semana siguiente. */}
-      {!showingSubstitutes && !reportandoDolor && restingIndex === null && (
+      {!showingSubstitutes && !reportandoDolor && descanso === null && (
         <div className="flex flex-wrap gap-2">
           <Button variant="ghost" size="sm" onClick={onShowSubstitutes}>
             <Repeat2 size={13} aria-hidden="true" />
@@ -818,17 +896,23 @@ function ExerciseDetail({
           onPick={onPickSubstitute}
           onCancel={onCancelSubstitutes}
         />
-      ) : restingIndex !== null ? (
+      ) : descanso ? (
         <motion.div key="timer" {...screen}>
           <Card animate={false} className="px-4 py-8">
             <RestTimer
+              key={descanso.startedAt}
               cardio={item.durationSeconds !== null}
-              prescribedSeconds={item.restSeconds}
+              prescribedSeconds={descanso.prescribedSeconds}
               siguiente={superserie?.siguiente ?? null}
               repsTarget={item.repsTarget}
               targetRir={item.targetRir}
-              targetLoad={cargaDe(restingIndex)}
+              targetLoad={cargaDe(descanso.setIndex)}
               loadSpec={item.equipmentLoadSpec}
+              startedAt={descanso.startedAt}
+              inicial={descanso.actual}
+              onCambio={onCambioDescanso}
+              despues={despuesDelDescanso}
+              onVerDespues={onAbrir}
               onFinish={onRestFinish}
             />
           </Card>
@@ -882,6 +966,14 @@ function ExerciseDetail({
               )}
             </motion.div>
           ))}
+
+          {terminado && (
+            <AlTerminarElEjercicio
+              siguiente={despuesDeEste}
+              onIr={onAbrir}
+              onTerminar={onTerminar}
+            />
+          )}
         </motion.div>
       )}
     </motion.section>
@@ -1161,17 +1253,28 @@ function conDuracion(
   return { ...actual, durationSeconds: (minutos ?? minutosPlanificados(item)) * 60 };
 }
 
-/** La fila de la lista: el objetivo y, en el trabajo de sala, con qué carga. */
-function textoDeLaFila(item: ActiveSessionItem): string {
+/**
+ * La fila de la lista: el objetivo y, en el trabajo de sala, con qué carga.
+ *
+ * Sin carga propuesta por el plan, la de la vez pasada. Antes decía "sin
+ * carga previa" —el texto de `item.load`— aunque al abrir el ejercicio la
+ * pantalla mostrara con cuánto se había hecho: la fila negaba un dato que la
+ * app tenía. Y sin ninguna de las dos no dice nada, que es mejor que decir
+ * "sin carga" en una prensa y en una colchoneta con las mismas palabras.
+ */
+function textoDeLaFila(item: ActiveSessionItem, vezPasada: LoadReading | null): string {
   const objetivo = objetivoDeLaFila(item);
   if (item.durationSeconds !== null) return objetivo;
-  const carga = item.pct1rm ? `${item.pct1rm.min}-${item.pct1rm.max} % 1RM` : item.load;
-  return `${objetivo} · ${carga}`;
+  if (item.pct1rm) return `${objetivo} · ${rango(item.pct1rm.min, item.pct1rm.max)} % 1RM`;
+  if (!carriesLoad(item.equipmentLoadSpec)) return objetivo;
+  if (item.targetLoad) return `${objetivo} · ${formatLoad(item.targetLoad)}`;
+  if (vezPasada) return `${objetivo} · vez pasada ${formatLoad(vezPasada)}`;
+  return objetivo;
 }
 
 /**
- * La superserie del ejercicio abierto y a cuál se pasa después de una serie
- * (solo si a ese le quedan series). La vuelta se arma con los nombres que se
+ * La superserie del ejercicio abierto y en cuál se queda después de una serie:
+ * el otro de la vuelta si le quedan series, o el mismo. La vuelta se arma con los nombres que se
  * ven hoy: si se sustituyó un ejercicio, "seguí con" nombra al que se hace.
  */
 function vueltaDeHoy(
@@ -1179,10 +1282,10 @@ function vueltaDeHoy(
   substitutions: Record<string, Substitution>,
   activeItemId: string | null,
   hechasPorItem: Record<string, number[]>,
-): { superserie: ReturnType<typeof superserieDe>; destinoId: string | null } {
+): { superserie: ReturnType<typeof superserieDe>; trasLaSerie: string | null } {
   const indice = items.findIndex((i) => i.id === activeItemId);
   const activo = items[indice];
-  if (!activo) return { superserie: null, destinoId: null };
+  if (!activo) return { superserie: null, trasLaSerie: activeItemId };
   const vuelta = items.map((i) => ({
     name: substitutions[i.id]?.name ?? i.name,
     supersetGroup: i.supersetGroup,
@@ -1192,7 +1295,7 @@ function vueltaDeHoy(
   const pendiente = siguiente && (hechasPorItem[siguiente.id] ?? []).length < siguiente.sets;
   return {
     superserie: superserieDe(vuelta, indice, activo.restSeconds),
-    destinoId: pendiente ? siguiente.id : null,
+    trasLaSerie: pendiente ? siguiente.id : activo.id,
   };
 }
 
@@ -1264,5 +1367,211 @@ function SemanaTerminada({ planId }: { planId: string }) {
       </EmptyState>
       <ElegirDia planId={planId} actualId={null} reiniciar abierto />
     </div>
+  );
+}
+
+/** `mapa` con la serie del descanso pendiente marcada, sin duplicarla. */
+function conSerie(
+  mapa: Record<string, number[]>,
+  pendiente: DescansoEnCurso | null,
+): Record<string, number[]> {
+  if (!pendiente) return mapa;
+  const hechas = mapa[pendiente.item.id] ?? [];
+  if (hechas.includes(pendiente.setIndex)) return mapa;
+  return { ...mapa, [pendiente.item.id]: [...hechas, pendiente.setIndex] };
+}
+
+/**
+ * El descanso que sigue corriendo mientras se mira otra cosa: la lista, u otro
+ * ejercicio. Arriba de todo, porque es lo que se mira de reojo; tocarla vuelve
+ * al cronómetro para anotar la serie.
+ *
+ * Al llegar a cero registra la serie con lo que se llevaba anotado, igual que
+ * el cronómetro abierto. La primera de una superserie no tiene descanso: ahí
+ * no hay cuenta que termine, así que espera a que se la anote.
+ */
+function DescansoEnBarra({
+  descanso,
+  despues,
+  onAbrir,
+  onTermino,
+}: {
+  descanso: DescansoEnCurso;
+  despues: Proximo | null;
+  onAbrir: () => void;
+  onTermino: () => void;
+}) {
+  const restante = useCuentaRegresiva(finDelDescanso(descanso));
+  const esperaAnotar = descanso.prescribedSeconds === 0 && descanso.item.durationSeconds === null;
+  const terminoRef = useRef(false);
+
+  useEffect(() => {
+    if (restante === 0 && !esperaAnotar && !terminoRef.current) {
+      terminoRef.current = true;
+      haptic(hapticPattern.timerFinished);
+      onTermino();
+    }
+  }, [restante, esperaAnotar, onTermino]);
+
+  const minutos = Math.floor(restante / 60);
+  const segundos = restante % 60;
+
+  return (
+    <motion.button
+      type="button"
+      {...tappable}
+      onClick={onAbrir}
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="sticky top-[4.75rem] z-20 flex w-full items-center gap-3.5 rounded-card border border-brand/45 bg-navy/95 px-4 py-3 text-left shadow-brand backdrop-blur-xl"
+    >
+      <span className="min-w-[3.5ch] font-display text-3xl font-semibold tabular-nums leading-none text-brand">
+        {esperaAnotar ? '—' : `${minutos}:${String(segundos).padStart(2, '0')}`}
+      </span>
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="font-display text-[0.6rem] uppercase tracking-[0.16em] text-slate">
+          {esperaAnotar ? 'Falta anotar la serie' : 'Descansando'}
+        </span>
+        <span className="truncate text-sm font-semibold text-ink">
+          {descanso.item.name} · serie {descanso.setIndex + 1}
+        </span>
+        {despues && (
+          <span className="truncate text-xs text-slate">Después va {despues.nombre}</span>
+        )}
+      </span>
+      <ChevronRight size={16} className="shrink-0 text-brand" aria-hidden="true" />
+    </motion.button>
+  );
+}
+
+/** El descanso que arranca al tocar "listo": con lo del plan como lo anotado. */
+function nuevoDescanso(
+  planSessionId: string,
+  item: ActiveSessionItem,
+  setIndex: number,
+  carga: LoadReading | null,
+  ahora: number,
+): DescansoEnCurso {
+  return {
+    planSessionId,
+    item,
+    setIndex,
+    startedAt: ahora,
+    prescribedSeconds: item.restSeconds,
+    actual: { reps: item.repsTarget, rir: item.targetRir, load: carga, durationSeconds: null },
+  };
+}
+
+/** Un ejercicio de la sesión como se ve hoy: con el nombre del reemplazo, si lo hubo. */
+interface Proximo {
+  readonly id: string;
+  readonly nombre: string;
+  readonly sector: string | null;
+}
+
+function comoSeVe(item: ActiveSessionItem, substitutions: Record<string, Substitution>): Proximo {
+  const sustituto = substitutions[item.id];
+  return {
+    id: item.id,
+    nombre: sustituto?.name ?? item.name,
+    sector: sustituto ? sustituto.sector : item.sector,
+  };
+}
+
+/**
+ * Dónde está el descanso y a dónde se sigue.
+ *
+ * - `descansoAbierto`: el descanso, si es del ejercicio abierto (ahí se
+ *   ve el cronómetro; en cualquier otra pantalla, la barra).
+ * - `despuesDelDescanso`: si el descanso es de la última serie de su
+ *   ejercicio, el que viene — para ir a acomodarse mientras corre.
+ * - `despuesDeEste`: con el ejercicio abierto terminado, a cuál seguir.
+ *
+ * En superserie no se ofrece ninguno de los dos: la vuelta ya lleva sola al
+ * otro ejercicio.
+ */
+function rumbo(
+  items: readonly ActiveSessionItem[],
+  substitutions: Record<string, Substitution>,
+  hechasPorItem: Record<string, number[]>,
+  descanso: DescansoEnCurso | null,
+  activeItemId: string | null,
+  enSuperserie: boolean,
+): {
+  descansoAbierto: DescansoEnCurso | null;
+  /** El descanso, si corre mientras se mira otra pantalla. */
+  enBarra: DescansoEnCurso | null;
+  despuesDelDescanso: Proximo | null;
+  terminado: boolean;
+  despuesDeEste: Proximo | null;
+} {
+  const completo = (id: string, sets: number) => (hechasPorItem[id] ?? []).length >= sets;
+  const proximo = (excluir: string) => {
+    const siguiente = proximoPendiente(items, hechasPorItem, excluir);
+    return siguiente ? comoSeVe(siguiente, substitutions) : null;
+  };
+  const activo = items.find((i) => i.id === activeItemId);
+  const abierto = descanso && descanso.item.id === activeItemId ? descanso : null;
+
+  const terminado = activo !== undefined && !enSuperserie && completo(activo.id, activo.sets);
+
+  return {
+    descansoAbierto: abierto,
+    enBarra: abierto ? null : descanso,
+    despuesDelDescanso:
+      descanso && completo(descanso.item.id, descanso.item.sets) ? proximo(descanso.item.id) : null,
+    terminado,
+    despuesDeEste: terminado && activo ? proximo(activo.id) : null,
+  };
+}
+
+/**
+ * Al pie de un ejercicio terminado: el siguiente a un toque, o cerrar la
+ * sesión si era el último. Antes la pantalla quedaba con todas las series
+ * tildadas y había que volver a la lista para enterarse de qué seguía.
+ */
+function AlTerminarElEjercicio({
+  siguiente,
+  onIr,
+  onTerminar,
+}: {
+  siguiente: Proximo | null;
+  onIr: (id: string) => void;
+  onTerminar: () => void;
+}) {
+  return siguiente ? (
+    <Button variant="primary" size="lg" className="mt-2" onClick={() => onIr(siguiente.id)}>
+      Seguir con {siguiente.nombre}
+      <ChevronRight size={16} aria-hidden="true" />
+    </Button>
+  ) : (
+    <Button variant="primary" size="lg" className="mt-2" onClick={onTerminar}>
+      <Flag size={15} aria-hidden="true" />
+      Terminar sesión
+    </Button>
+  );
+}
+
+/** La barra, solo si hay un descanso corriendo fuera de su pantalla. */
+function BarraDeDescanso({
+  descanso,
+  despues,
+  onAbrir,
+  onTermino,
+}: {
+  descanso: DescansoEnCurso | null;
+  despues: Proximo | null;
+  onAbrir: (id: string) => void;
+  onTermino: (segundos: number) => void;
+}) {
+  if (!descanso) return null;
+  return (
+    <DescansoEnBarra
+      key={descanso.startedAt}
+      descanso={descanso}
+      despues={despues}
+      onAbrir={() => onAbrir(descanso.item.id)}
+      onTermino={() => onTermino(descanso.prescribedSeconds)}
+    />
   );
 }

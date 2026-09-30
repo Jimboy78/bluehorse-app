@@ -12,6 +12,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './auth/AuthProvider.tsx';
 import { fetchGymCatalog } from './catalog.ts';
 import { activeRuleset, engine, engineContext } from './engine.ts';
+import { rango } from './objetivo.ts';
 import { fetchUserSnapshot, persistBlueprint } from './plan.ts';
 import { requireSupabase } from './supabase.ts';
 import { textoDelDescanso } from './superserie.ts';
@@ -136,7 +137,7 @@ export function itemKey(sequenceIndex: number, orderIndex: number): string {
 /** Mismo criterio que la pantalla "Hoy": un bloque de cardio se lee en minutos. */
 function describeReps(item: SessionItemBlueprint): string {
   if (item.targetDurationSeconds === null) {
-    return `${item.targetRepsMin}-${item.targetRepsMax}`;
+    return rango(item.targetRepsMin, item.targetRepsMax);
   }
   const minutes = Math.round(item.targetDurationSeconds / 60);
   if (item.targetIntervalRestSeconds !== null) {

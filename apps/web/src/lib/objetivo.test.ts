@@ -4,6 +4,7 @@ import {
   type ObjetivoItem,
   objetivoDeLaFila,
   type ResumenItem,
+  rango,
   repsDeLaSerie,
   resumenDelItem,
   zonaDe,
@@ -112,5 +113,15 @@ describe('resumenDelItem (editor del plan a mano)', () => {
     expect(
       resumenDelItem(base({ targetSets: 4, durationSeconds: 240, intervalRestSeconds: 180 })),
     ).toBe('4 × 4 min · 3 min suave');
+  });
+});
+
+describe('rango', () => {
+  it('un solo número no se escribe como rango: "6", no "6-6"', () => {
+    expect(rango(6, 6)).toBe('6');
+  });
+
+  it('un rango de verdad, con guion', () => {
+    expect(rango(6, 12)).toBe('6-12');
   });
 });

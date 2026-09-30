@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ultimaVezDe } from './last-session.ts';
+import { cargaDeReferencia, ultimaVezDe } from './last-session.ts';
 
 function fila(over: Record<string, unknown> = {}) {
   return {
@@ -80,5 +80,44 @@ describe('ultimaVezDe', () => {
       fila({ workout_log_id: 'wl-b', completed_at: '2026-09-01T11:00:00Z', load_value: 20 }),
     ]);
     expect(out?.series[0]?.load?.value).toBe(20);
+  });
+});
+
+describe('cargaDeReferencia', () => {
+  const serie = (setIndex: number, load: { value: number | null; unit: 'kg' | 'lb' } | null) => ({
+    setIndex,
+    load,
+    reps: 8,
+    rir: null,
+  });
+
+  it('sin vez pasada, nada', () => {
+    expect(cargaDeReferencia(null)).toBeNull();
+    expect(cargaDeReferencia({ cuando: 'x', series: [] })).toBeNull();
+  });
+
+  it('la más pesada, no la última', () => {
+    const ultima = {
+      cuando: 'x',
+      series: [
+        serie(0, { value: 40, unit: 'kg' }),
+        serie(1, { value: 45, unit: 'kg' }),
+        serie(2, { value: 42.5, unit: 'kg' }),
+      ],
+    };
+    expect(cargaDeReferencia(ultima)).toEqual({ value: 45, unit: 'kg' });
+  });
+
+  it('no compara unidades distintas: se queda con la de la primera serie', () => {
+    const ultima = {
+      cuando: 'x',
+      series: [serie(0, { value: 20, unit: 'kg' }), serie(1, { value: 45, unit: 'lb' })],
+    };
+    expect(cargaDeReferencia(ultima)).toEqual({ value: 20, unit: 'kg' });
+  });
+
+  it('series sin carga o a peso corporal no cuentan', () => {
+    const ultima = { cuando: 'x', series: [serie(0, null), serie(1, { value: null, unit: 'kg' })] };
+    expect(cargaDeReferencia(ultima)).toBeNull();
   });
 });

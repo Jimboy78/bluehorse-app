@@ -128,3 +128,24 @@ export function useUltimaVez(exerciseId: string | null, workoutLogIdActual: stri
     },
   });
 }
+
+/**
+ * Un solo número de la vez pasada, para la fila de la lista: la carga más
+ * alta que se anotó. La fila no tiene lugar para cuatro series, y la más
+ * pesada es con la que la persona se acuerda de haber trabajado.
+ *
+ * Se compara solo dentro de la unidad de la primera serie con carga: 45 lb y
+ * 20 kg no se ordenan sin convertir, y la carga se muestra cruda (regla dura 6).
+ */
+export function cargaDeReferencia(ultima: UltimaVez | null | undefined): LoadReading | null {
+  const conCarga = (ultima?.series ?? [])
+    .map((s) => s.load)
+    .filter((l): l is LoadReading => l !== null && l.value !== null);
+  const unidad = conCarga[0]?.unit;
+  let mejor: LoadReading | null = null;
+  for (const carga of conCarga) {
+    if (carga.unit !== unidad) continue;
+    if (mejor === null || (carga.value ?? 0) > (mejor.value ?? 0)) mejor = carga;
+  }
+  return mejor;
+}
