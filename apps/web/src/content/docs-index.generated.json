@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-20T18:40:38.486Z",
+ "generatedAt": "2026-09-30T01:06:45.212Z",
  "docs": [
   {
    "id": "metodo",
@@ -560,6 +560,14 @@
    "resumen": "Fecha: 20/09/2026. Tanda: propia, fuera del plan de variables. Salió del typecheck de tools/: al ponerlo, aparecieron cuatro llamadas a findSubstitutes sin el campo context, y mirando por qué nadie las había notado se vio que context no…",
    "archivo": "69-cambiar-ejercicio-filtra-igual.md",
    "bloques": 18
+  },
+  {
+   "id": "70-el-catalogo-contra-el-equipo",
+   "orden": 70,
+   "titulo": "El catálogo contra el equipo que hay",
+   "resumen": "Fecha: 29/09/2026. Pedido del dueño: \"que veas bien todos los tipos de ejercicios que se pueden hacer con barras, con pesas, con las máquinas que hay, porque tal vez hay muchos ejercicios que estamos dejando afuera\". No afirmaba que falt…",
+   "archivo": "70-el-catalogo-contra-el-equipo.md",
+   "bloques": 21
   },
   {
    "id": "auditoria",

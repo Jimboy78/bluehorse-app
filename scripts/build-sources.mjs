@@ -98,6 +98,7 @@ const TEMAS = {
   67: 'El salto del par',
   68: 'Objetivos secundarios y cardio',
   69: 'Cambiar ejercicio filtra igual que el plan',
+  70: 'El catálogo contra el equipo',
 };
 
 // El `]` y el `(` cierran un enlace de markdown: sin ellos, un DOI escrito como
