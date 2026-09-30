@@ -342,6 +342,9 @@ const PIDE: Readonly<Record<MovementLimit, readonly string[]>> = {
     'Extensión de tríceps con mancuerna',
     'Wall ball',
     'Slam ball',
+    // Catálogo ampliado, 29/09/2026 (`docs/research/70`): los brazos van arriba de la cabeza.
+    'Extensión de tríceps sobre la cabeza en polea',
+    'Pullover en polea',
   ],
   floor: [
     'Plancha',
@@ -353,6 +356,9 @@ const PIDE: Readonly<Record<MovementLimit, readonly string[]>> = {
     'Hip thrust con barra',
     // De rodillas en la colchoneta (`docs/research/62`).
     'Curl nórdico',
+    // Catálogo ampliado, 29/09/2026 (`docs/research/70`).
+    'Curl femoral con pelota suiza',
+    'Plancha lateral',
   ],
   hanging: ['Dominadas', 'Elevación de piernas colgado'],
   jumping: [

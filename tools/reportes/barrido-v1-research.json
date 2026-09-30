@@ -14,38 +14,40 @@
     "Zancada con salto",
     "Salto con barra hexagonal",
     "Movilidad de cadera y tobillo",
-    "Lanzamiento rotacional con wall ball"
+    "Lanzamiento rotacional con wall ball",
+    "Pullover en polea",
+    "Aperturas con mancuernas",
+    "Plancha lateral"
   ],
   "estacionesQueNuncaSeUsan": [
     "Pec Deck / Fly / Mariposa",
     "Conos de agilidad",
     "Foam roller",
     "Mini-vallas de agilidad",
-    "Pelotas suizas",
     "Rack de discos olímpicos (árbol)",
     "Sandbags"
   ],
   "ejerciciosMasUsados": [
-    "Remo sentado: 5 % de los ítems",
-    "Remo invertido en TRX: 4 % de los ítems",
-    "Caminata en cinta: 4 % de los ítems",
     "Elíptico: 3 % de los ítems",
+    "Caminata en cinta: 3 % de los ítems",
+    "Remo con pecho apoyado: 3 % de los ítems",
+    "Remo sentado: 3 % de los ítems",
     "Bicicleta fija: 3 % de los ítems",
+    "Remo invertido en TRX: 3 % de los ítems",
     "Balanceo de pierna en un pie: 3 % de los ítems",
     "Elevación de talón en un pie: 3 % de los ítems",
-    "Remo con mancuerna a una mano: 3 % de los ítems",
     "Subida al cajón: 3 % de los ítems",
-    "Caminata de costado: 3 % de los ítems"
+    "Caminata en puntas de pie: 3 % de los ítems"
   ],
   "estacionesMasUsadas": [
-    "Mancuernas sueltas (set): 7 % de los ítems",
-    "Rig de pared (dominadas + bolsa de boxeo + soga + TRX): 4 % de los ítems",
-    "Colchonetas plegables: 4 % de los ítems",
-    "Rack de mancuernas hexagonales: 4 % de los ítems",
-    "Cintas (treadmills): 4 % de los ítems"
+    "Mancuernas sueltas (set): 8 % de los ítems",
+    "Cross Over funcional doble (Dual Cable Cross): 6 % de los ítems",
+    "Rack de mancuernas hexagonales: 5 % de los ítems",
+    "Caminador Elíptico: 3 % de los ítems",
+    "Cintas (treadmills): 3 % de los ítems"
   ],
   "avisosPorPlan": {
-    "media": 12.9,
+    "media": 12.8,
     "max": 27
   },
   "prevencionPorSemanaEnTemporada": {
@@ -55,25 +57,24 @@
   "saltosDelParEnLaDireccionPreferida": "100 %",
   "llegaALaMetaDeCardio": "20 %",
   "recibeAlgunaAlternativa": "100 %",
-  "alternativasPorSocio": "3.43",
-  "alternativasSobreSuNivel": "19 %",
-  "sesionesQuePasanLosMinutosDeclarados": "11 %",
+  "alternativasPorSocio": "3.47",
+  "alternativasSobreSuNivel": "18 %",
+  "sesionesQuePasanLosMinutosDeclarados": "12 %",
   "noEntranPorMinutosYObjetivo": {
     "15 min · cardio": "38 %",
-    "15 min · endurance": "36 %",
-    "15 min · hypertrophy": "46 %",
-    "15 min · power": "77 %",
-    "15 min · recomposition": "49 %",
+    "15 min · endurance": "41 %",
+    "15 min · hypertrophy": "49 %",
+    "15 min · power": "87 %",
+    "15 min · recomposition": "50 %",
     "15 min · strength": "33 %",
     "30 min · cardio": "16 %",
     "30 min · endurance": "6 %",
-    "30 min · hypertrophy": "5 %",
-    "30 min · power": "15 %",
-    "30 min · recomposition": "7 %",
+    "30 min · hypertrophy": "8 %",
+    "30 min · power": "18 %",
+    "30 min · recomposition": "6 %",
     "30 min · strength": "5 %",
     "45 min · hypertrophy": "0 %",
-    "45 min · power": "1 %",
-    "45 min · recomposition": "1 %"
+    "45 min · power": "1 %"
   },
   "cambiaElPlanAlCambiarSolo": {
     "goal": "98 %",
@@ -82,12 +83,12 @@
     "sexo": "4 %",
     "sesiones": "62 %",
     "minutos": "92 %",
-    "deporte": "67 %",
+    "deporte": "81 %",
     "secundarios": "28 %",
-    "fase": "54 %",
+    "fase": "55 %",
     "molestia": "61 %",
     "ausencia": "0 %",
-    "salud": "34 %",
-    "movimientos": "76 %"
+    "salud": "24 %",
+    "movimientos": "73 %"
   }
 }
