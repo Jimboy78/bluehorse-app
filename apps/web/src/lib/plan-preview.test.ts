@@ -141,6 +141,8 @@ const prensa: SubstituteOption = {
   equivalence: 0.9,
   reason: 'Mismo patrón.',
   curated: false,
+  recommended: true,
+  warning: null,
 };
 
 describe('toPreview', () => {
@@ -228,6 +230,8 @@ describe('swapPreviewItem', () => {
       equivalence: 0.5,
       reason: 'Lo que haya.',
       curated: false,
+      recommended: true,
+      warning: null,
     });
     expect(fila(dos, 0, 0).swapped).toBe(true);
     expect(fila(dos, 0, 1).swapped).toBe(true);
@@ -292,12 +296,14 @@ describe('previewSubstitutes con el socio declarado', () => {
     expect(conLesion.filter((id) => cuadriceps.includes(id))).toEqual([]);
   });
 
-  it('no ofrece un ejercicio por encima del nivel del socio', () => {
+  // Desde el 29/09/2026 el nivel avisa en vez de sacar (`substitution.aboveLevel`):
+  // elegir un reemplazo es decisión del socio. Salud y molestias siguen sacando.
+  it('un ejercicio por encima del nivel del socio se ofrece con aviso', () => {
     const prensa = gym.exercises.find((e) => e.id === 'ex-prensa');
     expect(prensa, 'el fixture dejó de tener la prensa').toBeDefined();
     if (!prensa) return;
     // La prensa es lo que el control de arriba sí ofrece: subiéndole la técnica
-    // por encima del socio, tiene que desaparecer.
+    // por encima del socio, sigue, pero con el aviso.
     const exigente = gym.exercises.map((e) =>
       e.id === 'ex-prensa' ? { ...e, skillLevel: 'advanced' as const } : e,
     );
@@ -305,8 +311,10 @@ describe('previewSubstitutes con el socio declarado', () => {
       ...SOCIO,
       profile: { ...SOCIO.profile, experienceLevel: 'beginner' },
     });
-    const ids = previewSubstitutes(preview, fila(preview, 0, 0), 'user-1').map((o) => o.exerciseId);
-    expect(ids).not.toContain('ex-prensa');
+    const opcion = previewSubstitutes(preview, fila(preview, 0, 0), 'user-1').find(
+      (o) => o.exerciseId === 'ex-prensa',
+    );
+    expect(opcion?.warning).toBeTruthy();
   });
 
   it('con una condición de salud no ofrece lo que la condición saca', () => {

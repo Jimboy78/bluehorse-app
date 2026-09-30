@@ -144,6 +144,17 @@ export interface SubstituteOption {
    * string en castellano.
    */
   readonly curated: boolean;
+  /**
+   * La primera de la lista: la que el motor recomienda. Las demás también
+   * sirven, y no son la misma cosa dos veces (`substitution.diversityPenalty`).
+   */
+  readonly recommended: boolean;
+  /**
+   * Un riesgo a tener en cuenta, o `null`. Hoy solo el nivel: un ejercicio más
+   * técnico que el del socio se ofrece con aviso en vez de esconderse
+   * (`substitution.aboveLevel`).
+   */
+  readonly warning: string | null;
 }
 
 // ------------------------------------------------------------------ entradas

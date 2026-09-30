@@ -2256,7 +2256,9 @@ describe('el aviso de énfasis que el plan no cubre', () => {
         unavailableEquipmentIds: [],
         ruleset: V1_RESEARCH,
       });
-      for (const o of opciones) for (const m of musculosDe(o.exerciseId)) cambiando.add(m);
+      for (const o of opciones.filter((x) => x.warning === null)) {
+        for (const m of musculosDe(o.exerciseId)) cambiando.add(m);
+      }
     }
     return { avisos: plan.warnings, enPlan, cambiando };
   }
@@ -3401,11 +3403,6 @@ describe('los bloqueos de equipamiento y ejercicio', () => {
         socio: { conditions: ['glaucoma_retina'] },
         prohibido: (e) => e.headBelowHeart,
       },
-      {
-        que: 'principiante, nada por encima de su nivel',
-        socio: { profile: { ...socioCon().profile, experienceLevel: 'beginner' } },
-        prohibido: (e) => e.skillLevel !== 'beginner',
-      },
     ];
 
     for (const caso of casos) {
@@ -3417,6 +3414,52 @@ describe('los bloqueos de equipamiento y ejercicio', () => {
         expect(ofrecidos.length, 'no se ofreció ni un equivalente').toBeGreaterThan(10);
       });
     }
+
+    /**
+     * EL NIVEL AVISA, NO SACA
+     *
+     * Desde el 29/09/2026 (`substitution.aboveLevel`) lo que está por encima
+     * del nivel se ofrece con aviso, más abajo, en vez de esconderse: elegir
+     * un reemplazo es decisión del socio. Lo que se mide es que el aviso vaya
+     * siempre, y que nunca sea la recomendada si hay otra sin aviso.
+     */
+    /** Cuántas opciones sobre su nivel hubo; falla si alguna viene sin aviso o se recomienda. */
+    function revisarNivel(
+      nombre: string,
+      opciones: ReturnType<typeof engine.findSubstitutes>,
+    ): number {
+      let conAviso = 0;
+      for (const o of opciones) {
+        const ex = gym.exercises.find((e) => e.id === o.exerciseId);
+        const sobre = ex?.skillLevel !== 'beginner';
+        expect(o.warning !== null, `${ex?.name}: aviso`).toBe(sobre);
+        if (sobre) conAviso += 1;
+      }
+      const recomendadaConAviso = opciones[0]?.warning != null;
+      expect(
+        recomendadaConAviso && opciones.some((o) => o.warning === null),
+        `${nombre}: recomienda uno con aviso habiendo otro sin`,
+      ).toBe(false);
+      return conAviso;
+    }
+
+    it('principiante: lo que está sobre su nivel viene con aviso y no se recomienda', () => {
+      const socio = socioCon({ profile: { ...socioCon().profile, experienceLevel: 'beginner' } });
+      let conAviso = 0;
+      for (const original of gym.exercises) {
+        const opciones = engine.findSubstitutes({
+          context: CONTEXTO,
+          item: { exerciseId: original.id, equipmentId: null } as never,
+          gym,
+          user: socio,
+          unavailableEquipmentIds: [],
+          ruleset: V1_RESEARCH,
+        });
+        conAviso += revisarNivel(original.name, opciones);
+      }
+      // Si el catálogo no tuviera nada sobre el nivel, esto pasaría sin mirar.
+      expect(conAviso).toBeGreaterThan(5);
+    });
 
     /**
      * Y el catálogo tiene de qué filtrar: si mañana alguien saca el último

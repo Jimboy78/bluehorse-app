@@ -4,6 +4,7 @@ import { AlertCircle, ChevronDown, Compass, MapPin, PenLine } from 'lucide-react
 import { AnimatePresence, motion } from 'motion/react';
 import { useMemo, useState } from 'react';
 import { AppShell } from '../components/AppShell.tsx';
+import { OpcionMarca } from '../components/OpcionMarca.tsx';
 import {
   Card,
   Chip,
@@ -321,9 +322,7 @@ function AlternativesPanel({
                     <PenLine size={12} className="shrink-0 text-brand" aria-hidden="true" />
                   </span>
                 )}
-                <span className="shrink-0 font-display text-xs font-semibold tabular-nums text-brand">
-                  {Math.round(option.equivalence * 100)}%
-                </span>
+                <OpcionMarca option={option} />
               </div>
             );
           })}

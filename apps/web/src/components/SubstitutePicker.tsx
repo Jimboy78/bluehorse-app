@@ -90,17 +90,29 @@ export function SubstitutePicker({
               onClick={() =>
                 onPick(option, exercise?.name ?? 'Ejercicio', equipment?.locationNote ?? null)
               }
-              className="flex items-center justify-between gap-3 rounded-xl border border-line/70 bg-navy px-3.5 py-3 text-left transition-colors hover:border-brand/50"
+              className={`flex flex-col gap-1 rounded-xl border bg-navy px-3.5 py-3 text-left transition-colors hover:border-brand/50 ${
+                option.recommended ? 'border-brand/50' : 'border-line/70'
+              }`}
             >
-              <span className="flex min-w-0 flex-col gap-0.5">
-                <span className="text-sm font-semibold">{exercise?.name ?? 'Ejercicio'}</span>
-                <span className="text-xs leading-snug text-slate">{option.reason}</span>
+              {/* Recomendado / también sirve, y no un porcentaje: "70%" no le
+                  decía a nadie si convenía o no, y las tres opciones traían el
+                  mismo texto. Lo que distingue a una de otra es dónde está. */}
+              <span className="font-display text-[0.6rem] uppercase tracking-[0.16em] text-brand">
+                {option.recommended ? 'Recomendado' : 'También sirve'}
               </span>
-              {/* Cuánto se parece al original, que es la única forma de elegir
-                  entre dos reemplazos sin saber de biomecánica. */}
-              <span className="shrink-0 font-display text-sm font-semibold tabular-nums text-brand">
-                {Math.round(option.equivalence * 100)}%
+              <span className="text-sm font-semibold">{exercise?.name ?? 'Ejercicio'}</span>
+              <span className="text-xs leading-snug text-slate">
+                {option.curated
+                  ? option.reason
+                  : [equipment?.name, equipment?.locationNote].filter(Boolean).join(' · ') ||
+                    option.reason}
               </span>
+              {option.warning && (
+                <span className="flex items-start gap-1.5 text-xs leading-snug text-orange">
+                  <AlertCircle size={13} className="mt-px shrink-0" aria-hidden="true" />
+                  {option.warning}
+                </span>
+              )}
             </motion.button>
           );
         })}

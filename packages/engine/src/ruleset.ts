@@ -1222,7 +1222,39 @@ export const rulesetSchema = z.object({
      * los 123 ofrecimientos cruzan esta línea.
      */
     requireSameExplosiveness: z.boolean(),
+    /** Cuántas se muestran: la recomendada y las que también sirven. */
     maxOptions: z.number().int().min(1).max(10),
+    /**
+     * Opciones que no sean la misma cosa dos veces.
+     *
+     * Ordenar solo por equivalencia llenaba la lista de variantes del mismo
+     * equipo: al press inclinado con barra le ofrecía press inclinado con
+     * mancuernas, press de banca con mancuernas y press de pecho en máquina —
+     * dos de tres en mancuernas, que es justo lo que suele estar ocupado a la
+     * vez. Cada opción que repite la categoría de equipo de una ya elegida
+     * baja esto en el orden; no la saca.
+     * Decisión del dueño, 29/09/2026: "que no sean exactamente igual".
+     */
+    diversityPenalty: z.number().min(0).max(1).optional(),
+    /**
+     * Un ejercicio por encima del nivel del socio se ofrece con un aviso, más
+     * abajo en la lista, en vez de no aparecer.
+     *
+     * El plan los sigue dejando afuera: lo que arma el motor solo es para su
+     * nivel. Pero elegir un reemplazo es una decisión del socio, con la
+     * máquina adelante, y esconderle el peso muerto a alguien que ya lo hace
+     * lo manda a buscarlo por fuera de la app. Salud, molestias y movimientos
+     * declarados siguen sacando el ejercicio: eso no es preferencia.
+     * Decisión del dueño, 29/09/2026: "que avise de riesgos, no que corte".
+     */
+    aboveLevel: z
+      .object({
+        /** Cuánto baja en el orden, sobre la equivalencia (0..1). */
+        penalty: z.number().min(0).max(1),
+        /** El aviso que acompaña a la opción. */
+        note: z.string().min(1),
+      })
+      .optional(),
   }),
   /** Plantillas de texto para el "por qué va acá". `{exercise}` se reemplaza. */
   rationale: z.object({

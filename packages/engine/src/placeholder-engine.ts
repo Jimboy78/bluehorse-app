@@ -1284,7 +1284,14 @@ function findSubstitutes(input: FindSubstitutesInput): readonly SubstituteOption
   //
   // Vale también para las equivalencias cargadas a mano: el staff carga una
   // equivalencia mirando el ejercicio, no la lesión de cada socio.
-  const exclusiones = exclusionesDelSocio({ ruleset, user, now: input.context.now });
+  //
+  // Menos el nivel, cuando el ruleset dice avisar en vez de sacar
+  // (`substitution.aboveLevel`): esos se ofrecen más abajo, con el aviso.
+  const aboveLevel = cfg.aboveLevel;
+  const exclusiones = exclusionesDelSocio({ ruleset, user, now: input.context.now }).filter(
+    (e) => !aboveLevel || e.modulo !== 'nivel',
+  );
+  const sobreSuNivel = (ex: Exercise) => !isWithinSkillLevel(ex, user.profile.experienceLevel);
 
   /**
    * Lo que descalifica a un candidato antes de mirar cuánto se parece.
@@ -1313,7 +1320,7 @@ function findSubstitutes(input: FindSubstitutesInput): readonly SubstituteOption
       cfg.requireSameExplosiveness &&
       candidate.isExplosive !== original.isExplosive);
 
-  const options: SubstituteOption[] = [];
+  const candidatos: Candidato[] = [];
 
   for (const candidate of gym.exercises) {
     const curatedEdge = explicit.get(candidate.id);
@@ -1329,18 +1336,78 @@ function findSubstitutes(input: FindSubstitutesInput): readonly SubstituteOption
     if (!curatedEdge && equivalence < cfg.minEquivalence) continue;
 
     const equipment = firstAvailableEquipment(candidate, equipmentById, blocked);
-    options.push({
+    const conAviso = aboveLevel && sobreSuNivel(candidate) ? aboveLevel : null;
+    candidatos.push(
+      candidatoDe(candidate, equipment, equivalence, conAviso, {
+        reason: substituteReason(original.name, curatedEdge),
+        curated: !!curatedEdge,
+      }),
+    );
+  }
+
+  return elegirVariadas(candidatos, cfg.maxOptions, cfg.diversityPenalty ?? 0).map((o, i) => ({
+    ...o,
+    recommended: i === 0,
+  }));
+}
+
+/** Una opción con su puntaje de orden: la equivalencia, menos lo que baje el aviso. */
+function candidatoDe(
+  candidate: Exercise,
+  equipment: Equipment | undefined,
+  equivalence: number,
+  aviso: { readonly penalty: number; readonly note: string } | null,
+  origen: { readonly reason: string; readonly curated: boolean },
+): Candidato {
+  return {
+    option: {
       exerciseId: candidate.id,
       equipmentId: equipment?.id ?? null,
       equivalence: Math.round(equivalence * 100) / 100,
-      reason: substituteReason(original.name, curatedEdge),
-      curated: !!curatedEdge,
-    });
-  }
+      ...origen,
+      recommended: false,
+      warning: aviso?.note ?? null,
+    },
+    puntaje: equivalence - (aviso?.penalty ?? 0),
+    categoria: equipment?.category ?? null,
+  };
+}
+interface Candidato {
+  readonly option: SubstituteOption;
+  /** La equivalencia, menos lo que baje por el aviso de nivel. */
+  readonly puntaje: number;
+  readonly categoria: Equipment['category'] | null;
+}
 
-  return options
-    .sort((a, b) => b.equivalence - a.equivalence || a.exerciseId.localeCompare(b.exerciseId))
-    .slice(0, cfg.maxOptions);
+/**
+ * De a una, la mejor que queda, bajando las que repiten una categoría de
+ * equipo ya elegida. Codicioso a propósito: la primera es la de mayor puntaje
+ * sin aviso —la recomendación no se sacrifica por variedad—, y la variedad solo
+ * reordena las que siguen.
+ */
+function elegirVariadas(
+  candidatos: readonly Candidato[],
+  cuantas: number,
+  penalidad: number,
+): SubstituteOption[] {
+  const quedan = [...candidatos];
+  const elegidas: Candidato[] = [];
+  // La recomendada nunca lleva aviso si hay alguna que no: con penalidad sola,
+  // una casi idéntica pero más técnica podía quedar arriba igual.
+  const primeraConAviso = (c: Candidato) => elegidas.length === 0 && c.option.warning !== null;
+  const repiteEquipo = (c: Candidato) =>
+    c.categoria !== null && elegidas.some((e) => e.categoria === c.categoria);
+  const valor = (c: Candidato) =>
+    c.puntaje - (primeraConAviso(c) ? 1 : 0) - (repiteEquipo(c) ? penalidad : 0);
+
+  while (elegidas.length < cuantas && quedan.length > 0) {
+    quedan.sort(
+      (a, b) => valor(b) - valor(a) || a.option.exerciseId.localeCompare(b.option.exerciseId),
+    );
+    const mejor = quedan.shift();
+    if (mejor) elegidas.push(mejor);
+  }
+  return elegidas.map((c) => c.option);
 }
 
 /**
@@ -2126,7 +2193,9 @@ function musclesReachable(input: EmphasisWarningInput): {
       unavailableEquipmentIds: [],
       ruleset,
     });
-    for (const opcion of opciones) {
+    // Un reemplazo por encima de su nivel no cuenta como "a un cambio de
+    // distancia": se le ofrece con aviso, pero el plan no se lo propondría.
+    for (const opcion of opciones.filter((o) => o.warning === null)) {
       for (const m of exerciseById.get(opcion.exerciseId)?.primaryMuscles ?? []) cambiando.add(m);
     }
   }

@@ -18,6 +18,7 @@ import { useState } from 'react';
 import { listContainer, listItem, spring, tappable } from '../lib/motion.ts';
 import type { PlanPreview as Preview, PreviewItem, PreviewSession } from '../lib/plan-preview.ts';
 import { previewSubstitutes, swapPreviewItem } from '../lib/plan-preview.ts';
+import { OpcionMarca } from './OpcionMarca.tsx';
 import { PlanWarnings } from './PlanWarnings.tsx';
 import {
   Button,
@@ -442,9 +443,7 @@ function SwapPanel({
                     <PenLine size={12} className="shrink-0 text-brand" aria-hidden="true" />
                   </span>
                 )}
-                <span className="shrink-0 font-display text-xs font-semibold tabular-nums text-brand">
-                  {Math.round(option.equivalence * 100)}%
-                </span>
+                <OpcionMarca option={option} />
               </motion.button>
             );
           })}

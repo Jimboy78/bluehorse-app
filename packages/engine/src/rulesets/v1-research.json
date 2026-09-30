@@ -2168,7 +2168,12 @@
     "requireSamePattern": true,
     "requireSameMeasure": true,
     "requireSameExplosiveness": true,
-    "maxOptions": 3
+    "maxOptions": 4,
+    "diversityPenalty": 0.1,
+    "aboveLevel": {
+      "penalty": 0.15,
+      "note": "Pide más técnica que tu nivel: arrancá liviano y, si podés, que alguien del staff te mire la primera serie."
+    }
   },
   "rationale": {
     "primary": "{exercise} va primero: es el ejercicio más demandante de la sesión y conviene hacerlo descansado.",

@@ -54,8 +54,9 @@
   },
   "saltosDelParEnLaDireccionPreferida": "100 %",
   "llegaALaMetaDeCardio": "20 %",
-  "recibeAlgunaAlternativa": "98 %",
-  "alternativasPorSocio": "2.30",
+  "recibeAlgunaAlternativa": "100 %",
+  "alternativasPorSocio": "3.43",
+  "alternativasSobreSuNivel": "19 %",
   "sesionesQuePasanLosMinutosDeclarados": "11 %",
   "noEntranPorMinutosYObjetivo": {
     "15 min · cardio": "38 %",

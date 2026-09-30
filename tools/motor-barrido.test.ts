@@ -521,7 +521,7 @@ describe('barrido de socios generados', () => {
   /** En temporada: cuántas veces por semana sale la prevención, por plan. */
   const prevencionEnTemporada: number[] = [];
   /** "Cambiar ejercicio": socios mirados y cuántos reciben alguna alternativa. */
-  const equivalentes = { mirados: 0, conOpciones: 0, opciones: 0 };
+  const equivalentes = { mirados: 0, conOpciones: 0, opciones: 0, sobreSuNivel: 0 };
 
   /**
    * El impacto para el hueso: mujeres desde la edad del ruleset y sin molestias
@@ -647,11 +647,28 @@ describe('barrido de socios generados', () => {
     });
     if (opciones.length > 0) equivalentes.conOpciones += 1;
     equivalentes.opciones += opciones.length;
-    for (const o of opciones) {
-      const ex = exPorId.get(o.exerciseId);
-      if (ex && excluido(ctx, ex)) {
-        violaciones.push(`ofreció "${ex.name}", que su contexto excluye: ${JSON.stringify(p)}`);
-      }
+    for (const o of opciones) revisarOpcion(p, ctx, o);
+  }
+
+  /**
+   * El nivel es el único módulo que avisa en vez de sacar
+   * (`substitution.aboveLevel`); y entonces el aviso tiene que ir.
+   */
+  function revisarOpcion(
+    p: Perfil,
+    ctx: ReturnType<typeof resolverContexto>,
+    o: ReturnType<typeof engine.findSubstitutes>[number],
+  ) {
+    const ex = exPorId.get(o.exerciseId);
+    if (!ex) return;
+    const modulos = ctx.exclusiones.filter((e) => e.excluye(ex)).map((e) => e.modulo);
+    if (modulos.some((m) => m !== 'nivel')) {
+      violaciones.push(`ofreció "${ex.name}", que su contexto excluye: ${JSON.stringify(p)}`);
+    }
+    if (!modulos.includes('nivel')) return;
+    equivalentes.sobreSuNivel += 1;
+    if (o.warning === null) {
+      violaciones.push(`ofreció "${ex.name}" sobre su nivel sin aviso: ${JSON.stringify(p)}`);
     }
   }
 
@@ -1360,6 +1377,7 @@ describe('barrido de socios generados', () => {
       // ofrece algo, y cuántas opciones en promedio.
       recibeAlgunaAlternativa: `${pct(equivalentes.conOpciones, equivalentes.mirados)} %`,
       alternativasPorSocio: (equivalentes.opciones / Math.max(equivalentes.mirados, 1)).toFixed(2),
+      alternativasSobreSuNivel: `${pct(equivalentes.sobreSuNivel, equivalentes.opciones)} %`,
       sesionesQuePasanLosMinutosDeclarados: `${pct(minutos.sobre, minutos.total)} %`,
       // Solo las combinaciones donde alguna no entra: lo que el ajuste no pudo
       // achicar sin romper un piso, y que el plan avisa.
