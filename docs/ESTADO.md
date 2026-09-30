@@ -1,6 +1,27 @@
 # Estado del trabajo
 
-## Última actualización: 20 de septiembre de 2026 (T6a: objetivos secundarios y cardio)
+## Última actualización: 29 de septiembre de 2026 (Hoy, "cambiar ejercicio", catálogo)
+
+- **Hoy (`f2cfa54`, `ce82a68`):** el descanso ya no se corta al volver a la lista. Antes, volver
+  durante un descanso dejaba la serie tildada en pantalla y **nunca la registraba**. Ahora es de la
+  sesión (`lib/descanso.ts`): barra arriba de la lista, sobrevive a recargar (localStorage) y se
+  registra sola al llegar a cero. En la última serie muestra qué ejercicio sigue. La fila dice
+  "6 reps" (no "6-6") y la carga de la vez pasada en vez de "sin carga previa".
+- **Cambiar ejercicio (`bb1b0e5`):** 1 recomendado + hasta 3 que también sirven, variando la
+  categoría de equipo (`substitution.diversityPenalty`). Lo que está sobre el nivel del socio se
+  ofrece con aviso y más abajo (`substitution.aboveLevel`) en vez de esconderse; salud, dolor y
+  movimientos declarados siguen sacando. El plan no cambió.
+- **Catálogo (`docs/research/70`):** faltan ejercicios para músculos chicos; 20 propuestos en la
+  rama `catalogo-ampliado`, **no en main**: reordenan 723 de 2.692 prescripciones por el sorteo
+  determinístico, y el principal de fuerza deja de ser el peso muerto con barra. Falta decidir un
+  criterio de "apto como principal", o cargarlos solo como alternativas.
+- **Pendiente del dueño:** sincronizar el ruleset en la base (`npm run db:ruleset`, local y prod):
+  el permiso automático lo bloqueó. La app usa el del código, así que funciona igual.
+- Relevamiento UI/UX de la app: 10 fricciones listadas en la conversación del 29/09 (repeticiones
+  que arrancan en el máximo del rango, carga sin prellenar, 60 minutos pedidos contra 35 armados,
+  aviso de cobertura en todas las pantallas de Hoy, etc.), a la espera de qué se hace.
+
+## 20 de septiembre de 2026 (T6a: objetivos secundarios y cardio)
 
 `docs/research/68`. El socio puede pedir **bajar grasa** o **cuidar la salud** además de su
 objetivo principal. Los dos piden lo mismo del gimnasio: llegar a 150 minutos moderados de cardio
