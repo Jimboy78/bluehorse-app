@@ -99,7 +99,7 @@ export function ElegirDia({
       )}
       {!abiertoInicial && (
         <Button variant="quiet" size="md" onClick={() => setAbierto(false)}>
-          Seguir con este
+          No cambiar
         </Button>
       )}
     </div>

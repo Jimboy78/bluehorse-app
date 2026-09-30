@@ -577,8 +577,12 @@ function SessionItemRow({
   const completo = hechas >= item.sets;
   const musculos = muscleSummary(item.primaryMuscles);
   // Misma consulta (y misma clave) que "La vez pasada" del detalle: abrir el
-  // ejercicio después no vuelve a preguntar.
-  const ultima = useUltimaVez(substitution?.exerciseId ?? item.exerciseId, workoutLogId);
+  // ejercicio después no vuelve a preguntar. Solo en las filas que la
+  // muestran: con cinco filas, sin señal eran doce reintentos fallidos.
+  const ultima = useUltimaVez(
+    muestraLaVezPasada(item) ? (substitution?.exerciseId ?? item.exerciseId) : null,
+    workoutLogId,
+  );
 
   return (
     <motion.li variants={listItem}>
@@ -1514,12 +1518,14 @@ function rumbo(
   const abierto = descanso && descanso.item.id === activeItemId ? descanso : null;
 
   const terminado = activo !== undefined && !enSuperserie && completo(activo.id, activo.sets);
+  const siguienteDelDescanso =
+    descanso && completo(descanso.item.id, descanso.item.sets) ? proximo(descanso.item.id) : null;
 
   return {
     descansoAbierto: abierto,
     enBarra: abierto ? null : descanso,
-    despuesDelDescanso:
-      descanso && completo(descanso.item.id, descanso.item.sets) ? proximo(descanso.item.id) : null,
+    // Si ya se está mirando el que sigue, avisar "después va" ese mismo sobra.
+    despuesDelDescanso: siguienteDelDescanso?.id === activeItemId ? null : siguienteDelDescanso,
     terminado,
     despuesDeEste: terminado && activo ? proximo(activo.id) : null,
   };
@@ -1573,5 +1579,15 @@ function BarraDeDescanso({
       onAbrir={() => onAbrir(descanso.item.id)}
       onTermino={() => onTermino(descanso.prescribedSeconds)}
     />
+  );
+}
+
+/** Si la fila muestra la carga de la vez pasada: ver `textoDeLaFila`. */
+function muestraLaVezPasada(item: ActiveSessionItem): boolean {
+  return (
+    item.durationSeconds === null &&
+    item.pct1rm === null &&
+    item.targetLoad === null &&
+    carriesLoad(item.equipmentLoadSpec)
   );
 }
